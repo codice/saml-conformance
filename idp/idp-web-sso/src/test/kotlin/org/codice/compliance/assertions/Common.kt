@@ -15,11 +15,10 @@ package org.codice.compliance.assertions
 
 import com.google.common.io.Resources.getResource
 import org.codice.security.saml.IdpMetadata
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport
-import org.opensaml.saml.common.SAMLObjectBuilder
-import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
+import org.w3c.dom.Document
 import org.w3c.dom.Node
+import javax.xml.parsers.DocumentBuilderFactory
 
 const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val DESTINATION = "https://localhost:8993/services/idp/login"
@@ -36,6 +35,16 @@ fun getIdpMetadata() : IDPSSODescriptor? {
     val idpMetadataParser = IdpMetadata()
     idpMetadataParser.setMetadata(getResource("idp-metadata.xml").path)
     return idpMetadataParser.descriptor
+}
+
+/**
+ * Creates a dom element given a string representation of xml
+ */
+fun buildDom(decodedMessage: String): Node {
+    val docBuilder: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+    docBuilder.isNamespaceAware = true
+    val xmlDoc: Document = docBuilder.newDocumentBuilder().parse(decodedMessage.byteInputStream())
+    return xmlDoc.documentElement
 }
 
 /**

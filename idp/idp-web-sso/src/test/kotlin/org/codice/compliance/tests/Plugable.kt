@@ -13,38 +13,23 @@
  */
 package org.codice.compliance.tests
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.internal.path.xml.NodeBase
+import com.jayway.restassured.internal.path.xml.NodeImpl
+import com.jayway.restassured.response.Response
 import io.kotlintest.matchers.shouldBe
 import java.nio.charset.StandardCharsets
+
 
 /**
  * Plugable portion of the test.
  *
- * @param queryParams - Query parameters containing
- * 1- SAMLRequest (the original authn request - String)
- * 2- SigAlg (the signature algorithm used - String)
- * 3- Signature (the signature - String)
- * 4- RelayState (the relay state - if there is one - String)
- * 5- SAMLResponse (the body of the response the IdP sends for the initial authn request)
- * @return A string response
+ * @param originalResponse - the originalResponse from the initial REDIRECT authn request
+ * @return A string originalResponse
  */
-fun getIdpResponse(queryParams: Map<String, String>): String {
-    val response = RestAssured.given()
-            .urlEncodingEnabled(false)
-            .auth()
-            .preemptive()
-            .basic("admin", "admin")
-            .param("SAMLRequest", queryParams["SAMLRequest"], StandardCharsets.UTF_8.name())
-            .param("SigAlg", queryParams["SigAlg"])
-            .param("Signature", queryParams["Signature"])
-            .param("AuthMethod", "up")
-            .param("OriginalBinding", "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect")
-            .log()
-            .ifValidationFails()
-            .`when`()
-            .get("https://localhost:8993/services/idp/login/sso")
-
+fun getIdpRedirectResponse(originalResponse: Response): String {
+    val response = parseResponseAndSendRequest(originalResponse)
     response.statusCode() shouldBe 200
 
     val script = (response.then().extract().htmlPath().getNode("html").getNode("head") as NodeBase).getNode("script").value()
@@ -53,4 +38,38 @@ fun getIdpResponse(queryParams: Map<String, String>): String {
     val encodedEnd = script.indexOf("\";", encodedStart)
     val encoded = script.substring(encodedStart, encodedEnd).replace("encoded = \"", "")
     return encoded.split("&")[0].split("?")[1].replace("SAMLResponse=", "")
+}
+
+/**
+ * Plugable portion of the test.
+ *
+ * @param response - the response from the initial POST authn request
+ * @return A string response
+ */
+fun getIdpPostResponse(originalResponse: Response): String {
+    val response = parseResponseAndSendRequest(originalResponse)
+    response.statusCode() shouldBe 200
+    return response.then().extract().htmlPath().getNode("html").getNode("body").getNode("form").getNodes("input").get(1).getAttribute("value")
+}
+
+/**
+ * Sends request to DDF's /login/sso endpoint with the query parameters
+ */
+private fun parseResponseAndSendRequest(response: Response): Response {
+    val idpState = (response.then().extract().htmlPath().getNode("html").getNode("head").getNodes("script").get(0) as NodeImpl).value.toString().trim().replace("window.idpState = ", "").replace(";", "")
+    var queryParams = ObjectMapper().readValue(idpState, MutableMap::class.java) as MutableMap<String,String>
+
+    return RestAssured.given()
+            .auth()
+            .preemptive()
+            .basic("admin", "admin")
+            .param("SAMLRequest", queryParams["SAMLRequest"], StandardCharsets.UTF_8.name())
+            .param("SigAlg", queryParams["SigAlg"])
+            .param("Signature", queryParams["Signature"])
+            .param("AuthMethod", "up")
+            .param("OriginalBinding", queryParams["OriginalBinding"])
+            .log()
+            .ifValidationFails()
+            .`when`()
+            .get("https://localhost:8993/services/idp/login/sso")
 }

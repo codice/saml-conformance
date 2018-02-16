@@ -16,7 +16,7 @@ public class Encoder {
   private Encoder() {}
 
   /**
-   * Base 64 decodes POST SAML messages
+   * Base 64 decodes then URL encodes POST SAML messages
    * @param message - SAML POST message
    * @return - decoded message
    */

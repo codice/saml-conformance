@@ -28,7 +28,6 @@ import java.time.Instant
 import javax.xml.parsers.DocumentBuilderFactory
 
 class RedirectLoginTest : StringSpec({
-
     val simpleSign = SimpleSign()
     val instant = Instant.now().toString()
     RestAssured.useRelaxedHTTPSValidation()
@@ -47,8 +46,7 @@ class RedirectLoginTest : StringSpec({
                 .`when`()
                 .get("https://localhost:8993/services/idp/login")
 
-        queryParams.put("SAMLResponse", response.body.toString())
-        val idpResponse = getIdpResponse(queryParams)
+        val idpResponse = getIdpRedirectResponse(response)
         assertRedirectResponse(idpResponse)
     }
 })
@@ -67,9 +65,6 @@ fun assertRedirectResponse(samlResponse: String) {
     val status = responseElement.children("Status")
     val assertion = responseElement.children("Assertion")
 
-    // CHECK ISSUER
     checkIssuer(responseElement)
-
-    //CHECK ASSERTION
     checkAssertions(assertion)
 }

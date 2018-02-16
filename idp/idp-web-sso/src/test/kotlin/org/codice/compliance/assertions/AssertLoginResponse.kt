@@ -16,6 +16,14 @@ package org.codice.compliance.assertions
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
+fun assertAllLoginResponse(responseElement: Node) {
+    val status = responseElement.children("Status")
+    val assertion = responseElement.children("Assertion")
+
+    checkIssuer(responseElement)
+    checkAssertions(assertion)
+}
+
 /**
  * Checks the issuer element for SAML spec compliance.
  *

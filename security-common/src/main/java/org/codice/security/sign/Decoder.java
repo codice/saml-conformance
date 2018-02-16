@@ -18,7 +18,7 @@ public class Decoder {
   private Decoder() {}
 
   /**
-   * Base 64 decodes POST SAML messages
+   * URL decodes and base 64 decodes POST SAML messages
    * @param message - SAML POST message
    * @return - decoded message
    */

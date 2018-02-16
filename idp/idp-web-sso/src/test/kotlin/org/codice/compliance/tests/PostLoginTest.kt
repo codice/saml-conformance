@@ -19,7 +19,6 @@ import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.helpers.DOMUtils
-import org.apache.cxf.rs.security.saml.sso.SamlpRequestComponentBuilder
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.assertions.*
 import org.codice.security.saml.SamlProtocol
@@ -27,28 +26,14 @@ import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport
-import org.opensaml.saml.common.SAMLObjectBuilder
 import org.opensaml.saml.common.SAMLVersion
-import org.opensaml.saml.saml2.core.AuthnRequest
-import org.opensaml.saml.saml2.core.Issuer
-import org.w3c.dom.Document
-import java.nio.charset.StandardCharsets
-import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.wss4j.common.util.DOM2Writer
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
-import java.net.URLEncoder
-
-
-//val authnRequestBuilder = XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME) as SAMLObjectBuilder<AuthnRequest>
-//val issuerBuilder = XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME) as SAMLObjectBuilder<Issuer>
-
 
 class PostLoginTest : StringSpec({
-
     RestAssured.useRelaxedHTTPSValidation()
 
     "POST AuthnRequest Test" {
@@ -64,15 +49,13 @@ class PostLoginTest : StringSpec({
                 .post("https://localhost:8993/services/idp/login")
 
         response.statusCode shouldBe 200
-//        val idpResponse = getIdpResponse(queryParams)
-//        assertPostResponse(idpResponse)
+        val idpResponse = getIdpPostResponse(response)
+        assertPostResponse(idpResponse)
     }
 })
 
 fun generateAndRetrieveAuthnRequest(): String {
-
     OpenSAMLUtil.initSamlEngine()
-
     val issuerObject = IssuerBuilder().buildObject().apply {
         value = SP_ISSUER
     }
@@ -93,31 +76,17 @@ fun generateAndRetrieveAuthnRequest(): String {
     }
 
     SimpleSign().signSamlObject(authnRequest)
-
     val doc = DOMUtils.createDocument()
     doc.appendChild(doc.createElement("root"))
-
     val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
 
     return DOM2Writer.nodeToString(requestElement)
 }
 
 fun assertPostResponse(samlResponse: String) {
-    val decodedMessage = Decoder.decodeRedirectMessage(samlResponse)
+    val decodedMessage = Decoder.decodePostMessage(samlResponse)
     decodedMessage shouldNotBe null
 
-    val docBuilder: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-    docBuilder.isNamespaceAware = true
-    val xmlDoc: Document = docBuilder.newDocumentBuilder().parse(decodedMessage.byteInputStream())
-    val responseElement = xmlDoc.documentElement
-
-    // Get response Assertions.children elements
-    val status = responseElement.children("Status")
-    val assertion = responseElement.children("Assertion")
-
-    // CHECK ISSUER
-    checkIssuer(responseElement)
-
-    //CHECK ASSERTION
-    checkAssertions(assertion)
+    val responseElement = buildDom(decodedMessage)
+    assertAllLoginResponse(responseElement)
 }
