@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:AuthnRequest xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+                     AssertionConsumerServiceURL="http://localhost:80/spring-security-saml2-sample/saml/SSO"
+                     Destination="https://localhost:8993/services/idp/login" ForceAuthn="false"
+                     Tests.ID="a1825a770559g6a81ja1ecc118fa3dg" IsPassive="false"
+                     IssueInstant="2018-02-12T20:09:53.544Z"
+                     ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Version="2.0">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        http://localhost:80/spring-security-saml2-sample/saml/metadata
+    </saml2:Issuer>
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:SignedInfo>
+            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+            <ds:Reference URI="#a1825a770559g6a81ja1ecc118fa3dg">
+                <ds:Transforms>
+                    <ds:Transform
+                            Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </ds:Transforms>
+                <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                <ds:DigestValue>aJfiN/Oo1ostIenKoa37M65gIcs=</ds:DigestValue>
+            </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>
+            NgnBEmN4ISM7ofY6V9x194FuixYivac5oYJ5AUHZ3EAJo/pQwwTT05mO0Nf0TNSmMSiFVWnoA96nOhadLfIupWnkHIMHd8gWQWkbBMw7l8achcWFcdeImaMqV/uvCqA1CLssatuvMTkrM8BneFUErgYuF1oKoSyN7IdQd3iQiVkkY0QMoVdggMYi7996wdzns90hdl0CKLehK3BEm6DNhGuSBqReWePLOAveI5OOKrQWl3ge+AmBMb4y+BPN40Cfh1+WhU46wRo4yc1vbQ5COuDu7vu8SwGNbxpKTn0nEMHqoSEY37jaXAOqD/RsbPPDRZF5o6hyxiBq2OtPWRYCAw==
+        </ds:SignatureValue>
+        <ds:KeyInfo>
+            <ds:X509Data>
+                <ds:X509Certificate>
+                    MIIDUjCCArugAwIBAgIIVBZhVYAFMigwDQYJKoZIhvcNAQEFBQAwgYQxCzAJBgNVBAYTAlVTMQsw
+                    CQYDVQQIEwJBWjEMMAoGA1UEChMDRERGMQwwCgYDVQQLEwNEZXYxGTAXBgNVBAMTEERERiBEZW1v
+                    IFJvb3QgQ0ExMTAvBgkqhkiG9w0BCQEWImVtYWlsQWRkcmVzcz1kZGZyb290Y2FAZXhhbXBsZS5v
+                    cmcwHhcNMTgwMTA1MDIxMzI1WhcNMTkwMTA1MDIxMzI1WjBKMQswCQYDVQQGEwJVUzELMAkGA1UE
+                    CAwCQVoxDDAKBgNVBAoMA0RERjEMMAoGA1UECwwDRGV2MRIwEAYDVQQDDAlsb2NhbGhvc3QwggEi
+                    MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCx22bgcZt/FS1xyKBAKikE5gLiizcE1YV80Vva
+                    k+DVpOqLxsebuoF/iWjC2EdI+UBfHz+fdNlmo2UkOLCTyU/t0aRdRdZuPSo/3ebQtlEmypKJ647t
+                    HeQsPEO1/EsYPfPmFeSXvHQNQelTa9IZQe11++BhhDrMcUNCD1dnj7kLNFVCnK3pLhjn1BL+px3E
+                    kwmqBfphHm1Tj7WzBIf6CbBCptYSTcqqldHzXsqyyNvSqRqeldGZvVHloLONwt9bzTVk8ybmb1EP
+                    j2jIMUxTOxa0dVUKJeIZ3zyZ4VKzLfcjUnXgmNAqX2TytyjE8509YEsZvHLROw4VDVKZUk51qVmB
+                    AgMBAAGjgYEwfzAJBgNVHRMEAjAAMCcGCWCGSAGG+EIBDQQaFhhGT1IgVEVTVElORyBQVVJQT1NF
+                    IE9OTFkwHQYDVR0OBBYEFExSHSgfko9zQ8r3EJatM0R2QIYCMB8GA1UdIwQYMBaAFOFUx5ffCsK/
+                    qV94XjsLK+RIF73GMAkGA1UdEQQCMAAwDQYJKoZIhvcNAQEFBQADgYEAdw0mgPrIUUsYJzTLIcwo
+                    6N7Pcjvb+N1D/F8wTtmGecEf7PnsRoQBJIzubT5XsZlYASUhrlNuNATIzdJy3sxamV890WrlnUfW
+                    ZHqX7vvEIagcm9Es/u2ba5bSXv4fgwEDt+WuHpAJYJLOf3uhA8rOkgKuIUUp9Xxnpil6MCMxpLs=
+                </ds:X509Certificate>
+            </ds:X509Data>
+        </ds:KeyInfo>
+    </ds:Signature>
+</saml2p:AuthnRequest>
+
+        <!--
+        POST request to https:<HOST_NAME>:<PORT>/services/idp/login
+        Request body:
+        SAMLRequest=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c2FtbDJwOkF1dGhuUmVxdWVzdCB4bWxuczpzYW1sMnA9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpwcm90b2NvbCIgQXNzZXJ0aW9uQ29uc3VtZXJTZXJ2aWNlVVJMPSJodHRwOi8vbG9jYWxob3N0OjgwL3NwcmluZy1zZWN1cml0eS1zYW1sMi1zYW1wbGUvc2FtbC9TU08iIERlc3RpbmF0aW9uPSJodHRwczovL2xvY2FsaG9zdDo4OTkzL3NlcnZpY2VzL2lkcC9sb2dpbiIgRm9yY2VBdXRobj0iZmFsc2UiIElEPSJhMTgyNWE3NzA1NTlnNmE4MWphMWVjYzExOGZhM2RnIiBJc1Bhc3NpdmU9ImZhbHNlIiBJc3N1ZUluc3RhbnQ9IjIwMTgtMDItMTJUMjA6MDk6NTMuNTQ0WiIgUHJvdG9jb2xCaW5kaW5nPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YmluZGluZ3M6SFRUUC1QT1NUIiBWZXJzaW9uPSIyLjAiPjxzYW1sMjpJc3N1ZXIgeG1sbnM6c2FtbDI9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iPmh0dHA6Ly9sb2NhbGhvc3Q6ODAvc3ByaW5nLXNlY3VyaXR5LXNhbWwyLXNhbXBsZS9zYW1sL21ldGFkYXRhPC9zYW1sMjpJc3N1ZXI%2BPGRzOlNpZ25hdHVyZSB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI%2BPGRzOlNpZ25lZEluZm8%2BPGRzOkNhbm9uaWNhbGl6YXRpb25NZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzEwL3htbC1leGMtYzE0biMiLz48ZHM6U2lnbmF0dXJlTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8%2BPGRzOlJlZmVyZW5jZSBVUkk9IiNhMTgyNWE3NzA1NTlnNmE4MWphMWVjYzExOGZhM2RnIj48ZHM6VHJhbnNmb3Jtcz48ZHM6VHJhbnNmb3JtIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI2VudmVsb3BlZC1zaWduYXR1cmUiLz48ZHM6VHJhbnNmb3JtIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIi8%2BPC9kczpUcmFuc2Zvcm1zPjxkczpEaWdlc3RNZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjc2hhMSIvPjxkczpEaWdlc3RWYWx1ZT5hSmZpTi9PbzFvc3RJZW5Lb2EzN002NWdJY3M9PC9kczpEaWdlc3RWYWx1ZT48L2RzOlJlZmVyZW5jZT48L2RzOlNpZ25lZEluZm8%2BPGRzOlNpZ25hdHVyZVZhbHVlPk5nbkJFbU40SVNNN29mWTZWOXgxOTRGdWl4WWl2YWM1b1lKNUFVSFozRUFKby9wUXd3VFQwNW1PME5mMFROU21NU2lGVldub0E5Nm5PaGFkTGZJdXBXbmtISU1IZDhnV1FXa2JCTXc3bDhhY2hjV0ZjZGVJbWFNcVYvdXZDcUExQ0xzc2F0dXZNVGtyTThCbmVGVUVyZ1l1RjFvS29TeU43SWRRZDNpUWlWa2tZMFFNb1ZkZ2dNWWk3OTk2d2R6bnM5MGhkbDBDS0xlaEszQkVtNkROaEd1U0JxUmVXZVBMT0F2ZUk1T09LclFXbDNnZStBbUJNYjR5K0JQTjQwQ2ZoMStXaFU0NndSbzR5YzF2YlE1Q091RHU3dnU4U3dHTmJ4cEtUbjBuRU1IcW9TRVkzN2phWEFPcUQvUnNiUFBEUlpGNW82aHl4aUJxMk90UFdSWUNBdz09PC9kczpTaWduYXR1cmVWYWx1ZT48ZHM6S2V5SW5mbz48ZHM6WDUwOURhdGE%2BPGRzOlg1MDlDZXJ0aWZpY2F0ZT5NSUlEVWpDQ0FydWdBd0lCQWdJSVZCWmhWWUFGTWlnd0RRWUpLb1pJaHZjTkFRRUZCUUF3Z1lReEN6QUpCZ05WQkFZVEFsVlRNUXN3CkNRWURWUVFJRXdKQldqRU1NQW9HQTFVRUNoTURSRVJHTVF3d0NnWURWUVFMRXdORVpYWXhHVEFYQmdOVkJBTVRFRVJFUmlCRVpXMXYKSUZKdmIzUWdRMEV4TVRBdkJna3Foa2lHOXcwQkNRRVdJbVZ0WVdsc1FXUmtjbVZ6Y3oxa1pHWnliMjkwWTJGQVpYaGhiWEJzWlM1dgpjbWN3SGhjTk1UZ3dNVEExTURJeE16STFXaGNOTVRrd01UQTFNREl4TXpJMVdqQktNUXN3Q1FZRFZRUUdFd0pWVXpFTE1Ba0dBMVVFCkNBd0NRVm94RERBS0JnTlZCQW9NQTBSRVJqRU1NQW9HQTFVRUN3d0RSR1YyTVJJd0VBWURWUVFEREFsc2IyTmhiR2h2YzNRd2dnRWkKTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDeDIyYmdjWnQvRlMxeHlLQkFLaWtFNWdMaWl6Y0UxWVY4MFZ2YQprK0RWcE9xTHhzZWJ1b0YvaVdqQzJFZEkrVUJmSHorZmRObG1vMlVrT0xDVHlVL3QwYVJkUmRadVBTby8zZWJRdGxFbXlwS0o2NDd0CkhlUXNQRU8xL0VzWVBmUG1GZVNYdkhRTlFlbFRhOUlaUWUxMSsrQmhoRHJNY1VOQ0QxZG5qN2tMTkZWQ25LM3BMaGpuMUJMK3B4M0UKa3dtcUJmcGhIbTFUajdXekJJZjZDYkJDcHRZU1RjcXFsZEh6WHNxeXlOdlNxUnFlbGRHWnZWSGxvTE9Od3Q5YnpUVms4eWJtYjFFUApqMmpJTVV4VE94YTBkVlVLSmVJWjN6eVo0Vkt6TGZjalVuWGdtTkFxWDJUeXR5akU4NTA5WUVzWnZITFJPdzRWRFZLWlVrNTFxVm1CCkFnTUJBQUdqZ1lFd2Z6QUpCZ05WSFJNRUFqQUFNQ2NHQ1dDR1NBR0crRUlCRFFRYUZoaEdUMUlnVkVWVFZFbE9SeUJRVlZKUVQxTkYKSUU5T1RGa3dIUVlEVlIwT0JCWUVGRXhTSFNnZmtvOXpROHIzRUphdE0wUjJRSVlDTUI4R0ExVWRJd1FZTUJhQUZPRlV4NWZmQ3NLLwpxVjk0WGpzTEsrUklGNzNHTUFrR0ExVWRFUVFDTUFBd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ1lFQWR3MG1nUHJJVVVzWUp6VExJY3dvCjZON1BjanZiK04xRC9GOHdUdG1HZWNFZjdQbnNSb1FCSkl6dWJUNVhzWmxZQVNVaHJsTnVOQVRJemRKeTNzeGFtVjg5MFdybG5VZlcKWkhxWDd2dkVJYWdjbTlFcy91MmJhNWJTWHY0Zmd3RUR0K1d1SHBBSllKTE9mM3VoQThyT2tnS3VJVVVwOVh4bnBpbDZNQ014cExzPTwvZHM6WDUwOUNlcnRpZmljYXRlPjwvZHM6WDUwOURhdGE%2BPC9kczpLZXlJbmZvPjwvZHM6U2lnbmF0dXJlPjwvc2FtbDJwOkF1dGhuUmVxdWVzdD4%3D
+
+        For request with relay state add:
+        RelayState=relayState&
+        before SAMLRequest in the above request
+        -->

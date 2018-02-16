@@ -1,0 +1,1 @@
+{"name":"Password","purpose":"DECRYPT_AND_ENCRYPT","type":"AES","versions":[{"exportable":false,"status":"PRIMARY","versionNumber":1}],"encrypted":false}

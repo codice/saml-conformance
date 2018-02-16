@@ -1,0 +1,35 @@
+<saml2p:AuthnRequest AssertionConsumerServiceURL="https://localhost:8993/services/saml/sso"
+    Destination="https://localhost:8993/services/idp/login"
+    Tests.ID="_a0be253a-d4b7-4ecf-a452-19e3aee5e856" IssueInstant="2018-02-12T21:27:28.583Z"
+    ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Version="2.0"
+    xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        https://localhost:8993/services/saml
+    </saml2:Issuer>
+    <saml2p:NameIDPolicy AllowCreate="true"
+        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
+        SPNameQualifier="https://localhost:8993/services/saml"/>
+    <saml2p:RequestedAuthnContext>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:Password
+        </saml2:AuthnContextClassRef>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+        </saml2:AuthnContextClassRef>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:X509
+        </saml2:AuthnContextClassRef>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI
+        </saml2:AuthnContextClassRef>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:SoftwarePKI
+        </saml2:AuthnContextClassRef>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:SPKI
+        </saml2:AuthnContextClassRef>
+        <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient
+        </saml2:AuthnContextClassRef>
+    </saml2p:RequestedAuthnContext>
+</saml2p:AuthnRequest>

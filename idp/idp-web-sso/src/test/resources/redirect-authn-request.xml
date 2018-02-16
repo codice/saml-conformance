@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<saml2p:AuthnRequest
+  xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+  AssertionConsumerServiceURL="%s"
+  Destination="%s"
+  ForceAuthn="false"
+  ID="%s"
+  IsPassive="true"
+  IssueInstant="%s"
+  ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+  Version="2.0">
+  <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+    %s
+  </saml2:Issuer>
+</saml2p:AuthnRequest>

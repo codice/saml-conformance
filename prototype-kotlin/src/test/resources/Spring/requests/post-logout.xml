@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><saml2p:LogoutRequest xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" Destination="https://localhost:8993/services/idp/logout" Tests.ID="ae33aeih16efd86330i859ea2dfcgf" IssueInstant="2018-02-12T20:19:04.789Z" Version="2.0">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">http://localhost:80/spring-security-saml2-sample/saml/metadata</saml2:Issuer>
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:SignedInfo>
+            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+            <ds:Reference URI="#ae33aeih16efd86330i859ea2dfcgf">
+                <ds:Transforms>
+                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </ds:Transforms>
+                <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                <ds:DigestValue>wyu4g4+s0kFp98NWKdcfldzyRYM=</ds:DigestValue>
+            </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>iFUkOIwh23F0eW3NX8FruX5MnqxMIEWacxL3EPKBccCud35M85Iu9D0xBlZSJwfbqHe5U+asP5qARvckIWDfFefjpdetJueIdKaCxGwMkkHVHnYP5c+L+NIilWk0l8tJm3Q5GNbkxVOsoh34F1/X4E0b68NMx0DNxYo0ZDcpqeiJEBgdT8ecUzeLlU2hvWIiL2LawcDdkpcLtZGnpPSwnta8FuiH4nCygYvUxPyoOE3deeQ9p+EwiobXo7q473oRZOiAmNBogi8/Qg3wH12KG3QGVJklYz71O0aC/a9ZOo2jPu+5P/iJH2B7M0COB7M6l57PoLkpdOgCRz1AQo2+vw==</ds:SignatureValue>
+        <ds:KeyInfo>
+            <ds:X509Data>
+                <ds:X509Certificate>MIIDUjCCArugAwIBAgIIVBZhVYAFMigwDQYJKoZIhvcNAQEFBQAwgYQxCzAJBgNVBAYTAlVTMQsw
+                    CQYDVQQIEwJBWjEMMAoGA1UEChMDRERGMQwwCgYDVQQLEwNEZXYxGTAXBgNVBAMTEERERiBEZW1v
+                    IFJvb3QgQ0ExMTAvBgkqhkiG9w0BCQEWImVtYWlsQWRkcmVzcz1kZGZyb290Y2FAZXhhbXBsZS5v
+                    cmcwHhcNMTgwMTA1MDIxMzI1WhcNMTkwMTA1MDIxMzI1WjBKMQswCQYDVQQGEwJVUzELMAkGA1UE
+                    CAwCQVoxDDAKBgNVBAoMA0RERjEMMAoGA1UECwwDRGV2MRIwEAYDVQQDDAlsb2NhbGhvc3QwggEi
+                    MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCx22bgcZt/FS1xyKBAKikE5gLiizcE1YV80Vva
+                    k+DVpOqLxsebuoF/iWjC2EdI+UBfHz+fdNlmo2UkOLCTyU/t0aRdRdZuPSo/3ebQtlEmypKJ647t
+                    HeQsPEO1/EsYPfPmFeSXvHQNQelTa9IZQe11++BhhDrMcUNCD1dnj7kLNFVCnK3pLhjn1BL+px3E
+                    kwmqBfphHm1Tj7WzBIf6CbBCptYSTcqqldHzXsqyyNvSqRqeldGZvVHloLONwt9bzTVk8ybmb1EP
+                    j2jIMUxTOxa0dVUKJeIZ3zyZ4VKzLfcjUnXgmNAqX2TytyjE8509YEsZvHLROw4VDVKZUk51qVmB
+                    AgMBAAGjgYEwfzAJBgNVHRMEAjAAMCcGCWCGSAGG+EIBDQQaFhhGT1IgVEVTVElORyBQVVJQT1NF
+                    IE9OTFkwHQYDVR0OBBYEFExSHSgfko9zQ8r3EJatM0R2QIYCMB8GA1UdIwQYMBaAFOFUx5ffCsK/
+                    qV94XjsLK+RIF73GMAkGA1UdEQQCMAAwDQYJKoZIhvcNAQEFBQADgYEAdw0mgPrIUUsYJzTLIcwo
+                    6N7Pcjvb+N1D/F8wTtmGecEf7PnsRoQBJIzubT5XsZlYASUhrlNuNATIzdJy3sxamV890WrlnUfW
+                    ZHqX7vvEIagcm9Es/u2ba5bSXv4fgwEDt+WuHpAJYJLOf3uhA8rOkgKuIUUp9Xxnpil6MCMxpLs=</ds:X509Certificate>
+            </ds:X509Data>
+        </ds:KeyInfo>
+    </ds:Signature>
+    <saml2:NameID xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" NameQualifier="http://cxf.apache.org/sts">admin</saml2:NameID>
+    <saml2p:SessionIndex>8158</saml2p:SessionIndex>
+</saml2p:LogoutRequest>
+
+<!--
+POST request to https:<HOST_NAME>:<PORT>/services/idp/logout
+Request body:
+SAMLRequest=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c2FtbDJwOkxvZ291dFJlcXVlc3QgeG1sbnM6c2FtbDJwPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6cHJvdG9jb2wiIERlc3RpbmF0aW9uPSJodHRwczovL2xvY2FsaG9zdDo4OTkzL3NlcnZpY2VzL2lkcC9sb2dvdXQiIElEPSJhZTMzYWVpaDE2ZWZkODYzMzBpODU5ZWEyZGZjZ2YiIElzc3VlSW5zdGFudD0iMjAxOC0wMi0xMlQyMDoxOTowNC43ODlaIiBWZXJzaW9uPSIyLjAiPjxzYW1sMjpJc3N1ZXIgeG1sbnM6c2FtbDI9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iPmh0dHA6Ly9sb2NhbGhvc3Q6ODAvc3ByaW5nLXNlY3VyaXR5LXNhbWwyLXNhbXBsZS9zYW1sL21ldGFkYXRhPC9zYW1sMjpJc3N1ZXI%2BPGRzOlNpZ25hdHVyZSB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI%2BPGRzOlNpZ25lZEluZm8%2BPGRzOkNhbm9uaWNhbGl6YXRpb25NZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzEwL3htbC1leGMtYzE0biMiLz48ZHM6U2lnbmF0dXJlTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3JzYS1zaGExIi8%2BPGRzOlJlZmVyZW5jZSBVUkk9IiNhZTMzYWVpaDE2ZWZkODYzMzBpODU5ZWEyZGZjZ2YiPjxkczpUcmFuc2Zvcm1zPjxkczpUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjZW52ZWxvcGVkLXNpZ25hdHVyZSIvPjxkczpUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzEwL3htbC1leGMtYzE0biMiLz48L2RzOlRyYW5zZm9ybXM%2BPGRzOkRpZ2VzdE1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNzaGExIi8%2BPGRzOkRpZ2VzdFZhbHVlPnd5dTRnNCtzMGtGcDk4TldLZGNmbGR6eVJZTT08L2RzOkRpZ2VzdFZhbHVlPjwvZHM6UmVmZXJlbmNlPjwvZHM6U2lnbmVkSW5mbz48ZHM6U2lnbmF0dXJlVmFsdWU%2BaUZVa09Jd2gyM0YwZVczTlg4RnJ1WDVNbnF4TUlFV2FjeEwzRVBLQmNjQ3VkMzVNODVJdTlEMHhCbFpTSndmYnFIZTVVK2FzUDVxQVJ2Y2tJV0RmRmVmanBkZXRKdWVJZEthQ3hHd01ra0hWSG5ZUDVjK0wrTklpbFdrMGw4dEptM1E1R05ia3hWT3NvaDM0RjEvWDRFMGI2OE5NeDBETnhZbzBaRGNwcWVpSkVCZ2RUOGVjVXplTGxVMmh2V0lpTDJMYXdjRGRrcGNMdFpHbnBQU3dudGE4RnVpSDRuQ3lnWXZVeFB5b09FM2RlZVE5cCtFd2lvYlhvN3E0NzNvUlpPaUFtTkJvZ2k4L1FnM3dIMTJLRzNRR1ZKa2xZejcxTzBhQy9hOVpPbzJqUHUrNVAvaUpIMkI3TTBDT0I3TTZsNTdQb0xrcGRPZ0NSejFBUW8yK3Z3PT08L2RzOlNpZ25hdHVyZVZhbHVlPjxkczpLZXlJbmZvPjxkczpYNTA5RGF0YT48ZHM6WDUwOUNlcnRpZmljYXRlPk1JSURVakNDQXJ1Z0F3SUJBZ0lJVkJaaFZZQUZNaWd3RFFZSktvWklodmNOQVFFRkJRQXdnWVF4Q3pBSkJnTlZCQVlUQWxWVE1Rc3cKQ1FZRFZRUUlFd0pCV2pFTU1Bb0dBMVVFQ2hNRFJFUkdNUXd3Q2dZRFZRUUxFd05FWlhZeEdUQVhCZ05WQkFNVEVFUkVSaUJFWlcxdgpJRkp2YjNRZ1EwRXhNVEF2QmdrcWhraUc5dzBCQ1FFV0ltVnRZV2xzUVdSa2NtVnpjejFrWkdaeWIyOTBZMkZBWlhoaGJYQnNaUzV2CmNtY3dIaGNOTVRnd01UQTFNREl4TXpJMVdoY05NVGt3TVRBMU1ESXhNekkxV2pCS01Rc3dDUVlEVlFRR0V3SlZVekVMTUFrR0ExVUUKQ0F3Q1FWb3hEREFLQmdOVkJBb01BMFJFUmpFTU1Bb0dBMVVFQ3d3RFJHVjJNUkl3RUFZRFZRUUREQWxzYjJOaGJHaHZjM1F3Z2dFaQpNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUN4MjJiZ2NadC9GUzF4eUtCQUtpa0U1Z0xpaXpjRTFZVjgwVnZhCmsrRFZwT3FMeHNlYnVvRi9pV2pDMkVkSStVQmZIeitmZE5sbW8yVWtPTENUeVUvdDBhUmRSZFp1UFNvLzNlYlF0bEVteXBLSjY0N3QKSGVRc1BFTzEvRXNZUGZQbUZlU1h2SFFOUWVsVGE5SVpRZTExKytCaGhEck1jVU5DRDFkbmo3a0xORlZDbkszcExoam4xQkwrcHgzRQprd21xQmZwaEhtMVRqN1d6QklmNkNiQkNwdFlTVGNxcWxkSHpYc3F5eU52U3FScWVsZEdadlZIbG9MT053dDlielRWazh5Ym1iMUVQCmoyaklNVXhUT3hhMGRWVUtKZUlaM3p5WjRWS3pMZmNqVW5YZ21OQXFYMlR5dHlqRTg1MDlZRXNadkhMUk93NFZEVktaVWs1MXFWbUIKQWdNQkFBR2pnWUV3ZnpBSkJnTlZIUk1FQWpBQU1DY0dDV0NHU0FHRytFSUJEUVFhRmhoR1QxSWdWRVZUVkVsT1J5QlFWVkpRVDFORgpJRTlPVEZrd0hRWURWUjBPQkJZRUZFeFNIU2dma285elE4cjNFSmF0TTBSMlFJWUNNQjhHQTFVZEl3UVlNQmFBRk9GVXg1ZmZDc0svCnFWOTRYanNMSytSSUY3M0dNQWtHQTFVZEVRUUNNQUF3RFFZSktvWklodmNOQVFFRkJRQURnWUVBZHcwbWdQcklVVXNZSnpUTEljd28KNk43UGNqdmIrTjFEL0Y4d1R0bUdlY0VmN1Buc1JvUUJKSXp1YlQ1WHNabFlBU1VocmxOdU5BVEl6ZEp5M3N4YW1WODkwV3JsblVmVwpaSHFYN3Z2RUlhZ2NtOUVzL3UyYmE1YlNYdjRmZ3dFRHQrV3VIcEFKWUpMT2YzdWhBOHJPa2dLdUlVVXA5WHhucGlsNk1DTXhwTHM9PC9kczpYNTA5Q2VydGlmaWNhdGU%2BPC9kczpYNTA5RGF0YT48L2RzOktleUluZm8%2BPC9kczpTaWduYXR1cmU%2BPHNhbWwyOk5hbWVJRCB4bWxuczpzYW1sMj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFzc2VydGlvbiIgRm9ybWF0PSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6bmFtZWlkLWZvcm1hdDpwZXJzaXN0ZW50IiBOYW1lUXVhbGlmaWVyPSJodHRwOi8vY3hmLmFwYWNoZS5vcmcvc3RzIj5hZG1pbjwvc2FtbDI6TmFtZUlEPjxzYW1sMnA6U2Vzc2lvbkluZGV4PjgxNTg8L3NhbWwycDpTZXNzaW9uSW5kZXg%2BPC9zYW1sMnA6TG9nb3V0UmVxdWVzdD4%3D

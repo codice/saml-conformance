@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:LogoutRequest xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+    Destination="https://localhost:8993/services/idp/logout" Tests.ID="a100346e3efac2i351dec1hf1ecgj10"
+    IssueInstant="2018-02-12T20:01:58.817Z" Version="2.0">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        http://localhost:80/spring-security-saml2-sample/saml/metadata
+    </saml2:Issuer>
+    <saml2:NameID xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+        Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
+        NameQualifier="http://cxf.apache.org/sts">admin
+    </saml2:NameID>
+    <saml2p:SessionIndex>26182</saml2p:SessionIndex>
+</saml2p:LogoutRequest>
+    
+<!--
+GET request to https:<HOST_NAME>:<PORT>/services/idp/logout
+Concatenate following with '&' and add to above url after '?'
+    - SAMLRequest=nZJNT%2BMwEIb%2FSuR74o%2FyEawmCKlCisQi7QJ74DZyJq1RYmc9Dur%2B%2B7VbioADh71Y8nz4fd7xrK%2F301i8YiDrXcNkJViBzvjeum3Dnh5vy5pdt2uCaVSzvvNbv8Rf%2BGdBikXqdKSPqYYtwWkPZEk7mJB0NPrh5sedVpXQc%2FDRGz%2ByYpMarYN4UNvFOJPmfPQGxp2nqOurqxUnDK%2FWIHHbzymXJVnRbRoGUojV2QWucACj7Opc9mjkbpBoti8ykXdEC3aOIrjYMCVkXQpVSvWohBZSn9dVLS%2BfWfH75DfBsTd3%2BtAcPrr63hRQAs1GWJuNfPYhOM0hzbAkNEuw8W95eDGf84g8X%2FiEEXqIsOYfAU4490mw2%2FwPTnHrwwTx%2B%2FIcsX05HEr1nAdCEV2adBb%2BucBoB4vh%2BEnJm9kPFcxgdlj5sOUUibXQT9ad6I%2B876vygJRH3Lke9626kLV6K%2FySeo9%2B2q32Hw%3D%3D
+    - SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1
+    - Signature=BPEIrzTTZ1D%2BBbYbWBZjKi%2FlTlYP0qCagXlH3d4JjkrIsmUvfD3%2FTpDAfKzBvECMqV9Q4NYVKhnj%2B9hK3FCITGmEtFmXHwgde3ausWUW%2FvueGYP4vqYh%2FJmweNlsjwSSvFCM71AgiIXh4Aw%2FoeTILeftO7ihy2y3JZU5tMWG3TYopXiGixe5I%2FGOGfWqojp86S0e0X242i2WMCYBmKuHxpyUyq30ACdim%2B35fPQdEMgERAT1s3ZTV3cKC6FY5KhbW%2F7mDwquoO%2B3L6rSCgvmf7Neoiub7a%2BvgHd1JbnC%2Bf60ODdjdsIYGF2WZ90QzZqogu1WC2t8qzrqXEmi6vkNRQ%3D%3D
+ 
+ Request URI example:
+ https://localhost:8993/services/idp/logout?SAMLRequest=nZJNT%2BMwEIb%2FSuR74o%2FyEawmCKlCisQi7QJ74DZyJq1RYmc9Dur%2B%2B7VbioADh71Y8nz4fd7xrK%2F301i8YiDrXcNkJViBzvjeum3Dnh5vy5pdt2uCaVSzvvNbv8Rf%2BGdBikXqdKSPqYYtwWkPZEk7mJB0NPrh5sedVpXQc%2FDRGz%2ByYpMarYN4UNvFOJPmfPQGxp2nqOurqxUnDK%2FWIHHbzymXJVnRbRoGUojV2QWucACj7Opc9mjkbpBoti8ykXdEC3aOIrjYMCVkXQpVSvWohBZSn9dVLS%2BfWfH75DfBsTd3%2BtAcPrr63hRQAs1GWJuNfPYhOM0hzbAkNEuw8W95eDGf84g8X%2FiEEXqIsOYfAU4490mw2%2FwPTnHrwwTx%2B%2FIcsX05HEr1nAdCEV2adBb%2BucBoB4vh%2BEnJm9kPFcxgdlj5sOUUibXQT9ad6I%2B876vygJRH3Lke9626kLV6K%2FySeo9%2B2q32Hw%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=BPEIrzTTZ1D%2BBbYbWBZjKi%2FlTlYP0qCagXlH3d4JjkrIsmUvfD3%2FTpDAfKzBvECMqV9Q4NYVKhnj%2B9hK3FCITGmEtFmXHwgde3ausWUW%2FvueGYP4vqYh%2FJmweNlsjwSSvFCM71AgiIXh4Aw%2FoeTILeftO7ihy2y3JZU5tMWG3TYopXiGixe5I%2FGOGfWqojp86S0e0X242i2WMCYBmKuHxpyUyq30ACdim%2B35fPQdEMgERAT1s3ZTV3cKC6FY5KhbW%2F7mDwquoO%2B3L6rSCgvmf7Neoiub7a%2BvgHd1JbnC%2Bf60ODdjdsIYGF2WZ90QzZqogu1WC2t8qzrqXEmi6vkNRQ%3D%3D
+-->

@@ -1,0 +1,11 @@
+<saml2p:LogoutResponse Destination="https://localhost:8993/services/saml/logout"
+                       Tests.ID="390fc4ab-e87c-40d1-a37d-a7461e8cc7dd" InResponseTo="43e9a1394266469682efde67ae17b32f"
+                       IssueInstant="2018-02-12T21:33:37.734Z" Version="2.0"
+                       xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        https://localhost:8993/services/idp/login
+    </saml2:Issuer>
+    <saml2p:Status>
+        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+    </saml2p:Status>
+</saml2p:LogoutResponse>

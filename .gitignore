@@ -1,0 +1,33 @@
+*.project
+*.settings
+*.classpath
+*.metadata
+*.iml
+*.idea
+*.checkstyle
+*.DS_Store
+.history
+jsconfig.json
+.vscode/
+node_modules/
+node/
+atlassian-ide-plugin.xml
+*.sonar-ide.properties
+**/webapp/css/styles.css
+platform/solr/**/overlays
+
+# JMeter Related files to ignore
+jmeter.log
+*.jmx.log
+*.jtl
+
+# Maven Ignores (https://raw.githubusercontent.com/github/gitignore/master/Maven.gitignore)
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties

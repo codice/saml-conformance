@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:AuthnRequest xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+    AssertionConsumerServiceURL="http://localhost:80/spring-security-saml2-sample/saml/SSO"
+    Destination="https://localhost:8993/services/idp/login" ForceAuthn="false"
+    Tests.ID="a1chfeh0234hbifc1jjd3cb40ji0d49" IsPassive="false" IssueInstant="2018-02-12T19:55:40.187Z"
+    ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Version="2.0">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+        http://localhost:80/spring-security-saml2-sample/saml/metadata
+    </saml2:Issuer>
+</saml2p:AuthnRequest>
+
+<!--
+GET request to https:<HOST_NAME>:<PORT>/services/idp/login
+Concatenate following with '&' and add to above url after '?'
+    - SAMLRequest=nVLLbsIwEPwVa%2B8hD16JRUC0CBWJCkRCD70Z24BRYqdeB7V%2F3%2FBS4cKhF0urnd2ZnfFg9F0W5CgtKqNTCFsBEKm5EUrvUljnUy%2BG0XCArCyiio5rt9cr%2BVVLdKQZ1EgvnRRqq6lhqJBqVkqkjtNs%2FD6nUSuglTXOcFMAGSNK6xqqV6OxLqXNpD0qLtereQp75yrq%2B4XhrNgbdDQOfKxso8RDyWur3I93pju9VSH9U%2BFn2QLIpBGkNHPnI0578HFRkrR9vFChr0TV9HZKA5kay%2BX5qhS2rEAJZDZJgYVCHTqdWOyDzUEI0Y15rxcdtqovum0eNyBcMkR1lH9jiLWcaXRMuxSiIIy9IPLCKA8T2olpmLT6cfIJZHn14kXpi8fPjNtcQEjf8nzpLRdZDuTjllUDgGsy9Mxu7yN5vpjdcoDh%2F1wvpWOCOTbw7wUMr%2BXjTxn%2BAg%3D%3D
+    - SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1
+    - Signature=jUSSdT%2BUA6qz49z93fDf0ZxRdGEJCEg0WhqhpdPQd1vNwsh5z0rdnwpwJt68kqhhw40BZHXoRJFmdDhkuAcHaPh2%2BRVQ9rxrFIXcQWQuVwROqg%2FXuXtaDEDSqUE5f6s5ZZwrhpl5yBQ8mTRxDj9k3jV0oA6JJJpIXefnvBm8jOPquN59%2FHTOiyBnNicezzgcq5wCCzzYDAHdNFzOADu5N4wQwQyl%2F69RW19EHtCidcT7UDBZTGhDmvshg4jgUyvqSSOFVJ2X3UKuLlN6ELMTT8mB1dJDSZES6apvdab8SHykL3KyVaz8VtGt3K1o5uHEd8UFGftH4uyx6%2FT9apXyDA%3D%3D
+ 
+ Request URI example:
+ https://localhost:8993/services/idp/login?SAMLRequest=nVLLbsIwEPwVa%2B8hD16JRUC0CBWJCkRCD70Z24BRYqdeB7V%2F3%2FBS4cKhF0urnd2ZnfFg9F0W5CgtKqNTCFsBEKm5EUrvUljnUy%2BG0XCArCyiio5rt9cr%2BVVLdKQZ1EgvnRRqq6lhqJBqVkqkjtNs%2FD6nUSuglTXOcFMAGSNK6xqqV6OxLqXNpD0qLtereQp75yrq%2B4XhrNgbdDQOfKxso8RDyWur3I93pju9VSH9U%2BFn2QLIpBGkNHPnI0578HFRkrR9vFChr0TV9HZKA5kay%2BX5qhS2rEAJZDZJgYVCHTqdWOyDzUEI0Y15rxcdtqovum0eNyBcMkR1lH9jiLWcaXRMuxSiIIy9IPLCKA8T2olpmLT6cfIJZHn14kXpi8fPjNtcQEjf8nzpLRdZDuTjllUDgGsy9Mxu7yN5vpjdcoDh%2F1wvpWOCOTbw7wUMr%2BXjTxn%2BAg%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=jUSSdT%2BUA6qz49z93fDf0ZxRdGEJCEg0WhqhpdPQd1vNwsh5z0rdnwpwJt68kqhhw40BZHXoRJFmdDhkuAcHaPh2%2BRVQ9rxrFIXcQWQuVwROqg%2FXuXtaDEDSqUE5f6s5ZZwrhpl5yBQ8mTRxDj9k3jV0oA6JJJpIXefnvBm8jOPquN59%2FHTOiyBnNicezzgcq5wCCzzYDAHdNFzOADu5N4wQwQyl%2F69RW19EHtCidcT7UDBZTGhDmvshg4jgUyvqSSOFVJ2X3UKuLlN6ELMTT8mB1dJDSZES6apvdab8SHykL3KyVaz8VtGt3K1o5uHEd8UFGftH4uyx6%2FT9apXyDA%3D%3D
+ 
+ For request with relay state, add:
+ RelayState=relayState
+ as a parameter.
+ 
+ -->
