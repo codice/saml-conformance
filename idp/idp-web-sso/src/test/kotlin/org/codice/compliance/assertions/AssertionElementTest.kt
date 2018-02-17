@@ -18,7 +18,7 @@ import org.w3c.dom.Node
 fun checkAssertions(assertions: List<Node>) {
 
     // todo - If the identity provider wishes to return an error, it MUST NOT include any assertions in the <Response> message.
-    if (assertions.isEmpty()) throw SAMLComplianceException("1")
+    if (assertions.isEmpty()) throw SAMLComplianceException.create("1")
 
     for (assertion in assertions) {
 
@@ -35,7 +35,7 @@ fun checkAssertions(assertions: List<Node>) {
         // same principal. It is allowable for the content of the <Subject> elements to differ (e.g. using different
         // <NameID> or alternative <SubjectConfirmation> elements).
 
-        if (subjects.isEmpty() || subjects.size > 1) throw SAMLComplianceException("2")
+        if (subjects.isEmpty() || subjects.size > 1) throw SAMLComplianceException.create("2")
         val subject = subjects[0]
 
         val nameIds = subject.children("NameID")
@@ -45,7 +45,7 @@ fun checkAssertions(assertions: List<Node>) {
                 .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                 .toCollection(bearerSubjectConfirmations)
         if (bearerSubjectConfirmations.isEmpty())
-            throw SAMLComplianceException("3")
+            throw SAMLComplianceException.create("3")
 
         // Check if NotBefore is an attribute (it shouldn't)
         val dataWithNotBefore = bearerSubjectConfirmations
@@ -64,14 +64,14 @@ fun checkAssertions(assertions: List<Node>) {
                 .filter { it.attributes.getNamedItem("NotOnOrAfter") != null }
                 .toCollection(bearerSubjectConfirmationsData)
 
-        if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty()) throw SAMLComplianceException("4")
+        if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty()) throw SAMLComplianceException.create("4")
 
-        if (authnStatements.isEmpty()) throw SAMLComplianceException("5")
+        if (authnStatements.isEmpty()) throw SAMLComplianceException.create("5")
 
         if (IDP_METADATA != null) {
             if (IDP_METADATA.singleLogoutServices.isNotEmpty())
                 authnStatements.forEach {
-                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException("7")
+                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create("7")
                 }
         }
 
@@ -80,10 +80,11 @@ fun checkAssertions(assertions: List<Node>) {
             val audienceRestriction = conditions
                     .firstOrNull()
                     ?.children("AudienceRestriction")
-                    ?.firstOrNull() ?: throw SAMLComplianceException("6")
+                    ?.firstOrNull()
+                    ?: throw SAMLComplianceException.create("bearer.audiencerestriction")
 
             val audience = audienceRestriction.children("Audience").firstOrNull()
-            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException("6")
+            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException.create("bearer.audiencerestriction")
         }
     }
 }

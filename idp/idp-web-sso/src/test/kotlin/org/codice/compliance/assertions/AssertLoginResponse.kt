@@ -32,24 +32,22 @@ fun assertAllLoginResponse(responseElement: Node) {
  * if node is a response, checks if the message is signed or if an enclosed assertion is encrypted first
  */
 fun checkIssuer(node: Node) {
-    if(node.localName == "Assertion" ||
+    if (node.localName == "Assertion" ||
             // If the message is signed or if an enclosed assertion is encrypted
             (node.localName == "Response" &&
                     (node.children("Signature").isNotEmpty() ||
-                            node.children("Assertion").filter { it.children("Signature").isNotEmpty()}.count() > 0))) {
+                            node.children("Assertion").filter { it.children("Signature").isNotEmpty() }.count() > 0))) {
 
         val issuers = node.children("Issuer")
 
-
-
         if (issuers.isEmpty() || issuers.size > 1)
-            throw SAMLComplianceException("8")
+            throw SAMLComplianceException.create("8")
 
         val issuer = issuers[0]
         if (issuer.textContent != (IDP_METADATA?.parent as EntityDescriptorImpl).entityID)
-            throw SAMLComplianceException("9")
+            throw SAMLComplianceException.create("9")
 
         if (issuer.attributes.getNamedItem("Format") != null && !issuer.attributes.getNamedItem("Format").equals("urn:oasis:names:tc:SAML:2.0:nameid-format:entity"))
-            throw SAMLComplianceException("10")
+            throw SAMLComplianceException.create("10")
     }
 }

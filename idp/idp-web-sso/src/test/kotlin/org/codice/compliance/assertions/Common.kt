@@ -27,17 +27,18 @@ const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 val IDP_METADATA = getIdpMetadata()
 
-class SAMLComplianceException(vararg codes: String) : Exception(readCodes(*codes)) {
+class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
         private val BUNDLE = ResourceBundle.getBundle("ExceptionCodes")!!
         private const val REF_SUFFIX = ".ref"
         private const val DESC_SUFFIX = ".desc"
 
-        private fun readCodes(vararg codes: String): String {
-            return codes.map(::readCode)
+        fun create(vararg codes: String): SAMLComplianceException {
+            val msg = codes.map(::readCode)
                     .fold("Errors:\n") { acc, s ->
                         "$acc\n$s"
                     }
+            return SAMLComplianceException(msg)
         }
 
         private fun readCode(code: String): String {
