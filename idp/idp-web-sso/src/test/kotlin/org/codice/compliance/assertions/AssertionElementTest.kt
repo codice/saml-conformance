@@ -18,12 +18,12 @@ import org.w3c.dom.Node
 fun checkAssertions(assertions: List<Node>) {
 
     // todo - If the identity provider wishes to return an error, it MUST NOT include any assertions in the <Response> message.
-    if (assertions.isEmpty()) throw SAMLComplianceException("[A Response] MUST contain at least one <Assertion>.")
+    if (assertions.isEmpty()) throw SAMLComplianceException("1")
 
     for (assertion in assertions) {
 
         // Get assertion Assertions.children
-        val signitures = assertion.children("Signature")
+        val signatures = assertion.children("Signature")
         val subjects = assertion.children("Subject")
         val conditions = assertion.children("Conditions")
         val authnStatements = assertion.children("AuthnStatement")
@@ -35,7 +35,7 @@ fun checkAssertions(assertions: List<Node>) {
         // same principal. It is allowable for the content of the <Subject> elements to differ (e.g. using different
         // <NameID> or alternative <SubjectConfirmation> elements).
 
-        if (subjects.isEmpty() || subjects.size > 1) throw SAMLComplianceException("Any assertion issued for consumption using this profile MUST contain a <Subject> element.")
+        if (subjects.isEmpty() || subjects.size > 1) throw SAMLComplianceException("2")
         val subject = subjects[0]
 
         val nameIds = subject.children("NameID")
@@ -45,7 +45,7 @@ fun checkAssertions(assertions: List<Node>) {
                 .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                 .toCollection(bearerSubjectConfirmations)
         if (bearerSubjectConfirmations.isEmpty())
-            throw SAMLComplianceException("Any assertion issued for consumption using this profile MUST contain a <Subject> element with at least one <SubjectConfirmation> element containing a Method of urn:oasis:names:tc:SAML:2.0:cm:bearer.")
+            throw SAMLComplianceException("3")
 
         // Check if NotBefore is an attribute (it shouldn't)
         val dataWithNotBefore = bearerSubjectConfirmations
@@ -64,17 +64,14 @@ fun checkAssertions(assertions: List<Node>) {
                 .filter { it.attributes.getNamedItem("NotOnOrAfter") != null }
                 .toCollection(bearerSubjectConfirmationsData)
 
-        if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty()) throw SAMLComplianceException("At lease one bearer <SubjectConfirmation> element MUST contain a <SubjectConfirmationData> element that itself MUST contain a Recipient attribute containing " +
-                "the service provider's assertion consumer service URL and a NotOnOrAfter attribute that limits the window during which the assertion can be [E52]confirmed by the relying party. It MAY also contain an Address attribute limiting the client " +
-                "address from which the assertion can be delivered. It MUST NOT contain a NotBefore attribute. If the containing message is in response to an <AuthnRequest>, then the InResponseTo attribute MUST match the request's Tests.ID.")
+        if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty()) throw SAMLComplianceException("4")
 
-        if (authnStatements.isEmpty()) throw SAMLComplianceException("The set of one or more bearer assertions MUST contain at least one <AuthnStatement> that reflects the authentication of the principal to the identity provider.")
+        if (authnStatements.isEmpty()) throw SAMLComplianceException("5")
 
         if (IDP_METADATA != null) {
             if (IDP_METADATA.singleLogoutServices.isNotEmpty())
                 authnStatements.forEach {
-                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException("If the identity provider supports the Single Logout profile, defined in Section 4.4, any authentication statements MUST include a SessionIndex attribute to " +
-                            "enable per-session logout requests by the service provider.")
+                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException("7")
                 }
         }
 
@@ -83,10 +80,10 @@ fun checkAssertions(assertions: List<Node>) {
             val audienceRestriction = conditions
                     .firstOrNull()
                     ?.children("AudienceRestriction")
-                    ?.firstOrNull() ?: throw SAMLComplianceException("Each bearer assertion MUST contain an <AudienceRestriction> including the service provider's unique identifier as an <Audience>.")
+                    ?.firstOrNull() ?: throw SAMLComplianceException("6")
 
             val audience = audienceRestriction.children("Audience").firstOrNull()
-            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException("Each bearer assertion MUST contain an <AudienceRestriction> including the service provider's unique identifier as an <Audience>.")
+            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException("6")
         }
     }
 }

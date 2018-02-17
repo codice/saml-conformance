@@ -18,6 +18,7 @@ import org.codice.security.saml.IdpMetadata
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
+import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
 const val SP_ISSUER = "https://localhost:8993/services/saml"
@@ -26,12 +27,29 @@ const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 val IDP_METADATA = getIdpMetadata()
 
-class SAMLComplianceException(override var message: String) : Exception(message)
+class SAMLComplianceException(vararg codes: String) : Exception(readCodes(*codes)) {
+    companion object {
+        private val BUNDLE = ResourceBundle.getBundle("ExceptionCodes")!!
+        private const val REF_SUFFIX = ".ref"
+        private const val DESC_SUFFIX = ".desc"
+
+        private fun readCodes(vararg codes: String): String {
+            return codes.map(::readCode)
+                    .fold("Errors:\n") { acc, s ->
+                        "$acc\n$s"
+                    }
+        }
+
+        private fun readCode(code: String): String {
+            return "${BUNDLE.getString(code + REF_SUFFIX)} : ${BUNDLE.getString(code + DESC_SUFFIX)}"
+        }
+    }
+}
 
 /**
  * Parses and returns the idp metadata
  */
-fun getIdpMetadata() : IDPSSODescriptor? {
+fun getIdpMetadata(): IDPSSODescriptor? {
     val idpMetadataParser = IdpMetadata()
     idpMetadataParser.setMetadata(getResource("idp-metadata.xml").path)
     return idpMetadataParser.descriptor
@@ -53,12 +71,12 @@ fun buildDom(decodedMessage: String): Node {
  * @param name - Name of Assertions.children
  * @return list of Assertions.children matching the name provided
  */
-fun Node.children(name : String): List<Node> {
+fun Node.children(name: String): List<Node> {
     val childNodes = mutableListOf<Node>()
     var i = this.childNodes.length - 1
-    while (i >= 0){
+    while (i >= 0) {
         val child = this.childNodes.item(i)
-        if(child.localName == name)
+        if (child.localName == name)
             childNodes.add(child); i -= 1
     }
     return childNodes

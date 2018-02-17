@@ -43,13 +43,13 @@ fun checkIssuer(node: Node) {
 
 
         if (issuers.isEmpty() || issuers.size > 1)
-            throw SAMLComplianceException("If the <Response> message is signed or if an enclosed assertion is encrypted, then the <Issuer> element MUST be present.")
+            throw SAMLComplianceException("8")
 
         val issuer = issuers[0]
         if (issuer.textContent != (IDP_METADATA?.parent as EntityDescriptorImpl).entityID)
-            throw SAMLComplianceException("If present [the Issuer] MUST contain the unique identifier of the issuing identity provider.")
+            throw SAMLComplianceException("9")
 
         if (issuer.attributes.getNamedItem("Format") != null && !issuer.attributes.getNamedItem("Format").equals("urn:oasis:names:tc:SAML:2.0:nameid-format:entity"))
-            throw SAMLComplianceException("The Format attribute MUST be omitted or have a value of urn:oasis:names:tc:SAML:2.0:nameid-format:entity.")
+            throw SAMLComplianceException("10")
     }
 }
