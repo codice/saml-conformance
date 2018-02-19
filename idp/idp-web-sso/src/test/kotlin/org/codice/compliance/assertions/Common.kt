@@ -41,8 +41,6 @@ val idpParsedMetadata = getIdpMetadata()
 class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
         private val BUNDLE = ResourceBundle.getBundle("ExceptionCodes")!!
-        private const val REF_SUFFIX = ".ref"
-        private const val DESC_SUFFIX = ".desc"
 
         fun create(vararg codes: String): SAMLComplianceException {
             val msg = codes.map(::readCode)
@@ -53,7 +51,7 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
         }
 
         private fun readCode(code: String): String {
-            return "${BUNDLE.getString(code + REF_SUFFIX)} : ${BUNDLE.getString(code + DESC_SUFFIX)}"
+            return "${BUNDLE.getString(code)}"
         }
     }
 }

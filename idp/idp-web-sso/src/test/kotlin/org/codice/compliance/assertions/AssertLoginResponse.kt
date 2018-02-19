@@ -47,15 +47,17 @@ fun checkIssuer(node: Node) {
 
         val issuers = node.children("Issuer")
 
-        if (issuers.isEmpty() || issuers.size > 1)
-            throw SAMLComplianceException.create("8")
+        if (issuers.isEmpty() || issuers.size > 1) {
+            if (node.localName == "Assertion") throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2a")
+            else throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2e")
+        }
 
         val issuer = issuers[0]
         if (issuer.textContent != (idpParsedMetadata?.parent as EntityDescriptorImpl).entityID)
-            throw SAMLComplianceException.create("9")
+            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2b")
 
         if (issuer.attributes.getNamedItem("Format") != null && !issuer.attributes.getNamedItem("Format").equals("urn:oasis:names:tc:SAML:2.0:nameid-format:entity"))
-            throw SAMLComplianceException.create("10")
+            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2c")
     }
 }
 
