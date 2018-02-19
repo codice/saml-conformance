@@ -18,8 +18,10 @@ import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
-import org.codice.compliance.assertions.*
-import org.codice.security.saml.SamlProtocol
+import org.codice.compliance.*
+import org.codice.compliance.bindings.verifyRedirect
+import org.codice.compliance.core.verifyCore
+import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -56,5 +58,7 @@ fun assertRedirectResponse(samlResponse: String) {
     decodedMessage shouldNotBe null
 
     val responseElement = buildDom(decodedMessage)
-    assertAllLoginResponse(responseElement, SamlProtocol.REDIRECT_BINDING)
+    verifyCore(responseElement)
+    verifySsoProfile(responseElement)
+    verifyRedirect(responseElement)
 }

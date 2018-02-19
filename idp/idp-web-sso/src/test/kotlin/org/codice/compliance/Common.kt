@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.compliance.assertions
+package org.codice.compliance
 
 import com.google.common.io.Resources.getResource
 import org.apache.cxf.helpers.DOMUtils
@@ -43,7 +43,7 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
         private val BUNDLE = ResourceBundle.getBundle("ExceptionCodes")!!
 
         fun create(vararg codes: String): SAMLComplianceException {
-            val msg = codes.map(::readCode)
+            val msg = codes.map(Companion::readCode)
                     .fold("Errors:\n") { acc, s ->
                         "$acc\n$s"
                     }

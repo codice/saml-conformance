@@ -18,20 +18,13 @@ import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
-import org.apache.cxf.helpers.DOMUtils
-import org.apache.wss4j.common.saml.builder.SAML2Constants
-import org.codice.compliance.assertions.*
-import org.codice.security.saml.SamlProtocol
+import org.codice.compliance.bindings.verifyPost
+import org.codice.compliance.buildDom
+import org.codice.compliance.core.verifyCore
+import org.codice.compliance.generateAndRetrieveAuthnRequest
+import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
-import org.codice.security.sign.SimpleSign
-import org.joda.time.DateTime
-import org.opensaml.saml.common.SAMLVersion
-import org.apache.wss4j.common.util.DOM2Writer
-import org.apache.wss4j.common.saml.OpenSAMLUtil
-import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
-import org.opensaml.saml.saml2.core.impl.IssuerBuilder
-import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class PostLoginTest : StringSpec({
     RestAssured.useRelaxedHTTPSValidation()
@@ -59,5 +52,7 @@ fun assertPostResponse(samlResponse: String) {
     decodedMessage shouldNotBe null
 
     val responseElement = buildDom(decodedMessage)
-    assertAllLoginResponse(responseElement, SamlProtocol.POST_BINDING)
+    verifyCore(responseElement)
+    verifySsoProfile(responseElement)
+    verifyPost(responseElement)
 }
