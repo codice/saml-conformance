@@ -6,7 +6,7 @@ import org.w3c.dom.Node
 fun verifySsoAssertions(response: Node) {
     val assertions = response.children("Assertion")
     // todo - If the identity provider wishes to return an error, it MUST NOT include any assertions in the <Response> message.
-    if (assertions.isEmpty()) throw SAMLComplianceException.create("1")
+    if (assertions.isEmpty()) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2d")
 
     for (assertion in assertions) {
         verifyIssuer(assertion)
@@ -19,7 +19,7 @@ fun verifySsoAssertions(response: Node) {
         // same principal. It is allowable for the content of the <Subject> elements to differ (e.g. using different
         // <NameID> or alternative <SubjectConfirmation> elements).
 
-        if (subjects.isEmpty() || subjects.size > 1) throw SAMLComplianceException.create("2")
+        if (subjects.isEmpty() || subjects.size > 1) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2g")
         val subject = subjects[0]
 
         val bearerSubjectConfirmations = mutableListOf<Node>()
@@ -27,7 +27,7 @@ fun verifySsoAssertions(response: Node) {
                 .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                 .toCollection(bearerSubjectConfirmations)
         if (bearerSubjectConfirmations.isEmpty())
-            throw SAMLComplianceException.create("3")
+            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2h")
 
         // Check if NotBefore is an attribute (it shouldn't)
         val dataWithNotBefore = bearerSubjectConfirmations
@@ -46,9 +46,9 @@ fun verifySsoAssertions(response: Node) {
                 .filter { it.attributes.getNamedItem("NotOnOrAfter") != null }
                 .toCollection(bearerSubjectConfirmationsData)
 
-        if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty()) throw SAMLComplianceException.create("4")
+        if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty()) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2h")
 
-        if (authnStatements.isEmpty()) throw SAMLComplianceException.create("5")
+        if (authnStatements.isEmpty()) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2j")
 
         // todo - [AuthnStatement] that reflects the authentication of the principal to the identity provider
 
@@ -57,7 +57,7 @@ fun verifySsoAssertions(response: Node) {
         if (idpParsedMetadata != null) {
             if (idpParsedMetadata.singleLogoutServices.isNotEmpty())
                 authnStatements.forEach {
-                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create("7")
+                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2k")
                 }
         }
 
@@ -67,10 +67,10 @@ fun verifySsoAssertions(response: Node) {
                     .firstOrNull()
                     ?.children("AudienceRestriction")
                     ?.firstOrNull()
-                    ?: throw SAMLComplianceException.create("bearer.audiencerestriction")
+                    ?: throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2l")
 
             val audience = audienceRestriction.children("Audience").firstOrNull()
-            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException.create("bearer.audiencerestriction")
+            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2l")
         }
     }
 }

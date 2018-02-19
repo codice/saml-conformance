@@ -50,6 +50,10 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
             return SAMLComplianceException(msg)
         }
 
+        fun createWithReqMessage(section: String, attribute : String): SAMLComplianceException {
+            return SAMLComplianceException(String.format("%s=The %s attribute is required.", section, attribute))
+        }
+
         private fun readCode(code: String): String {
             return "${BUNDLE.getString(code)}"
         }

@@ -36,10 +36,16 @@ fun verifyEncryptedId(response: Node) {
         if (encryptedIds.any { it.children("EncryptedData").isEmpty() })
             throw SAMLComplianceException.create("10") // The <EncryptedID> element contains the following element: <xenc:EncryptedData> [Required]
 
-        verifyEncryptedData(encryptedIds)
+        encryptedIds.forEach {
+            val encryptedData = it.children("EncryptedData")
+            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData")
 
-        // todo - (EncryptedData) For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType, or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
-
+            if (encryptedData
+                    .filter { it.attributes.getNamedItem("Type") != null }
+                    .all { it.attributes.getNamedItem("Type").textContent == "http://www.w3.org/2001/04/xmlenc#Element" })
+                throw SAMLComplianceException.create("SAMLCore.2.2.4")
+            // todo - For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType, or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
+        }
         // todo Encrypted identifiers are intended as a privacy protection mechanism when the plain-text value passes through an intermediary. As such, the ciphertext MUST be unique to any given encryption operation. For more on such issues, see [XMLEnc] Section 6.3.
     }
 }
@@ -53,13 +59,13 @@ fun verifyCoreAssertion(response: Node) {
     if (assertions.isNotEmpty()) {
         for (assertion in assertions) {
 
-            if (assertion.attributes.getNamedItem("Version").textContent != "2.0"
-                    || assertion.attributes.getNamedItem("ID") == null
-                    || assertion.attributes.getNamedItem("IssueInstant") == null)
-                throw SAMLComplianceException.create("10") // The Version, ID, and IssueInstant attributes are required
+            if (assertion.attributes.getNamedItem("Version").textContent != "2.0")
+                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version")
+            if (assertion.attributes.getNamedItem("ID") == null)
+                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID")
+            if (assertion.attributes.getNamedItem("IssueInstant") == null)
+                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant")
 
-
-            // Get assertion Assertions.children
             val issuers = assertion.children("Issuer")
             val signatures = assertion.children("Signature")
             val subjects = assertion.children("Subject")
@@ -70,18 +76,17 @@ fun verifyCoreAssertion(response: Node) {
             val authzDecisionStatements = assertion.children("AuthzDecisionStatement")
             val attributeStatements = assertion.children("AttributeStatement")
 
-            if (issuers.isEmpty()) throw SAMLComplianceException.create("10") // The Issuer attribute is required
+            if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer")
 
             if (statements.isNotEmpty() && statements.any { it.attributes.getNamedItem("xsi:type") == null })
-                throw SAMLComplianceException.create("10") // An xsi:type attribute MUST be used to indicate the actual statement type.
-
+                throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
 
             if (statements.isEmpty()
                     && authnStatements.isEmpty()
                     && authzDecisionStatements.isEmpty()
                     && attributeStatements.isEmpty()
                     && subjects.isEmpty())
-                throw SAMLComplianceException.create("10") // An assertion with no statements MUST contain a <Subject> element. Such an assertion identifies a principal in a manner which can be referenced or confirmed using SAML methods, but asserts no further information associated with that principal.
+                throw SAMLComplianceException.create("SAMLCore.2.2.3_b")
         }
 
     }
@@ -94,23 +99,15 @@ fun verifyCoreAssertion(response: Node) {
 fun verifyEncryptedAssertion(response: Node) {
     val encryptedAssertion = response.children("EncryptedAssertion")
     if (encryptedAssertion.isNotEmpty()) {
-        verifyEncryptedData(encryptedAssertion)
-    }
-}
+        encryptedAssertion.forEach {
+            val encryptedData = it.children("EncryptedData")
+            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.4", "EncryptedData")
 
-/**
- * Verifies the <EncryptedData> element against the Core spec:
- *
- * "The encrypted content and associated encryption details, as defined by the XML Encryption
- * Syntax and Processing specification [XMLEnc]. The attribute SHOULD be present and, if Type
- * present, MUST contain a value of http://www.w3.org/2001/04/xmlenc#Element"
- *
- * @param node - a list of parent nodes containing the <EncryptedData> element
- */
-private fun verifyEncryptedData(node: List<Node>) {
-    if (!node
-            .flatMap { it -> it.children("EncryptedData") }
-            .filter { it.attributes.getNamedItem("Type") != null }
-            .all { it.attributes.getNamedItem("Type").textContent == "http://www.w3.org/2001/04/xmlenc#Element" })
-        throw SAMLComplianceException.create("10") // The Type attribute [for an EncryptedData] SHOULD be present and, if present, MUST contain a value of http://www.w3.org/2001/04/xmlenc#Element.
+            if (encryptedData
+                    .filter { it.attributes.getNamedItem("Type") != null }
+                    .all { it.attributes.getNamedItem("Type").textContent == "http://www.w3.org/2001/04/xmlenc#Element" })
+                throw SAMLComplianceException.create("SAMLCore.2.3.4")
+            // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
+        }
+    }
 }
