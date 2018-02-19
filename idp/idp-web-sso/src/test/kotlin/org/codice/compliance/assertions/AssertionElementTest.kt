@@ -68,6 +68,10 @@ fun checkAssertions(assertions: List<Node>) {
 
         if (authnStatements.isEmpty()) throw SAMLComplianceException.create("5")
 
+        // todo - [AuthnStatement] that reflects the authentication of the principal to the identity provider
+
+        // todo - If the identity provider supports the Single Logout profile, defined in Section 4.4, any authentication statements MUST include a SessionIndex attribute to enable per-session logout requests by the service provider.
+
         if (IDP_METADATA != null) {
             if (IDP_METADATA.singleLogoutServices.isNotEmpty())
                 authnStatements.forEach {
@@ -75,7 +79,7 @@ fun checkAssertions(assertions: List<Node>) {
                 }
         }
 
-        // Assuming the AudienceRestriction is under Condition
+        // Assuming the AudienceRestriction is under Conditions
         if (conditions.isNotEmpty()) {
             val audienceRestriction = conditions
                     .firstOrNull()

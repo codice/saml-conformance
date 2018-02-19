@@ -66,8 +66,10 @@ fun buildDom(decodedMessage: String): Node {
     return xmlDoc.documentElement
 }
 
+/** Extensions to Node class **/
+
 /**
- * Extension to Node class.
+ * Finds a Node's child by its name.
  *
  * @param name - Name of Assertions.children
  * @return list of Assertions.children matching the name provided
@@ -81,4 +83,22 @@ fun Node.children(name: String): List<Node> {
             childNodes.add(child); i -= 1
     }
     return childNodes
+}
+
+/**
+ * Finds a Node's child by its name.
+ *
+ * @param name - Name of Assertions.children
+ * @return list of Assertions.children matching the name provided
+ */
+fun Node.allChildren(name: String): List<Node> {
+    val nodes = mutableListOf<Node>()
+    var i = this.childNodes.length - 1
+    while (i >= 0) {
+        val child = this.childNodes.item(i)
+        if (child.localName == name)
+            nodes.add(child)
+            nodes.addAll(child.allChildren(name)); i -= 1
+    }
+    return nodes
 }
