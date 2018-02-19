@@ -29,6 +29,7 @@ public class Encoder {
    * @param message - SAML Redirect message
    * @return - encoded message
    */
+  @SuppressWarnings("squid:S4087" /* Close call needed */)
   public static String encodeRedirectMessage(String message) throws IOException {
     ByteArrayOutputStream valueBytes = new ByteArrayOutputStream();
     try (OutputStream tokenStream =

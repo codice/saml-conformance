@@ -54,39 +54,10 @@ class PostLoginTest : StringSpec({
     }
 })
 
-fun generateAndRetrieveAuthnRequest(): String {
-    OpenSAMLUtil.initSamlEngine()
-    val issuerObject = IssuerBuilder().buildObject().apply {
-        value = SP_ISSUER
-    }
-
-    val authnRequest = AuthnRequestBuilder().buildObject().apply {
-        issuer = issuerObject
-        assertionConsumerServiceURL = ACS
-        id = ID
-        version = SAMLVersion.VERSION_20
-        issueInstant = DateTime()
-        destination = DESTINATION
-        protocolBinding = SamlProtocol.POST_BINDING
-        nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
-            allowCreate = true
-            format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
-            spNameQualifier = SP_ISSUER
-        }
-    }
-
-    SimpleSign().signSamlObject(authnRequest)
-    val doc = DOMUtils.createDocument()
-    doc.appendChild(doc.createElement("root"))
-    val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
-
-    return DOM2Writer.nodeToString(requestElement)
-}
-
 fun assertPostResponse(samlResponse: String) {
     val decodedMessage = Decoder.decodePostMessage(samlResponse)
     decodedMessage shouldNotBe null
 
     val responseElement = buildDom(decodedMessage)
-    assertAllLoginResponse(responseElement)
+    assertAllLoginResponse(responseElement, SamlProtocol.POST_BINDING)
 }

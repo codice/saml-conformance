@@ -19,13 +19,12 @@ import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
 import org.codice.compliance.assertions.*
+import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
-import org.w3c.dom.Document
 import java.nio.charset.StandardCharsets
 import java.time.Instant
-import javax.xml.parsers.DocumentBuilderFactory
 
 class RedirectLoginTest : StringSpec({
     val simpleSign = SimpleSign()
@@ -56,15 +55,6 @@ fun assertRedirectResponse(samlResponse: String) {
     val decodedMessage = Decoder.decodeRedirectMessage(samlResponse)
     decodedMessage shouldNotBe null
 
-    val docBuilder: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-    docBuilder.isNamespaceAware = true
-    val xmlDoc: Document = docBuilder.newDocumentBuilder().parse(decodedMessage.byteInputStream())
-    val responseElement = xmlDoc.documentElement
-
-    // Get response Assertions.children elements
-    val status = responseElement.children("Status")
-    val assertion = responseElement.children("Assertion")
-
-    checkIssuer(responseElement)
-    checkAssertions(assertion)
+    val responseElement = buildDom(decodedMessage)
+    assertAllLoginResponse(responseElement, SamlProtocol.REDIRECT_BINDING)
 }

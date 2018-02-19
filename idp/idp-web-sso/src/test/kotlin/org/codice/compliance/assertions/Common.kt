@@ -14,7 +14,18 @@
 package org.codice.compliance.assertions
 
 import com.google.common.io.Resources.getResource
+import org.apache.cxf.helpers.DOMUtils
+import org.apache.wss4j.common.saml.OpenSAMLUtil
+import org.apache.wss4j.common.saml.builder.SAML2Constants
+import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.security.saml.IdpMetadata
+import org.codice.security.saml.SamlProtocol
+import org.codice.security.sign.SimpleSign
+import org.joda.time.DateTime
+import org.opensaml.saml.common.SAMLVersion
+import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
+import org.opensaml.saml.saml2.core.impl.IssuerBuilder
+import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
@@ -25,7 +36,7 @@ const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val DESTINATION = "https://localhost:8993/services/idp/login"
 const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
-val IDP_METADATA = getIdpMetadata()
+val idpParsedMetadata = getIdpMetadata()
 
 class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
@@ -64,6 +75,38 @@ fun buildDom(decodedMessage: String): Node {
     docBuilder.isNamespaceAware = true
     val xmlDoc: Document = docBuilder.newDocumentBuilder().parse(decodedMessage.byteInputStream())
     return xmlDoc.documentElement
+}
+
+/**
+ * Generates and returns a POST Authn Request
+ */
+fun generateAndRetrieveAuthnRequest(): String {
+    OpenSAMLUtil.initSamlEngine()
+    val issuerObject = IssuerBuilder().buildObject().apply {
+        value = SP_ISSUER
+    }
+
+    val authnRequest = AuthnRequestBuilder().buildObject().apply {
+        issuer = issuerObject
+        assertionConsumerServiceURL = ACS
+        id = ID
+        version = SAMLVersion.VERSION_20
+        issueInstant = DateTime()
+        destination = DESTINATION
+        protocolBinding = SamlProtocol.POST_BINDING
+        nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
+            allowCreate = true
+            format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
+            spNameQualifier = SP_ISSUER
+        }
+    }
+
+    SimpleSign().signSamlObject(authnRequest)
+    val doc = DOMUtils.createDocument()
+    doc.appendChild(doc.createElement("root"))
+    val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
+
+    return DOM2Writer.nodeToString(requestElement)
 }
 
 /** Extensions to Node class **/

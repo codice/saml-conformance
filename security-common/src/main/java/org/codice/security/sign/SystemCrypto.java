@@ -43,7 +43,8 @@ public class SystemCrypto {
   private final String encryptionAlias;
 
   public SystemCrypto() throws IOException {
-    this.passwordEncryption = null;//new EncryptionServiceImpl();
+    this.passwordEncryption = null;
+    //new EncryptionServiceImpl()
 
     Properties sigProperties = createProperty("encryption.properties");
     signatureCrypto = createCrypto(sigProperties);
