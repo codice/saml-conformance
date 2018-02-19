@@ -51,7 +51,14 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
         }
 
         private fun readCode(code: String): String {
-            return "${BUNDLE.getString(code)}"
+            return "${trimUnderscore(code)}: ${BUNDLE.getString(code)}"
+        }
+
+        private fun trimUnderscore(codeValue: String): String {
+            val underscoreIndex = codeValue.indexOf("_")
+
+            if (underscoreIndex == -1) return codeValue
+            else return codeValue.substring(0, underscoreIndex)
         }
     }
 }
