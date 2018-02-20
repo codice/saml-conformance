@@ -33,6 +33,8 @@ fun verifyProtocols(response: Node) {
     verifyStatuses(response)
     verifyQueries(response)
     verifyAuthenticationRequestProtocol(response)
+    verifyArtifactResolutionProtocol(response)
+    verifyNameIdentifierManagementProtocol(response)
 }
 
 /**
@@ -176,13 +178,46 @@ fun verifyAuthenticationRequestProtocol(response: Node) {
     val idpLists = response.allChildren("IDPList")
     idpLists.forEach {
         val idpEntries = it.children("IDPEntry")
-        if(idpEntries.isEmpty())
+        if (idpEntries.isEmpty())
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.4.1.3", "IDPEntry", "IDPList")
 
         //IDPEntry
         idpEntries.forEach {
-            if(it.attributes.getNamedItem("ProviderID") == null)
+            if (it.attributes.getNamedItem("ProviderID") == null)
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.4.1.3.1", "ProviderID", "IDPEntry")
         }
+    }
+}
+
+/**
+ * Verify the Artifact Resolution Protocol
+ * 3.5.1 Element <ArtifactResolve>
+ */
+fun verifyArtifactResolutionProtocol(response: Node) {
+    // ArtifactResolve
+    val artifactResolves = response.allChildren("ArtifactResolve")
+    artifactResolves.forEach {
+        if (it.children("Artifact").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.5.1", "Artifact", "ArtifactResolve")
+    }
+
+    // todo - test for processing rules (potential separate from this) SAMLCore.3.5.3 Processing Rules
+}
+
+/**
+ * Verify the Name Identifier Management Protocol
+ * 3.6.1 Element <ManageNameIDRequest>
+ */
+fun verifyNameIdentifierManagementProtocol(response: Node) {
+    // todo - This protocol MUST NOT be used in conjunction with the urn:oasis:names:tc:SAML:2.0:nameidformat:transient <NameID> Format.
+    val manageNameIDRequest = response.allChildren("ManageNameIDRequest")
+    manageNameIDRequest.forEach {
+        if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "ManageNameIDRequest")
+
+        if (it.children("NewID").isEmpty()
+                && it.children("NewEncryptedID").isEmpty()
+                && it.children("Terminate").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NewID, NewEncryptedID or Terminate", "ManageNameIDRequest")
     }
 }

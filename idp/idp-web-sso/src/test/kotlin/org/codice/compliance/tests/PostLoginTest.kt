@@ -18,6 +18,7 @@ import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
+import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.bindings.verifyPost
 import org.codice.compliance.buildDom
 import org.codice.compliance.core.verifyCore
@@ -29,6 +30,7 @@ import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
+import java.io.IOException
 
 class PostLoginTest : StringSpec({
     RestAssured.useRelaxedHTTPSValidation()
@@ -52,9 +54,14 @@ class PostLoginTest : StringSpec({
 })
 
 fun assertPostResponse(samlResponse: String) {
-    val decodedMessage = Decoder.decodePostMessage(samlResponse)
-    decodedMessage shouldNotBe null
+    val decodedMessage: String
+    try {
+        decodedMessage = Decoder.decodePostMessage(samlResponse)
+    } catch (e: IOException) {
+        throw SAMLComplianceException.create("SAMLBindings.3.5.4")
+    }
 
+    decodedMessage shouldNotBe null
     val responseElement = buildDom(decodedMessage)
     verifyCore(responseElement)
     verifySsoProfile(responseElement)
