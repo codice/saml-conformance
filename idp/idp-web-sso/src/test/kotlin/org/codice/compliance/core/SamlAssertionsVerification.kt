@@ -31,6 +31,7 @@ fun verifyAssertions(response: Node) {
     verifyConditions(response)
     verifyAuthnStatementAndAttributeStatement(response)
     verifyAttributeElements(response)
+    verifyAuthzDecisionStatementAndAction(response)
 }
 
 /**

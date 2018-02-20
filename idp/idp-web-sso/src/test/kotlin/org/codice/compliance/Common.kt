@@ -74,7 +74,7 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
         }
 
         fun createWithReqMessage(section: String, attribute: String, parent: String): SAMLComplianceException {
-            return SAMLComplianceException(String.format("%s=The %s is required in %s.", section, attribute, parent))
+            return SAMLComplianceException(String.format("%s=%s is required in %s.", section, attribute, parent))
         }
 
         private fun readCode(code: String): String {
