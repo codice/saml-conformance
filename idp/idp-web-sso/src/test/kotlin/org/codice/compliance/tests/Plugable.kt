@@ -31,6 +31,15 @@ fun getIdpRedirectResponse(originalResponse: Response): String {
     val response = parseResponseAndSendRequest(originalResponse)
     response.statusCode() shouldBe 200
 
+    /*************************
+     * <html>
+     * <head>
+     * ...
+     * <script type="text/javascript">
+     * **SAMLResponseValueHere**
+     * </script>
+     * ...
+     ************************/
     val script = (response.then().extract().htmlPath().getNode("html").getNode("head") as NodeBase).getNode("script").value()
 
     val encodedStart = script.indexOf("encoded = \"")
@@ -48,6 +57,15 @@ fun getIdpRedirectResponse(originalResponse: Response): String {
 fun getIdpPostResponse(originalResponse: Response): String {
     val response = parseResponseAndSendRequest(originalResponse)
     response.statusCode() shouldBe 200
+    /*************************
+     * <html>
+     * ...
+     * <body>
+     * <form id="postform" method="post" action="https://localhost:8993/services/saml/sso">
+     * <input class="idp-form-submit" type="submit" style="display:none;"/>
+     * <input type="hidden" name="SAMLResponse" value="**SAMLResponseValueHere**"/>
+     * ...
+     ************************/
     return response.then().extract().htmlPath().getNode("html").getNode("body").getNode("form").getNodes("input").get(1).getAttribute("value")
 }
 
@@ -55,6 +73,15 @@ fun getIdpPostResponse(originalResponse: Response): String {
  * Sends request to DDF's /login/sso endpoint with the query parameters
  */
 private fun parseResponseAndSendRequest(response: Response): Response {
+    /*************************
+     * <html>
+     * <head>
+     * ...
+     * <script type="application/javascript">
+     * window.idpState = {**JSONMapWithInformationHere**};
+     * </script>
+     * ...
+     *************************/
     val idpState = (response.then().extract().htmlPath().getNode("html").getNode("head").getNodes("script").get(0) as NodeImpl).value.toString().trim().replace("window.idpState = ", "").replace(";", "")
     val queryParams = ObjectMapper().readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
 
