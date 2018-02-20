@@ -42,7 +42,6 @@
   
   <modules>
     <module>security-common</module>
-    <module>prototype-kotlin</module>
     <module>idp</module>
   </modules>
 </project>

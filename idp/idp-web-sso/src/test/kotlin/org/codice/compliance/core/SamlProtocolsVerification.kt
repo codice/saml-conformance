@@ -16,9 +16,9 @@ package org.codice.compliance.core
 import org.w3c.dom.Node
 
 /**
- * Verify response against the Core Spec document
+ * Verify protocols against the Core Spec document
+ * 2 SAML Assertions
  */
-fun verifyCore(response: Node) {
-    verifyAssertions(response)
-    verifyProtocols(response)
+fun verifyProtocols(response: Node) {
+
 }
