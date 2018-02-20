@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IdpMetadata {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpMetadata.class);
 
   private static final String SAML_2_0_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
@@ -291,6 +292,7 @@ public class IdpMetadata {
   }
 
   protected class EntityData {
+
     private final EntityDescriptor entityDescriptor;
     private final Duration cacheDuration;
     private final Instant validUntil;

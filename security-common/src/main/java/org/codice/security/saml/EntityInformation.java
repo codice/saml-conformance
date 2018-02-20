@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 @Immutable
 public class EntityInformation {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(EntityInformation.class);
 
   private final String signingCertificate;
@@ -163,6 +164,7 @@ public class EntityInformation {
   }
 
   public static class Builder {
+
     private static final ImmutableSet<UsageType> SIGNING_TYPES =
         ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
 
@@ -311,6 +313,7 @@ public class EntityInformation {
   }
 
   public static class ServiceInfo {
+
     private final String url;
 
     private final Binding binding;

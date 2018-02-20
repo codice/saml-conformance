@@ -28,16 +28,19 @@ import org.codice.security.saml.SamlProtocol.Binding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Non-instantiable class that provides a utility function to parse service provider metadata */
+/**
+ * Non-instantiable class that provides a utility function to parse service provider metadata
+ */
 public class SPMetadataParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SPMetadataParser.class);
 
-  private SPMetadataParser() {}
+  private SPMetadataParser() {
+  }
 
   /**
    * @param spMetadata Metadata from the service provider either as the xml itself, a url to a
-   *     service that returns the xml, or the path to a file with the xml starting with file:
+   * service that returns the xml, or the path to a file with the xml starting with file:
    * @param bindingSet Set of supported bindings
    * @return Map of the service providers entity id and the entity information
    */

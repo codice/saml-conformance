@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.security.sign;
 
 import java.io.ByteArrayOutputStream;
@@ -13,19 +26,24 @@ public class Encoder {
 
   private static final boolean GZIP_COMPATIBLE = true;
 
-  private Encoder() {}
+  private Encoder() {
+  }
 
   /**
    * Base 64 decodes then URL encodes POST SAML messages
+   *
    * @param message - SAML POST message
    * @return - decoded message
    */
   public static String encodePostMessage(String message) throws IOException {
-    return "SAMLRequest=" + URLEncoder.encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8.name());
+    return "SAMLRequest=" + URLEncoder
+        .encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
+            StandardCharsets.UTF_8.name());
   }
 
   /**
    * Deflates, base 64 encodes then URL encodes Redirect SAML messages
+   *
    * @param message - SAML Redirect message
    * @return - encoded message
    */

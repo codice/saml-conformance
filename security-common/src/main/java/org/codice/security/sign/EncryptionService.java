@@ -22,7 +22,7 @@ public interface EncryptionService extends PasswordEncryptor {
    * returned as a no-op.
    *
    * @param wrappedEncryptedValue a string of the form "ENC(", followed by an encrypted value, and
-   *     terminated with ")".
+   * terminated with ")".
    * @return a decryption of the given value after removing the leading "ENC(" and trailing ")".
    */
   String decryptValue(String wrappedEncryptedValue);
@@ -32,7 +32,7 @@ public interface EncryptionService extends PasswordEncryptor {
    * a no-op.
    *
    * @param wrappedEncryptedValue a string of the form "ENC(", followed by an encrypted value, and
-   *     terminated with ")".
+   * terminated with ")".
    * @return the encrypted value <b>without</b> the leading "ENC(" and trailing ")".
    */
   String unwrapEncryptedValue(String wrappedEncryptedValue);

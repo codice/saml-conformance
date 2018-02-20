@@ -14,8 +14,10 @@
 package org.codice.compliance.core
 
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
+import java.time.Instant
 
 /**
  * Verify response against the Core Spec document
@@ -24,6 +26,11 @@ fun verifyCore(response: Node) {
     verifyEncryptedId(response)
     verifyCoreAssertion(response)
     verifyEncryptedAssertion(response)
+    verifySubjectConfirmation(response)
+    verifySubjectConfirmationData(response)
+    verifyConditions(response)
+    verifyAuthnStatementAndAttributeStatement(response)
+    verifyAttribute(response)
 }
 
 /**
@@ -31,14 +38,14 @@ fun verifyCore(response: Node) {
  * 2.2.4 Element <EncryptedID>
  */
 fun verifyEncryptedId(response: Node) {
-    val encryptedIds = response.children("EncryptedID")
+    val encryptedIds = response.allChildren("EncryptedID")
     if (encryptedIds.isNotEmpty()) {
         if (encryptedIds.any { it.children("EncryptedData").isEmpty() })
             throw SAMLComplianceException.create("10") // The <EncryptedID> element contains the following element: <xenc:EncryptedData> [Required]
 
         encryptedIds.forEach {
             val encryptedData = it.children("EncryptedData")
-            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData")
+            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
 
             if (encryptedData
                     .filter { it.attributes.getNamedItem("Type") != null }
@@ -55,28 +62,25 @@ fun verifyEncryptedId(response: Node) {
  * 2.3.3 Element <Assertion>
  */
 fun verifyCoreAssertion(response: Node) {
-    val assertions = response.children("Assertion")
+    val assertions = response.allChildren("Assertion")
     if (assertions.isNotEmpty()) {
         for (assertion in assertions) {
 
             if (assertion.attributes.getNamedItem("Version").textContent != "2.0")
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version")
+                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
             if (assertion.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID")
+                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
             if (assertion.attributes.getNamedItem("IssueInstant") == null)
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant")
+                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
 
             val issuers = assertion.children("Issuer")
-            val signatures = assertion.children("Signature")
             val subjects = assertion.children("Subject")
-            val conditions = assertion.children("Conditions")
-            val advices = assertion.children("Advice")
             val statements = assertion.children("Statement")
             val authnStatements = assertion.children("AuthnStatement")
             val authzDecisionStatements = assertion.children("AuthzDecisionStatement")
             val attributeStatements = assertion.children("AttributeStatement")
 
-            if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer")
+            if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
             if (statements.isNotEmpty() && statements.any { it.attributes.getNamedItem("xsi:type") == null })
                 throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
@@ -93,15 +97,15 @@ fun verifyCoreAssertion(response: Node) {
 }
 
 /**
- * Verify the <Assertion> Element against the Core Spec document
+ * Verify the <Assertion> element against the Core Spec document
  * 2.3.4 Element <EncryptedAssertion>
  */
 fun verifyEncryptedAssertion(response: Node) {
-    val encryptedAssertion = response.children("EncryptedAssertion")
+    val encryptedAssertion = response.allChildren("EncryptedAssertion")
     if (encryptedAssertion.isNotEmpty()) {
         encryptedAssertion.forEach {
             val encryptedData = it.children("EncryptedData")
-            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.4", "EncryptedData")
+            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.4", "EncryptedData", "EncryptedAssertion")
 
             if (encryptedData
                     .filter { it.attributes.getNamedItem("Type") != null }
@@ -109,5 +113,94 @@ fun verifyEncryptedAssertion(response: Node) {
                 throw SAMLComplianceException.create("SAMLCore.2.3.4")
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }
+    }
+}
+
+/**
+ * Verify the <SubjectConfirmation> element against the Core Spec
+ * 2.4.1.1 Element <SubjectConfirmation>
+ */
+fun verifySubjectConfirmation(response: Node) {
+    val subjectConfirmations = response.allChildren("SubjectConfirmation")
+    if (subjectConfirmations.any { it.attributes.getNamedItem("Method") == null })
+        throw SAMLComplianceException.createWithReqMessage("2.4.1.1", "Method", "SubjectConfirmation")
+}
+
+/**
+ * Verify the <SubjectConfirmationData> element against the Core Spec
+ * 2.4.1.2 Element <SubjectConfirmationData>
+ */
+fun verifySubjectConfirmationData(response: Node) {
+    val subjectConfirmationData = response.allChildren("SubjectConfirmationData")
+    // todo - SAML extensions MUST NOT add local (non-namespace-qualified) XML attributes or XML attributes qualified by a SAML-defined
+    // namespace to the SubjectConfirmationDataType complex type or a derivation of it; such attributes are reserved for future maintenance
+    // and enhancement of SAML itself.
+}
+
+/**
+ * Verify the <Conditions> element against the Core Spec
+ * 2.5.1 Element <Conditions>
+ */
+fun verifyConditions(response: Node) {
+    val conditions = response.allChildren("Conditions")
+    conditions.forEach {
+        val conditionList = it.children("Condition")
+        if (conditionList.isNotEmpty() && conditionList.any { it.attributes.getNamedItem("xsi:type") == null })
+            throw SAMLComplianceException.create("SAMLCore.2.5.1_a")
+
+        if (it.children("OneTimeUse").size > 1)
+            throw SAMLComplianceException.create("SAMLCore.2.5.1_b", "SAMLCore.2.5.1.5")
+
+        if (it.children("ProxyRestriction").size > 1)
+            throw SAMLComplianceException.create("SAMLCore.2.5.1_c, SAMLCore.2.5.1.6")
+
+        val notBefore = it.attributes.getNamedItem("NotBefore")
+        val notOnOrAfter = it.attributes.getNamedItem("NotOnOrAfter")
+        if (notBefore != null
+                && notOnOrAfter != null
+                && Instant.parse(notBefore.textContent) > Instant.parse(notOnOrAfter.textContent))
+            throw SAMLComplianceException.create("SAMLCore.2.5.1.2")
+    }
+}
+
+/**
+ * Verify the <AuthnStatement> element against the Core Spec
+ * 2.7.2 Element <AuthnStatement>
+ */
+fun verifyAuthnStatementAndAttributeStatement(response: Node) {
+    val assertions = response.allChildren("Assertion")
+    if (assertions
+            .filter { it.children("AuthnStatement").isNotEmpty() }
+            .any { it.children("Subject").isEmpty() })
+        throw SAMLComplianceException.create("SAMLCore.2.7.2")
+
+    val authnStatements = response.allChildren("AuthnStatement")
+    authnStatements.forEach {
+        if (it.attributes.getNamedItem("AuthnInstant") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.2", "AuthnInstant", "AuthnStatement")
+
+        if (it.children("AuthnContext").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.2", "AuthnContext", "AuthnStatement")
+    }
+}
+
+/**
+ * Verify the <AttributeStatement> and <Attribute> elements against the Core Spec
+ * 2.7.3 Element <AttributeStatement>
+ * 2.7.3.1 Element <Attribute>
+ */
+fun verifyAttribute(response: Node) {
+    val assertions = response.allChildren("Assertion")
+    if (assertions
+            .filter { it.children("AttributeStatement").isNotEmpty() }
+            .any { it.children("Subject").isEmpty() })
+        throw SAMLComplianceException.create("SAMLCore.2.7.3")
+
+    val attributes = response.allChildren("Attribute")
+    attributes.forEach {
+        if (it.attributes.getNamedItem("Name") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3.1", "Name", "Attribute")
+        if (it.childNodes.length < 1)
+            throw SAMLComplianceException.create("SAMLCore.2.7.3.1")
     }
 }

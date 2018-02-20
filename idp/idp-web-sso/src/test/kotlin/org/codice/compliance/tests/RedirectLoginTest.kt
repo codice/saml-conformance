@@ -22,6 +22,7 @@ import org.codice.compliance.*
 import org.codice.compliance.bindings.verifyRedirect
 import org.codice.compliance.core.verifyCore
 import org.codice.compliance.profiles.verifySsoProfile
+import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -45,7 +46,7 @@ class RedirectLoginTest : StringSpec({
                 .log()
                 .ifValidationFails()
                 .`when`()
-                .get("https://localhost:8993/services/idp/login")
+                .get(getAssertionConsumerServiceLocation(SamlProtocol.REDIRECT_BINDING))
 
         val idpResponse = getIdpRedirectResponse(response)
         assertRedirectResponse(idpResponse)

@@ -50,8 +50,8 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
             return SAMLComplianceException(msg)
         }
 
-        fun createWithReqMessage(section: String, attribute : String): SAMLComplianceException {
-            return SAMLComplianceException(String.format("%s=The %s attribute is required.", section, attribute))
+        fun createWithReqMessage(section: String, attribute: String, parent: String): SAMLComplianceException {
+            return SAMLComplianceException(String.format("%s=The %s is required in %s.", section, attribute, parent))
         }
 
         private fun readCode(code: String): String {
@@ -118,6 +118,17 @@ fun generateAndRetrieveAuthnRequest(): String {
     return DOM2Writer.nodeToString(requestElement)
 }
 
+/**
+ * Returns ACS url of the passed in binding from the IdP's metadata
+ */
+fun getAssertionConsumerServiceLocation(binding: String): String? {
+    return getIdpMetadata()
+            ?.singleSignOnServices
+            ?.filter { it.binding == binding }
+            ?.firstOrNull()
+            ?.location
+}
+
 /** Extensions to Node class **/
 
 /**
@@ -150,7 +161,7 @@ fun Node.allChildren(name: String): List<Node> {
         val child = this.childNodes.item(i)
         if (child.localName == name)
             nodes.add(child)
-            nodes.addAll(child.allChildren(name)); i -= 1
+        nodes.addAll(child.allChildren(name)); i -= 1
     }
     return nodes
 }

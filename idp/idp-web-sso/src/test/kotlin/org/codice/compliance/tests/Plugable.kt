@@ -21,7 +21,6 @@ import com.jayway.restassured.response.Response
 import io.kotlintest.matchers.shouldBe
 import java.nio.charset.StandardCharsets
 
-
 /**
  * Plugable portion of the test.
  *
@@ -57,7 +56,7 @@ fun getIdpPostResponse(originalResponse: Response): String {
  */
 private fun parseResponseAndSendRequest(response: Response): Response {
     val idpState = (response.then().extract().htmlPath().getNode("html").getNode("head").getNodes("script").get(0) as NodeImpl).value.toString().trim().replace("window.idpState = ", "").replace(";", "")
-    var queryParams = ObjectMapper().readValue(idpState, MutableMap::class.java) as MutableMap<String,String>
+    val queryParams = ObjectMapper().readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
 
     return RestAssured.given()
             .auth()

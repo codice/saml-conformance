@@ -22,7 +22,9 @@ import org.codice.compliance.bindings.verifyPost
 import org.codice.compliance.buildDom
 import org.codice.compliance.core.verifyCore
 import org.codice.compliance.generateAndRetrieveAuthnRequest
+import org.codice.compliance.getAssertionConsumerServiceLocation
 import org.codice.compliance.profiles.verifySsoProfile
+import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
 
@@ -39,7 +41,7 @@ class PostLoginTest : StringSpec({
                 .log()
                 .ifValidationFails()
                 .`when`()
-                .post("https://localhost:8993/services/idp/login")
+                .post(getAssertionConsumerServiceLocation(SamlProtocol.POST_BINDING))
 
         response.statusCode shouldBe 200
         val idpResponse = getIdpPostResponse(response)

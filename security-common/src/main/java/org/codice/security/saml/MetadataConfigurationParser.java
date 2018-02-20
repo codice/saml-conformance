@@ -63,7 +63,6 @@ public class MetadataConfigurationParser {
    * Parses and builds an entity descriptor for metadatas.
    *
    * @param filePaths - List of paths to metadata files
-   * @throws IOException
    */
   private void buildEntityDescriptor(List<String> filePaths) throws IOException {
     for (String pathStr : filePaths) {

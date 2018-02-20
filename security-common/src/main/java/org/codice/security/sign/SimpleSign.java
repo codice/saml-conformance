@@ -111,9 +111,6 @@ public class SimpleSign {
    * @param samlObject signable object to be signed
    * @param <T> instance of a class that extends {@code SignableSAMLObject}
    * @return copy of the input object with a valid signature value
-   * @throws SignatureException
-   * @throws WSSecurityException
-   * @throws XMLStreamException
    */
   public <T extends SignableSAMLObject> T forceSignSamlObject(T samlObject)
       throws SignatureException, WSSecurityException, XMLStreamException {
@@ -143,9 +140,9 @@ public class SimpleSign {
    * @param samlType - SAMLRequest or SAMLResponse
    * @param samlRequestOrResponse - request or response already encoded
    * @param relayState - uri encoded relayState (optional) - null is no relay state exists
-   * @throws SignatureException
    */
-  public Map<String, String> signUriString(String samlType, String samlRequestOrResponse, String relayState) throws SignatureException {
+  public Map<String, String> signUriString(String samlType, String samlRequestOrResponse,
+      String relayState) throws SignatureException {
     try {
       X509Certificate[] certificates = getSignatureCertificates();
       String sigAlgo = getSignatureAlgorithm(certificates[0]);
@@ -168,10 +165,12 @@ public class SimpleSign {
       Map<String, String> queryParams = new HashMap<>();
       queryParams.put(samlType, samlRequestOrResponse);
       queryParams.put(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
-      queryParams.put(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
+      queryParams
+          .put(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
       queryParams.put(
           SSOConstants.SIGNATURE,
-          URLEncoder.encode(Base64.getEncoder().encodeToString(signatureBytes), StandardCharsets.UTF_8.name()));
+          URLEncoder.encode(Base64.getEncoder().encodeToString(signatureBytes),
+              StandardCharsets.UTF_8.name()));
       return queryParams;
     } catch (java.security.SignatureException | UnsupportedEncodingException e) {
       throw new SignatureException(e);
@@ -396,7 +395,9 @@ public class SimpleSign {
   }
 
   public static class SignatureException extends Exception {
-    public SignatureException() {}
+
+    public SignatureException() {
+    }
 
     public SignatureException(Throwable cause) {
       super(cause);

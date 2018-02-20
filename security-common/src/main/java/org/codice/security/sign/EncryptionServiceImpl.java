@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EncryptionServiceImpl implements EncryptionService {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImpl.class);
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
@@ -34,11 +35,11 @@ public class EncryptionServiceImpl implements EncryptionService {
     synchronized (EncryptionServiceImpl.class) {
       if (!new File(passwordDirectory.concat("/meta")).exists()) {
         KeyczarTool.main(
-            new String[] {
+            new String[]{
                 "create", "--location=" + passwordDirectory, "--purpose=crypt", "--name=Password"
             });
         KeyczarTool.main(
-            new String[] {"addkey", "--location=" + passwordDirectory, "--status=primary"});
+            new String[]{"addkey", "--location=" + passwordDirectory, "--status=primary"});
       }
       Crypter newCrypter = null;
       try {
@@ -79,6 +80,7 @@ public class EncryptionServiceImpl implements EncryptionService {
   }
 
   // @formatter:off
+
   /**
    * {@inheritDoc}
    *
@@ -123,7 +125,7 @@ public class EncryptionServiceImpl implements EncryptionService {
    * password is not encrypted.
    *
    * @param wrappedEncryptedValue The wrapped encrypted value, in the form
-   *     'ENC(my-encrypted-value)'.
+   * 'ENC(my-encrypted-value)'.
    * @return The value within the parenthesis.
    */
   @Override
