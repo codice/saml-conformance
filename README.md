@@ -15,9 +15,6 @@ Currently just has sub-directories for Web SSO and Single Logout, but that list 
 Current state: Two tests for Web SSO (post and redirect). 
 Tests will be written against the IdP on DDF master for now.
 
-## prototype-kotlin
-This module contains requests and responses captured from DDF and Spring Security's SP
-
 ## security-common
 This module contains an assortment of Java classes that have been copied over from DDF to support parsing SAML metadata for the tests.
 

@@ -74,8 +74,9 @@
   
   <modules>
     <module>idp-web-sso</module>
+    <module>idp-test-resources</module>
     <module>idp-single-logout</module>
-      <module>idp-temp-jar</module>
+    <module>idp-temp-jar</module>
   </modules>
 
 
