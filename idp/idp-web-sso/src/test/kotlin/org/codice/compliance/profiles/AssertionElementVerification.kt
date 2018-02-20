@@ -80,10 +80,10 @@ fun verifySsoAssertions(response: Node) {
                     .firstOrNull()
                     ?.children("AudienceRestriction")
                     ?.firstOrNull()
-                    ?: throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2l")
+                    ?: throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_l")
 
             val audience = audienceRestriction.children("Audience").firstOrNull()
-            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2l")
+            if (audience == null || audience.textContent != SP_ISSUER) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_l")
         }
     }
 }

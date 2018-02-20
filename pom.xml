@@ -13,35 +13,38 @@
  **/
 -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.codice</groupId>
-  <artifactId>saml-conformance-test-kit</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>SAML Conformance Test Kit</name>
-  
-  <properties>
-    <rest.assured.version>2.9.0</rest.assured.version>
-    <org.slf4j.version>1.7.1</org.slf4j.version>
-  </properties>
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.codice</groupId>
+    <artifactId>saml-conformance-test-kit</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>SAML Conformance Test Kit</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.jayway.restassured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <version>${rest.assured.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${org.slf4j.version}</version>
-    </dependency>
-  </dependencies>
-  
-  <modules>
-    <module>security-common</module>
-    <module>idp</module>
-  </modules>
+    <properties>
+        <rest.assured.version>2.9.0</rest.assured.version>
+        <org.slf4j.version>1.7.1</org.slf4j.version>
+        <kotlin.version>1.2.21</kotlin.version>
+        <kotlintest.version>2.0.7</kotlintest.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest.assured.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+    </dependencies>
+
+    <modules>
+        <module>security-common</module>
+        <module>ddf-plugins</module>
+        <module>idp</module>
+    </modules>
 </project>

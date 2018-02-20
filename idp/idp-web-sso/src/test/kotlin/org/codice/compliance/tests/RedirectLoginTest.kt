@@ -22,6 +22,7 @@ import org.codice.compliance.*
 import org.codice.compliance.bindings.verifyRedirect
 import org.codice.compliance.core.verifyCore
 import org.codice.compliance.profiles.verifySsoProfile
+import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
@@ -48,7 +49,7 @@ class RedirectLoginTest : StringSpec({
                 .`when`()
                 .get(getAssertionConsumerServiceLocation(SamlProtocol.REDIRECT_BINDING))
 
-        val idpResponse = getIdpRedirectResponse(response)
+        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
         assertRedirectResponse(idpResponse)
     }
 })

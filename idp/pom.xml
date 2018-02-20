@@ -11,12 +11,7 @@
   
   <artifactId>idp</artifactId>
   <packaging>pom</packaging>
-  
-  <properties>
-    <kotlin.version>1.2.21</kotlin.version>
-    <kotlintest.version>2.0.7</kotlintest.version>
-  </properties>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -73,10 +68,10 @@
   </build>
   
   <modules>
+    <module>idp-common</module>
     <module>idp-web-sso</module>
     <module>idp-test-resources</module>
     <module>idp-single-logout</module>
-    <module>idp-temp-jar</module>
   </modules>
 
 

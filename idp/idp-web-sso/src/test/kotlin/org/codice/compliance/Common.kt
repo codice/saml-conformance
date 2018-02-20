@@ -29,6 +29,8 @@ import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
+import java.io.File
+import java.net.URLClassLoader
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -37,6 +39,27 @@ const val DESTINATION = "https://localhost:8993/services/idp/login"
 const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 val idpParsedMetadata = getIdpMetadata()
+
+private val DEPLOY_CL = getDeployDirClassloader()
+
+private fun getDeployDirClassloader(): ClassLoader {
+    val pluginDeploy = System.getProperty("saml.plugin.deployDir")
+
+    return if (pluginDeploy != null) {
+        val walkTopDown = File(pluginDeploy).walkTopDown()
+        val jarUrls = walkTopDown.maxDepth(1)
+                .filter { it.name.endsWith(".jar") }
+                .map { it.toURI() }
+                .map { it.toURL() }
+                .toList()
+
+        URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
+    } else SAMLComplianceException::class.java.classLoader
+}
+
+fun <T> getServiceProvider(type: Class<T>) : T {
+    return ServiceLoader.load(type, DEPLOY_CL).first()
+}
 
 class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
