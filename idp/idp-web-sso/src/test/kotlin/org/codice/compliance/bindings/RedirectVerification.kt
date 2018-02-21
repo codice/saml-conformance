@@ -18,6 +18,29 @@ import org.w3c.dom.Node
 /**
  * Verify the response for a redirect binding
  */
-fun verifyRedirect(response: Node) {
+fun verifyRedirect(response: Node, parsedResponse : Map<String, String>) {
+    parsedResponse["RelayState"]?.let { verifyRedirectRelayState(it) }
+    parsedResponse["Signature"]?.let { verifyRedirectSignature(it) }
+    parsedResponse["SigAlg"]?.let { verifyRedirectSigAlg(it) }
+}
+
+/**
+ * Verifies the signature algorithm according to the redirect binding rules in the binding spec
+ */
+fun verifyRedirectSigAlg(sigAlg: String) {
+
+}
+
+/**
+ * Verifies the signature according to the post redirect rules in the binding spec
+ */
+fun verifyRedirectSignature(signature: String) {
+
+}
+
+/**
+ * Verifies the relay state according to the post redirect rules in the binding spec
+ */
+fun verifyRedirectRelayState(relayState: String) {
 
 }

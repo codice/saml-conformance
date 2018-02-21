@@ -20,8 +20,9 @@ import org.w3c.dom.Node
 /**
  * Verify the response for a post binding
  */
-fun verifyPost(response: Node) {
+fun verifyPost(response: Node, parsedResponse : Map<String, String>) {
     verifySsoPost(response)
+    parsedResponse["RelayState"]?.let { verifyPostRelayState(it) }
 }
 
 /**
@@ -33,4 +34,11 @@ fun verifySsoPost(response: Node) {
     if (response.children("Signature").isEmpty()
             || response.children("Assertion").any { it.children("Signature").isEmpty() })
         throw SAMLComplianceException.create("10") //If the HTTP POST binding is used to deliver the <Response>, [E26]each assertion MUST be protected by a digital signature. This can be accomplished by signing each individual <Assertion> element or by signing the <Response> element.
+}
+
+/**
+ * Verifies the relay state according to the post binding rules in the binding spec
+ */
+fun verifyPostRelayState(relayState: String) {
+
 }

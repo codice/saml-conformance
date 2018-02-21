@@ -39,6 +39,8 @@ const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val DESTINATION = "https://localhost:8993/services/idp/login"
 const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
+const val RELAY_STATE = "relayState"
+const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
 val idpParsedMetadata = getIdpMetadata()
 
 private val DEPLOY_CL = getDeployDirClassloader()
@@ -109,28 +111,6 @@ fun buildDom(decodedMessage: String): Node {
     docBuilder.isNamespaceAware = true
     val xmlDoc: Document = docBuilder.newDocumentBuilder().parse(decodedMessage.byteInputStream())
     return xmlDoc.documentElement
-}
-
-/**
- * Parses an idp response
- * @param - String response ordered in any order.
- * For example, "https://host:port/location?SAMLResponse=**SAMLResponse**&SigAlg=**SigAlg**&Signature=**Signature**
- * @return - A map from String key (Location, SAMLResponse, SigAlg, Signature, RelayState) to String value
- */
-fun parseRedirectResponse(idpResponse: String): Map<String, String> {
-    val parsedResponse = mutableMapOf<String, String>()
-    parsedResponse.put("Location", idpResponse.split("?")[0])
-
-    val splitResponse = idpResponse.split("?")[1].split("&")
-    splitResponse.forEach {
-        when {
-            it.startsWith("SAMLResponse") -> parsedResponse.put("SAMLResponse", it.replace("SAMLResponse=", ""))
-            it.startsWith("SigAlg") -> parsedResponse.put("SigAlg", it.replace("SigAlg=", ""))
-            it.startsWith("Signature") -> parsedResponse.put("Signature", it.replace("Signature=", ""))
-            it.startsWith("RelayState") -> parsedResponse.put("RelayState", it.replace("RelayState=", ""))
-        }
-    }
-    return parsedResponse
 }
 
 /**

@@ -18,13 +18,9 @@ import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
-import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.*
 import org.codice.compliance.bindings.verifyPost
-import org.codice.compliance.buildDom
 import org.codice.compliance.core.verifyCore
-import org.codice.compliance.generateAndRetrieveAuthnRequest
-import org.codice.compliance.getSingleSignonLocation
-import org.codice.compliance.getServiceProvider
 import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
@@ -53,7 +49,49 @@ class PostLoginTest : StringSpec({
     }
 })
 
-fun assertPostResponse(samlResponse: String) {
+class PostLoginWithRelayTest : StringSpec({
+    RestAssured.useRelaxedHTTPSValidation()
+
+    "POST AuthnRequest Test" {
+        val authnRequest = generateAndRetrieveAuthnRequest()
+        val encodedRequest = Encoder.encodePostMessage(authnRequest, RELAY_STATE)
+        val response = given()
+                .urlEncodingEnabled(false)
+                .body(encodedRequest)
+                .contentType("application/x-www-form-urlencoded")
+                .log()
+                .ifValidationFails()
+                .`when`()
+                .post(getSingleSignonLocation(SamlProtocol.POST_BINDING))
+
+        response.statusCode shouldBe 200
+        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
+        assertPostResponse(idpResponse)
+    }
+})
+
+/**
+ * Parses a POST idp response
+ * @param - String response ordered in any order.
+ * For example, "SAMLResponse=**SAMLResponse**&RelayState=**RelayState**
+ * @return - A map from String key (SAMLResponse, RelayState) to String value
+ */
+fun parseFinalPostResponse(idpResponse: String): Map<String, String> {
+    val parsedResponse = mutableMapOf<String, String>()
+
+    val splitResponse = idpResponse.split("&")
+    splitResponse.forEach {
+        when {
+            it.startsWith("SAMLResponse") -> parsedResponse.put("SAMLResponse", it.replace("SAMLResponse=", ""))
+            it.startsWith("RelayState") -> parsedResponse.put("RelayState", it.replace("RelayState=", ""))
+        }
+    }
+    return parsedResponse
+}
+
+fun assertPostResponse(response: String) {
+    val parsedResponse = parseFinalPostResponse(response)
+    val samlResponse = parsedResponse["SAMLResponse"]
     val decodedMessage: String
     try {
         decodedMessage = Decoder.decodePostMessage(samlResponse)
@@ -65,5 +103,5 @@ fun assertPostResponse(samlResponse: String) {
     val responseElement = buildDom(decodedMessage)
     verifyCore(responseElement)
     verifySsoProfile(responseElement)
-    verifyPost(responseElement)
+    verifyPost(responseElement, parsedResponse)
 }

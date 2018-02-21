@@ -30,7 +30,7 @@ public class Encoder {
   }
 
   /**
-   * Base 64 decodes then URL encodes POST SAML messages
+   * Base 64 then URL encodes POST SAML messages
    *
    * @param message - SAML POST message
    * @return - decoded message
@@ -39,6 +39,20 @@ public class Encoder {
     return "SAMLRequest=" + URLEncoder
         .encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
             StandardCharsets.UTF_8.name());
+  }
+
+  /**
+   * Base 64 encodes the SAML message then URL encodes it with the Relay State
+   *
+   * @param message - SAML POST message
+   * @param relayState - Relay State to URL encode with message
+   * @return - decoded message
+   */
+  public static String encodePostMessage(String message, String relayState) throws IOException {
+    return String.format("RelayState=%s&SAMLRequest=%s",
+        URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()),
+        URLEncoder.encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
+            StandardCharsets.UTF_8.name()));
   }
 
   /**

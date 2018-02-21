@@ -153,7 +153,7 @@ public class SimpleSign {
       StringBuilder requestToSign = new StringBuilder(samlType).append("=")
           .append(samlRequestOrResponse);
       if (relayState != null) {
-        requestToSign.append("&RelayState=").append(relayState);
+        requestToSign.append("&RelayState=").append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
       }
       requestToSign.append("&SigAlg=")
           .append(URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));

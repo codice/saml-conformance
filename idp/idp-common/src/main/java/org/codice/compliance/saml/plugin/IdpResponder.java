@@ -28,10 +28,11 @@ public interface IdpResponder {
   String getIdpRedirectResponse(Response originalResponse);
 
   /**
-   * Plugable portion of the test.
+   * Pluggable portion of the test.
    *
    * @param originalResponse - the response from the initial POST authn request
-   * @return A string response
+   * @return The response as a string. If a relay state exists concatenate it with a &
+   * For example, RelayState=%s&SAMLResponse=%s or SAMLResponse=%s&RelayState=%s
    */
   String getIdpPostResponse(Response originalResponse);
 }

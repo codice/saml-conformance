@@ -36,7 +36,7 @@ class RedirectLoginTest : StringSpec({
     RestAssured.useRelaxedHTTPSValidation()
 
     "Redirect AuthnRequest Test" {
-        val queryParams = setupAuthnRequest()
+        val queryParams = setupAuthnRequest(null)
 
         // Get response from AuthnRequest
         val response = given()
@@ -54,15 +54,37 @@ class RedirectLoginTest : StringSpec({
     }
 })
 
-fun setupAuthnRequest(): Map<String, String> {
+fun setupAuthnRequest(relayState : String?): Map<String, String> {
     val baseRequest = getResource("redirect-authn-request.xml").readText()
     val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS, DESTINATION, ID, Instant.now().toString(), SP_ISSUER))
-    return SimpleSign().signUriString("SAMLRequest", encodedRequest, null)
+    return SimpleSign().signUriString("SAMLRequest", encodedRequest, relayState)
+}
+
+/**
+ * Parses a redirect idp response
+ * @param - String response ordered in any order.
+ * For example, "https://host:port/location?SAMLResponse=**SAMLResponse**&SigAlg=**SigAlg**&Signature=**Signature**
+ * @return - A map from String key (Location, SAMLResponse, SigAlg, Signature, RelayState) to String value
+ */
+fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
+    val parsedResponse = mutableMapOf<String, String>()
+    parsedResponse.put("Location", idpResponse.split("?")[0])
+
+    val splitResponse = idpResponse.split("?")[1].split("&")
+    splitResponse.forEach {
+        when {
+            it.startsWith("SAMLResponse") -> parsedResponse.put("SAMLResponse", it.replace("SAMLResponse=", ""))
+            it.startsWith("SigAlg") -> parsedResponse.put("SigAlg", it.replace("SigAlg=", ""))
+            it.startsWith("Signature") -> parsedResponse.put("Signature", it.replace("Signature=", ""))
+            it.startsWith("RelayState") -> parsedResponse.put("RelayState", it.replace("RelayState=", ""))
+        }
+    }
+    return parsedResponse
 }
 
 fun assertRedirectResponse(response: String) {
-    val parsedResponse = parseRedirectResponse(response)
-    val samlResponse = parsedResponse.get("SAMLResponse")
+    val parsedResponse = parseFinalRedirectResponse(response)
+    val samlResponse = parsedResponse["SAMLResponse"]
     val decodedMessage: String
     try {
         decodedMessage = Decoder.decodeRedirectMessage(samlResponse)
@@ -74,5 +96,5 @@ fun assertRedirectResponse(response: String) {
     val responseElement = buildDom(decodedMessage)
     verifyCore(responseElement)
     verifySsoProfile(responseElement)
-    verifyRedirect(responseElement)
+    verifyRedirect(responseElement, parsedResponse)
 }
