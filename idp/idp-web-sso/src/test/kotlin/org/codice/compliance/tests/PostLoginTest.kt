@@ -23,7 +23,7 @@ import org.codice.compliance.bindings.verifyPost
 import org.codice.compliance.buildDom
 import org.codice.compliance.core.verifyCore
 import org.codice.compliance.generateAndRetrieveAuthnRequest
-import org.codice.compliance.getAssertionConsumerServiceLocation
+import org.codice.compliance.getSingleSignonLocation
 import org.codice.compliance.getServiceProvider
 import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.compliance.saml.plugin.IdpResponder
@@ -45,7 +45,7 @@ class PostLoginTest : StringSpec({
                 .log()
                 .ifValidationFails()
                 .`when`()
-                .post(getAssertionConsumerServiceLocation(SamlProtocol.POST_BINDING))
+                .post(getSingleSignonLocation(SamlProtocol.POST_BINDING))
 
         response.statusCode shouldBe 200
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)

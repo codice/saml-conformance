@@ -31,6 +31,7 @@ import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.File
 import java.net.URLClassLoader
+import java.nio.file.Paths
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -95,7 +96,8 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
  */
 fun getIdpMetadata(): IDPSSODescriptor? {
     val idpMetadataParser = IdpMetadata()
-    idpMetadataParser.setMetadata(getResource("idp-metadata.xml").path)
+    val filePath = Paths.get(getResource("idp-metadata.xml").toURI()).toFile().path
+    idpMetadataParser.setMetadata(filePath)
     return idpMetadataParser.descriptor
 }
 
@@ -142,13 +144,12 @@ fun generateAndRetrieveAuthnRequest(): String {
 }
 
 /**
- * Returns ACS url of the passed in binding from the IdP's metadata
+ * Returns SSO url of the passed in binding from the IdP's metadata
  */
-fun getAssertionConsumerServiceLocation(binding: String): String? {
+fun getSingleSignonLocation(binding: String): String? {
     return getIdpMetadata()
             ?.singleSignOnServices
-            ?.filter { it.binding == binding }
-            ?.firstOrNull()
+            ?.first { it.binding == binding }
             ?.location
 }
 

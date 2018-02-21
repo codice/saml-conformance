@@ -47,7 +47,7 @@ class RedirectLoginTest : StringSpec({
                 .log()
                 .ifValidationFails()
                 .`when`()
-                .get(getAssertionConsumerServiceLocation(SamlProtocol.REDIRECT_BINDING))
+                .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
 
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
 
