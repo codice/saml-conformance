@@ -49,11 +49,7 @@ class IdpResponderProvider : IdpResponder {
 
         val encodedStart = script.indexOf("encoded = \"")
         val encodedEnd = script.indexOf("\";", encodedStart)
-        val encoded = script.substring(encodedStart, encodedEnd).replace("encoded = \"", "")
-        return encoded
-                .split("&")[0]
-                .split("?")[1]
-                .replace("SAMLResponse=", "")
+        return script.substring(encodedStart, encodedEnd).replace("encoded = \"", "")
     }
 
     override fun getIdpPostResponse(originalResponse: Response): String? {

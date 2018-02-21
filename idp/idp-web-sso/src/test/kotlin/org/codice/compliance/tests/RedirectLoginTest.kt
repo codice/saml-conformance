@@ -50,7 +50,6 @@ class RedirectLoginTest : StringSpec({
                 .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
 
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-
         assertRedirectResponse(idpResponse)
     }
 })
@@ -61,7 +60,9 @@ fun setupAuthnRequest(): Map<String, String> {
     return SimpleSign().signUriString("SAMLRequest", encodedRequest, null)
 }
 
-fun assertRedirectResponse(samlResponse: String) {
+fun assertRedirectResponse(response: String) {
+    val parsedResponse = parseRedirectResponse(response)
+    val samlResponse = parsedResponse.get("SAMLResponse")
     val decodedMessage: String
     try {
         decodedMessage = Decoder.decodeRedirectMessage(samlResponse)

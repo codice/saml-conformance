@@ -112,6 +112,28 @@ fun buildDom(decodedMessage: String): Node {
 }
 
 /**
+ * Parses an idp response
+ * @param - String response ordered in any order.
+ * For example, "https://host:port/location?SAMLResponse=**SAMLResponse**&SigAlg=**SigAlg**&Signature=**Signature**
+ * @return - A map from String key (Location, SAMLResponse, SigAlg, Signature, RelayState) to String value
+ */
+fun parseRedirectResponse(idpResponse: String): Map<String, String> {
+    val parsedResponse = mutableMapOf<String, String>()
+    parsedResponse.put("Location", idpResponse.split("?")[0])
+
+    val splitResponse = idpResponse.split("?")[1].split("&")
+    splitResponse.forEach {
+        when {
+            it.startsWith("SAMLResponse") -> parsedResponse.put("SAMLResponse", it.replace("SAMLResponse=", ""))
+            it.startsWith("SigAlg") -> parsedResponse.put("SigAlg", it.replace("SigAlg=", ""))
+            it.startsWith("Signature") -> parsedResponse.put("Signature", it.replace("Signature=", ""))
+            it.startsWith("RelayState") -> parsedResponse.put("RelayState", it.replace("RelayState=", ""))
+        }
+    }
+    return parsedResponse
+}
+
+/**
  * Generates and returns a POST Authn Request
  */
 fun generateAndRetrieveAuthnRequest(): String {
