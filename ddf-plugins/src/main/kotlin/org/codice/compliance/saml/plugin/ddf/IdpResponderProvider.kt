@@ -39,12 +39,21 @@ class IdpResponderProvider : IdpResponder {
          * </script>
          * ...
          ************************/
-        val script = (response.then().extract().htmlPath().getNode("html").getNode("head") as NodeBase).getNode("script").value()
+        val nodeBase = response
+                .then()
+                .extract()
+                .htmlPath()
+                .getNode("html")
+                .getNode("head") as NodeBase
+        val script = nodeBase.getNode("script").value()
 
         val encodedStart = script.indexOf("encoded = \"")
         val encodedEnd = script.indexOf("\";", encodedStart)
         val encoded = script.substring(encodedStart, encodedEnd).replace("encoded = \"", "")
-        return encoded.split("&")[0].split("?")[1].replace("SAMLResponse=", "")
+        return encoded
+                .split("&")[0]
+                .split("?")[1]
+                .replace("SAMLResponse=", "")
     }
 
     override fun getIdpPostResponse(originalResponse: Response): String? {
@@ -59,7 +68,15 @@ class IdpResponderProvider : IdpResponder {
          * <input type="hidden" name="SAMLResponse" value="**SAMLResponseValueHere**"/>
          * ...
          ************************/
-        return response.then().extract().htmlPath().getNode("html").getNode("body").getNode("form").getNodes("input").get(1).getAttribute("value")
+        return response
+                .then()
+                .extract()
+                .htmlPath()
+                .getNode("html")
+                .getNode("body")
+                .getNode("form")
+                .getNodes("input")[1]
+                .getAttribute("value")
     }
 
     /**
@@ -75,8 +92,23 @@ class IdpResponderProvider : IdpResponder {
          * </script>
          * ...
          *************************/
-        val idpState = (response.then().extract().htmlPath().getNode("html").getNode("head").getNodes("script").get(0) as NodeImpl).value.toString().trim().replace("window.idpState = ", "").replace(";", "")
-        val queryParams = ObjectMapper().readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
+        val nodeImpl = response
+                .then()
+                .extract()
+                .htmlPath()
+                .getNode("html")
+                .getNode("head")
+                .getNodes("script")[0] as NodeImpl
+
+        val idpState = nodeImpl
+                .value
+                .toString()
+                .trim()
+                .replace("window.idpState = ", "")
+                .replace(";", "")
+
+        val queryParams = ObjectMapper()
+                .readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
 
         return RestAssured.given()
                 .auth()
