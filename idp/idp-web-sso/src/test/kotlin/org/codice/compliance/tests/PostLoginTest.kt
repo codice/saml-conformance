@@ -31,7 +31,7 @@ import java.io.IOException
 class PostLoginTest : StringSpec({
     RestAssured.useRelaxedHTTPSValidation()
 
-    "POST AuthnRequest Test" {
+    "POST Login Test" {
         val authnRequest = generateAndRetrieveAuthnRequest()
         val encodedRequest = Encoder.encodePostMessage(authnRequest)
         val response = given()
@@ -47,12 +47,8 @@ class PostLoginTest : StringSpec({
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
         assertPostResponse(idpResponse)
     }
-})
 
-class PostLoginWithRelayTest : StringSpec({
-    RestAssured.useRelaxedHTTPSValidation()
-
-    "POST AuthnRequest Test" {
+    "POST Login with Relay State Test" {
         val authnRequest = generateAndRetrieveAuthnRequest()
         val encodedRequest = Encoder.encodePostMessage(authnRequest, RELAY_STATE)
         val response = given()
