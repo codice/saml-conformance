@@ -16,11 +16,14 @@ package org.codice.compliance.saml.plugin;
 import com.jayway.restassured.response.Response;
 
 public interface IdpResponder {
+
   /**
-   * Plugable portion of the test.
+   * Pluggable portion of the test.
    *
    * @param originalResponse - the originalResponse from the initial REDIRECT authn request
-   * @return A string originalResponse
+   * @return The response as a string.
+   * The location, signature algorithm and signature need to be concatenated with the response in any order.
+   * For example, "https://host/location?SAMLResponse=**response**&SigAlg=**alg**&Signature=**sig**&RelayState=**relay**"
    */
   String getIdpRedirectResponse(Response originalResponse);
 
