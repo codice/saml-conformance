@@ -13,12 +13,16 @@
  */
 package org.codice.compliance.bindings
 
+import org.codice.compliance.RELAY_STATE
+import org.codice.compliance.SAMLComplianceException
 import org.w3c.dom.Node
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 /**
  * Verify the response for a redirect binding
  */
-fun verifyRedirect(response: Node, parsedResponse : Map<String, String>) {
+fun verifyRedirect(response: Node, parsedResponse: Map<String, String>) {
     parsedResponse["RelayState"]?.let { verifyRedirectRelayState(it) }
     parsedResponse["Signature"]?.let { verifyRedirectSignature(it) }
     parsedResponse["SigAlg"]?.let { verifyRedirectSigAlg(it) }
@@ -42,5 +46,12 @@ fun verifyRedirectSignature(signature: String) {
  * Verifies the relay state according to the post redirect rules in the binding spec
  */
 fun verifyRedirectRelayState(relayState: String) {
-
+    if (relayState != URLEncoder.encode(RELAY_STATE, StandardCharsets.UTF_8.name())) {
+        if (relayState == RELAY_STATE) {
+            // relay state not encoded
+            throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
+        }
+        // relay states not identical
+        throw SAMLComplianceException.create("SAMLBindings.3.4.3_a")
+    }
 }
