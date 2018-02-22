@@ -39,7 +39,7 @@ const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val DESTINATION = "https://localhost:8993/services/idp/login"
 const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
-const val RELAY_STATE = "relayState"
+const val RELAY_STATE = "relay State"
 const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
 val idpParsedMetadata = getIdpMetadata()
 
