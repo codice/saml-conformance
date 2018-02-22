@@ -13,7 +13,6 @@
  */
 package org.codice.compliance
 
-import com.google.common.io.Resources.getResource
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
@@ -31,7 +30,6 @@ import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.File
 import java.net.URLClassLoader
-import java.nio.file.Paths
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -60,7 +58,7 @@ private fun getDeployDirClassloader(): ClassLoader {
     } else SAMLComplianceException::class.java.classLoader
 }
 
-fun <T> getServiceProvider(type: Class<T>) : T {
+fun <T> getServiceProvider(type: Class<T>): T {
     return ServiceLoader.load(type, DEPLOY_CL).first()
 }
 
