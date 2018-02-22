@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,12 +45,11 @@ public class MetadataConfigurationParser {
   private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
   private final Consumer<EntityDescriptor> updateCallback;
 
-  public MetadataConfigurationParser(List<String> entityDescriptions) throws IOException {
+  public MetadataConfigurationParser(String entityDescriptions) throws IOException {
     this(entityDescriptions, null);
   }
 
-  public MetadataConfigurationParser(
-      List<String> entityDescriptions, Consumer<EntityDescriptor> updateCallback)
+  public MetadataConfigurationParser(String entityDescriptions, Consumer<EntityDescriptor> updateCallback)
       throws IOException {
     this.updateCallback = updateCallback;
     buildEntityDescriptor(entityDescriptions);
@@ -62,25 +62,20 @@ public class MetadataConfigurationParser {
   /**
    * Parses and builds an entity descriptor for metadatas.
    *
-   * @param filePaths - List of paths to metadata files
+   * @param entityDescription - metadata
    */
-  private void buildEntityDescriptor(List<String> filePaths) throws IOException {
-    for (String pathStr : filePaths) {
-      EntityDescriptor entityDescriptor = null;
-      pathStr = pathStr.trim();
+  private void buildEntityDescriptor(String entityDescription) throws IOException {
+    EntityDescriptor entityDescriptor = null;
+    entityDescription = entityDescription.trim();
 
-      Path path = Paths.get(pathStr);
-      if (Files.isReadable(path)) {
-        try (InputStream fileInputStream = Files.newInputStream(path)) {
-          entityDescriptor = readEntityDescriptor(new InputStreamReader(fileInputStream, "UTF-8"));
-        }
-      }
+    if (entityDescription.startsWith("<") && entityDescription.endsWith(">")) {
+      entityDescriptor = readEntityDescriptor(new StringReader(entityDescription));
+    }
 
-      if (entityDescriptor != null) {
-        entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
-        if (updateCallback != null) {
-          updateCallback.accept(entityDescriptor);
-        }
+    if (entityDescriptor != null) {
+      entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
+      if (updateCallback != null) {
+        updateCallback.accept(entityDescriptor);
       }
     }
   }

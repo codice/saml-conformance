@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,7 +44,7 @@ public class SPMetadataParser {
    * @return Map of the service providers entity id and the entity information
    */
   public static Map<String, EntityInformation> parse(
-      @Nullable List<String> spMetadata, Set<Binding> bindingSet) {
+      @Nullable String spMetadata, Set<Binding> bindingSet) {
     if (spMetadata == null) {
       return Collections.emptyMap();
     }

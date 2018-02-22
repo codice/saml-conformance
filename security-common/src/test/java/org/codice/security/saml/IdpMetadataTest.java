@@ -17,6 +17,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import com.google.common.io.Files;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.junit.Test;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -26,11 +29,13 @@ public class IdpMetadataTest {
   private static final String IDP_ENTITY_ID = "https://localhost:8993/services/idp/login";
 
   @Test
-  public void testParseSPMetadata() {
-    String metadataPath = this.getClass().getClassLoader().getResource("ddf-idp-metadata.xml").getPath();
+  public void testParseSPMetadata() throws Exception {
+    String metadataString = Files
+        .toString(new File(getClass().getClassLoader().getResource("ddf-idp-metadata.xml").toURI()),
+            StandardCharsets.UTF_8);
 
     IdpMetadata idpMetadata = new IdpMetadata();
-    idpMetadata.setMetadata(metadataPath);
+    idpMetadata.setMetadata(metadataString);
     Map<String, EntityDescriptor> metadata = idpMetadata.parseMetadata();
 
     assertThat(metadata, is(notNullValue()));

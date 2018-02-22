@@ -17,8 +17,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Files;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.codice.security.saml.SamlProtocol.Binding;
 import org.junit.Test;
@@ -28,9 +30,14 @@ public class SPMetadataParserTest {
   private static final String SP_ENTITY_ID = "https://localhost:8993/services/saml";
 
   @Test
-  public void testParseSPMetadata() {
-    String metadataPath = this.getClass().getClassLoader().getResource("ddf-sp-metadata.xml").getPath();
-    Map<String, EntityInformation> spMetadata = SPMetadataParser.parse(ImmutableList.of(metadataPath), ImmutableSet.of(Binding.HTTP_REDIRECT, Binding.HTTP_POST));
+  public void testParseSPMetadata() throws Exception {
+    String metadataString = Files
+        .toString(new File(getClass().getClassLoader().getResource("ddf-sp-metadata.xml").toURI()),
+            StandardCharsets.UTF_8);
+
+    Map<String, EntityInformation> spMetadata = SPMetadataParser
+        .parse(metadataString,
+            ImmutableSet.of(Binding.HTTP_REDIRECT, Binding.HTTP_POST));
 
     assertThat(spMetadata, is(notNullValue()));
     assertThat(spMetadata.size(), is(1));

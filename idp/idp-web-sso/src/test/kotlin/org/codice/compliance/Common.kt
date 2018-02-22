@@ -98,8 +98,8 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
  */
 fun getIdpMetadata(): IDPSSODescriptor? {
     val idpMetadataParser = IdpMetadata()
-    val filePath = Paths.get(getResource("idp-metadata.xml").toURI()).toFile().path
-    idpMetadataParser.setMetadata(filePath)
+    val fileContent = SAMLComplianceException::class.java.getResource("/idp-metadata.xml").readText()
+    idpMetadataParser.setMetadata(fileContent)
     return idpMetadataParser.descriptor
 }
 

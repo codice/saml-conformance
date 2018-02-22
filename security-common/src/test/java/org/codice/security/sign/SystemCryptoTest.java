@@ -36,5 +36,5 @@ public class SystemCryptoTest {
     assertThat(crypto.getSignatureAlias(), is(HOSTNAME));
     assertThat(crypto.getSignaturePassword(), is(PASS));
     assertThat(crypto.getSignatureCrypto(), is(notNullValue()));
-    }
+  }
 }

@@ -16,7 +16,6 @@ package org.codice.security.saml;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -224,8 +223,7 @@ public class IdpMetadata {
     MetadataConfigurationParser metadataConfigurationParser;
     try {
       metadataConfigurationParser =
-          new MetadataConfigurationParser(
-              Collections.singletonList(metadata), ed -> processMap.put(ed.getEntityID(), ed));
+          new MetadataConfigurationParser(metadata, ed -> processMap.put(ed.getEntityID(), ed));
     } catch (IOException e) {
       LOGGER.debug("Error parsing SSO metadata", e);
       return null;
