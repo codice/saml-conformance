@@ -18,6 +18,7 @@ import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec
+import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.codice.compliance.*
 import org.codice.compliance.bindings.verifyPost
 import org.codice.compliance.core.verifyCore
@@ -31,7 +32,7 @@ import java.io.IOException
 class PostLoginTest : StringSpec({
     RestAssured.useRelaxedHTTPSValidation()
 
-    "POST Login Test" {
+    "POST AuthnRequest Test" {
         val authnRequest = generateAndRetrieveAuthnRequest()
         val encodedRequest = Encoder.encodePostMessage(authnRequest)
         val response = given()
@@ -48,7 +49,7 @@ class PostLoginTest : StringSpec({
         assertPostResponse(idpResponse)
     }
 
-    "POST Login with Relay State Test" {
+    "POST AuthnRequest With Relay State Test" {
         val authnRequest = generateAndRetrieveAuthnRequest()
         val encodedRequest = Encoder.encodePostMessage(authnRequest, RELAY_STATE)
         val response = given()
@@ -78,8 +79,8 @@ fun parseFinalPostResponse(idpResponse: String): Map<String, String> {
     val splitResponse = idpResponse.split("&")
     splitResponse.forEach {
         when {
-            it.startsWith("SAMLResponse") -> parsedResponse.put("SAMLResponse", it.replace("SAMLResponse=", ""))
-            it.startsWith("RelayState") -> parsedResponse.put("RelayState", it.replace("RelayState=", ""))
+            it.startsWith(SSOConstants.SAML_RESPONSE) -> parsedResponse.put(SSOConstants.SAML_RESPONSE, it.replace("SAMLResponse=", ""))
+            it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse.put(SSOConstants.RELAY_STATE, it.replace("RelayState=", ""))
         }
     }
     return parsedResponse
@@ -96,8 +97,8 @@ fun assertPostResponse(response: String) {
     }
 
     decodedMessage shouldNotBe null
-    val responseElement = buildDom(decodedMessage)
-    verifyCore(responseElement)
-    verifySsoProfile(responseElement)
-    verifyPost(responseElement, parsedResponse)
+    val responseDomElement = buildDom(decodedMessage)
+    verifyCore(responseDomElement)
+    verifySsoProfile(responseDomElement)
+    verifyPost(responseDomElement, parsedResponse)
 }

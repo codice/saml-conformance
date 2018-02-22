@@ -18,7 +18,7 @@ import org.w3c.dom.Node
 /**
  * Verify the response for a redirect binding
  */
-fun verifyRedirect(response: Node, parsedResponse : Map<String, String>) {
+fun verifyRedirect(responseDomElement: Node, parsedResponse : Map<String, String>) {
     parsedResponse["RelayState"]?.let { verifyRedirectRelayState(it) }
     parsedResponse["Signature"]?.let { verifyRedirectSignature(it) }
     parsedResponse["SigAlg"]?.let { verifyRedirectSigAlg(it) }

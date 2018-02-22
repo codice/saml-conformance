@@ -164,7 +164,9 @@ public class SimpleSign {
 
       Map<String, String> queryParams = new HashMap<>();
       queryParams.put(samlType, samlRequestOrResponse);
-      queryParams.put(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
+      if (relayState != null) {
+        queryParams.put(SSOConstants.RELAY_STATE, relayState);
+      }
       queryParams
           .put(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
       queryParams.put(

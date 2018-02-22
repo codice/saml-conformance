@@ -29,7 +29,6 @@ import org.codice.security.sign.Decoder
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
 import java.io.IOException
-import java.nio.charset.StandardCharsets
 import java.time.Instant
 
 class RedirectLoginTest : StringSpec({
@@ -41,9 +40,28 @@ class RedirectLoginTest : StringSpec({
         // Get response from AuthnRequest
         val response = given()
                 .urlEncodingEnabled(false)
-                .param("SAMLRequest", queryParams["SAMLRequest"], StandardCharsets.UTF_8.name())
-                .param("SigAlg", queryParams[SSOConstants.SIG_ALG])
-                .param("Signature", queryParams[SSOConstants.SIGNATURE])
+                .param(SSOConstants.SAML_REQUEST, queryParams[SSOConstants.SAML_REQUEST])
+                .param(SSOConstants.SIG_ALG, queryParams[SSOConstants.SIG_ALG])
+                .param(SSOConstants.SIGNATURE, queryParams[SSOConstants.SIGNATURE])
+                .log()
+                .ifValidationFails()
+                .`when`()
+                .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
+
+        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
+        assertRedirectResponse(idpResponse)
+    }
+
+    "Redirect AuthnRequest With Relay State Test" {
+        val queryParams = setupAuthnRequest(RELAY_STATE)
+
+        // Get response from AuthnRequest
+        val response = given()
+                .urlEncodingEnabled(false)
+                .param(SSOConstants.SAML_REQUEST, queryParams[SSOConstants.SAML_REQUEST])
+                .param(SSOConstants.SIG_ALG, queryParams[SSOConstants.SIG_ALG])
+                .param(SSOConstants.SIGNATURE, queryParams[SSOConstants.SIGNATURE])
+                .param(SSOConstants.RELAY_STATE, queryParams[SSOConstants.RELAY_STATE])
                 .log()
                 .ifValidationFails()
                 .`when`()
@@ -54,10 +72,10 @@ class RedirectLoginTest : StringSpec({
     }
 })
 
-fun setupAuthnRequest(relayState : String?): Map<String, String> {
+fun setupAuthnRequest(relayState: String?): Map<String, String> {
     val baseRequest = getResource("redirect-authn-request.xml").readText()
     val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS, DESTINATION, ID, Instant.now().toString(), SP_ISSUER))
-    return SimpleSign().signUriString("SAMLRequest", encodedRequest, relayState)
+    return SimpleSign().signUriString(SSOConstants.SAML_REQUEST, encodedRequest, relayState)
 }
 
 /**
@@ -73,10 +91,10 @@ fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
     val splitResponse = idpResponse.split("?")[1].split("&")
     splitResponse.forEach {
         when {
-            it.startsWith("SAMLResponse") -> parsedResponse.put("SAMLResponse", it.replace("SAMLResponse=", ""))
-            it.startsWith("SigAlg") -> parsedResponse.put("SigAlg", it.replace("SigAlg=", ""))
-            it.startsWith("Signature") -> parsedResponse.put("Signature", it.replace("Signature=", ""))
-            it.startsWith("RelayState") -> parsedResponse.put("RelayState", it.replace("RelayState=", ""))
+            it.startsWith(SSOConstants.SAML_RESPONSE) -> parsedResponse.put(SSOConstants.SAML_RESPONSE, it.replace("SAMLResponse=", ""))
+            it.startsWith(SSOConstants.SIG_ALG) -> parsedResponse.put(SSOConstants.SIG_ALG, it.replace("SigAlg=", ""))
+            it.startsWith(SSOConstants.SIGNATURE) -> parsedResponse.put(SSOConstants.SIGNATURE, it.replace("Signature=", ""))
+            it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse.put(SSOConstants.RELAY_STATE, it.replace("RelayState=", ""))
         }
     }
     return parsedResponse
@@ -84,7 +102,7 @@ fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
 
 fun assertRedirectResponse(response: String) {
     val parsedResponse = parseFinalRedirectResponse(response)
-    val samlResponse = parsedResponse["SAMLResponse"]
+    val samlResponse = parsedResponse[SSOConstants.SAML_RESPONSE]
     val decodedMessage: String
     try {
         decodedMessage = Decoder.decodeRedirectMessage(samlResponse)

@@ -15,6 +15,7 @@ package org.codice.compliance.saml.plugin.ddf
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.restassured.RestAssured
+import com.jayway.restassured.builder.RequestSpecBuilder
 import com.jayway.restassured.internal.path.xml.NodeBase
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.response.Response
@@ -22,7 +23,7 @@ import io.kotlintest.matchers.shouldBe
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.kohsuke.MetaInfServices
-import java.nio.charset.StandardCharsets
+
 
 @MetaInfServices
 class IdpResponderProvider : IdpResponder {
@@ -118,15 +119,14 @@ class IdpResponderProvider : IdpResponder {
         val queryParams = ObjectMapper()
                 .readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
 
-        return RestAssured.given()
+        queryParams.put("AuthMethod", "up")
+        val requestSpec = RequestSpecBuilder().addParams(queryParams).build()
+
+        return RestAssured
+                .given(requestSpec)
                 .auth()
                 .preemptive()
                 .basic("admin", "admin")
-                .param("SAMLRequest", queryParams["SAMLRequest"], StandardCharsets.UTF_8.name())
-                .param("SigAlg", queryParams["SigAlg"])
-                .param("Signature", queryParams["Signature"])
-                .param("AuthMethod", "up")
-                .param("OriginalBinding", queryParams["OriginalBinding"])
                 .log()
                 .ifValidationFails()
                 .`when`()

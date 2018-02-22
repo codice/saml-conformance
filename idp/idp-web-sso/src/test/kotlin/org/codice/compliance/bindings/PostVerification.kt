@@ -20,8 +20,8 @@ import org.w3c.dom.Node
 /**
  * Verify the response for a post binding
  */
-fun verifyPost(response: Node, parsedResponse : Map<String, String>) {
-    verifySsoPost(response)
+fun verifyPost(responseDomElement: Node, parsedResponse : Map<String, String>) {
+    verifySsoPost(responseDomElement)
     parsedResponse["RelayState"]?.let { verifyPostRelayState(it) }
 }
 
