@@ -79,7 +79,6 @@
   <modules>
     <module>idp-common</module>
     <module>idp-web-sso</module>
-    <module>idp-test-resources</module>
     <module>idp-single-logout</module>
   </modules>
 

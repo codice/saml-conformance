@@ -31,11 +31,6 @@
         </dependency>
         <dependency>
             <groupId>org.codice</groupId>
-            <artifactId>idp-test-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice</groupId>
             <artifactId>idp-web-sso</artifactId>
             <version>${project.version}</version>
         </dependency>

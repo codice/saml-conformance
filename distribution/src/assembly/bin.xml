@@ -16,6 +16,13 @@
             </includes>
             <outputDirectory>bin</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/resources</directory>
+            <includes>
+                <include>**</include>
+            </includes>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
     </fileSets>
     <moduleSets>
         <moduleSet>
@@ -25,13 +32,33 @@
             <!-- Now, select which projects to include in this module-set. -->
             <includes>
                 <include>org.codice:ddf-plugins</include>
+            </includes>
+            <binaries>
+                <includeDependencies>false</includeDependencies>
+                <includes>
+                    <include>org.codice:ddf-plugins</include>
+                </includes>
+
+                <outputDirectory>plugins</outputDirectory>
+                <unpack>false</unpack>
+            </binaries>
+        </moduleSet>
+        <moduleSet>
+            <!-- Enable access to all projects in the current multimodule build! -->
+            <useAllReactorProjects>true</useAllReactorProjects>
+
+            <!-- Now, select which projects to include in this module-set. -->
+            <includes>
                 <include>org.codice:idp-common</include>
                 <include>org.codice:idp-single-logout</include>
-                <include>org.codice:idp-test-resources</include>
                 <include>org.codice:idp-web-sso</include>
                 <include>org.codice:security-common</include>
             </includes>
+
             <binaries>
+                <excludes>
+                    <exclude>org.codice:ddf-plugins</exclude>
+                </excludes>
                 <outputDirectory>lib</outputDirectory>
                 <unpack>false</unpack>
             </binaries>
