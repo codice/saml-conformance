@@ -22,7 +22,6 @@
       <groupId>io.kotlintest</groupId>
       <artifactId>kotlintest</artifactId>
       <version>${kotlintest.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -33,12 +32,10 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.9.4</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
   
   <build>
-    <testSourceDirectory>src/test/kotlin</testSourceDirectory>
     <plugins>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -46,6 +43,12 @@
         <version>${kotlin.version}</version>
         <executions>
           <execution>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/main/kotlin</sourceDir>
+                <sourceDir>src/main/java</sourceDir>
+              </sourceDirs>
+            </configuration>
             <id>compile</id>
             <phase>compile</phase>
             <goals>
@@ -53,6 +56,12 @@
             </goals>
           </execution>
           <execution>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/test/kotlin</sourceDir>
+                <sourceDir>src/test/java</sourceDir>
+              </sourceDirs>
+            </configuration>
             <id>test-compile</id>
             <phase>test-compile</phase>
             <goals>
@@ -70,7 +79,6 @@
   <modules>
     <module>idp-common</module>
     <module>idp-web-sso</module>
-    <module>idp-test-resources</module>
     <module>idp-single-logout</module>
   </modules>
 

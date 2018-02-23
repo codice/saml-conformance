@@ -13,7 +13,6 @@
  */
 package org.codice.compliance
 
-import com.google.common.io.Resources.getResource
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
@@ -31,10 +30,10 @@ import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.File
 import java.net.URLClassLoader
-import java.nio.file.Paths
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
+const val IDP_METADATA = "idp.metadata"
 const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val DESTINATION = "https://localhost:8993/services/idp/login"
 const val ACS = "https://localhost:8993/services/saml/sso"
@@ -60,7 +59,7 @@ private fun getDeployDirClassloader(): ClassLoader {
     } else SAMLComplianceException::class.java.classLoader
 }
 
-fun <T> getServiceProvider(type: Class<T>) : T {
+fun <T> getServiceProvider(type: Class<T>): T {
     return ServiceLoader.load(type, DEPLOY_CL).first()
 }
 
@@ -97,10 +96,9 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
  * Parses and returns the idp metadata
  */
 fun getIdpMetadata(): IDPSSODescriptor? {
-    val idpMetadataParser = IdpMetadata()
-    val fileContent = SAMLComplianceException::class.java.getResource("/idp-metadata.xml").readText()
-    idpMetadataParser.setMetadata(fileContent)
-    return idpMetadataParser.descriptor
+    return IdpMetadata().apply {
+        setMetadata(File(System.getProperty(IDP_METADATA)).readText())
+    }.descriptor
 }
 
 /**
