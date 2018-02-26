@@ -93,7 +93,7 @@ fun assertPostResponse(response: String) {
     try {
         decodedMessage = Decoder.decodePostMessage(samlResponse)
     } catch (e: IOException) {
-        throw SAMLComplianceException.create("SAMLBindings.3.5.4")
+        throw SAMLComplianceException.create("SAMLBindings.3.5.4_b")
     }
 
     decodedMessage shouldNotBe null

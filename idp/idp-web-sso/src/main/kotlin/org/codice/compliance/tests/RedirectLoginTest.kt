@@ -107,7 +107,7 @@ fun assertRedirectResponse(response: String) {
     try {
         decodedMessage = Decoder.decodeRedirectMessage(samlResponse)
     } catch (e: IOException) {
-        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1")
+        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a")
     }
 
     decodedMessage shouldNotBe null
