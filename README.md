@@ -29,13 +29,26 @@ e.g. If the ServiceProvider plugin jar(s) are copied to `/home/saml-conform/depl
 then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-conform/deploy`.
 
 # Setup
-- First, ensure the plugins you will be using are built and deployed to a
-  deployment directory. If running against DDF, the easiest way to accomplish this
-  is to run `mvn clean install -DskipTests=true` first and then copy the jar file
-  generated in the `ddf-plugins` module to a deploy directory.
-- Have a running DDF master instance.
-- Run `mvn clean install -Dsaml.plugin.deployDir=[DEPLOY DIRECTORY]` or run
-the test from IntelliJ setting the `saml.plugin.deployDir` property as appropriate.
+The `distribution` module contains a full package of the deployment after a full build.
+Tests can be run with the script `distribution/target/distribution-\[VERSION\]-bin/bin/samltest.sh`.
+
+Inside your IDE, setting the environment variables `saml.plugin.deployDir` and
+`idp.metadata` will allow you run unit tests.
+
+If running against DDF, the simplest setup within your IDE would involve setting the
+aforementioned variables thusly:
+
+- `-Dsaml.plugin.deployDir=\[PATH_TO_PROJECT\]/distribution/target/distribution-\[VERSION\]-bin/plugins`
+- `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/target/distribution-1.0-SNAPSHOT-bin/conf/idp-metadata.xml`
+
+Against other IdP implementations, the plugin and idp-metadata paths should be changed to reflect
+the appropriate plugin implementation and metadata.
+
+Finally:
+
+- Start DDF master (or your IdP under test)
+- Run the tests through your IDE or by invoking the `distribution/target/distribution-\[VERSION\]-bin/bin/samltest.sh`
+script
 
 ## TODO:
 - Determine good directory structure (this will happen over time as we add more tests)
