@@ -12,5 +12,12 @@
 
     <artifactId>idp-common</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.codice</groupId>
+            <artifactId>security-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     
 </project>
