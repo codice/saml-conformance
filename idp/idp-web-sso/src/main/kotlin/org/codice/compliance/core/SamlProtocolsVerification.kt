@@ -34,7 +34,7 @@ fun verifyProtocols(response: Node) {
     verifyQueries(response)
     verifyAuthenticationRequestProtocol(response)
     verifyArtifactResolutionProtocol(response)
-    verifyNameIdentifierManagementProtocol(response)
+    verifyNameIdentifierMappingProtocol(response)
 }
 
 /**
@@ -205,19 +205,13 @@ fun verifyArtifactResolutionProtocol(response: Node) {
 }
 
 /**
- * Verify the Name Identifier Management Protocol
- * 3.6.1 Element <ManageNameIDRequest>
+ * Verify the Name Identifier Mapping Protocol
+ * 3.8.2 Element <NameIDMappingResponse>
  */
-fun verifyNameIdentifierManagementProtocol(response: Node) {
-    // todo - This protocol MUST NOT be used in conjunction with the urn:oasis:names:tc:SAML:2.0:nameidformat:transient <NameID> Format.
-    val manageNameIDRequest = response.allChildren("ManageNameIDRequest")
-    manageNameIDRequest.forEach {
+fun verifyNameIdentifierMappingProtocol(response: Node) {
+    val nameIdMappingResponse = response.allChildren("NameIDMappingResponse")
+    nameIdMappingResponse.forEach {
         if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
-            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "ManageNameIDRequest")
-
-        if (it.children("NewID").isEmpty()
-                && it.children("NewEncryptedID").isEmpty()
-                && it.children("Terminate").isEmpty())
-            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NewID, NewEncryptedID or Terminate", "ManageNameIDRequest")
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "NameIDMappingResponse")
     }
 }
