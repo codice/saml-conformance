@@ -68,7 +68,7 @@ fun verifySsoAssertions(response: Node) {
         // todo - If the identity provider supports the Single Logout profile, defined in Section 4.4, any authentication statements MUST include a SessionIndex attribute to enable per-session logout requests by the service provider.
 
         if (idpParsedMetadata != null) {
-            if (idpParsedMetadata.singleLogoutServices.isNotEmpty())
+            if (idpParsedMetadata!!.singleLogoutServices.isNotEmpty())
                 authnStatements.forEach {
                     if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2k")
                 }
