@@ -39,7 +39,7 @@ class PostLoginTest : StringSpec({
 
         response.statusCode shouldBe 200
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-        assertResponse(idpResponse)
+        assertResponse(idpResponse, false)
     }
 
     "POST AuthnRequest With Relay State Test" {
@@ -56,6 +56,6 @@ class PostLoginTest : StringSpec({
 
         response.statusCode shouldBe 200
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-        assertResponse(idpResponse)
+        assertResponse(idpResponse, true)
     }
 })

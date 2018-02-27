@@ -23,12 +23,12 @@ import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
 import java.io.IOException
 
-fun assertResponse(response: String) {
-    if (response.contains("?")) assertRedirectResponse(response)
-    else assertPostResponse(response)
+fun assertResponse(response: String, givenRelayState: Boolean) {
+    if (response.contains("?")) assertRedirectResponse(response, givenRelayState)
+    else assertPostResponse(response, givenRelayState)
 }
 
-fun assertRedirectResponse(response: String) {
+fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
     val parsedResponse = parseFinalRedirectResponse(response)
     val samlResponse = parsedResponse[SSOConstants.SAML_RESPONSE]
     val decodedMessage: String
@@ -42,10 +42,10 @@ fun assertRedirectResponse(response: String) {
     val responseElement = buildDom(decodedMessage)
     verifyCore(responseElement)
     verifySsoProfile(responseElement)
-    verifyRedirect(responseElement, parsedResponse)
+    verifyRedirect(responseElement, parsedResponse, givenRelayState)
 }
 
-fun assertPostResponse(response: String) {
+fun assertPostResponse(response: String, givenRelayState: Boolean) {
     val parsedResponse = parseFinalPostResponse(response)
     val samlResponse = parsedResponse["SAMLResponse"]
     val decodedMessage: String
@@ -59,7 +59,7 @@ fun assertPostResponse(response: String) {
     val responseDomElement = buildDom(decodedMessage)
     verifyCore(responseDomElement)
     verifySsoProfile(responseDomElement)
-    verifyPost(responseDomElement, parsedResponse)
+    verifyPost(responseDomElement, parsedResponse, givenRelayState)
 }
 
 /**

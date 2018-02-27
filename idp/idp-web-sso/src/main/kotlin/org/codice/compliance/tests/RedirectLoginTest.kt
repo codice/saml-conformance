@@ -43,7 +43,7 @@ class RedirectLoginTest : StringSpec({
                 .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
 
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-        assertResponse(idpResponse)
+        assertResponse(idpResponse, false)
     }
 
     "Redirect AuthnRequest With Relay State Test" {
@@ -62,7 +62,7 @@ class RedirectLoginTest : StringSpec({
                 .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
 
         val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-        assertResponse(idpResponse)
+        assertResponse(idpResponse, true)
     }
 })
 

@@ -24,8 +24,8 @@ import java.nio.charset.StandardCharsets
 /**
  * Verify the response for a redirect binding
  */
-fun verifyRedirect(responseDomElement: Node, parsedResponse : Map<String, String>) {
-    parsedResponse["RelayState"]?.let { verifyRedirectRelayState(it) }
+fun verifyRedirect(responseDomElement: Node, parsedResponse : Map<String, String>, givenRelayState: Boolean) {
+    parsedResponse["RelayState"]?.let { verifyRedirectRelayState(it, givenRelayState) }
     parsedResponse["Signature"]?.let { verifyRedirectSignature(it) }
     parsedResponse["SigAlg"]?.let { verifyRedirectSigAlg(it) }
 }
@@ -47,7 +47,7 @@ fun verifyRedirectSignature(signature: String) {
 /**
  * Verifies the relay state according to the post redirect rules in the binding spec
  */
-fun verifyRedirectRelayState(encodedRelayState: String) {
+fun verifyRedirectRelayState(encodedRelayState: String, givenRelayState: Boolean) {
     val decodedRelayState : String
 
     // try to URL decode relay state
@@ -62,13 +62,14 @@ fun verifyRedirectRelayState(encodedRelayState: String) {
         throw SAMLComplianceException.create("SAMLBindings.3.4.3_a")
     }
 
-    // todo only check this if we gave it the relay state
-//    if (decodedRelayState != RELAY_STATE) {
-//        // if relayState is not url encoded
-//        if (encodedRelayState == RELAY_STATE) {
-//            throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
-//        }
-//        // if relayState is not exactly the same
-//        throw SAMLComplianceException.create("SAMLBindings.3.4.3_b1")
-//    }
+    if (givenRelayState) {
+        if (decodedRelayState != RELAY_STATE) {
+            // if relayState is not url encoded
+            if (encodedRelayState == RELAY_STATE) {
+                throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
+            }
+            // if relayState is not exactly the same
+            throw SAMLComplianceException.create("SAMLBindings.3.4.3_b1")
+        }
+    }
 }

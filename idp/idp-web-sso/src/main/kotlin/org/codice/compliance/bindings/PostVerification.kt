@@ -24,9 +24,9 @@ import java.nio.charset.StandardCharsets
 /**
  * Verify the response for a post binding
  */
-fun verifyPost(responseDomElement: Node, parsedResponse: Map<String, String>) {
+fun verifyPost(responseDomElement: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
     verifySsoPost(responseDomElement)
-    parsedResponse["RelayState"]?.let { verifyPostRelayState(it) }
+    parsedResponse["RelayState"]?.let { verifyPostRelayState(it, givenRelayState) }
 }
 
 /**
@@ -43,15 +43,16 @@ fun verifySsoPost(response: Node) {
 /**
  * Verifies the relay state according to the post binding rules in the binding spec
  */
-fun verifyPostRelayState(relayState: String) {
+fun verifyPostRelayState(relayState: String, givenRelayState: Boolean) {
     // if relay state is greater than 80 bytes
     if (relayState.toByteArray().size > 80) {
         throw SAMLComplianceException.create("SAMLBindings.3.5.3_a")
     }
 
-    // todo only check this if we gave it the relay state
-//    // if relay states do not match
-//    if (relayState != RELAY_STATE) {
-//        throw SAMLComplianceException.create("SAMLBindings.3.5.3_b1")
-//    }
+    if (givenRelayState) {
+        // if relay states do not match
+        if (relayState != RELAY_STATE) {
+            throw SAMLComplianceException.create("SAMLBindings.3.5.3_b1")
+        }
+    }
 }
