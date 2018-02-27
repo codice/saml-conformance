@@ -25,6 +25,7 @@ fun verifyCore(response: Node) {
     verifyAssertions(response)
     verifyProtocols(response)
     verifySignatureSyntaxAndProcessing(response)
+    verifyGeneralConsiderations(response)
 }
 
 /**
@@ -51,5 +52,29 @@ fun verifySignatureSyntaxAndProcessing(response: Node) {
         if (references[0].attributes.getNamedItem("URI")?.textContent
                 != "#" + it.attributes.getNamedItem("ID")?.textContent)
             throw SAMLComplianceException.create("SAMLCore.5.4.2_b")
+    }
+}
+
+fun verifyGeneralConsiderations(response: Node){
+    // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext information
+    // in the same location within the XML instance.
+
+    val assertions = response.children("Assertion")
+    val baseIds = response.children("BaseID")
+    val nameIds = response.children("NameID")
+    val attributes = response.children("Attribute")
+
+    val elements = mutableListOf<Node>()
+    elements.addAll(assertions)
+    elements.addAll(baseIds)
+    elements.addAll(nameIds)
+    elements.addAll(attributes)
+
+    elements.forEach {
+        val encryptedData = it.allChildren("EncryptedData")
+        if(encryptedData.isNotEmpty() &&
+                encryptedData[0].attributes.getNamedItem("EncryptedData").textContent
+                        != "http://www.w3.org/2001/04/xmlenc#Element")
+            throw SAMLComplianceException.create("SAMLCore.6.1_b")
     }
 }
