@@ -10,4 +10,4 @@ IDP_META=$CONF_DIR/idp-metadata.xml
 java -cp "$LIB_DIR/*" \
   -Didp.metadata=$IDP_META \
   -Dsaml.plugin.deployDir=$PLUGIN_DIR \
-  org.junit.runner.JUnitCore org.codice.compliance.tests.PostLoginTest
+  org.junit.runner.JUnitCore org.codice.compliance.tests.suites.SuiteTest1

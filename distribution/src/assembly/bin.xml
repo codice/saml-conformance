@@ -3,7 +3,7 @@
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
     <id>bin</id>
     <formats>
-        <format>dir</format>
+        <format>zip</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
@@ -31,12 +31,12 @@
 
             <!-- Now, select which projects to include in this module-set. -->
             <includes>
-                <include>org.codice:ddf-plugins</include>
+                <include>org.codice.samlconf:ddf-plugins</include>
             </includes>
             <binaries>
                 <includeDependencies>false</includeDependencies>
                 <includes>
-                    <include>org.codice:ddf-plugins</include>
+                    <include>org.codice.samlconf:ddf-plugins</include>
                 </includes>
 
                 <outputDirectory>plugins</outputDirectory>
@@ -49,15 +49,16 @@
 
             <!-- Now, select which projects to include in this module-set. -->
             <includes>
-                <include>org.codice:idp-common</include>
-                <include>org.codice:idp-single-logout</include>
-                <include>org.codice:idp-web-sso</include>
-                <include>org.codice:security-common</include>
+                <include>org.codice.samlconf.idp:idp-common</include>
+                <include>org.codice.samlconf.idp:idp-single-logout</include>
+                <include>org.codice.samlconf.idp:idp-web-sso</include>
+                <include>org.codice.samlconf:security-common</include>
+                <include>org.codice.samlconf:suites</include>
             </includes>
 
             <binaries>
                 <excludes>
-                    <exclude>org.codice:ddf-plugins</exclude>
+                    <exclude>org.codice.samlconf:ddf-plugins</exclude>
                 </excludes>
                 <outputDirectory>lib</outputDirectory>
                 <unpack>false</unpack>
