@@ -22,40 +22,42 @@ import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 
-class PostLoginTest : StringSpec({
-    RestAssured.useRelaxedHTTPSValidation()
+class PostLoginTest : StringSpec() {
+    init {
+        RestAssured.useRelaxedHTTPSValidation()
 
-    "POST AuthnRequest Test" {
-        val authnRequest = generateAndRetrieveAuthnRequest()
-        val encodedRequest = Encoder.encodePostMessage(authnRequest)
-        val response = given()
-                .urlEncodingEnabled(false)
-                .body(encodedRequest)
-                .contentType("application/x-www-form-urlencoded")
-                .log()
-                .ifValidationFails()
-                .`when`()
-                .post(getSingleSignonLocation(SamlProtocol.POST_BINDING))
+        "POST AuthnRequest Test" {
+            val authnRequest = generateAndRetrieveAuthnRequest()
+            val encodedRequest = Encoder.encodePostMessage(authnRequest)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(getSingleSignonLocation(SamlProtocol.POST_BINDING))
 
-        response.statusCode shouldBe 200
-        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-        assertResponse(idpResponse, false)
+            response.statusCode shouldBe 200
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
+            assertResponse(idpResponse, false)
+        }
+
+        "POST AuthnRequest With Relay State Test" {
+            val authnRequest = generateAndRetrieveAuthnRequest()
+            val encodedRequest = Encoder.encodePostMessage(authnRequest, RELAY_STATE)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(getSingleSignonLocation(SamlProtocol.POST_BINDING))
+
+            response.statusCode shouldBe 200
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
+            assertResponse(idpResponse, true)
+        }
     }
-
-    "POST AuthnRequest With Relay State Test" {
-        val authnRequest = generateAndRetrieveAuthnRequest()
-        val encodedRequest = Encoder.encodePostMessage(authnRequest, RELAY_STATE)
-        val response = given()
-                .urlEncodingEnabled(false)
-                .body(encodedRequest)
-                .contentType("application/x-www-form-urlencoded")
-                .log()
-                .ifValidationFails()
-                .`when`()
-                .post(getSingleSignonLocation(SamlProtocol.POST_BINDING))
-
-        response.statusCode shouldBe 200
-        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-        assertResponse(idpResponse, true)
-    }
-})
+}

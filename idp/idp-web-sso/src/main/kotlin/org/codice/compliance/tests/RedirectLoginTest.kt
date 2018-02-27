@@ -25,49 +25,53 @@ import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
 import java.time.Instant
 
-class RedirectLoginTest : StringSpec({
-    RestAssured.useRelaxedHTTPSValidation()
-
-    "Redirect AuthnRequest Test" {
-        val queryParams = setupAuthnRequest(null)
-
-        // Get response from AuthnRequest
-        val response = given()
-                .urlEncodingEnabled(false)
-                .param(SSOConstants.SAML_REQUEST, queryParams[SSOConstants.SAML_REQUEST])
-                .param(SSOConstants.SIG_ALG, queryParams[SSOConstants.SIG_ALG])
-                .param(SSOConstants.SIGNATURE, queryParams[SSOConstants.SIGNATURE])
-                .log()
-                .ifValidationFails()
-                .`when`()
-                .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
-
-        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-        assertResponse(idpResponse, false)
+class RedirectLoginTest : StringSpec() {
+    companion object {
+        fun setupAuthnRequest(relayState: String?): Map<String, String> {
+            val baseRequest = getResource("redirect-authn-request.xml").readText()
+            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS, DESTINATION, ID, Instant.now().toString(), SP_ISSUER))
+            return SimpleSign().signUriString(SSOConstants.SAML_REQUEST, encodedRequest, relayState)
+        }
     }
 
-    "Redirect AuthnRequest With Relay State Test" {
-        val queryParams = setupAuthnRequest(RELAY_STATE)
+    init {
+        RestAssured.useRelaxedHTTPSValidation()
 
-        // Get response from AuthnRequest
-        val response = given()
-                .urlEncodingEnabled(false)
-                .param(SSOConstants.SAML_REQUEST, queryParams[SSOConstants.SAML_REQUEST])
-                .param(SSOConstants.SIG_ALG, queryParams[SSOConstants.SIG_ALG])
-                .param(SSOConstants.SIGNATURE, queryParams[SSOConstants.SIGNATURE])
-                .param(SSOConstants.RELAY_STATE, queryParams[SSOConstants.RELAY_STATE])
-                .log()
-                .ifValidationFails()
-                .`when`()
-                .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
+        "Redirect AuthnRequest Test" {
+            val queryParams = setupAuthnRequest(null)
 
-        val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-        assertResponse(idpResponse, true)
+            // Get response from AuthnRequest
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .param(SSOConstants.SAML_REQUEST, queryParams[SSOConstants.SAML_REQUEST])
+                    .param(SSOConstants.SIG_ALG, queryParams[SSOConstants.SIG_ALG])
+                    .param(SSOConstants.SIGNATURE, queryParams[SSOConstants.SIGNATURE])
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
+
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
+            assertResponse(idpResponse, false)
+        }
+
+        "Redirect AuthnRequest With Relay State Test" {
+            val queryParams = setupAuthnRequest(RELAY_STATE)
+
+            // Get response from AuthnRequest
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .param(SSOConstants.SAML_REQUEST, queryParams[SSOConstants.SAML_REQUEST])
+                    .param(SSOConstants.SIG_ALG, queryParams[SSOConstants.SIG_ALG])
+                    .param(SSOConstants.SIGNATURE, queryParams[SSOConstants.SIGNATURE])
+                    .param(SSOConstants.RELAY_STATE, queryParams[SSOConstants.RELAY_STATE])
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
+
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
+            assertResponse(idpResponse, true)
+        }
     }
-})
-
-fun setupAuthnRequest(relayState: String?): Map<String, String> {
-    val baseRequest = getResource("redirect-authn-request.xml").readText()
-    val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS, DESTINATION, ID, Instant.now().toString(), SP_ISSUER))
-    return SimpleSign().signUriString(SSOConstants.SAML_REQUEST, encodedRequest, relayState)
 }

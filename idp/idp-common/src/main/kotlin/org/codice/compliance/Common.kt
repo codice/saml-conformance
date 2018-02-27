@@ -86,8 +86,8 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
         private fun trimUnderscore(codeValue: String): String {
             val underscoreIndex = codeValue.indexOf("_")
 
-            if (underscoreIndex == -1) return codeValue
-            else return codeValue.substring(0, underscoreIndex)
+            return if (underscoreIndex == -1) codeValue
+            else codeValue.substring(0, underscoreIndex)
         }
     }
 }
