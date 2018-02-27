@@ -17,6 +17,7 @@ import org.codice.compliance.RELAY_STATE
 import org.codice.compliance.SAMLComplianceException
 import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
+import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -46,11 +47,28 @@ fun verifyRedirectSignature(signature: String) {
 /**
  * Verifies the relay state according to the post redirect rules in the binding spec
  */
-fun verifyRedirectRelayState(relayState: String) {
+fun verifyRedirectRelayState(encodedRelayState: String) {
+    val decodedRelayState : String
+
+    // try to URL decode relay state
     try {
-        if (relayState != URLEncoder.encode(RELAY_STATE, StandardCharsets.UTF_8.name()))
-            throw SAMLComplianceException.create("SAMLBindings.3.4.3_a")
-    } catch (e : UnsupportedEncodingException){
+        decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
+    } catch (e : UnsupportedEncodingException) {
         throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
     }
+
+    // if relay state is greater than 80 bytes
+    if (decodedRelayState.toByteArray().size > 80) {
+        throw SAMLComplianceException.create("SAMLBindings.3.4.3_a")
+    }
+
+    // todo only check this if we gave it the relay state
+//    if (decodedRelayState != RELAY_STATE) {
+//        // if relayState is not url encoded
+//        if (encodedRelayState == RELAY_STATE) {
+//            throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
+//        }
+//        // if relayState is not exactly the same
+//        throw SAMLComplianceException.create("SAMLBindings.3.4.3_b1")
+//    }
 }
