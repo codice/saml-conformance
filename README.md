@@ -32,7 +32,7 @@ then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-confor
 The `distribution` module contains a full package of the deployment after a full build.
 Tests can be run with the script `distribution/target/distribution-\[VERSION\]-bin/bin/samltest.sh`.
 
-Inside your IDE, setting the environment variables `saml.plugin.deployDir` and
+Inside your IDE, setting the vm environment variables `saml.plugin.deployDir` and
 `idp.metadata` will allow you run unit tests.
 
 If running against DDF, the simplest setup within your IDE would involve setting the
