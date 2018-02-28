@@ -22,6 +22,7 @@ import org.w3c.dom.Node
  * Verify response against the Core Spec document
  */
 fun verifyCore(response: Node) {
+    verifyCommonDataType(response)
     verifyAssertions(response)
     verifyProtocols(response)
     verifySignatureSyntaxAndProcessing(response)
@@ -55,7 +56,7 @@ fun verifySignatureSyntaxAndProcessing(response: Node) {
     }
 }
 
-fun verifyGeneralConsiderations(response: Node){
+fun verifyGeneralConsiderations(response: Node) {
     // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext information
     // in the same location within the XML instance.
 
@@ -72,7 +73,7 @@ fun verifyGeneralConsiderations(response: Node){
 
     elements.forEach {
         val encryptedData = it.allChildren("EncryptedData")
-        if(encryptedData.isNotEmpty() &&
+        if (encryptedData.isNotEmpty() &&
                 encryptedData[0].attributes.getNamedItem("EncryptedData").textContent
                         != "http://www.w3.org/2001/04/xmlenc#Element")
             throw SAMLComplianceException.create("SAMLCore.6.1_b")
