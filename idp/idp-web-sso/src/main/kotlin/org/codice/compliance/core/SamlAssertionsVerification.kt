@@ -40,22 +40,19 @@ fun verifyAssertions(response: Node) {
  */
 fun verifyEncryptedId(response: Node) {
     val encryptedIds = response.allChildren("EncryptedID")
-    if (encryptedIds.isNotEmpty()) {
-        if (encryptedIds.any { it.children("EncryptedData").isEmpty() })
-            throw SAMLComplianceException.create("10") // The <EncryptedID> element contains the following element: <xenc:EncryptedData> [Required]
+    encryptedIds.forEach {
+        val encryptedData = it.children("EncryptedData")
+        if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
 
-        encryptedIds.forEach {
-            val encryptedData = it.children("EncryptedData")
-            if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
-
-            if (encryptedData
-                    .filter { it.attributes.getNamedItem("Type") != null }
-                    .all { it.attributes.getNamedItem("Type").textContent == "http://www.w3.org/2001/04/xmlenc#Element" })
-                throw SAMLComplianceException.create("SAMLCore.2.2.4")
-            // todo - For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType, or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
-        }
-        // todo Encrypted identifiers are intended as a privacy protection mechanism when the plain-text value passes through an intermediary. As such, the ciphertext MUST be unique to any given encryption operation. For more on such issues, see [XMLEnc] Section 6.3.
+        if (encryptedData
+                .filter { it.attributes.getNamedItem("Type") != null }
+                .any { it.attributes.getNamedItem("Type").textContent != "http://www.w3.org/2001/04/xmlenc#Element" })
+            throw SAMLComplianceException.create("SAMLCore.2.2.4")
+        // todo - For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType,
+        // or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
     }
+    // todo - Encrypted identifiers are intended as a privacy protection mechanism when the plain-text value passes through an intermediary.
+    // As such, the ciphertext MUST be unique to any given encryption operation. For more on such issues, see [XMLEnc] Section 6.3.
 }
 
 /**
@@ -64,35 +61,34 @@ fun verifyEncryptedId(response: Node) {
  */
 fun verifyCoreAssertion(response: Node) {
     val assertions = response.allChildren("Assertion")
-    if (assertions.isNotEmpty()) {
-        for (assertion in assertions) {
+    assertions.forEach {
+        if (it.attributes.getNamedItem("Version")?.textContent == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
+        if (it.attributes.getNamedItem("Version").textContent != "2.0")
+            throw SAMLComplianceException.create("SAMLCore.2.3.3_a")
+        if (it.attributes.getNamedItem("ID") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
+        if (it.attributes.getNamedItem("IssueInstant") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
 
-            if (assertion.attributes.getNamedItem("Version").textContent != "2.0")
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
-            if (assertion.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
-            if (assertion.attributes.getNamedItem("IssueInstant") == null)
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
+        val issuers = it.children("Issuer")
+        val subjects = it.children("Subject")
+        val statements = it.children("Statement")
+        val authnStatements = it.children("AuthnStatement")
+        val authzDecisionStatements = it.children("AuthzDecisionStatement")
+        val attributeStatements = it.children("AttributeStatement")
 
-            val issuers = assertion.children("Issuer")
-            val subjects = assertion.children("Subject")
-            val statements = assertion.children("Statement")
-            val authnStatements = assertion.children("AuthnStatement")
-            val authzDecisionStatements = assertion.children("AuthzDecisionStatement")
-            val attributeStatements = assertion.children("AttributeStatement")
+        if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
-            if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
+        if (statements.isNotEmpty() && statements.any { it.attributes.getNamedItem("xsi:type") == null })
+            throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
 
-            if (statements.isNotEmpty() && statements.any { it.attributes.getNamedItem("xsi:type") == null })
-                throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
-
-            if (statements.isEmpty()
-                    && authnStatements.isEmpty()
-                    && authzDecisionStatements.isEmpty()
-                    && attributeStatements.isEmpty()
-                    && subjects.isEmpty())
-                throw SAMLComplianceException.create("SAMLCore.2.2.3_b")
-        }
+        if (statements.isEmpty()
+                && authnStatements.isEmpty()
+                && authzDecisionStatements.isEmpty()
+                && attributeStatements.isEmpty()
+                && subjects.isEmpty())
+            throw SAMLComplianceException.create("SAMLCore.2.2.3_b")
 
     }
 }
@@ -227,11 +223,11 @@ fun verifyAttributeElements(response: Node) {
  * 2.7.4 Element <AuthzDecisionStatement>
  * 2.7.4.2 Element <Action>
  */
-fun verifyAuthzDecisionStatementAndAction(response: Node){
+fun verifyAuthzDecisionStatementAndAction(response: Node) {
     // AuthzDecisionStatement
     val assertions = response.allChildren("Assertion")
     assertions.forEach {
-        if(it.children("AuthzDecisionStatement").isNotEmpty()
+        if (it.children("AuthzDecisionStatement").isNotEmpty()
                 && it.children("Subject").isEmpty())
             throw SAMLComplianceException.create("SAMLCore.2.7.4_a")
     }
@@ -246,6 +242,6 @@ fun verifyAuthzDecisionStatementAndAction(response: Node){
     // Action
     val actions = response.allChildren("Action")
     actions.forEach {
-        if(it.attributes.getNamedItem("Namespace") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
+        if (it.attributes.getNamedItem("Namespace") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
     }
 }
