@@ -1,5 +1,3 @@
-package org.codice.compliance
-
 /**
  * Copyright (c) Codice Foundation
  *
@@ -13,6 +11,8 @@ package org.codice.compliance
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+package org.codice.compliance
+
 import org.w3c.dom.Node
 import java.util.*
 

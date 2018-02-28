@@ -1,9 +1,24 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.compliance.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.w3c.dom.Node
 import java.net.URI
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 val ids = mutableListOf<String>()
 
@@ -60,21 +75,6 @@ fun verifyUriValues(node: Node, errorCode: String?) {
 }
 
 /**
- * Verify values of type dateTime
- *
- * 1.3.3 Time Values
- */
-fun verifyTimeValues(node: Node, errorCode: String?) {
-    // todo - jacob add date time verification HERE
-    // string called child.textContent
-    // error code - SAMLCore.1.3.3_a
-    // also have
-    // if (errorCode != null) throw org.codice.compliance.SAMLComplianceException.create("SAMLCore.1.3.3_a", errorCode)
-    // else throw org.codice.compliance.SAMLComplianceException.create("SAMLCore.1.3.3_a")
-    // when throwing the error
-}
-
-/**
  * Verify values of type ID
  *
  * 1.3.4 ID and ID Reference Values
@@ -84,4 +84,76 @@ fun verifyIdValues(node: Node, errorCode: String?) {
         if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.4_b", errorCode)
         else throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
     } else ids.add(node.textContent)
+}
+
+/**
+ * Verify values of type dateTime
+ *
+ * 1.3.3 Time Values
+ */
+fun verifyTimeValues(node: Node, errorCode: String?) {
+    val dateTime = node.textContent
+    val (year, restOfDateTime) = splitByYear(dateTime, errorCode)
+    verifyYear(year, errorCode)
+    verifyRestOfDateTime(restOfDateTime, errorCode)
+}
+
+/** verifyTimeValues helpers **/
+
+private data class SplitString(val year: String, val restOfDateTime: String)
+
+private fun splitByYear(dateTime: String, errorCode: String?): SplitString {
+    var hyphenIndex = dateTime.indexOf('-')
+
+    if (hyphenIndex == -1) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a")
+    }
+
+    // if year is negative, find the next '-'
+    if (hyphenIndex == 0)
+        hyphenIndex = dateTime.indexOf('-', hyphenIndex)
+
+    if (hyphenIndex == -1) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a")
+    }
+    return SplitString(dateTime.substring(0, hyphenIndex), dateTime.substring(hyphenIndex + 1))
+}
+
+private fun verifyYear(year: String, errorCode: String?) {
+    // remove the negative sign to make verification easier
+    val strippedYear: String = if (year.indexOf('-') == 0) year.substring(1) else year
+
+    // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permited"
+    if (!strippedYear.matches(Regex("\\d+"))) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a3", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a3", "SAMLCore.1.3.3_a")
+    }
+
+    // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are prohibited"
+    if (strippedYear.length > 4 && strippedYear.startsWith('0')) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a1", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a1", "SAMLCore.1.3.3_a")
+    }
+
+    // https://www.w3.org/TR/xmlschema-2/#dateTime "'0000' is prohibited"
+    if (strippedYear == "0000") {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a2", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a2", "SAMLCore.1.3.3_a")
+    }
+}
+
+// todo allow an unlimited amount of fractional seconds as stated in the XML Datatypes Schema 3.2.7
+// todo "SAML system entities SHOULD NOT rely on time resolution finer than milliseconds" Core.1.3.3
+// helper for verifyTimeValues
+fun verifyRestOfDateTime(restOfDateTime: String, errorCode: String?) {
+    val format = DateTimeFormatter.ofPattern("MM'-'dd'T'HH':'mm':'ss['.'SSS]['Z']")
+
+    try {
+        format.parse(restOfDateTime)
+    } catch (e: DateTimeParseException) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a")
+    }
 }
