@@ -19,13 +19,13 @@ fun verifyCommonDataType(response: Node) {
         val child = response.childNodes.item(i)
         val typeAttribute = child.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
         if (typeAttribute?.textContent?.contains("string") == true)
-            verifyStringValues(child)
+            verifyStringValues(child, null)
         if (typeAttribute?.textContent?.contains("anyURI") == true)
-            verifyUriValues(child)
+            verifyUriValues(child, null)
         if (typeAttribute?.textContent?.contains("dateTime") == true)
-            verifyTimeValues(child)
+            verifyTimeValues(child, null)
         if (typeAttribute?.textContent?.contains("ID") == true)
-            verifyIdValues(child)
+            verifyIdValues(child, null)
 
         if (child.hasChildNodes())
             verifyCommonDataType(child)
@@ -38,9 +38,11 @@ fun verifyCommonDataType(response: Node) {
  *
  * 1.3.1 String Values
  */
-fun verifyStringValues(node: Node) {
-    if (StringUtils.isBlank(node.textContent))
-        throw SAMLComplianceException.create("SAMLCore.1.3.1_a")
+fun verifyStringValues(node: Node, errorCode: String?) {
+    if (StringUtils.isBlank(node.textContent)) {
+        if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.4_b", errorCode)
+        else throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
+    }
 }
 
 /**
@@ -48,11 +50,13 @@ fun verifyStringValues(node: Node) {
  *
  * 1.3.2 URI Values
  */
-fun verifyUriValues(node: Node) {
+fun verifyUriValues(node: Node, errorCode: String?) {
     // todo - make sure uri absolute check is correct
     if (StringUtils.isBlank(node.textContent)
-            && !URI.create(node.textContent).isAbsolute)
-        throw SAMLComplianceException.create("SAMLCore.1.3.2_a")
+            && !URI.create(node.textContent).isAbsolute) {
+        if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.4_b", errorCode)
+        else throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
+    }
 }
 
 /**
@@ -60,10 +64,14 @@ fun verifyUriValues(node: Node) {
  *
  * 1.3.3 Time Values
  */
-fun verifyTimeValues(node: Node) {
+fun verifyTimeValues(node: Node, errorCode: String?) {
     // todo - jacob add date time verification HERE
     // string called child.textContent
     // error code - SAMLCore.1.3.3_a
+    // also have
+    // if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.3_a", errorCode)
+    // else throw SAMLComplianceException.create("SAMLCore.1.3.3_a")
+    // when throwing the error
 }
 
 /**
@@ -71,8 +79,9 @@ fun verifyTimeValues(node: Node) {
  *
  * 1.3.4 ID and ID Reference Values
  */
-fun verifyIdValues(node: Node) {
-    if (ids.contains(node.textContent))
-        throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
-    else ids.add(node.textContent)
+fun verifyIdValues(node: Node, errorCode: String?) {
+    if (ids.contains(node.textContent)) {
+        if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.4_b", errorCode)
+        else throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
+    } else ids.add(node.textContent)
 }

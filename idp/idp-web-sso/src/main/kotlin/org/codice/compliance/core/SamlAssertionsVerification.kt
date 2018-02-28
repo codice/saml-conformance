@@ -66,23 +66,26 @@ fun verifyCoreAssertion(response: Node) {
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
         if (it.attributes.getNamedItem("Version").textContent != "2.0")
             throw SAMLComplianceException.create("SAMLCore.2.3.3_a")
+
         if (it.attributes.getNamedItem("ID") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
+        verifyIdValues(it.attributes.getNamedItem("ID"), "SAMLCore.2.3.3_b")
+
         if (it.attributes.getNamedItem("IssueInstant") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
+        verifyIdValues(it.attributes.getNamedItem("IssueInstant"), "SAMLCore.2.3.3_c")
 
         val issuers = it.children("Issuer")
-        val subjects = it.children("Subject")
-        val statements = it.children("Statement")
-        val authnStatements = it.children("AuthnStatement")
-        val authzDecisionStatements = it.children("AuthzDecisionStatement")
-        val attributeStatements = it.children("AttributeStatement")
-
         if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
+        val statements = it.children("Statement")
         if (statements.isNotEmpty() && statements.any { it.attributes.getNamedItem("xsi:type") == null })
             throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
 
+        val subjects = it.children("Subject")
+        val authnStatements = it.children("AuthnStatement")
+        val authzDecisionStatements = it.children("AuthzDecisionStatement")
+        val attributeStatements = it.children("AttributeStatement")
         if (statements.isEmpty()
                 && authnStatements.isEmpty()
                 && authzDecisionStatements.isEmpty()
