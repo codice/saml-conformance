@@ -63,35 +63,6 @@ fun <T> getServiceProvider(type: Class<T>): T {
     return ServiceLoader.load(type, DEPLOY_CL).first()
 }
 
-class SAMLComplianceException private constructor(message: String) : Exception(message) {
-    companion object {
-        private val BUNDLE = ResourceBundle.getBundle("ExceptionCodes")!!
-
-        fun create(vararg codes: String): SAMLComplianceException {
-            val msg = codes.map(Companion::readCode)
-                    .fold("Errors:\n") { acc, s ->
-                        "$acc\n$s"
-                    }
-            return SAMLComplianceException(msg)
-        }
-
-        fun createWithReqMessage(section: String, attribute: String, parent: String): SAMLComplianceException {
-            return SAMLComplianceException(String.format("%s=%s is required in %s.", section, attribute, parent))
-        }
-
-        private fun readCode(code: String): String {
-            return "${trimUnderscore(code)}: ${BUNDLE.getString(code)}"
-        }
-
-        private fun trimUnderscore(codeValue: String): String {
-            val underscoreIndex = codeValue.indexOf("_")
-
-            return if (underscoreIndex == -1) codeValue
-            else codeValue.substring(0, underscoreIndex)
-        }
-    }
-}
-
 /**
  * Parses and returns the idp metadata
  */
@@ -151,41 +122,4 @@ fun getSingleSignonLocation(binding: String): String? {
             ?.singleSignOnServices
             ?.first { it.binding == binding }
             ?.location
-}
-
-/** Extensions to Node class **/
-
-/**
- * Finds a Node's child by its name.
- *
- * @param name - Name of Assertions.children
- * @return list of Assertions.children matching the name provided
- */
-fun Node.children(name: String): List<Node> {
-    val childNodes = mutableListOf<Node>()
-    var i = this.childNodes.length - 1
-    while (i >= 0) {
-        val child = this.childNodes.item(i)
-        if (child.localName == name)
-            childNodes.add(child); i -= 1
-    }
-    return childNodes
-}
-
-/**
- * Finds a Node's child by its name.
- *
- * @param name - Name of Assertions.children
- * @return list of Assertions.children matching the name provided
- */
-fun Node.allChildren(name: String): List<Node> {
-    val nodes = mutableListOf<Node>()
-    var i = this.childNodes.length - 1
-    while (i >= 0) {
-        val child = this.childNodes.item(i)
-        if (child.localName == name)
-            nodes.add(child)
-        nodes.addAll(child.allChildren(name)); i -= 1
-    }
-    return nodes
 }

@@ -14,7 +14,6 @@
 package org.codice.compliance.core
 
 import com.google.common.collect.ImmutableSet
-import org.codice.compliance.ID
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
@@ -162,7 +161,7 @@ fun verifyAuthenticationRequestProtocol(response: Node) {
     nameIdPolicy.forEach {
         if (it.attributes.getNamedItem("Format").textContent == "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted") {
             assertions.any { it.children("EncryptedID").isEmpty() }
-            throw SAMLComplianceException.create("SAMLCore.3.4.1.1_a")
+            throw org.codice.compliance.SAMLComplianceException.create("SAMLCore.3.4.1.1_a")
         }
     }
     */

@@ -40,7 +40,7 @@ fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
 
     decodedMessage shouldNotBe null
     val responseElement = buildDom(decodedMessage)
-    verifyCore(responseElement)
+    verifyCore(responseElement, ID)
     verifySsoProfile(responseElement)
     verifyRedirect(responseElement, parsedResponse, givenRelayState)
 }
@@ -57,7 +57,7 @@ fun assertPostResponse(response: String, givenRelayState: Boolean) {
 
     decodedMessage shouldNotBe null
     val responseDomElement = buildDom(decodedMessage)
-    verifyCore(responseDomElement)
+    verifyCore(responseDomElement, ID)
     verifySsoProfile(responseDomElement)
     verifyPost(responseDomElement, parsedResponse, givenRelayState)
 }

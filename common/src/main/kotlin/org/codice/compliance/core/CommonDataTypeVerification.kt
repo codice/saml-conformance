@@ -69,8 +69,8 @@ fun verifyTimeValues(node: Node, errorCode: String?) {
     // string called child.textContent
     // error code - SAMLCore.1.3.3_a
     // also have
-    // if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.3_a", errorCode)
-    // else throw SAMLComplianceException.create("SAMLCore.1.3.3_a")
+    // if (errorCode != null) throw org.codice.compliance.SAMLComplianceException.create("SAMLCore.1.3.3_a", errorCode)
+    // else throw org.codice.compliance.SAMLComplianceException.create("SAMLCore.1.3.3_a")
     // when throwing the error
 }
 
