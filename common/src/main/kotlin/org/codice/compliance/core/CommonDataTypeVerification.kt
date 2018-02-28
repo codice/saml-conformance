@@ -20,7 +20,7 @@ import java.net.URI
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-val ids = mutableListOf<String>()
+var ids = mutableListOf<String>()
 
 /**
  * Verify common data types against the core specification
@@ -28,6 +28,7 @@ val ids = mutableListOf<String>()
  * 1.3 Common Data Types
  */
 fun verifyCommonDataType(response: Node) {
+    ids = mutableListOf()
     var i = response.childNodes.length - 1
 
     while (i >= 0) {

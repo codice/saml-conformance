@@ -23,13 +23,13 @@ var ID : String = ""
 /**
  * Verify response against the Core Spec document
  */
-fun verifyCore(response: Node, id : String) {
+fun verifyCore(node: Node, id : String) {
     ID = id
-    verifyCommonDataType(response)
-    verifyAssertions(response)
-    verifyProtocols(response)
-    verifySignatureSyntaxAndProcessing(response)
-    verifyGeneralConsiderations(response)
+    verifyCommonDataType(node)
+    verifyAssertions(node)
+    verifyProtocols(node)
+    verifySignatureSyntaxAndProcessing(node)
+    verifyGeneralConsiderations(node)
 }
 
 /**
@@ -38,8 +38,8 @@ fun verifyCore(response: Node, id : String) {
  * 5 SAML and XML Signature Syntax and Processing
  * 5.4.1 Signing Formats and Algorithms
  */
-fun verifySignatureSyntaxAndProcessing(response: Node) {
-    val assertions = response.children("Assertion")
+fun verifySignatureSyntaxAndProcessing(node: Node) {
+    val assertions = node.children("Assertion")
     assertions.forEach {
         val signatures = it.children("Signature")
         if (signatures.isEmpty())
@@ -59,14 +59,14 @@ fun verifySignatureSyntaxAndProcessing(response: Node) {
     }
 }
 
-fun verifyGeneralConsiderations(response: Node) {
+fun verifyGeneralConsiderations(node: Node) {
     // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext information
     // in the same location within the XML instance.
 
-    val assertions = response.children("Assertion")
-    val baseIds = response.children("BaseID")
-    val nameIds = response.children("NameID")
-    val attributes = response.children("Attribute")
+    val assertions = node.children("Assertion")
+    val baseIds = node.children("BaseID")
+    val nameIds = node.children("NameID")
+    val attributes = node.children("Attribute")
 
     val elements = mutableListOf<Node>()
     elements.addAll(assertions)

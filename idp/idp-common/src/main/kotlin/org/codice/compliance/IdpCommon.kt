@@ -36,7 +36,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 const val IDP_METADATA = "idp.metadata"
 const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val DESTINATION = "https://localhost:8993/services/idp/login"
-const val ACS = "https://localhost:8993/services/saml/sso"
+const val ACS_URL = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 const val RELAY_STATE = "relay+State"
 const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
@@ -93,7 +93,7 @@ fun generateAndRetrieveAuthnRequest(): String {
 
     val authnRequest = AuthnRequestBuilder().buildObject().apply {
         issuer = issuerObject
-        assertionConsumerServiceURL = ACS
+        assertionConsumerServiceURL = ACS_URL
         id = ID
         version = SAMLVersion.VERSION_20
         issueInstant = DateTime()

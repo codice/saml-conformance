@@ -19,6 +19,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.codice.compliance.bindings.verifyPost
 import org.codice.compliance.bindings.verifyRedirect
 import org.codice.compliance.core.verifyCore
+import org.codice.compliance.core.verifyCoreResponseProtocol
 import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
 import java.io.IOException
@@ -39,10 +40,11 @@ fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
     }
 
     decodedMessage shouldNotBe null
-    val responseElement = buildDom(decodedMessage)
-    verifyCore(responseElement, ID)
-    verifySsoProfile(responseElement)
-    verifyRedirect(responseElement, parsedResponse, givenRelayState)
+    val responseDomElement = buildDom(decodedMessage)
+    verifyCore(responseDomElement, ID)
+    verifyCoreResponseProtocol(responseDomElement)
+    verifySsoProfile(responseDomElement)
+    verifyRedirect(responseDomElement, parsedResponse, givenRelayState)
 }
 
 fun assertPostResponse(response: String, givenRelayState: Boolean) {
@@ -58,6 +60,7 @@ fun assertPostResponse(response: String, givenRelayState: Boolean) {
     decodedMessage shouldNotBe null
     val responseDomElement = buildDom(decodedMessage)
     verifyCore(responseDomElement, ID)
+    verifyCoreResponseProtocol(responseDomElement)
     verifySsoProfile(responseDomElement)
     verifyPost(responseDomElement, parsedResponse, givenRelayState)
 }

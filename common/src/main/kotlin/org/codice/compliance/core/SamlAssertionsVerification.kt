@@ -24,23 +24,23 @@ import java.time.Instant
  * Verify assertions against the Core Spec document
  * 2 SAML Assertions
  */
-fun verifyAssertions(response: Node) {
-    verifyEncryptedId(response)
-    verifyCoreAssertion(response)
-    verifyEncryptedAssertion(response)
-    verifySubjectElements(response)
-    verifyConditions(response)
-    verifyAuthnStatementAndAttributeStatement(response)
-    verifyAttributeElements(response)
-    verifyAuthzDecisionStatementAndAction(response)
+fun verifyAssertions(node: Node) {
+    verifyEncryptedId(node)
+    verifyCoreAssertion(node)
+    verifyEncryptedAssertion(node)
+    verifySubjectElements(node)
+    verifyConditions(node)
+    verifyAuthnStatementAndAttributeStatement(node)
+    verifyAttributeElements(node)
+    verifyAuthzDecisionStatementAndAction(node)
 }
 
 /**
  * Verify the <EncryptedId> Element against the Core Spec document
  * 2.2.4 Element <EncryptedID>
  */
-fun verifyEncryptedId(response: Node) {
-    response.allChildren("EncryptedID").forEach {
+fun verifyEncryptedId(node: Node) {
+    node.allChildren("EncryptedID").forEach {
         val encryptedData = it.children("EncryptedData")
         if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
 
@@ -59,8 +59,8 @@ fun verifyEncryptedId(response: Node) {
  * Verify the <Assertion> Element against the Core Spec document
  * 2.3.3 Element <Assertion>
  */
-fun verifyCoreAssertion(response: Node) {
-    response.allChildren("Assertion").forEach {
+fun verifyCoreAssertion(node: Node) {
+    node.allChildren("Assertion").forEach {
         if (it.attributes.getNamedItem("Version")?.textContent == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
         if (it.attributes.getNamedItem("Version").textContent != "2.0")
@@ -90,11 +90,11 @@ fun verifyCoreAssertion(response: Node) {
 }
 
 /**
- * Verify the <Assertion> element against the Core Spec document
+ * Verify the <EncryptedAssertion> element against the Core Spec document
  * 2.3.4 Element <EncryptedAssertion>
  */
-fun verifyEncryptedAssertion(response: Node) {
-    response.allChildren("EncryptedAssertion").forEach {
+fun verifyEncryptedAssertion(node: Node) {
+    node.allChildren("EncryptedAssertion").forEach {
         val encryptedData = it.children("EncryptedData")
         if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.4", "EncryptedData", "EncryptedAssertion")
 
@@ -112,14 +112,14 @@ fun verifyEncryptedAssertion(response: Node) {
  * 2.4.1.2 Element <SubjectConfirmationData>
  * 2.4.1.3 Complex Type KeyInfoConfirmationDataType
  */
-fun verifySubjectElements(response: Node) {
+fun verifySubjectElements(node: Node) {
     // SubjectConfirmation
-    if (response.allChildren("SubjectConfirmation")
+    if (node.allChildren("SubjectConfirmation")
             .any { it.attributes.getNamedItem("Method") == null })
         throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.4.1.1", "Method", "SubjectConfirmation")
 
     // SubjectConfirmationData
-    response.allChildren("SubjectConfirmationData").forEach {
+    node.allChildren("SubjectConfirmationData").forEach {
         // todo - SAML extensions MUST NOT add local (non-namespace-qualified) XML attributes or XML attributes qualified by a SAML-defined
         // namespace to the SubjectConfirmationDataType complex type or a derivation of it; such attributes are reserved for future maintenance
         // and enhancement of SAML itself.
@@ -149,8 +149,8 @@ fun verifySubjectElements(response: Node) {
  * 2.5.1.5 Element <OneTimeUse>
  * 2.5.1.6 Element <ProxyRestriction>
  */
-fun verifyConditions(response: Node) {
-    response.allChildren("Conditions").forEach {
+fun verifyConditions(node: Node) {
+    node.allChildren("Conditions").forEach {
         if (it.children("Condition")
                 .any { it.attributes.getNamedItemNS("http://www.w3.org/2001/XMLSchemainstance", "type") == null })
             throw SAMLComplianceException.create("SAMLCore.2.5.1_a")
@@ -170,7 +170,7 @@ fun verifyConditions(response: Node) {
             }
 
             // todo - verify this section
-            response.allChildren("AudienceRestriction").forEach {
+            node.allChildren("AudienceRestriction").forEach {
                 if (it.childNodes.length == 0)
                     throw SAMLComplianceException.create("SAMLCore.2.5.1.6_a")
                 it.children("Audience").forEach {
@@ -193,13 +193,13 @@ fun verifyConditions(response: Node) {
  * Verify the <AuthnStatement> element against the Core Spec
  * 2.7.2 Element <AuthnStatement>
  */
-fun verifyAuthnStatementAndAttributeStatement(response: Node) {
-    if (response.allChildren("Assertion")
+fun verifyAuthnStatementAndAttributeStatement(node: Node) {
+    if (node.allChildren("Assertion")
             .filter { it.children("AuthnStatement").isNotEmpty() }
             .any { it.children("Subject").isEmpty() })
         throw SAMLComplianceException.create("SAMLCore.2.7.2_a")
 
-    response.allChildren("AuthnStatement").forEach {
+    node.allChildren("AuthnStatement").forEach {
         if (it.attributes.getNamedItem("AuthnInstant") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.2", "AuthnInstant", "AuthnStatement")
 
@@ -214,20 +214,20 @@ fun verifyAuthnStatementAndAttributeStatement(response: Node) {
  * 2.7.3.1 Element <Attribute>
  * 2.7.3.2 Element <EncryptedAttribute>
  */
-fun verifyAttributeElements(response: Node) {
+fun verifyAttributeElements(node: Node) {
     // AttributeStatement
-    if (response.allChildren("Assertion")
+    if (node.allChildren("Assertion")
             .filter { it.children("AttributeStatement").isNotEmpty() }
             .any { it.children("Subject").isEmpty() })
         throw SAMLComplianceException.create("SAMLCore.2.7.3_a")
 
-    response.allChildren("AttributeStatement").forEach {
+    node.allChildren("AttributeStatement").forEach {
         if (it.children("Attribute").isEmpty() && it.children("EncryptedAttribute").isEmpty())
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3", "Attribute or EncryptedAttribute", "AttributeStatement")
     }
 
     // Attribute
-    response.allChildren("Attribute").forEach {
+    node.allChildren("Attribute").forEach {
         if (it.attributes.getNamedItem("Name") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3.1", "Name", "Attribute")
         if (it.childNodes.length < 1)
@@ -259,7 +259,7 @@ fun verifyAttributeElements(response: Node) {
     }
 
     // EncryptedAttribute
-    response.allChildren("EncryptedAttribute").forEach {
+    node.allChildren("EncryptedAttribute").forEach {
         val encryptedData = it.children("EncryptedData")
         if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3.2", "EncryptedData", "EncryptedAttribute")
 
@@ -276,22 +276,22 @@ fun verifyAttributeElements(response: Node) {
  * 2.7.4 Element <AuthzDecisionStatement>
  * 2.7.4.2 Element <Action>
  */
-fun verifyAuthzDecisionStatementAndAction(response: Node) {
+fun verifyAuthzDecisionStatementAndAction(node: Node) {
     // AuthzDecisionStatement
-    response.allChildren("Assertion").forEach {
+    node.allChildren("Assertion").forEach {
         if (it.children("AuthzDecisionStatement").isNotEmpty()
                 && it.children("Subject").isEmpty())
             throw SAMLComplianceException.create("SAMLCore.2.7.4_a")
     }
 
-    response.allChildren("AuthzDecisionStatement").forEach {
+    node.allChildren("AuthzDecisionStatement").forEach {
         if (it.attributes.getNamedItem("Resource") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Resource", "AuthzDecisionStatement")
         if (it.attributes.getNamedItem("Decision") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Decision", "AuthzDecisionStatement")
         if (it.children("Action").isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Action", "AuthzDecisionStatement")
     }
 
     // Action
-    val actions = response.allChildren("Action")
+    val actions = node.allChildren("Action")
     actions.forEach {
         if (it.attributes.getNamedItem("Namespace") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
     }

@@ -54,7 +54,7 @@ fun verifySsoAssertions(response: Node) {
         bearerSubjectConfirmations
                 .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                 .flatMap { it -> it.children("SubjectConfirmationData") }
-                .filter { it.attributes.getNamedItem("Recipient").textContent == ACS }
+                .filter { it.attributes.getNamedItem("Recipient").textContent == ACS_URL }
                 .filter { it.attributes.getNamedItem("InResponseTo").textContent == ID }
                 .filter { it.attributes.getNamedItem("NotOnOrAfter") != null }
                 .toCollection(bearerSubjectConfirmationsData)
