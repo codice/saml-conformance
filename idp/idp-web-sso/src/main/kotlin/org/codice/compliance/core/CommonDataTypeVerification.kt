@@ -5,7 +5,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.w3c.dom.Node
 import java.net.URI
 
-var ids = mutableListOf<String>()
+val ids = mutableListOf<String>()
 
 /**
  * Verify common data types against the core specification
@@ -17,16 +17,20 @@ fun verifyCommonDataType(response: Node) {
 
     while (i >= 0) {
         val child = response.childNodes.item(i)
-        verifyStringValues(child)
-        verifyUriValues(child)
-        verifyTimeValues(child)
-        verifyIdValues(child)
+        val typeAttribute = child.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
+        if (typeAttribute?.textContent?.contains("string") == true)
+            verifyStringValues(child)
+        if (typeAttribute?.textContent?.contains("anyURI") == true)
+            verifyUriValues(child)
+        if (typeAttribute?.textContent?.contains("dateTime") == true)
+            verifyTimeValues(child)
+        if (typeAttribute?.textContent?.contains("ID") == true)
+            verifyIdValues(child)
 
         if (child.hasChildNodes())
             verifyCommonDataType(child)
         i -= 1
     }
-    ids = mutableListOf()
 }
 
 /**
@@ -35,9 +39,7 @@ fun verifyCommonDataType(response: Node) {
  * 1.3.1 String Values
  */
 fun verifyStringValues(node: Node) {
-    if (node.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
-            ?.textContent?.contains("string") == true
-            && StringUtils.isBlank(node.textContent))
+    if (StringUtils.isBlank(node.textContent))
         throw SAMLComplianceException.create("SAMLCore.1.3.1_a")
 }
 
@@ -48,25 +50,20 @@ fun verifyStringValues(node: Node) {
  */
 fun verifyUriValues(node: Node) {
     // todo - make sure uri absolute check is correct
-    if (node.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
-            ?.textContent?.contains("anyURI") == true
-            && StringUtils.isBlank(node.textContent)
+    if (StringUtils.isBlank(node.textContent)
             && !URI.create(node.textContent).isAbsolute)
         throw SAMLComplianceException.create("SAMLCore.1.3.2_a")
 }
 
 /**
- * Verify values of type time
+ * Verify values of type dateTime
  *
  * 1.3.3 Time Values
  */
 fun verifyTimeValues(node: Node) {
-    if (node.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
-            ?.textContent?.contains("dateTime") == true) {
-        // todo - jacob add date time verification HERE
-        // string called child.textContent
-        // error code - SAMLCore.1.3.3_a
-    }
+    // todo - jacob add date time verification HERE
+    // string called child.textContent
+    // error code - SAMLCore.1.3.3_a
 }
 
 /**
@@ -75,9 +72,7 @@ fun verifyTimeValues(node: Node) {
  * 1.3.4 ID and ID Reference Values
  */
 fun verifyIdValues(node: Node) {
-    if (node.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
-            ?.textContent?.contains("ID") == true)
-        if (ids.contains(node.textContent))
-            throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
-        else ids.add(node.textContent)
+    if (ids.contains(node.textContent))
+        throw SAMLComplianceException.create("SAMLCore.1.3.4_b")
+    else ids.add(node.textContent)
 }
