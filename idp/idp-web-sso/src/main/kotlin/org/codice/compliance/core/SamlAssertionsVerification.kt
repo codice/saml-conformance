@@ -73,7 +73,7 @@ fun verifyCoreAssertion(response: Node) {
 
         if (it.attributes.getNamedItem("IssueInstant") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
-        verifyIdValues(it.attributes.getNamedItem("IssueInstant"), "SAMLCore.2.3.3_c")
+        verifyTimeValues(it.attributes.getNamedItem("IssueInstant"), "SAMLCore.2.3.3_c")
 
         val issuers = it.children("Issuer")
         if (issuers.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")

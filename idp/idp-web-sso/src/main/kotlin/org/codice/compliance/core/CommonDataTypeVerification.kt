@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.w3c.dom.Node
 import java.net.URI
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 val ids = mutableListOf<String>()
 
@@ -65,13 +67,81 @@ fun verifyUriValues(node: Node, errorCode: String?) {
  * 1.3.3 Time Values
  */
 fun verifyTimeValues(node: Node, errorCode: String?) {
-    // todo - jacob add date time verification HERE
-    // string called child.textContent
-    // error code - SAMLCore.1.3.3_a
-    // also have
-    // if (errorCode != null) throw SAMLComplianceException.create("SAMLCore.1.3.3_a", errorCode)
-    // else throw SAMLComplianceException.create("SAMLCore.1.3.3_a")
-    // when throwing the error
+
+
+    val dateTime = node.textContent
+    val (year, restOfDateTime) = splitByYear(dateTime, errorCode)
+    verifyYear(year, errorCode)
+    verifyRestOfDateTime(restOfDateTime, errorCode)
+}
+
+// helper for verifyTimeValues
+data class SplitString(val year: String, val restOfDateTime: String)
+fun splitByYear(dateTime: String, errorCode: String?):  SplitString {
+    var hyphenIndex = dateTime.indexOf('-')
+
+    if (hyphenIndex == -1) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a")
+    }
+
+    // if year is negative, find the next '-'
+    if (hyphenIndex == 0) {
+        hyphenIndex = dateTime.indexOf('-', hyphenIndex)
+    }
+
+    if (hyphenIndex == -1) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a")
+    }
+
+    val year = dateTime.substring(0, hyphenIndex)
+    val restOfDateTime = dateTime.substring(hyphenIndex + 1)
+
+    return SplitString(year, restOfDateTime)
+}
+
+// helper for verifyTimeValues
+fun verifyYear(year: String, errorCode: String?) {
+    // remove the negative sign to make verification easier
+    val strippedYear: String
+    if (year.indexOf('-') == 0) {
+        strippedYear = year.substring(1)
+    } else {
+        strippedYear = year
+    }
+
+    // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permited"
+    if (!strippedYear.matches(Regex("\\d+"))) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a3", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a3", "SAMLCore.1.3.3_a")
+    }
+
+    // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are prohibited"
+    if (strippedYear.length > 4 && strippedYear.startsWith('0')) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a1", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a1", "SAMLCore.1.3.3_a")
+    }
+
+    // https://www.w3.org/TR/xmlschema-2/#dateTime "'0000' is prohibited"
+    if (strippedYear == "0000") {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a2", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7.1_a2", "SAMLCore.1.3.3_a")
+    }
+}
+
+// todo allow an unlimited amount of fractional seconds as stated in the XML Datatypes Schema 3.2.7
+// todo "SAML system entities SHOULD NOT rely on time resolution finer than milliseconds" Core.1.3.3
+// helper for verifyTimeValues
+fun verifyRestOfDateTime(restOfDateTime: String, errorCode: String?) {
+    val format = DateTimeFormatter.ofPattern("MM'-'dd'T'HH':'mm':'ss['.'SSS]['Z']")
+
+    try {
+        format.parse(restOfDateTime)
+    } catch (e: DateTimeParseException) {
+        if (errorCode != null) throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a", errorCode)
+        else throw SAMLComplianceException.create("XMLDatatypesSchema.3.2.7", "SAMLCore.1.3.3_a")
+    }
 }
 
 /**
