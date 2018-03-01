@@ -40,7 +40,7 @@ const val ACS = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 const val RELAY_STATE = "relay+State"
 const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
-val idpParsedMetadata = getIdpMetadata()
+val idpMetadata = parseIdpMetadata()
 
 private val DEPLOY_CL = getDeployDirClassloader()
 
@@ -66,10 +66,10 @@ fun <T> getServiceProvider(type: Class<T>): T {
 /**
  * Parses and returns the idp metadata
  */
-fun getIdpMetadata(): IDPSSODescriptor? {
+fun parseIdpMetadata(): IdpMetadata {
     return IdpMetadata().apply {
         setMetadata(File(System.getProperty(IDP_METADATA)).readText())
-    }.descriptor
+    }
 }
 
 /**
@@ -118,7 +118,8 @@ fun generateAndRetrieveAuthnRequest(): String {
  * Returns SSO url of the passed in binding from the IdP's metadata
  */
 fun getSingleSignonLocation(binding: String): String? {
-    return getIdpMetadata()
+    return idpMetadata
+            .descriptor
             ?.singleSignOnServices
             ?.first { it.binding == binding }
             ?.location
