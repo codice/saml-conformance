@@ -256,8 +256,7 @@ public class SimpleSign {
       String encodedQueryParamsToValidate, String encodedSignature, String encodedSigAlg, String certificateString)
       throws SignatureException {
     try {
-      certificateString = String.format("%s\n%s\n%s", "-----BEGIN CERTIFICATE-----", certificateString, "-----END CERTIFICATE-----");
-//      certificateString = new String(Base64.getMimeDecoder().decode(certificateString));
+      certificateString = String.format("%s%n%s%n%s", "-----BEGIN CERTIFICATE-----", certificateString, "-----END CERTIFICATE-----");
       String sigAlg = URLDecoder.decode(encodedSigAlg, StandardCharsets.UTF_8.name());
       String signature = URLDecoder.decode(encodedSignature, StandardCharsets.UTF_8.name());
 
