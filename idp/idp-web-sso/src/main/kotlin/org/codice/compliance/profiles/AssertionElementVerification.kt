@@ -57,11 +57,10 @@ fun verifySsoAssertions(response: Node) {
 
         if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_j")
 
-        if (idpParsedMetadata != null) {
-            if (idpParsedMetadata!!.singleLogoutServices.isNotEmpty())
+        if (idpMetadata.descriptor != null) {
+            if (idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty())
                 it.children("AuthnStatement").forEach {
-                    if (it.attributes.getNamedItem("SessionIndex") == null)
-                        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_k")
+                    if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2k")
                 }
         }
 

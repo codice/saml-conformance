@@ -53,17 +53,18 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
 /**
  * Parses and returns the idp metadata
  */
-fun getIdpMetadata(): IDPSSODescriptor? {
+fun parseIdpMetadata(): IdpMetadata {
     return IdpMetadata().apply {
         setMetadata(File(System.getProperty(IDP_METADATA)).readText())
-    }.descriptor
+    }
 }
 
 /**
  * Returns SSO url of the passed in binding from the IdP's metadata
  */
 fun getSingleSignOnLocation(binding: String): String? {
-    return getIdpMetadata()
+    return parseIdpMetadata()
+            .descriptor
             ?.singleSignOnServices
             ?.first { it.binding == binding }
             ?.location

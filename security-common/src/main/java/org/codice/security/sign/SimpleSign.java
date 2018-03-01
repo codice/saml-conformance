@@ -16,6 +16,7 @@ package org.codice.security.sign;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -69,6 +70,12 @@ public class SimpleSign {
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleSign.class);
 
   private final SystemCrypto crypto;
+
+  private static final Map<String, String> URI_ALG_MAP = new HashMap<>();
+  static {
+    URI_ALG_MAP.put("http://www.w3.org/2000/09/xmldsig#dsa-sha1", "SHA1withDSA");
+    URI_ALG_MAP.put("http://www.w3.org/2000/09/xmldsig#rsa-sha1", "SHA1withRSA");
+  }
 
   public SimpleSign() throws IOException {
     crypto = new SystemCrypto();
@@ -246,29 +253,24 @@ public class SimpleSign {
   }
 
   public boolean validateSignature(
-      String queryParamsToValidate, String encodedSignature, @Nullable String encodedPublicKey)
+      String encodedQueryParamsToValidate, String encodedSignature, String encodedSigAlg, String certificateString)
       throws SignatureException {
-    if (encodedPublicKey == null) {
-      LOGGER.warn(
-          "Could not verify the signature of request because there was no signing certificate. Ensure that the IdP Metadata includes a signing certificate.");
-      return false;
-    }
-
     try {
+      certificateString = String.format("%s\n%s\n%s", "-----BEGIN CERTIFICATE-----", certificateString, "-----END CERTIFICATE-----");
+//      certificateString = new String(Base64.getMimeDecoder().decode(certificateString));
+      String sigAlg = URLDecoder.decode(encodedSigAlg, StandardCharsets.UTF_8.name());
+      String signature = URLDecoder.decode(encodedSignature, StandardCharsets.UTF_8.name());
+
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
       Certificate certificate =
-          certificateFactory.generateCertificate(
-              new ByteArrayInputStream(Base64.getMimeDecoder().decode(encodedPublicKey)));
+          certificateFactory.generateCertificate(new ByteArrayInputStream(certificateString.getBytes(StandardCharsets.UTF_8.name())));
 
-      String jceSigAlgo = "SHA1withRSA";
-      if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-        jceSigAlgo = "SHA1withDSA";
-      }
+      String jceSigAlg = URI_ALG_MAP.get(sigAlg);
 
-      java.security.Signature sig = java.security.Signature.getInstance(jceSigAlgo);
+      java.security.Signature sig = java.security.Signature.getInstance(jceSigAlg);
       sig.initVerify(certificate.getPublicKey());
-      sig.update(queryParamsToValidate.getBytes(StandardCharsets.UTF_8.name()));
-      return sig.verify(Base64.getMimeDecoder().decode(encodedSignature));
+      sig.update(encodedQueryParamsToValidate.getBytes(StandardCharsets.UTF_8.name()));
+      return sig.verify(Base64.getDecoder().decode(signature));
     } catch (NoSuchAlgorithmException
         | InvalidKeyException
         | CertificateException

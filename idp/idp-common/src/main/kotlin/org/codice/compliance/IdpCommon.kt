@@ -17,7 +17,6 @@ import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
-import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -25,7 +24,6 @@ import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.File
@@ -38,11 +36,13 @@ const val ACS_URL = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 const val RELAY_STATE = "relay+State"
 const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
-val idpParsedMetadata = getIdpMetadata()
+val idpMetadata = parseIdpMetadata()
 
 private val DEPLOY_CL = getDeployDirClassloader()
 
-class DeployDirClassloader private fun getDeployDirClassloader(): ClassLoader {
+class DeployDirClassloader
+
+private fun getDeployDirClassloader(): ClassLoader {
     val pluginDeploy = System.getProperty("saml.plugin.deployDir")
 
     return if (pluginDeploy != null) {

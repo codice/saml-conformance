@@ -15,7 +15,7 @@ package org.codice.compliance.profiles
 
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
-import org.codice.compliance.idpParsedMetadata
+import org.codice.compliance.idpMetadata
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
@@ -44,8 +44,8 @@ fun verifyIssuer(node: Node) {
         throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_a")
 
     val issuer = issuers[0]
-    if (issuer.textContent != (idpParsedMetadata?.parent as EntityDescriptorImpl).entityID)
-        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_b")
+    if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
+        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2b")
 
     if (issuer.attributes.getNamedItem("Format") != null
             && issuer.attributes.getNamedItem("Format").textContent != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
