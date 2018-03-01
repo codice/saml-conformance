@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets
 /**
  * Verify the response for a redirect binding
  */
-fun verifyRedirect(responseDomElement: Node, parsedResponse : Map<String, String>, givenRelayState: Boolean) {
+fun verifyRedirect(responseDomElement: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
     parsedResponse["RelayState"]?.let { verifyRedirectRelayState(it, givenRelayState) }
     parsedResponse["Signature"]?.let { verifyRedirectSignature(it, parsedResponse) }
     parsedResponse["SigAlg"]?.let { verifyRedirectSigAlg(it) }
@@ -43,15 +43,18 @@ fun verifyRedirectSigAlg(sigAlg: String) {
  * 3.4.4.1 DEFLATE Encoding
  */
 fun verifyRedirectSignature(signature: String, parsedResponse: Map<String, String>) {
-    val verify = SimpleSign().validateSignature(
-            "SAMLResponse",
-            parsedResponse["SAMLResponse"],
-            parsedResponse["RelayState"],
-            signature,
-            parsedResponse["SigAlg"],
-            idpMetadata.signingCertificate
-    )
-
+    val verify: Boolean
+    try {
+        verify = SimpleSign().validateSignature(
+                "SAMLResponse",
+                parsedResponse["SAMLResponse"],
+                parsedResponse["RelayState"],
+                signature,
+                parsedResponse["SigAlg"],
+                idpMetadata.signingCertificate)
+    } catch (e: SimpleSign.SignatureException) {
+        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d")
+    }
     if (!verify)
         throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d")
 }
@@ -62,11 +65,11 @@ fun verifyRedirectSignature(signature: String, parsedResponse: Map<String, Strin
  * 3.4.4.1 DEFLATE Encoding
  */
 fun verifyRedirectRelayState(encodedRelayState: String, givenRelayState: Boolean) {
-    val decodedRelayState : String
+    val decodedRelayState: String
 
     try {
         decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
-    } catch (e : UnsupportedEncodingException) {
+    } catch (e: UnsupportedEncodingException) {
         throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
     }
 
