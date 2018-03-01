@@ -43,33 +43,17 @@ fun verifyRedirectSigAlg(sigAlg: String) {
  * 3.4.4.1 DEFLATE Encoding
  */
 fun verifyRedirectSignature(signature: String, parsedResponse: Map<String, String>) {
-    // set up query params that were signed
-    val queryParams = StringBuilder()
-    parsedResponse["SAMLResponse"]?.let {
-        queryParams.append("SAMLResponse=")
-        queryParams.append(it)
-        queryParams.append("&")
-    }
-    parsedResponse["RelayState"]?.let {
-        queryParams.append("RelayState=")
-        queryParams.append(it)
-        queryParams.append("&")
-    }
-    parsedResponse["SigAlg"]?.let {
-        queryParams.append("SigAlg=")
-        queryParams.append(it)
-    }
-
     val verify = SimpleSign().validateSignature(
-            queryParams.toString(),
+            "SAMLResponse",
+            parsedResponse["SAMLResponse"],
+            parsedResponse["RelayState"],
             signature,
             parsedResponse["SigAlg"],
             idpMetadata.signingCertificate
     )
 
-    if (!verify) {
+    if (!verify)
         throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d")
-    }
 }
 
 /**
