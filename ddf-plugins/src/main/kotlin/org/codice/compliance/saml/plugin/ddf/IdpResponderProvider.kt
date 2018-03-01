@@ -21,7 +21,9 @@ import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.response.Response
 import io.kotlintest.matchers.shouldBe
 import org.apache.commons.lang3.StringUtils
+import org.codice.compliance.getSingleSignOnLocation
 import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
 
 
@@ -130,6 +132,6 @@ class IdpResponderProvider : IdpResponder {
                 .log()
                 .ifValidationFails()
                 .`when`()
-                .get("https://localhost:8993/services/idp/login/sso")
+                .get(getSingleSignOnLocation(SamlProtocol.POST_BINDING) + "/sso")
     }
 }

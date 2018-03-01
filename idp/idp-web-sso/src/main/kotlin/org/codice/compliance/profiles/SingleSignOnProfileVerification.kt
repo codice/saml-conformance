@@ -21,30 +21,33 @@ import org.w3c.dom.Node
 
 /**
  * Verify response against the Core Spec document
+ * 4.1.4.2 <Response> Usage
  */
 fun verifySsoProfile(response: Node) {
     if (response.localName == "Response" &&
             (response.children("Signature").isNotEmpty() ||
-                    response.children("Assertion").filter { it.children("Signature").isNotEmpty() }.count() > 0))
+                    response.children("Assertion").any { it.children("Signature").isNotEmpty() }))
         verifyIssuer(response)
     verifySsoAssertions(response)
 }
 
 /**
  * Checks the issuer element against the SSO profile spec
+ * 4.1.4.2 <Response> Usage
  *
  * @param node - Node containing the issuer to verify.
  */
 fun verifyIssuer(node: Node) {
     val issuers = node.children("Issuer")
 
-    if (issuers.isEmpty() || issuers.size > 1)
-        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2a")
+    if (issuers.size != 1)
+        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_a")
 
     val issuer = issuers[0]
     if (issuer.textContent != (idpParsedMetadata?.parent as EntityDescriptorImpl).entityID)
-        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2b")
+        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_b")
 
-    if (issuer.attributes.getNamedItem("Format") != null && !issuer.attributes.getNamedItem("Format").equals("urn:oasis:names:tc:SAML:2.0:nameid-format:entity"))
-        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2c")
+    if (issuer.attributes.getNamedItem("Format") != null
+            && issuer.attributes.getNamedItem("Format").textContent != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_c")
 }

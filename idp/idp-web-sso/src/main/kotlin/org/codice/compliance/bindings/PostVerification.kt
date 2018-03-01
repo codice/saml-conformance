@@ -31,28 +31,25 @@ fun verifyPost(responseDomElement: Node, parsedResponse: Map<String, String>, gi
 
 /**
  * Checks POST-specific rules from SSO profile spec
+ * 4.1.4.5 POST-Specific Processing Rules
  *
  * @param response - Response node
  */
 fun verifySsoPost(response: Node) {
     if (response.children("Signature").isEmpty()
             || response.children("Assertion").any { it.children("Signature").isEmpty() })
-        throw SAMLComplianceException.create("10") //If the HTTP POST binding is used to deliver the <Response>, [E26]each assertion MUST be protected by a digital signature. This can be accomplished by signing each individual <Assertion> element or by signing the <Response> element.
+        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.5_a")
 }
 
 /**
  * Verifies the relay state according to the post binding rules in the binding spec
+ * 3.5.3 RelayState
  */
 fun verifyPostRelayState(relayState: String, givenRelayState: Boolean) {
-    // if relay state is greater than 80 bytes
-    if (relayState.toByteArray().size > 80) {
+    if (relayState.toByteArray().size > 80)
         throw SAMLComplianceException.create("SAMLBindings.3.5.3_a")
-    }
 
     if (givenRelayState) {
-        // if relay states do not match
-        if (relayState != RELAY_STATE) {
-            throw SAMLComplianceException.create("SAMLBindings.3.5.3_b1")
-        }
+        if (relayState != RELAY_STATE) throw SAMLComplianceException.create("SAMLBindings.3.5.3_b1")
     }
 }

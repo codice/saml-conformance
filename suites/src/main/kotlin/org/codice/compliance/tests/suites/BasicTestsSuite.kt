@@ -8,4 +8,4 @@ import org.junit.runners.Suite
 @RunWith(Suite::class)
 @Suite.SuiteClasses(PostLoginTest::class,
         RedirectLoginTest::class)
-class SuiteTest1
+class BasicTestsSuite

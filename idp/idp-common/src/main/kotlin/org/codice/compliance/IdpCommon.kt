@@ -33,9 +33,7 @@ import java.net.URLClassLoader
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 
-const val IDP_METADATA = "idp.metadata"
 const val SP_ISSUER = "https://localhost:8993/services/saml"
-const val DESTINATION = "https://localhost:8993/services/idp/login"
 const val ACS_URL = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 const val RELAY_STATE = "relay+State"
@@ -44,7 +42,7 @@ val idpParsedMetadata = getIdpMetadata()
 
 private val DEPLOY_CL = getDeployDirClassloader()
 
-private fun getDeployDirClassloader(): ClassLoader {
+class DeployDirClassloader private fun getDeployDirClassloader(): ClassLoader {
     val pluginDeploy = System.getProperty("saml.plugin.deployDir")
 
     return if (pluginDeploy != null) {
@@ -55,21 +53,12 @@ private fun getDeployDirClassloader(): ClassLoader {
                 .map { it.toURL() }
                 .toList()
 
-        URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
-    } else SAMLComplianceException::class.java.classLoader
+        URLClassLoader(jarUrls.toTypedArray(), DeployDirClassloader::class.java.classLoader)
+    } else DeployDirClassloader::class.java.classLoader
 }
 
 fun <T> getServiceProvider(type: Class<T>): T {
     return ServiceLoader.load(type, DEPLOY_CL).first()
-}
-
-/**
- * Parses and returns the idp metadata
- */
-fun getIdpMetadata(): IDPSSODescriptor? {
-    return IdpMetadata().apply {
-        setMetadata(File(System.getProperty(IDP_METADATA)).readText())
-    }.descriptor
 }
 
 /**
@@ -97,7 +86,7 @@ fun generateAndRetrieveAuthnRequest(): String {
         id = ID
         version = SAMLVersion.VERSION_20
         issueInstant = DateTime()
-        destination = DESTINATION
+        destination = getSingleSignOnLocation(SamlProtocol.POST_BINDING)
         protocolBinding = SamlProtocol.POST_BINDING
         nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
             allowCreate = true
@@ -112,14 +101,4 @@ fun generateAndRetrieveAuthnRequest(): String {
     val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
 
     return DOM2Writer.nodeToString(requestElement)
-}
-
-/**
- * Returns SSO url of the passed in binding from the IdP's metadata
- */
-fun getSingleSignonLocation(binding: String): String? {
-    return getIdpMetadata()
-            ?.singleSignOnServices
-            ?.first { it.binding == binding }
-            ?.location
 }

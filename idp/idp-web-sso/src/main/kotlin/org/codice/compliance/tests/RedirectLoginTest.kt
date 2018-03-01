@@ -29,7 +29,7 @@ class RedirectLoginTest : StringSpec() {
     companion object {
         fun setupAuthnRequest(relayState: String?): Map<String, String> {
             val baseRequest = getResource("redirect-authn-request.xml").readText()
-            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS_URL, DESTINATION, ID, Instant.now().toString(), SP_ISSUER))
+            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS_URL, getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING), ID, Instant.now().toString(), SP_ISSUER))
             return SimpleSign().signUriString(SSOConstants.SAML_REQUEST, encodedRequest, relayState)
         }
     }
@@ -49,7 +49,7 @@ class RedirectLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
+                    .get(getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
             assertResponse(idpResponse, false)
@@ -68,7 +68,7 @@ class RedirectLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .get(getSingleSignonLocation(SamlProtocol.REDIRECT_BINDING))
+                    .get(getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
             assertResponse(idpResponse, true)

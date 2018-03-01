@@ -13,8 +13,13 @@
  */
 package org.codice.compliance
 
+import org.codice.security.saml.IdpMetadata
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
 import org.w3c.dom.Node
+import java.io.File
 import java.util.*
+
+const val IDP_METADATA = "idp.metadata"
 
 class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
@@ -43,6 +48,25 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
             else codeValue.substring(0, underscoreIndex)
         }
     }
+}
+
+/**
+ * Parses and returns the idp metadata
+ */
+fun getIdpMetadata(): IDPSSODescriptor? {
+    return IdpMetadata().apply {
+        setMetadata(File(System.getProperty(IDP_METADATA)).readText())
+    }.descriptor
+}
+
+/**
+ * Returns SSO url of the passed in binding from the IdP's metadata
+ */
+fun getSingleSignOnLocation(binding: String): String? {
+    return getIdpMetadata()
+            ?.singleSignOnServices
+            ?.first { it.binding == binding }
+            ?.location
 }
 
 /** Extensions to Node class **/

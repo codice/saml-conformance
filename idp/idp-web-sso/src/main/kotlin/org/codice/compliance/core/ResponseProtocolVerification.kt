@@ -16,6 +16,7 @@ package org.codice.compliance.core
 import com.google.common.collect.ImmutableSet
 import org.codice.compliance.ACS_URL
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
 
@@ -31,6 +32,7 @@ private val topLevelStatusCodes = ImmutableSet.of("urn:oasis:names:tc:SAML:2.0:s
 fun verifyCoreResponseProtocol(response: Node) {
     verifyStatusResponseType(response)
     verifyStatusesType(response)
+    verifyNameIdMappingResponse(response)
 
     // 3.4 Authentication Request Protocol
     // todo - verify if this common for everything
@@ -92,5 +94,16 @@ fun verifyStatusesType(response: Node) {
 
         if (!topLevelStatusCodes.contains(statusCodes[0].attributes.getNamedItem("Value").textContent))
             throw SAMLComplianceException.create("SAMLCore.3.2.2.2_a", "SAMLCore.3.2.2.2_b")
+    }
+}
+
+/**
+ * Verify the Name Identifier Mapping Protocol
+ * 3.8.2 Element <NameIDMappingResponse>
+ */
+fun verifyNameIdMappingResponse(response: Node) {
+    response.allChildren("NameIDMappingResponse").forEach {
+        if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "NameIDMappingResponse")
     }
 }

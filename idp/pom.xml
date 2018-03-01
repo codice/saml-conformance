@@ -2,17 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
   <parent>
     <artifactId>saml-conformance</artifactId>
     <groupId>org.codice.samlconf</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
-
+  
   <groupId>org.codice.samlconf.idp</groupId>
   <artifactId>idp</artifactId>
   <packaging>pom</packaging>
-
+  
   <dependencies>
     <dependency>
       <groupId>io.kotlintest</groupId>
@@ -27,7 +28,12 @@
     <dependency>
       <groupId>org.codice.samlconf</groupId>
       <artifactId>common</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codice.samlconf</groupId>
+      <artifactId>security-common</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   
@@ -36,6 +42,5 @@
     <module>idp-web-sso</module>
     <module>idp-single-logout</module>
   </modules>
-
 
 </project>

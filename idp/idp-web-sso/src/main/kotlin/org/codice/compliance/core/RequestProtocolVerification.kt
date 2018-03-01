@@ -28,6 +28,9 @@ fun verifyCoreRequestProtocol(request: Node) {
     verifyAttributeQueries(request)
     verifyAuthzDecisionQueries(request)
     verifyAuthenticationRequestProtocol(request)
+    verifyArtifactResolutionProtocol(request)
+    verifyManageNameIDRequest(request)
+    verifyNameIdMappingRequest(request)
 }
 
 /**
@@ -137,19 +140,69 @@ fun verifyAuthzDecisionQueries(request: Node) {
  * Verify the Authentication Request Protocol
  * 3.4.1.3 Element <IDPList>
  * 3.4.1.3.1 Element <IDPEntry>
+ *
+ * The <IDPEntry> element specifies a single identity provider trusted by the requester to authenticate the presenter.
  */
-fun verifyAuthenticationRequestProtocol(node: Node) {
+fun verifyAuthenticationRequestProtocol(request: Node) {
     // IDPList
-    val idpLists = node.allChildren("IDPList")
-    idpLists.forEach {
-        val idpEntries = it.children("IDPEntry")
-        if (idpEntries.isEmpty())
+    request.allChildren("IDPList").forEach {
+        if (it.children("IDPEntry").isEmpty())
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.4.1.3", "IDPEntry", "IDPList")
 
         //IDPEntry
-        idpEntries.forEach {
+        it.children("IDPEntry").forEach {
             if (it.attributes.getNamedItem("ProviderID") == null)
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.4.1.3.1", "ProviderID", "IDPEntry")
         }
+    }
+}
+
+/**
+ * Verify the Artifact Resolution Protocol
+ * 3.5.1 Element <ArtifactResolve>
+ *
+ * The <ArtifactResolve> message is used to request that a SAML protocol message be returned in an <ArtifactResponse>
+ *     message by specifying an artifact that represents the SAML protocol message.
+ */
+fun verifyArtifactResolutionProtocol(request: Node) {
+    request.allChildren("ArtifactResolve").forEach {
+        if (it.children("Artifact").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.5.1", "Artifact", "ArtifactResolve")
+    }
+}
+
+/**
+ * Verify the Manage Name ID Requests
+ * 3.6.1 Element <ManageNameIDRequest>
+ *
+ * This message has the complex type ManageNameIDRequestType, which extends RequestAbstractType and adds the following elements
+ */
+fun verifyManageNameIDRequest(request: Node) {
+    request.allChildren("ManageNameIDRequest").forEach {
+        if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "ManageNameIDRequest")
+
+        if (it.children("NewID").isEmpty()
+                && it.children("NewEncryptedID").isEmpty()
+                && it.children("Terminate").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID or Terminate", "ManageNameIDRequest")
+    }
+}
+
+/**
+ * Verify the Name Identifier Mapping Request
+ * 3.8.1 Element <NameIDMappingRequest>
+ *
+ * To request an alternate name identifier for a principal from an identity provider, a requester sends an <NameIDMappingRequest> message.
+ */
+fun verifyNameIdMappingRequest(request: Node) {
+    request.allChildren("NameIDMappingRequest").forEach {
+        if (it.children("BaseID").isEmpty()
+                && it.children("NameID").isEmpty()
+                && it.children("EncryptedID").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.8.1", "BaseID or NameID or EncryptedID", "NameIDMappingRequest")
+
+        if (it.children("NameIDPolicy").isEmpty() && it.children("EncryptedID").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.8.1", "NameIDPolicy", "NameIDMappingRequest")
     }
 }

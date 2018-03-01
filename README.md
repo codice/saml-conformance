@@ -28,6 +28,9 @@ referred to by system property when running tests.
 e.g. If the ServiceProvider plugin jar(s) are copied to `/home/saml-conform/deploy`
 then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-conform/deploy`.
 
+## docker
+This modules is builds a docker image.
+
 # Setup
 The `distribution` module contains a full package of the deployment after a full build.
 Tests can be run with the script `distribution/target/distribution-\[VERSION\]-bin/bin/samltest.sh`.
@@ -49,6 +52,10 @@ Finally:
 - Start DDF master (or your IdP under test)
 - Run the tests through your IDE or by invoking the `distribution/target/distribution-\[VERSION\]-bin/bin/samltest.sh`
 script
+
+#### To run against DDF
+- Copy the contents of `test-sp-metadata` under `saml-conformance/distribution/src/main/resources` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`
+- Copy DDF's metadata to `idp-metadata` under `saml-conformance/distribution/src/main/resources`
 
 ## TODO:
 - Determine good directory structure (this will happen over time as we add more tests)

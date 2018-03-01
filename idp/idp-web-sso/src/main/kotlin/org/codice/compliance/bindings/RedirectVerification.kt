@@ -46,29 +46,27 @@ fun verifyRedirectSignature(signature: String) {
 
 /**
  * Verifies the relay state according to the post redirect rules in the binding spec
+ * 3.4.3 RelayState
+ * 3.4.4.1 DEFLATE Encoding
  */
 fun verifyRedirectRelayState(encodedRelayState: String, givenRelayState: Boolean) {
     val decodedRelayState : String
 
-    // try to URL decode relay state
     try {
         decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
     } catch (e : UnsupportedEncodingException) {
         throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
     }
 
-    // if relay state is greater than 80 bytes
     if (decodedRelayState.toByteArray().size > 80) {
         throw SAMLComplianceException.create("SAMLBindings.3.4.3_a")
     }
 
     if (givenRelayState) {
         if (decodedRelayState != RELAY_STATE) {
-            // if relayState is not url encoded
             if (encodedRelayState == RELAY_STATE) {
                 throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
             }
-            // if relayState is not exactly the same
             throw SAMLComplianceException.create("SAMLBindings.3.4.3_b1")
         }
     }
