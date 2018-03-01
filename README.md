@@ -30,6 +30,10 @@ then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-confor
 
 ## docker
 This modules is builds a docker image.
+>NOTE
+>
+>If building throws a `Connect to localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused`
+error, go into docker settings &rarr; general &rarr; enable “Expose daemon to tcp://localhost:2375 without TLS”.
 
 # Setup
 The `distribution` module contains a full package of the deployment after a full build.
