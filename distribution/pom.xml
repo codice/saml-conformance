@@ -44,6 +44,11 @@
       <artifactId>suites</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>us.jimschubert</groupId>
+      <artifactId>kopper-typed</artifactId>
+      <version>0.0.3</version>
+    </dependency>
   </dependencies>
   
   <build>
