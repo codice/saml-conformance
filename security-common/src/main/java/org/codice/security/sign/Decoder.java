@@ -49,12 +49,16 @@ public class Decoder {
    * @param message - SAML Redirect message
    * @return - decoded message
    */
-  public static String decodeRedirectMessage(String message) throws IOException {
-    String urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
-    byte[] deflatedValue = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
-    InputStream is =
-        new InflaterInputStream(
-            new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
-    return IOUtils.toString(is, StandardCharsets.UTF_8.name());
+  public static String decodeRedirectMessage(String message) throws UnsupportedEncodingException {
+      String urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
+      byte[] deflatedValue = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
+      InputStream is =
+              new InflaterInputStream(
+                      new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
+      try {
+      return IOUtils.toString(is, StandardCharsets.UTF_8.name());
+    } catch (IOException e) { // catch and return a different exception for more specific error handling
+        throw new IllegalArgumentException();
+    }
   }
 }

@@ -23,6 +23,7 @@ import org.codice.compliance.core.verifyCoreResponseProtocol
 import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
 import java.io.IOException
+import java.io.UnsupportedEncodingException
 
 fun assertResponse(response: String, givenRelayState: Boolean) {
     if (response.contains("?")) assertRedirectResponse(response, givenRelayState)
@@ -35,8 +36,10 @@ fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
     val decodedMessage: String
     try {
         decodedMessage = Decoder.decodeRedirectMessage(samlResponse)
-    } catch (e: IOException) {
-        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1")
+    } catch (e: UnsupportedEncodingException) {
+        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_b1")
+    } catch (e: IllegalArgumentException) {
+        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
     }
 
     decodedMessage shouldNotBe null
