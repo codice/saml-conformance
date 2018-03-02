@@ -30,6 +30,16 @@ then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-confor
 
 ## docker
 This modules is builds a docker image.
+To run it, run `docker run --rm -it -v <IDP_METADATA_PATH>:/samlconf/conf/idp-metadata.xml --add-host "<HOST_NAME>:<IP>" codice/samlconf`
+
+where 
+
+`<IDP_METADATA_PATH>` is the path to the file containing the idp's metadata (anywhere on your local machine ex: `/tmp/idp.xml`)
+
+`<HOST_NAME>` is the hostname the IdP is running on (for DDF, DDF's hostname)
+
+`<IP>` is the machine's IP address
+
 >NOTE
 >
 >If building throws a `Connect to localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused`
