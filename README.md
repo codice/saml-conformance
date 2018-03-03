@@ -40,6 +40,8 @@ where
 
 `<IP>` is the machine's IP address
 
+To run the tests using the `docker-compose.yml` file run `docker-compose up` in the `/docker` module
+
 >NOTE
 >
 >If building throws a `Connect to localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused`

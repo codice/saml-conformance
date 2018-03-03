@@ -1,0 +1,17 @@
+version: '3'
+services:
+  saml:
+    image: "codice/samlconf"
+    depends_on:
+      - ddf
+  ddf:
+    image: "codice/ddf"
+    ports:
+      - 8993:8993
+      - 8181:8181
+      - 8101:8101
+    environment:
+      APP_HOSTNAME: ddf
+      INSTALL_FEATURES: profile-standard
+    volumes:
+      - ./etc/org.codice.ddf.security.policy.context.impl.PolicyManager.config:/app/etc/org.codice.ddf.security.policy.context.impl.PolicyManager.config
