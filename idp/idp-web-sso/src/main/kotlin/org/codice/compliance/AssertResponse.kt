@@ -23,7 +23,6 @@ import org.codice.compliance.core.verifyCoreResponseProtocol
 import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
 import java.io.IOException
-import java.io.UnsupportedEncodingException
 
 fun assertResponse(response: String, givenRelayState: Boolean) {
     if (response.contains("?")) assertRedirectResponse(response, givenRelayState)
@@ -33,16 +32,27 @@ fun assertResponse(response: String, givenRelayState: Boolean) {
 fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
     val parsedResponse = parseFinalRedirectResponse(response)
     val samlResponse = parsedResponse[SSOConstants.SAML_RESPONSE]
+    val samlEncoding = parsedResponse["SAMLEncoding"]
     val decodedMessage: String
-    try {
-        decodedMessage = Decoder.decodeRedirectMessage(samlResponse)
-    } catch (e: UnsupportedEncodingException) {
-        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_b1")
-    } catch (e: IllegalArgumentException) {
-        throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
-    }
+
+    /**
+     * A query string parameter named SAMLEncoding is reserved to identify the encoding mechanism used. If this
+     * parameter is omitted, then the value is assumed to be urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
+     */
+    decodedMessage = if (samlEncoding == null || samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+        try {
+            Decoder.decodeAndInflateRedirectMessage(samlResponse)
+        } catch (e: IOException) {
+            when (e.message) {
+                "Error inflating" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
+                "Whitespace or Linefeed found" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a2")
+                else -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_b1")
+            }
+        }
+    } else "error"
 
     decodedMessage shouldNotBe null
+    decodedMessage shouldNotBe "error"
     val responseDomElement = buildDom(decodedMessage)
     verifyCore(responseDomElement, ID)
     verifyCoreResponseProtocol(responseDomElement)
@@ -104,6 +114,7 @@ fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
             it.startsWith(SSOConstants.SIG_ALG) -> parsedResponse.put(SSOConstants.SIG_ALG, it.replace("SigAlg=", ""))
             it.startsWith(SSOConstants.SIGNATURE) -> parsedResponse.put(SSOConstants.SIGNATURE, it.replace("Signature=", ""))
             it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse.put(SSOConstants.RELAY_STATE, it.replace("RelayState=", ""))
+            it.startsWith("SAMLEncoding") -> parsedResponse.put("SAMLEncoding", it.replace("SAMLEncoding=", ""))
         }
     }
     return parsedResponse

@@ -29,7 +29,7 @@ e.g. If the ServiceProvider plugin jar(s) are copied to `/home/saml-conform/depl
 then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-conform/deploy`.
 
 ## docker
-This modules is builds a docker image.
+This modules is builds a docker image. To run this module add `-P docker` to the maven command.
 To run it, run `docker run --rm -it -v <IDP_METADATA_PATH>:/samlconf/conf/idp-metadata.xml --add-host "<HOST_NAME>:<IP>" codice/samlconf`
 
 where 

@@ -114,6 +114,14 @@
     <module>idp</module>
     <module>suites</module>
     <module>distribution</module>
-    <module>docker</module>
   </modules>
+  
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <modules>
+        <module>docker</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

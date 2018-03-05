@@ -17,16 +17,13 @@ import org.codice.compliance.RELAY_STATE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
 import org.w3c.dom.Node
-import java.io.UnsupportedEncodingException
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 /**
  * Verify the response for a post binding
  */
 fun verifyPost(responseDomElement: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
     verifySsoPost(responseDomElement)
-    parsedResponse["RelayState"]?.let { verifyPostRelayState(it, givenRelayState) }
+    verifyPostRelayState(parsedResponse["RelayState"], givenRelayState)
 }
 
 /**
@@ -45,11 +42,17 @@ fun verifySsoPost(response: Node) {
  * Verifies the relay state according to the post binding rules in the binding spec
  * 3.5.3 RelayState
  */
-fun verifyPostRelayState(relayState: String, givenRelayState: Boolean) {
+fun verifyPostRelayState(relayState: String?, givenRelayState: Boolean) {
+    if (relayState == null) {
+        if (givenRelayState) {
+            throw SAMLComplianceException.create("GeneralRelayState_a", "SAMLBindings.3.4.3_b1")
+        }
+        return
+    }
     if (relayState.toByteArray().size > 80)
-        throw SAMLComplianceException.create("SAMLBindings.3.5.3_a")
+        throw SAMLComplianceException.create("SAMLBindings.3.5.3_a1")
 
     if (givenRelayState) {
-        if (relayState != RELAY_STATE) throw SAMLComplianceException.create("SAMLBindings.3.5.3_b1")
+        if (relayState != RELAY_STATE) throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.5.3_b1")
     }
 }

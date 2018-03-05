@@ -13,6 +13,22 @@
  */
 package org.codice.security.sign;
 
+import org.apache.cxf.rs.security.saml.sso.SSOConstants;
+import org.apache.wss4j.common.crypto.CryptoType;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.opensaml.saml.common.SAMLObjectContentReference;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,21 +46,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.cxf.rs.security.saml.sso.SSOConstants;
-import org.apache.wss4j.common.crypto.CryptoType;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.opensaml.saml.common.SAMLObjectContentReference;
-import org.opensaml.saml.common.SignableSAMLObject;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.security.x509.BasicX509Credential;
-import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
-import org.opensaml.xmlsec.signature.KeyInfo;
-import org.opensaml.xmlsec.signature.Signature;
-import org.opensaml.xmlsec.signature.support.SignatureConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleSign {
 
@@ -185,6 +186,15 @@ public class SimpleSign {
   public boolean validateSignature(String samlType, String encodedRequestOrResponse,
       String relayState, String encodedSignature, String encodedSigAlg, String certificateString)
       throws SignatureException {
+
+      if (encodedSigAlg == null) {
+          throw new SignatureException("SigAlg not provided");
+      }
+
+      if (encodedSignature == null) {
+          throw new SignatureException("Signature not provided");
+      }
+
     try {
       StringBuilder queryParams = new StringBuilder(samlType).append("=")
           .append(encodedRequestOrResponse);
@@ -205,10 +215,20 @@ public class SimpleSign {
 
       String jceSigAlg = URI_ALG_MAP.get(sigAlg);
 
+      if (jceSigAlg == null) {
+          throw new SignatureException("Invalid URI");
+      }
+
       java.security.Signature sig = java.security.Signature.getInstance(jceSigAlg);
       sig.initVerify(certificate.getPublicKey());
       sig.update(queryParams.toString().getBytes(StandardCharsets.UTF_8.name()));
-      return sig.verify(Base64.getDecoder().decode(signature));
+
+      byte[] decodedSignature = Base64.getDecoder().decode(signature);
+      if (new String(decodedSignature).matches("[ \\t\\n\\x0B\\f\\r]+")) {
+          throw new SignatureException("Linefeed or Whitespace in decoded signature");
+      }
+
+      return sig.verify(decodedSignature);
     } catch (NoSuchAlgorithmException
         | InvalidKeyException
         | CertificateException
