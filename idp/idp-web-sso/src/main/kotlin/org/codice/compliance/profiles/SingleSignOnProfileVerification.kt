@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.profiles
 
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
 import org.codice.compliance.idpMetadata
@@ -25,8 +26,8 @@ import org.w3c.dom.Node
  */
 fun verifySsoProfile(response: Node) {
     if (response.localName == "Response" &&
-            (response.children("Signature").isNotEmpty() ||
-                    response.children("Assertion").any { it.children("Signature").isNotEmpty() }))
+            (response.children(SIGNATURE).isNotEmpty() ||
+                    response.children("Assertion").any { it.children(SIGNATURE).isNotEmpty() }))
         verifyIssuer(response)
     verifySsoAssertions(response)
 }

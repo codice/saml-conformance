@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 const val SP_ISSUER = "https://localhost:8993/services/saml"
 const val ACS_URL = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
-const val RELAY_STATE = "relay+State"
+const val EXAMPLE_RELAY_STATE = "relay+State"
 const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
 val idpMetadata = parseIdpMetadata()
 val spMetadataMap = parseSpMetadataMap()

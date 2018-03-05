@@ -21,6 +21,8 @@ import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.response.Response
 import io.kotlintest.matchers.shouldBe
 import org.apache.commons.lang3.StringUtils
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.getSingleSignOnLocation
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
@@ -86,8 +88,8 @@ class IdpResponderProvider : IdpResponder {
                 .getAttribute("value")
 
         return if (StringUtils.isNoneBlank(relayState))
-            String.format("RelayState=%s&SAMLResponse=%s", relayState, samlResponse)
-        else "SAMLResponse=" + samlResponse
+            "$RELAY_STATE=$relayState&$SAML_RESPONSE=$samlResponse"
+        else "$SAML_RESPONSE=$samlResponse"
     }
 
     /**

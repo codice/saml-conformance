@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.bindings
 
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.*
 import org.codice.security.sign.SimpleSign
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
@@ -25,11 +26,11 @@ import java.nio.charset.StandardCharsets
  * Verify the response for a redirect binding
  */
 fun verifyRedirect(responseDomElement: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
-    verifyRequestParam(parsedResponse["SAMLResponse"])
+    verifyRequestParam(parsedResponse[SAML_RESPONSE])
     verifyNoXMLSig(responseDomElement)
-    verifyRedirectRelayState(parsedResponse["RelayState"], givenRelayState)
-    parsedResponse["Signature"]?.let {
-        verifyRedirectSignature(it, parsedResponse["SAMLResponse"], parsedResponse["RelayState"], parsedResponse["SigAlg"])
+    verifyRedirectRelayState(parsedResponse[RELAY_STATE], givenRelayState)
+    parsedResponse[SIGNATURE]?.let {
+        verifyRedirectSignature(it, parsedResponse[SAML_RESPONSE], parsedResponse[RELAY_STATE], parsedResponse[SIG_ALG])
         verifyRedirectDestination(responseDomElement)
     }
 }
@@ -62,7 +63,7 @@ fun verifyRedirectSignature(signature: String, samlResponse: String?, relayState
     val verify: Boolean
     try {
         if (!SimpleSign().validateSignature(
-                "SAMLResponse",
+                SAML_RESPONSE,
                 samlResponse,
                 relayState,
                 signature,

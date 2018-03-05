@@ -91,11 +91,11 @@ public class SimpleSign {
           new StringBuilder(samlType).append("=").append(samlRequestOrResponse);
       if (relayState != null) {
         requestToSign
-            .append("&RelayState=")
+            .append(String.format("&%s=", SSOConstants.RELAY_STATE))
             .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
       }
       requestToSign
-          .append("&SigAlg=")
+          .append(String.format("&%s=", SSOConstants.SIG_ALG))
           .append(URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
 
       // Sign uri
@@ -200,9 +200,9 @@ public class SimpleSign {
       StringBuilder queryParams =
           new StringBuilder(samlType).append("=").append(encodedRequestOrResponse);
       if (relayState != null) {
-        queryParams.append("&RelayState=").append(relayState);
+        queryParams.append(String.format("&%s=", SSOConstants.RELAY_STATE)).append(relayState);
       }
-      queryParams.append("&SigAlg=").append(encodedSigAlg);
+      queryParams.append(String.format("&%s=", SSOConstants.SIG_ALG)).append(encodedSigAlg);
       certificateString =
           String.format(
               "%s%n%s%n%s",
