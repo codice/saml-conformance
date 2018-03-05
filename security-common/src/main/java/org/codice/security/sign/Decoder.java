@@ -13,6 +13,8 @@
  */
 package org.codice.security.sign;
 
+import org.apache.cxf.helpers.IOUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-import org.apache.cxf.helpers.IOUtils;
 
 public class Decoder {
 
@@ -49,16 +50,21 @@ public class Decoder {
    * @param message - SAML Redirect message
    * @return - decoded message
    */
-  public static String decodeRedirectMessage(String message) throws UnsupportedEncodingException {
-    String urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
-    byte[] deflatedValue = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
-    InputStream is =
-        new InflaterInputStream(
-            new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
-    try {
+  public static String decodeAndInflateRedirectMessage(String message) throws IOException {
+
+      String urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
+      if (urlDecoded.matches("[ \\t\\n\\x0B\\f\\r]+")) {
+          throw new IOException("Whitespace or Linefeed found");
+      }
+
+      byte[] deflatedValue = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
+      InputStream is =
+              new InflaterInputStream(
+                      new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
+      try {
       return IOUtils.toString(is, StandardCharsets.UTF_8.name());
-    } catch (IOException e) { // catch and return a different exception for more specific error handling
-      throw new IllegalArgumentException();
+    } catch (IOException e) {
+        throw new IOException("Error inflating");
     }
   }
 }
