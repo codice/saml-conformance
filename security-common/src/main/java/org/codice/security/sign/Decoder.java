@@ -38,7 +38,7 @@ public class Decoder {
    * @param message - SAML POST message
    * @return - decoded message
    */
-  public static String decodePostMessage(String message) throws UnsupportedEncodingException {
+  public static String decodePostMessage(String message) throws IOException {
     return URLDecoder
         .decode(new String(Base64.getDecoder().decode(message.getBytes(StandardCharsets.UTF_8))),
             StandardCharsets.UTF_8.name());
@@ -50,11 +50,15 @@ public class Decoder {
    * @param message - SAML Redirect message
    * @return - decoded message
    */
-  public static String decodeAndInflateRedirectMessage(String message) throws IOException {
-
-      String urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
+  public static String decodeAndInflateRedirectMessage(String message) throws InflationException {
+      String urlDecoded;
+      try {
+           urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
+      } catch (UnsupportedEncodingException e) {
+          throw new InflationException(InflationException.InflErrorCode.ERROR_DECODING);
+      }
       if (urlDecoded.matches("[ \\t\\n\\x0B\\f\\r]+")) {
-          throw new IOException("Whitespace or Linefeed found");
+          throw new InflationException(InflationException.InflErrorCode.LINEFEED_OR_WHITESPACE);
       }
 
       byte[] deflatedValue = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
@@ -64,7 +68,26 @@ public class Decoder {
       try {
       return IOUtils.toString(is, StandardCharsets.UTF_8.name());
     } catch (IOException e) {
-        throw new IOException("Error inflating");
+        throw new InflationException(InflationException.InflErrorCode.ERROR_INFLATING);
     }
+  }
+
+  public static class InflationException extends Exception {
+      public enum InflErrorCode {
+          ERROR_DECODING,
+          LINEFEED_OR_WHITESPACE,
+          ERROR_INFLATING
+      }
+
+      final InflErrorCode inflErrorCode;
+
+      public InflationException(InflErrorCode inflErrorCode) {
+          super();
+          this.inflErrorCode = inflErrorCode;
+      }
+
+      public InflErrorCode getInflErrorCode() {
+          return inflErrorCode;
+      }
   }
 }

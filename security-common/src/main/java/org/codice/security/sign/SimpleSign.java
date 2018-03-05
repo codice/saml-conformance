@@ -188,11 +188,11 @@ public class SimpleSign {
       throws SignatureException {
 
       if (encodedSigAlg == null) {
-          throw new SignatureException("SigAlg not provided");
+          throw new SignatureException(SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED);
       }
 
       if (encodedSignature == null) {
-          throw new SignatureException("Signature not provided");
+          throw new SignatureException(SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED);
       }
 
     try {
@@ -209,14 +209,19 @@ public class SimpleSign {
       String signature = URLDecoder.decode(encodedSignature, StandardCharsets.UTF_8.name());
 
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-      Certificate certificate =
-          certificateFactory.generateCertificate(
-              new ByteArrayInputStream(certificateString.getBytes(StandardCharsets.UTF_8.name())));
+      Certificate certificate;
+      try {
+          certificate =
+                  certificateFactory.generateCertificate(
+                          new ByteArrayInputStream(certificateString.getBytes(StandardCharsets.UTF_8.name())));
+      } catch (CertificateException e) {
+          throw new SignatureException(SignatureException.SigErrorCode.INVALID_CERTIFICATE);
+      }
 
       String jceSigAlg = URI_ALG_MAP.get(sigAlg);
 
       if (jceSigAlg == null) {
-          throw new SignatureException("Invalid URI");
+          throw new SignatureException(SignatureException.SigErrorCode.INVALID_URI);
       }
 
       java.security.Signature sig = java.security.Signature.getInstance(jceSigAlg);
@@ -225,7 +230,7 @@ public class SimpleSign {
 
       byte[] decodedSignature = Base64.getDecoder().decode(signature);
       if (new String(decodedSignature).matches("[ \\t\\n\\x0B\\f\\r]+")) {
-          throw new SignatureException("Linefeed or Whitespace in decoded signature");
+          throw new SignatureException(SignatureException.SigErrorCode.LINEFEED_OR_WHITESPACE);
       }
 
       return sig.verify(decodedSignature);
@@ -309,21 +314,45 @@ public class SimpleSign {
     return privateKey;
   }
 
+  @SuppressWarnings("squid:S1165" /* errorCode mutable for legacy compatibility */)
   public static class SignatureException extends Exception {
+
+      public enum SigErrorCode {
+          INVALID_CERTIFICATE,
+          SIG_ALG_NOT_PROVIDED,
+          SIGNATURE_NOT_PROVIDED,
+          INVALID_URI,
+          LINEFEED_OR_WHITESPACE
+      }
+
+      private SigErrorCode sigErrorCode;
 
     public SignatureException() {
     }
 
     public SignatureException(Throwable cause) {
-      super(cause);
+        super(cause);
     }
 
     public SignatureException(String message) {
-      super(message);
+        super(message);
     }
 
     public SignatureException(String message, Throwable cause) {
-      super(message, cause);
+        super(message, cause);
     }
-  }
+
+    public SignatureException(SigErrorCode sigErrorCode) {
+        super();
+        setErrorCode(sigErrorCode);
+    }
+
+      public SigErrorCode getErrorCode() {
+          return sigErrorCode;
+      }
+
+      public void setErrorCode(SigErrorCode sigErrorCode) {
+          this.sigErrorCode = sigErrorCode;
+      }
+    }
 }

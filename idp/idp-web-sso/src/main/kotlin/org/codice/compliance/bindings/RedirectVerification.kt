@@ -18,6 +18,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
 import org.codice.compliance.idpMetadata
 import org.codice.security.sign.SimpleSign
+import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
 import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
@@ -60,24 +61,25 @@ fun verifyNoXMLSig(node: Node) {
 fun verifyRedirectSignature(signature: String, samlResponse: String?, relayState: String?, sigAlg: String?) {
     val verify: Boolean
     try {
-        verify = SimpleSign().validateSignature(
+        if (!SimpleSign().validateSignature(
                 "SAMLResponse",
                 samlResponse,
                 relayState,
                 signature,
                 sigAlg,
-                idpMetadata.signingCertificate)
+                idpMetadata.signingCertificate)) {
+            throw SAMLComplianceException.create("GeneralSignature_b", "SAMLBindings.3.4.4.1_e")
+        }
     } catch (e: SimpleSign.SignatureException) {
-        when (e.message) {
-            "SigAlg not provided" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d1")
-            "Signature not provided" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_f2")
-            "Invalid URI" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d2")
-            "Linefeed or Whitespace in decoded signature" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_f1")
+        when (e.errorCode) {
+            SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create("GeneralCertificate_a", "SAMLBindings.3.1.2.1_a")
+            SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d1")
+            SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_f2")
+            SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d2")
+            SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_f1")
             else -> throw SAMLComplianceException.create("GeneralSignature_a", "SAMLBindings.3.4.4.1_e")
         }
     }
-    if (!verify)
-        throw SAMLComplianceException.create("GeneralSignature_b", "SAMLBindings.3.4.4.1_e")
 }
 
 /**

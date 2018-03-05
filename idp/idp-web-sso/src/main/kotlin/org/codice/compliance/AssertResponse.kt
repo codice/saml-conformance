@@ -22,6 +22,8 @@ import org.codice.compliance.core.verifyCore
 import org.codice.compliance.core.verifyCoreResponseProtocol
 import org.codice.compliance.profiles.verifySsoProfile
 import org.codice.security.sign.Decoder
+import org.codice.security.sign.Decoder.InflationException
+import org.codice.security.sign.Decoder.InflationException.InflErrorCode
 import java.io.IOException
 
 fun assertResponse(response: String, givenRelayState: Boolean) {
@@ -42,11 +44,12 @@ fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
     decodedMessage = if (samlEncoding == null || samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
         try {
             Decoder.decodeAndInflateRedirectMessage(samlResponse)
-        } catch (e: IOException) {
-            when (e.message) {
-                "Error inflating" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
-                "Whitespace or Linefeed found" -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a2")
-                else -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_b1")
+        } catch (e: InflationException) {
+            when (e.inflErrorCode) {
+                InflErrorCode.ERROR_DECODING -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_b1")
+                InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
+                InflErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a2")
+                else -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
             }
         }
     } else "error"
@@ -110,11 +113,11 @@ fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
     val splitResponse = idpResponse.split("?")[1].split("&")
     splitResponse.forEach {
         when {
-            it.startsWith(SSOConstants.SAML_RESPONSE) -> parsedResponse.put(SSOConstants.SAML_RESPONSE, it.replace("SAMLResponse=", ""))
-            it.startsWith(SSOConstants.SIG_ALG) -> parsedResponse.put(SSOConstants.SIG_ALG, it.replace("SigAlg=", ""))
-            it.startsWith(SSOConstants.SIGNATURE) -> parsedResponse.put(SSOConstants.SIGNATURE, it.replace("Signature=", ""))
-            it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse.put(SSOConstants.RELAY_STATE, it.replace("RelayState=", ""))
-            it.startsWith("SAMLEncoding") -> parsedResponse.put("SAMLEncoding", it.replace("SAMLEncoding=", ""))
+            it.startsWith(SSOConstants.SAML_RESPONSE) -> parsedResponse[SSOConstants.SAML_RESPONSE] = it.replace("SAMLResponse=", "")
+            it.startsWith(SSOConstants.SIG_ALG) -> parsedResponse[SSOConstants.SIG_ALG] = it.replace("SigAlg=", "")
+            it.startsWith(SSOConstants.SIGNATURE) -> parsedResponse[SSOConstants.SIGNATURE] = it.replace("Signature=", "")
+            it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse[SSOConstants.RELAY_STATE] = it.replace("RelayState=", "")
+            it.startsWith("SAMLEncoding") -> parsedResponse["SAMLEncoding"] = it.replace("SAMLEncoding=", "")
         }
     }
     return parsedResponse
