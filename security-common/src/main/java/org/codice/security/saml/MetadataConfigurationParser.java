@@ -13,15 +13,8 @@
  */
 package org.codice.security.saml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -45,12 +38,12 @@ public class MetadataConfigurationParser {
   private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
   private final Consumer<EntityDescriptor> updateCallback;
 
-  public MetadataConfigurationParser(String entityDescriptions) throws IOException {
+  public MetadataConfigurationParser(String entityDescriptions) {
     this(entityDescriptions, null);
   }
 
-  public MetadataConfigurationParser(String entityDescriptions, Consumer<EntityDescriptor> updateCallback)
-      throws IOException {
+  public MetadataConfigurationParser(String entityDescriptions,
+      Consumer<EntityDescriptor> updateCallback) {
     this.updateCallback = updateCallback;
     buildEntityDescriptor(entityDescriptions);
   }
@@ -64,7 +57,7 @@ public class MetadataConfigurationParser {
    *
    * @param entityDescription - metadata
    */
-  private void buildEntityDescriptor(String entityDescription) throws IOException {
+  private void buildEntityDescriptor(String entityDescription) {
     EntityDescriptor entityDescriptor = null;
     entityDescription = entityDescription.trim();
 
