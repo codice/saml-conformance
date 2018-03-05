@@ -85,7 +85,7 @@ class IdpResponderProvider : IdpResponder {
                 .getNodes("input")[2]
                 .getAttribute("value")
 
-        return if(StringUtils.isNoneBlank(relayState))
+        return if (StringUtils.isNoneBlank(relayState))
             String.format("RelayState=%s&SAMLResponse=%s", relayState, samlResponse)
         else "SAMLResponse=" + samlResponse
     }

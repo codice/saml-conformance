@@ -30,40 +30,21 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLStreamException;
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
-import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.apache.wss4j.common.saml.SAMLKeyInfo;
-import org.apache.wss4j.common.saml.SAMLUtil;
-import org.apache.wss4j.common.util.DOM2Writer;
-import org.apache.wss4j.dom.WSDocInfo;
-import org.apache.wss4j.dom.engine.WSSConfig;
-import org.apache.wss4j.dom.handler.RequestData;
-import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
-import org.apache.wss4j.dom.validate.Credential;
-import org.apache.wss4j.dom.validate.SignatureTrustValidator;
-import org.apache.wss4j.dom.validate.Validator;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.KeyInfo;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
-import org.opensaml.xmlsec.signature.support.SignatureValidator;
-import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class SimpleSign {
 
@@ -137,7 +118,9 @@ public class SimpleSign {
     }
   }
 
-  /** Used to sign post requests */
+  /**
+   * Used to sign post requests
+   */
   public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
     X509Certificate[] certificates = getSignatureCertificates();
     String sigAlgo = getSignatureAlgorithm(certificates[0]);
@@ -195,7 +178,9 @@ public class SimpleSign {
     samlObject.releaseChildrenDOM(true);
   }
 
-  /** Validating **/
+  /**
+   * Validating
+   **/
 
   public boolean validateSignature(String samlType, String encodedRequestOrResponse,
       String relayState, String encodedSignature, String encodedSigAlg, String certificateString)
@@ -234,7 +219,9 @@ public class SimpleSign {
     }
   }
 
-  /** Private Getters **/
+  /**
+   * Private Getters
+   **/
 
   private java.security.Signature getSignature(X509Certificate certificate, PrivateKey privateKey)
       throws SignatureException {

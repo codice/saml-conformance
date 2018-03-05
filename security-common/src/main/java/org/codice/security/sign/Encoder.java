@@ -51,8 +51,9 @@ public class Encoder {
   public static String encodePostMessage(String message, String relayState) throws IOException {
     return String.format("RelayState=%s&SAMLRequest=%s",
         URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()),
-        URLEncoder.encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
-            StandardCharsets.UTF_8.name()));
+        URLEncoder
+            .encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8.name()));
   }
 
   /**

@@ -42,7 +42,8 @@ fun verifyAssertions(node: Node) {
 fun verifyEncryptedId(node: Node) {
     node.allChildren("EncryptedID").forEach {
         val encryptedData = it.children("EncryptedData")
-        if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
+        if (encryptedData.isEmpty()) throw SAMLComplianceException
+                .createWithReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
 
         if (encryptedData
                 .filter { it.attributes.getNamedItem("Type") != null }
@@ -74,7 +75,8 @@ fun verifyCoreAssertion(node: Node) {
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
         verifyTimeValues(it.attributes.getNamedItem("IssueInstant"), "SAMLCore.2.3.3_c")
 
-        if (it.children("Issuer").isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
+        if (it.children("Issuer").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
         val statements = it.children("Statement")
         if (statements.any { it.attributes.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type") == null })
@@ -96,7 +98,9 @@ fun verifyCoreAssertion(node: Node) {
 fun verifyEncryptedAssertion(node: Node) {
     node.allChildren("EncryptedAssertion").forEach {
         val encryptedData = it.children("EncryptedData")
-        if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.4", "EncryptedData", "EncryptedAssertion")
+        if (encryptedData.isEmpty())
+            throw SAMLComplianceException
+                    .createWithReqMessage("SAMLCore.2.3.4", "EncryptedData", "EncryptedAssertion")
 
         if (encryptedData
                 .filter { it.attributes.getNamedItem("Type") != null }
@@ -116,7 +120,8 @@ fun verifySubjectElements(node: Node) {
     // SubjectConfirmation
     if (node.allChildren("SubjectConfirmation")
             .any { it.attributes.getNamedItem("Method") == null })
-        throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.4.1.1", "Method", "SubjectConfirmation")
+        throw SAMLComplianceException
+                .createWithReqMessage("SAMLCore.2.4.1.1", "Method", "SubjectConfirmation")
 
     // SubjectConfirmationData
     node.allChildren("SubjectConfirmationData").forEach {
@@ -250,7 +255,7 @@ fun verifyAttributeElements(node: Node) {
                 || (nameFormatAttribute != null && nameFormatAttribute.textContent == null)
                 || (friendlyNameAttribute != null && friendlyNameAttribute.textContent == null)) {
 
-            it.children("AttributeValue").forEach{
+            it.children("AttributeValue").forEach {
                 val nilAttribute = it.attributes.getNamedItemNS("http://www.w3.org/2001/XMLSchemainstance", "nil")?.textContent
                 if (StringUtils.isNotBlank(it.textContent) || (nilAttribute != "true" && nilAttribute != "1"))
                     throw SAMLComplianceException.create("SAMLCore.2.7.3.1.1_b")
@@ -261,7 +266,8 @@ fun verifyAttributeElements(node: Node) {
     // EncryptedAttribute
     node.allChildren("EncryptedAttribute").forEach {
         val encryptedData = it.children("EncryptedData")
-        if (encryptedData.isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3.2", "EncryptedData", "EncryptedAttribute")
+        if (encryptedData.isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3.2", "EncryptedData", "EncryptedAttribute")
 
         if (encryptedData
                 .filter { it.attributes.getNamedItem("Type") != null }
@@ -285,14 +291,18 @@ fun verifyAuthzDecisionStatementAndAction(node: Node) {
     }
 
     node.allChildren("AuthzDecisionStatement").forEach {
-        if (it.attributes.getNamedItem("Resource") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Resource", "AuthzDecisionStatement")
-        if (it.attributes.getNamedItem("Decision") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Decision", "AuthzDecisionStatement")
-        if (it.children("Action").isEmpty()) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Action", "AuthzDecisionStatement")
+        if (it.attributes.getNamedItem("Resource") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Resource", "AuthzDecisionStatement")
+        if (it.attributes.getNamedItem("Decision") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Decision", "AuthzDecisionStatement")
+        if (it.children("Action").isEmpty())
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4", "Action", "AuthzDecisionStatement")
     }
 
     // Action
     val actions = node.allChildren("Action")
     actions.forEach {
-        if (it.attributes.getNamedItem("Namespace") == null) throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
+        if (it.attributes.getNamedItem("Namespace") == null)
+            throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
     }
 }

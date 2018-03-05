@@ -221,13 +221,8 @@ public class IdpMetadata {
   public Map<String, EntityDescriptor> parseMetadata() {
     final Map<String, EntityDescriptor> processMap = new ConcurrentHashMap<>();
     MetadataConfigurationParser metadataConfigurationParser;
-    try {
-      metadataConfigurationParser =
-          new MetadataConfigurationParser(metadata, ed -> processMap.put(ed.getEntityID(), ed));
-    } catch (IOException e) {
-      LOGGER.debug("Error parsing SSO metadata", e);
-      return null;
-    }
+    metadataConfigurationParser =
+        new MetadataConfigurationParser(metadata, ed -> processMap.put(ed.getEntityID(), ed));
     processMap.putAll(metadataConfigurationParser.getEntryDescriptions());
 
     return processMap;
