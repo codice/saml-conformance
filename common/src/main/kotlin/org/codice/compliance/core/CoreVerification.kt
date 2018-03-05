@@ -18,12 +18,12 @@ import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
 
-var ID : String = ""
+var ID: String = ""
 
 /**
  * Verify response against the Core Spec document
  */
-fun verifyCore(node: Node, id : String) {
+fun verifyCore(node: Node, id: String) {
     ID = id
     verifyCommonDataType(node)
     verifyAssertions(node)

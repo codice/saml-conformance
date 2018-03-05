@@ -118,7 +118,9 @@ public class SimpleSign {
     }
   }
 
-  /** Used to sign post requests */
+  /**
+   * Used to sign post requests
+   */
   public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
     X509Certificate[] certificates = getSignatureCertificates();
     String sigAlgo = getSignatureAlgorithm(certificates[0]);
@@ -176,7 +178,9 @@ public class SimpleSign {
     samlObject.releaseChildrenDOM(true);
   }
 
-  /** Validating **/
+  /**
+   * Validating
+   **/
 
   public boolean validateSignature(String samlType, String encodedRequestOrResponse,
       String relayState, String encodedSignature, String encodedSigAlg, String certificateString)
@@ -215,7 +219,9 @@ public class SimpleSign {
     }
   }
 
-  /** Private Getters **/
+  /**
+   * Private Getters
+   **/
 
   private java.security.Signature getSignature(X509Certificate certificate, PrivateKey privateKey)
       throws SignatureException {

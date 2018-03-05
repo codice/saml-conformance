@@ -50,35 +50,29 @@ public class SPMetadataParser {
     }
 
     Map<String, EntityInformation> spMap = new HashMap<>();
-    try {
-      MetadataConfigurationParser metadataConfigurationParser =
-          new MetadataConfigurationParser(
-              spMetadata,
-              ed -> {
-                EntityInformation entityInfo =
-                    new EntityInformation.Builder(ed, bindingSet).build();
-                if (entityInfo != null) {
-                  spMap.put(ed.getEntityID(), entityInfo);
-                }
-              });
+    MetadataConfigurationParser metadataConfigurationParser =
+        new MetadataConfigurationParser(
+            spMetadata,
+            ed -> {
+              EntityInformation entityInfo =
+                  new EntityInformation.Builder(ed, bindingSet).build();
+              if (entityInfo != null) {
+                spMap.put(ed.getEntityID(), entityInfo);
+              }
+            });
 
-      spMap.putAll(
-          metadataConfigurationParser
-              .getEntryDescriptions()
-              .entrySet()
-              .stream()
-              .map(
-                  e ->
-                      Maps.immutableEntry(
-                          e.getKey(),
-                          new EntityInformation.Builder(e.getValue(), bindingSet).build()))
-              .filter(e -> nonNull(e.getValue()))
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-    } catch (IOException e) {
-      LOGGER.warn(
-          "Unable to parse SP metadata configuration. Check the configuration for SP metadata.", e);
-    }
+    spMap.putAll(
+        metadataConfigurationParser
+            .getEntryDescriptions()
+            .entrySet()
+            .stream()
+            .map(
+                e ->
+                    Maps.immutableEntry(
+                        e.getKey(),
+                        new EntityInformation.Builder(e.getValue(), bindingSet).build()))
+            .filter(e -> nonNull(e.getValue()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
     return spMap;
   }
