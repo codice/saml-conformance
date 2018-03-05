@@ -10,8 +10,10 @@ services:
       - 8993:8993
       - 8181:8181
       - 8101:8101
+    hostname: ddf
     environment:
-      APP_HOSTNAME: ddf
+      SSH_ENABLED: "true"
       INSTALL_FEATURES: profile-standard
     volumes:
       - ./etc/org.codice.ddf.security.policy.context.impl.PolicyManager.config:/app/etc/org.codice.ddf.security.policy.context.impl.PolicyManager.config
+      - ./etc/org.codice.ddf.security.idp.server.IdpEndpoint.config:/app/etc/org.codice.ddf.security.idp.server.IdpEndpoint.config
