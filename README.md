@@ -49,14 +49,15 @@ error, go into docker settings &rarr; general &rarr; enable “Expose daemon to 
 The `distribution` module contains a full package of the deployment after a full build.
 Tests can be run with the script `distribution/target/distribution-\[VERSION\]-bin/bin/samltest.sh`.
 
-Inside your IDE, setting the vm environment variables `saml.plugin.deployDir` and
-`idp.metadata` will allow you run unit tests.
+Inside your IDE, setting the vm environment variables `saml.plugin.deployDir`,
+`idp.metadata`, and `sp.metadata` will allow you run unit tests.
 
 If running against DDF, the simplest setup within your IDE would involve setting the
 aforementioned variables thusly:
 
 - `-Dsaml.plugin.deployDir=\[PATH_TO_PROJECT\]/distribution/target/distribution-\[VERSION\]-bin/plugins`
 - `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/target/distribution-1.0-SNAPSHOT-bin/conf/idp-metadata.xml`
+- `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/target/distribution-1.0-SNAPSHOT-bin/conf/test-sp-metadata.xml`
 
 Against other IdP implementations, the plugin and idp-metadata paths should be changed to reflect
 the appropriate plugin implementation and metadata.
