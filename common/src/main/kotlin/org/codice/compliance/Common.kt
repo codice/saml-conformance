@@ -13,13 +13,21 @@
  */
 package org.codice.compliance
 
+import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor
+import org.codice.security.saml.SPMetadataParser
+import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 import java.io.File
 import java.util.*
 
 const val IDP_METADATA = "idp.metadata"
+const val SP_METADATA = "sp.metadata"
+val SUPPORTED_BINDINGS = mutableSetOf<SamlProtocol.Binding>(
+        SamlProtocol.Binding.HTTP_POST,
+        SamlProtocol.Binding.HTTP_REDIRECT
+)
+
 
 class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
@@ -57,6 +65,13 @@ fun parseIdpMetadata(): IdpMetadata {
     return IdpMetadata().apply {
         setMetadata(File(System.getProperty(IDP_METADATA)).readText())
     }
+}
+
+/**
+ * Parses and returns an sp metadata map
+ */
+fun parseSpMetadataMap(): Map<String?, EntityInformation?> {
+    return SPMetadataParser.parse(File(System.getProperty(SP_METADATA)).readText(), SUPPORTED_BINDINGS)
 }
 
 /**

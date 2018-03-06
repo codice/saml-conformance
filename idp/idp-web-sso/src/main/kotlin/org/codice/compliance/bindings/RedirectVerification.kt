@@ -13,10 +13,7 @@
  */
 package org.codice.compliance.bindings
 
-import org.codice.compliance.RELAY_STATE
-import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.children
-import org.codice.compliance.idpMetadata
+import org.codice.compliance.*
 import org.codice.security.sign.SimpleSign
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
 import org.w3c.dom.Node
@@ -31,7 +28,10 @@ fun verifyRedirect(responseDomElement: Node, parsedResponse: Map<String, String>
     verifyRequestParam(parsedResponse["SAMLResponse"])
     verifyNoXMLSig(responseDomElement)
     verifyRedirectRelayState(parsedResponse["RelayState"], givenRelayState)
-    parsedResponse["Signature"]?.let { verifyRedirectSignature(it, parsedResponse["SAMLResponse"], parsedResponse["RelayState"], parsedResponse["SigAlg"]) }
+    parsedResponse["Signature"]?.let {
+        verifyRedirectSignature(it, parsedResponse["SAMLResponse"], parsedResponse["RelayState"], parsedResponse["SigAlg"])
+        verifyRedirectDestination(responseDomElement)
+    }
 }
 
 /**
@@ -114,5 +114,15 @@ fun verifyRedirectRelayState(encodedRelayState: String?, givenRelayState: Boolea
             }
             throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.4.3_b1")
         }
+    }
+}
+
+/**
+ * Verifies the destination is correct according to the redirect binding rules in the bindinc spec
+ * 3.4.5.2 Security Considerations
+ */
+fun verifyRedirectDestination(responseDomElement: Node) {
+    if (responseDomElement.attributes.getNamedItem("Destination")?.nodeValue != ACS_URL) {
+        throw SAMLComplianceException.create("SAMLBindings.3.4.5.2_a_1")
     }
 }
