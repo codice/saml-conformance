@@ -13,6 +13,8 @@
  */
 package org.codice.compliance.core
 
+import org.apache.cxf.rs.security.saml.sso.SSOConstants
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
@@ -39,7 +41,7 @@ fun verifyCore(node: Node, id: String) {
  */
 fun verifySignatureSyntaxAndProcessing(node: Node) {
     node.children("Assertion").forEach {
-        val signatures = it.children("Signature")
+        val signatures = it.children(SIGNATURE)
         if (signatures.isEmpty())
             throw SAMLComplianceException.create("SAMLCore.5.4.1_a")
 

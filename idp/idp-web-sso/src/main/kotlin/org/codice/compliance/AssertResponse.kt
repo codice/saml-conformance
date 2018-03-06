@@ -15,7 +15,7 @@
 package org.codice.compliance
 
 import io.kotlintest.matchers.shouldNotBe
-import org.apache.cxf.rs.security.saml.sso.SSOConstants
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.bindings.verifyPost
 import org.codice.compliance.bindings.verifyRedirect
 import org.codice.compliance.core.verifyCore
@@ -33,7 +33,7 @@ fun assertResponse(response: String, givenRelayState: Boolean) {
 
 fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
     val parsedResponse = parseFinalRedirectResponse(response)
-    val samlResponse = parsedResponse[SSOConstants.SAML_RESPONSE]
+    val samlResponse = parsedResponse[SAML_RESPONSE]
     val samlEncoding = parsedResponse["SAMLEncoding"]
     val decodedMessage: String
 
@@ -65,7 +65,7 @@ fun assertRedirectResponse(response: String, givenRelayState: Boolean) {
 
 fun assertPostResponse(response: String, givenRelayState: Boolean) {
     val parsedResponse = parseFinalPostResponse(response)
-    val samlResponse = parsedResponse["SAMLResponse"]
+    val samlResponse = parsedResponse[SAML_RESPONSE]
     val decodedMessage: String
     try {
         decodedMessage = Decoder.decodePostMessage(samlResponse)
@@ -93,8 +93,8 @@ fun parseFinalPostResponse(idpResponse: String): Map<String, String> {
     val splitResponse = idpResponse.split("&")
     splitResponse.forEach {
         when {
-            it.startsWith(SSOConstants.SAML_RESPONSE) -> parsedResponse.put(SSOConstants.SAML_RESPONSE, it.replace("SAMLResponse=", ""))
-            it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse.put(SSOConstants.RELAY_STATE, it.replace("RelayState=", ""))
+            it.startsWith(SAML_RESPONSE) -> parsedResponse.put(SAML_RESPONSE, it.replace("$SAML_RESPONSE=", ""))
+            it.startsWith(RELAY_STATE) -> parsedResponse.put(RELAY_STATE, it.replace("$RELAY_STATE=", ""))
         }
     }
     return parsedResponse
@@ -113,10 +113,10 @@ fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
     val splitResponse = idpResponse.split("?")[1].split("&")
     splitResponse.forEach {
         when {
-            it.startsWith(SSOConstants.SAML_RESPONSE) -> parsedResponse[SSOConstants.SAML_RESPONSE] = it.replace("SAMLResponse=", "")
-            it.startsWith(SSOConstants.SIG_ALG) -> parsedResponse[SSOConstants.SIG_ALG] = it.replace("SigAlg=", "")
-            it.startsWith(SSOConstants.SIGNATURE) -> parsedResponse[SSOConstants.SIGNATURE] = it.replace("Signature=", "")
-            it.startsWith(SSOConstants.RELAY_STATE) -> parsedResponse[SSOConstants.RELAY_STATE] = it.replace("RelayState=", "")
+            it.startsWith(SAML_RESPONSE) -> parsedResponse.put(SAML_RESPONSE, it.replace("$SAML_RESPONSE=", ""))
+            it.startsWith(SIG_ALG) -> parsedResponse.put(SIG_ALG, it.replace("$SIG_ALG=", ""))
+            it.startsWith(SIGNATURE) -> parsedResponse.put(SIGNATURE, it.replace("$SIGNATURE=", ""))
+            it.startsWith(RELAY_STATE) -> parsedResponse.put(RELAY_STATE, it.replace("$RELAY_STATE=", ""))
             it.startsWith("SAMLEncoding") -> parsedResponse["SAMLEncoding"] = it.replace("SAMLEncoding=", "")
         }
     }

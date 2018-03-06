@@ -45,7 +45,7 @@ class PostLoginTest : StringSpec() {
 
         "POST AuthnRequest With Relay State Test" {
             val authnRequest = generateAndRetrieveAuthnRequest()
-            val encodedRequest = Encoder.encodePostMessage(authnRequest, RELAY_STATE)
+            val encodedRequest = Encoder.encodePostMessage(authnRequest, EXAMPLE_RELAY_STATE)
             val response = given()
                     .urlEncodingEnabled(false)
                     .body(encodedRequest)

@@ -13,7 +13,10 @@
  */
 package org.codice.compliance.bindings
 
-import org.codice.compliance.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
+import org.codice.compliance.EXAMPLE_RELAY_STATE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
 import org.w3c.dom.Node
@@ -23,7 +26,7 @@ import org.w3c.dom.Node
  */
 fun verifyPost(responseDomElement: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
     verifySsoPost(responseDomElement)
-    verifyPostRelayState(parsedResponse["RelayState"], givenRelayState)
+    verifyPostRelayState(parsedResponse[RELAY_STATE], givenRelayState)
 }
 
 /**
@@ -33,8 +36,8 @@ fun verifyPost(responseDomElement: Node, parsedResponse: Map<String, String>, gi
  * @param response - Response node
  */
 fun verifySsoPost(response: Node) {
-    if (response.children("Signature").isEmpty()
-            || response.children("Assertion").any { it.children("Signature").isEmpty() })
+    if (response.children(SIGNATURE).isEmpty()
+            || response.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
         throw SAMLComplianceException.create("SAMLProfiles.4.1.4.5_a")
 }
 
