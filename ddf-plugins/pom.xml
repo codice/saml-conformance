@@ -41,7 +41,7 @@
     </dependency>
     <dependency>
       <groupId>org.codice.samlconf</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>library</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

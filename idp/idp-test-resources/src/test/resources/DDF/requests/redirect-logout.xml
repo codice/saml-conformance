@@ -1,8 +1,0 @@
-<saml2p:LogoutRequest Tests.ID="43e9a1394266469682efde67ae17b32f" IssueInstant="2018-02-12T21:33:35.564Z"
-    Version="2.0" xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
-    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
-        https://localhost:8993/services/saml
-    </saml2:Issuer>
-    <saml2:NameID xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">admin</saml2:NameID>
-    <saml2p:SessionIndex>7773</saml2p:SessionIndex>
-</saml2p:LogoutRequest>

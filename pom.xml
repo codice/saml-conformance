@@ -27,6 +27,7 @@
     <org.slf4j.version>1.7.1</org.slf4j.version>
     <kotlin.version>1.2.30</kotlin.version>
     <kotlintest.version>2.0.7</kotlintest.version>
+    <junit-version>4.12</junit-version>
   </properties>
   
   <dependencies>
@@ -39,7 +40,6 @@
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-test</artifactId>
       <version>${kotlin.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.jayway.restassured</groupId>
@@ -50,6 +50,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${org.slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>24.0-jre</version>
     </dependency>
   </dependencies>
   
@@ -121,13 +126,10 @@
   </build>
   
   <modules>
-    <module>security-common</module>
-    <module>common</module>
+    <module>library</module>
     <module>ddf-plugins</module>
-    <module>idp</module>
-    <module>suites</module>
+    <module>test</module>
     <module>distribution</module>
-    <module>docker</module>
   </modules>
   
 </project>
