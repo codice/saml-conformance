@@ -22,7 +22,6 @@ import java.io.File
 import java.util.*
 
 const val IDP_METADATA = "idp.metadata"
-const val SP_METADATA = "sp.metadata"
 val SUPPORTED_BINDINGS = mutableSetOf<SamlProtocol.Binding>(
         SamlProtocol.Binding.HTTP_POST,
         SamlProtocol.Binding.HTTP_REDIRECT
@@ -65,13 +64,6 @@ fun parseIdpMetadata(): IdpMetadata {
     return IdpMetadata().apply {
         setMetadata(File(System.getProperty(IDP_METADATA)).readText())
     }
-}
-
-/**
- * Parses and returns an sp metadata map
- */
-fun parseSpMetadataMap(): Map<String?, EntityInformation?> {
-    return SPMetadataParser.parse(File(System.getProperty(SP_METADATA)).readText(), SUPPORTED_BINDINGS)
 }
 
 /**

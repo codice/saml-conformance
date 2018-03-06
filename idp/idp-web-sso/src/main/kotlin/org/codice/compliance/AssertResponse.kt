@@ -26,6 +26,11 @@ import org.codice.security.sign.Decoder.InflationException
 import org.codice.security.sign.Decoder.InflationException.InflErrorCode
 import java.io.IOException
 
+// todo once we support more bindings, Section 3.1.1: "if a SAML request message is accompanied by RelayState data,
+// then the SAML responder MUST return its SAML protocol response using a binding that also supports a RelayState mechanism"
+/**
+ * Delegates the response to the correct POST or REDIRECT binding
+ */
 fun assertResponse(response: String, givenRelayState: Boolean) {
     if (response.contains("?")) assertRedirectResponse(response, givenRelayState)
     else assertPostResponse(response, givenRelayState)

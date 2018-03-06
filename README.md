@@ -57,7 +57,6 @@ aforementioned variables thusly:
 
 - `-Dsaml.plugin.deployDir=\[PATH_TO_PROJECT\]/distribution/target/distribution-\[VERSION\]-bin/plugins`
 - `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/target/distribution-1.0-SNAPSHOT-bin/conf/idp-metadata.xml`
-- `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/target/distribution-1.0-SNAPSHOT-bin/conf/test-sp-metadata.xml`
 
 Against other IdP implementations, the plugin and idp-metadata paths should be changed to reflect
 the appropriate plugin implementation and metadata.
