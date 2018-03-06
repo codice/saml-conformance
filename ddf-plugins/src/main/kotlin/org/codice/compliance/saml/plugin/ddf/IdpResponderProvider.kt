@@ -21,7 +21,7 @@ import io.kotlintest.matchers.shouldBe
 import org.apache.commons.lang3.StringUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
-import org.codice.compliance.getSingleSignOnLocation
+import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
@@ -133,6 +133,6 @@ class IdpResponderProvider : IdpResponder {
                 .log()
                 .ifValidationFails()
                 .`when`()
-                .get(getSingleSignOnLocation(SamlProtocol.POST_BINDING) + "/sso")
+                .get(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING) + "/sso")
     }
 }

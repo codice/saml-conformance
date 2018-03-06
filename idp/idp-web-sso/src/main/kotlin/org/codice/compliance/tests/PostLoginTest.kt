@@ -36,7 +36,7 @@ class PostLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
@@ -53,7 +53,7 @@ class PostLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)

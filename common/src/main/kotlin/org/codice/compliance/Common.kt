@@ -13,20 +13,18 @@
  */
 package org.codice.compliance
 
-import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
-import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 import java.io.File
 import java.util.*
 
 const val IDP_METADATA = "idp.metadata"
-val SUPPORTED_BINDINGS = mutableSetOf<SamlProtocol.Binding>(
+
+val SUPPORTED_BINDINGS = mutableSetOf(
         SamlProtocol.Binding.HTTP_POST,
         SamlProtocol.Binding.HTTP_REDIRECT
 )
-
 
 class SAMLComplianceException private constructor(message: String) : Exception(message) {
     companion object {
@@ -41,7 +39,7 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
         }
 
         fun createWithReqMessage(section: String, attribute: String, parent: String): SAMLComplianceException {
-            return SAMLComplianceException("$section=$attribute is required in $parent.")
+            return SAMLComplianceException("$section: $attribute is required in $parent.")
         }
 
         private fun readCode(code: String): String {
@@ -57,24 +55,30 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
     }
 }
 
-/**
- * Parses and returns the idp metadata
- */
-fun parseIdpMetadata(): IdpMetadata {
-    return IdpMetadata().apply {
-        setMetadata(File(System.getProperty(IDP_METADATA)).readText())
-    }
-}
+class Common {
+    companion object {
+        val PARSED_METADATA = File(System.getProperty(IDP_METADATA)).readText()
 
-/**
- * Returns SSO url of the passed in binding from the IdP's metadata
- */
-fun getSingleSignOnLocation(binding: String): String? {
-    return parseIdpMetadata()
-            .descriptor
-            ?.singleSignOnServices
-            ?.first { it.binding == binding }
-            ?.location
+        /**
+         * Parses and returns the idp metadata
+         */
+        fun parseIdpMetadata(): IdpMetadata {
+            return IdpMetadata().apply {
+                setMetadata(PARSED_METADATA)
+            }
+        }
+
+        /**
+         * Returns SSO url of the passed in binding from the IdP's metadata
+         */
+        fun getSingleSignOnLocation(binding: String): String? {
+            return parseIdpMetadata()
+                    .descriptor
+                    ?.singleSignOnServices
+                    ?.first { it.binding == binding }
+                    ?.location
+        }
+    }
 }
 
 /** Extensions to Node class **/

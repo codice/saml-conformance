@@ -17,7 +17,6 @@ import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
-import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -37,7 +36,7 @@ const val ACS_URL = "https://localhost:8993/services/saml/sso"
 const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
 const val EXAMPLE_RELAY_STATE = "relay+State"
 const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
-val idpMetadata = parseIdpMetadata()
+val idpMetadata = Common.parseIdpMetadata()
 
 private val DEPLOY_CL = getDeployDirClassloader()
 
@@ -87,7 +86,7 @@ fun generateAndRetrieveAuthnRequest(): String {
         id = ID
         version = SAMLVersion.VERSION_20
         issueInstant = DateTime()
-        destination = getSingleSignOnLocation(SamlProtocol.POST_BINDING)
+        destination = Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING)
         protocolBinding = SamlProtocol.POST_BINDING
         nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
             allowCreate = true

@@ -17,7 +17,6 @@ import com.google.common.io.Resources.getResource
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.specs.StringSpec
-import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.*
 import org.codice.compliance.saml.plugin.IdpResponder
@@ -30,7 +29,7 @@ class RedirectLoginTest : StringSpec() {
     companion object {
         fun setupAuthnRequest(relayState: String?): Map<String, String> {
             val baseRequest = getResource("redirect-authn-request.xml").readText()
-            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS_URL, getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING), ID, Instant.now().toString(), SP_ISSUER))
+            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS_URL, Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING), ID, Instant.now().toString(), SP_ISSUER))
             return SimpleSign().signUriString(SAML_REQUEST, encodedRequest, relayState)
         }
     }
@@ -50,7 +49,7 @@ class RedirectLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .get(getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
+                    .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
             assertResponse(idpResponse, false)
@@ -69,7 +68,7 @@ class RedirectLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .get(getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
+                    .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
             assertResponse(idpResponse, true)
