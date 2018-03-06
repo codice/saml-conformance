@@ -26,12 +26,9 @@ class PostLoginTest : StringSpec() {
     init {
         RestAssured.useRelaxedHTTPSValidation()
 
-        System.out.println("SSO Location\n" + getSingleSignOnLocation(SamlProtocol.POST_BINDING))
         "POST AuthnRequest Test" {
             val authnRequest = generateAndRetrieveAuthnRequest()
-            System.out.println("AUTHN REQUEST \n" + authnRequest)
             val encodedRequest = Encoder.encodePostMessage(authnRequest)
-            System.out.println("ENCODED REQUEST \n" + encodedRequest)
             val response = given()
                     .urlEncodingEnabled(false)
                     .body(encodedRequest)
@@ -41,7 +38,6 @@ class PostLoginTest : StringSpec() {
                     .`when`()
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
-            System.out.println("RESPONSE \n" + response.body.prettyPrint())
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
             assertResponse(idpResponse, false)
