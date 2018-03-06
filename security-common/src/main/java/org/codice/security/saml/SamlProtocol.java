@@ -21,14 +21,14 @@ public class SamlProtocol {
 
   public static final String SUPPORTED_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
 
-  public static final String REDIRECT_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
+  public static final String REDIRECT_BINDING =
+      "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
 
   public static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
 
   public static final String PAOS_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:PAOS";
 
   public static final String POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
-
 
   public static Duration getCacheDuration() {
     return Duration.parse(
@@ -68,5 +68,4 @@ public class SamlProtocol {
       return this.uri.equals(uri);
     }
   }
-
 }

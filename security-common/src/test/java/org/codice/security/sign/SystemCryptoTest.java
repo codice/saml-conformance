@@ -13,9 +13,9 @@
  */
 package org.codice.security.sign;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 
 import java.io.IOException;
 import org.junit.Test;

@@ -16,7 +16,6 @@ package org.codice.security.saml;
 import static java.util.Objects.nonNull;
 
 import com.google.common.collect.ImmutableSet;
-
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -96,9 +95,12 @@ public class EntityInformation {
   }
 
   public Map<Binding, String> getAssertionConsumerServicesURLs() {
-      return assertionConsumerServices.entrySet().stream()
-              .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getKey().getUri()))
-              .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+    return assertionConsumerServices
+        .entrySet()
+        .stream()
+        .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getKey().getUri()))
+        .collect(
+            Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
   }
 
   public ServiceInfo getAssertionConsumerService(

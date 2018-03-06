@@ -21,9 +21,9 @@ public interface IdpResponder {
    * Pluggable portion of the test.
    *
    * @param originalResponse - the originalResponse from the initial REDIRECT authn request
-   * @return The response as a string.
-   * The location, signature algorithm and signature need to be concatenated with the response in any order.
-   * For example, "https://host/location?SAMLResponse=**response**&SigAlg=**alg**&Signature=**sig**&RelayState=**relay**"
+   * @return The response as a string. The location, signature algorithm and signature need to be
+   *     concatenated with the response in any order. For example,
+   *     "https://host/location?SAMLResponse=**response**&SigAlg=**alg**&Signature=**sig**&RelayState=**relay**"
    */
   String getIdpRedirectResponse(Response originalResponse);
 
@@ -31,8 +31,8 @@ public interface IdpResponder {
    * Pluggable portion of the test.
    *
    * @param originalResponse - the response from the initial POST authn request
-   * @return The response as a string. If a relay state exists concatenate it with a &
-   * For example, RelayState=%s&SAMLResponse=%s or SAMLResponse=%s&RelayState=%s
+   * @return The response as a string. If a relay state exists concatenate it with a & For example,
+   *     RelayState=%s&SAMLResponse=%s or SAMLResponse=%s&RelayState=%s
    */
   String getIdpPostResponse(Response originalResponse);
 }

@@ -13,22 +13,6 @@
  */
 package org.codice.security.sign;
 
-import org.apache.cxf.rs.security.saml.sso.SSOConstants;
-import org.apache.wss4j.common.crypto.CryptoType;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.opensaml.saml.common.SAMLObjectContentReference;
-import org.opensaml.saml.common.SignableSAMLObject;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.security.x509.BasicX509Credential;
-import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
-import org.opensaml.xmlsec.signature.KeyInfo;
-import org.opensaml.xmlsec.signature.Signature;
-import org.opensaml.xmlsec.signature.support.SignatureConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +30,21 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.cxf.rs.security.saml.sso.SSOConstants;
+import org.apache.wss4j.common.crypto.CryptoType;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.opensaml.saml.common.SAMLObjectContentReference;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleSign {
 
@@ -64,14 +63,14 @@ public class SimpleSign {
     crypto = new SystemCrypto();
   }
 
-  /** Signing **/
+  /** Signing * */
 
   /**
    * Signs uri value. According to the SAML Spec,
    *
-   * "To construct the signature, a string consisting of the concatenation of the RelayState (if present),
-   * SigAlg, and SAMLRequest (or SAMLResponse) query string parameters (each one URLencoded)
-   * is constructed in one of the following ways (ordered as below):
+   * <p>"To construct the signature, a string consisting of the concatenation of the RelayState (if
+   * present), SigAlg, and SAMLRequest (or SAMLResponse) query string parameters (each one
+   * URLencoded) is constructed in one of the following ways (ordered as below):
    * SAMLRequest=value&RelayState=value&SigAlg=value
    * SAMLResponse=value&RelayState=value&SigAlg=value"
    *
@@ -79,8 +78,8 @@ public class SimpleSign {
    * @param samlRequestOrResponse - request or response already encoded
    * @param relayState - uri encoded relayState (optional) - null is no relay state exists
    */
-  public Map<String, String> signUriString(String samlType, String samlRequestOrResponse,
-      String relayState) throws SignatureException {
+  public Map<String, String> signUriString(
+      String samlType, String samlRequestOrResponse, String relayState) throws SignatureException {
     try {
       X509Certificate[] certificates = getSignatureCertificates();
       String sigAlgo = getSignatureAlgorithm(certificates[0]);
@@ -88,13 +87,15 @@ public class SimpleSign {
       java.security.Signature signature = getSignature(certificates[0], privateKey);
 
       // Construct query parameters
-      StringBuilder requestToSign = new StringBuilder(samlType).append("=")
-          .append(samlRequestOrResponse);
+      StringBuilder requestToSign =
+          new StringBuilder(samlType).append("=").append(samlRequestOrResponse);
       if (relayState != null) {
-        requestToSign.append("&RelayState=")
+        requestToSign
+            .append("&RelayState=")
             .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
       }
-      requestToSign.append("&SigAlg=")
+      requestToSign
+          .append("&SigAlg=")
           .append(URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
 
       // Sign uri
@@ -104,24 +105,22 @@ public class SimpleSign {
       Map<String, String> queryParams = new HashMap<>();
       queryParams.put(samlType, samlRequestOrResponse);
       if (relayState != null) {
-        queryParams.put(SSOConstants.RELAY_STATE,
-            URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
+        queryParams.put(
+            SSOConstants.RELAY_STATE, URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
       }
-      queryParams
-          .put(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
+      queryParams.put(
+          SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name()));
       queryParams.put(
           SSOConstants.SIGNATURE,
-          URLEncoder.encode(Base64.getEncoder().encodeToString(signatureBytes),
-              StandardCharsets.UTF_8.name()));
+          URLEncoder.encode(
+              Base64.getEncoder().encodeToString(signatureBytes), StandardCharsets.UTF_8.name()));
       return queryParams;
     } catch (java.security.SignatureException | UnsupportedEncodingException e) {
       throw new SignatureException(e);
     }
   }
 
-  /**
-   * Used to sign post requests
-   */
+  /** Used to sign post requests */
   public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
     X509Certificate[] certificates = getSignatureCertificates();
     String sigAlgo = getSignatureAlgorithm(certificates[0]);
@@ -179,49 +178,53 @@ public class SimpleSign {
     samlObject.releaseChildrenDOM(true);
   }
 
-  /**
-   * Validating
-   **/
-
-  public boolean validateSignature(String samlType, String encodedRequestOrResponse,
-      String relayState, String encodedSignature, String encodedSigAlg, String certificateString)
+  /** Validating */
+  public boolean validateSignature(
+      String samlType,
+      String encodedRequestOrResponse,
+      String relayState,
+      String encodedSignature,
+      String encodedSigAlg,
+      String certificateString)
       throws SignatureException {
 
-      if (encodedSigAlg == null) {
-          throw new SignatureException(SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED);
-      }
+    if (encodedSigAlg == null) {
+      throw new SignatureException(SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED);
+    }
 
-      if (encodedSignature == null) {
-          throw new SignatureException(SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED);
-      }
+    if (encodedSignature == null) {
+      throw new SignatureException(SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED);
+    }
 
     try {
-      StringBuilder queryParams = new StringBuilder(samlType).append("=")
-          .append(encodedRequestOrResponse);
+      StringBuilder queryParams =
+          new StringBuilder(samlType).append("=").append(encodedRequestOrResponse);
       if (relayState != null) {
         queryParams.append("&RelayState=").append(relayState);
       }
       queryParams.append("&SigAlg=").append(encodedSigAlg);
-      certificateString = String
-          .format("%s%n%s%n%s", "-----BEGIN CERTIFICATE-----", certificateString,
-              "-----END CERTIFICATE-----");
+      certificateString =
+          String.format(
+              "%s%n%s%n%s",
+              "-----BEGIN CERTIFICATE-----", certificateString, "-----END CERTIFICATE-----");
       String sigAlg = URLDecoder.decode(encodedSigAlg, StandardCharsets.UTF_8.name());
       String signature = URLDecoder.decode(encodedSignature, StandardCharsets.UTF_8.name());
 
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
       Certificate certificate;
       try {
-          certificate =
-                  certificateFactory.generateCertificate(
-                          new ByteArrayInputStream(certificateString.getBytes(StandardCharsets.UTF_8.name())));
+        certificate =
+            certificateFactory.generateCertificate(
+                new ByteArrayInputStream(
+                    certificateString.getBytes(StandardCharsets.UTF_8.name())));
       } catch (CertificateException e) {
-          throw new SignatureException(SignatureException.SigErrorCode.INVALID_CERTIFICATE);
+        throw new SignatureException(SignatureException.SigErrorCode.INVALID_CERTIFICATE);
       }
 
       String jceSigAlg = URI_ALG_MAP.get(sigAlg);
 
       if (jceSigAlg == null) {
-          throw new SignatureException(SignatureException.SigErrorCode.INVALID_URI);
+        throw new SignatureException(SignatureException.SigErrorCode.INVALID_URI);
       }
 
       java.security.Signature sig = java.security.Signature.getInstance(jceSigAlg);
@@ -230,7 +233,7 @@ public class SimpleSign {
 
       byte[] decodedSignature = Base64.getDecoder().decode(signature);
       if (new String(decodedSignature).matches("[ \\t\\n\\x0B\\f\\r]+")) {
-          throw new SignatureException(SignatureException.SigErrorCode.LINEFEED_OR_WHITESPACE);
+        throw new SignatureException(SignatureException.SigErrorCode.LINEFEED_OR_WHITESPACE);
       }
 
       return sig.verify(decodedSignature);
@@ -244,10 +247,7 @@ public class SimpleSign {
     }
   }
 
-  /**
-   * Private Getters
-   **/
-
+  /** Private Getters */
   private java.security.Signature getSignature(X509Certificate certificate, PrivateKey privateKey)
       throws SignatureException {
     String jceSigAlgo = "SHA1withRSA";
@@ -317,42 +317,41 @@ public class SimpleSign {
   @SuppressWarnings("squid:S1165" /* errorCode mutable for legacy compatibility */)
   public static class SignatureException extends Exception {
 
-      public enum SigErrorCode {
-          INVALID_CERTIFICATE,
-          SIG_ALG_NOT_PROVIDED,
-          SIGNATURE_NOT_PROVIDED,
-          INVALID_URI,
-          LINEFEED_OR_WHITESPACE
-      }
-
-      private SigErrorCode sigErrorCode;
-
-    public SignatureException() {
+    public enum SigErrorCode {
+      INVALID_CERTIFICATE,
+      SIG_ALG_NOT_PROVIDED,
+      SIGNATURE_NOT_PROVIDED,
+      INVALID_URI,
+      LINEFEED_OR_WHITESPACE
     }
 
+    private SigErrorCode sigErrorCode;
+
+    public SignatureException() {}
+
     public SignatureException(Throwable cause) {
-        super(cause);
+      super(cause);
     }
 
     public SignatureException(String message) {
-        super(message);
+      super(message);
     }
 
     public SignatureException(String message, Throwable cause) {
-        super(message, cause);
+      super(message, cause);
     }
 
     public SignatureException(SigErrorCode sigErrorCode) {
-        super();
-        setErrorCode(sigErrorCode);
+      super();
+      setErrorCode(sigErrorCode);
     }
 
-      public SigErrorCode getErrorCode() {
-          return sigErrorCode;
-      }
-
-      public void setErrorCode(SigErrorCode sigErrorCode) {
-          this.sigErrorCode = sigErrorCode;
-      }
+    public SigErrorCode getErrorCode() {
+      return sigErrorCode;
     }
+
+    public void setErrorCode(SigErrorCode sigErrorCode) {
+      this.sigErrorCode = sigErrorCode;
+    }
+  }
 }

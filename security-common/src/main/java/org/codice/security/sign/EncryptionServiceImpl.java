@@ -35,11 +35,11 @@ public class EncryptionServiceImpl implements EncryptionService {
     synchronized (EncryptionServiceImpl.class) {
       if (!new File(passwordDirectory.concat("/meta")).exists()) {
         KeyczarTool.main(
-            new String[]{
-                "create", "--location=" + passwordDirectory, "--purpose=crypt", "--name=Password"
+            new String[] {
+              "create", "--location=" + passwordDirectory, "--purpose=crypt", "--name=Password"
             });
         KeyczarTool.main(
-            new String[]{"addkey", "--location=" + passwordDirectory, "--status=primary"});
+            new String[] {"addkey", "--location=" + passwordDirectory, "--status=primary"});
       }
       Crypter newCrypter = null;
       try {
@@ -125,7 +125,7 @@ public class EncryptionServiceImpl implements EncryptionService {
    * password is not encrypted.
    *
    * @param wrappedEncryptedValue The wrapped encrypted value, in the form
-   * 'ENC(my-encrypted-value)'.
+   *     'ENC(my-encrypted-value)'.
    * @return The value within the parenthesis.
    */
   @Override

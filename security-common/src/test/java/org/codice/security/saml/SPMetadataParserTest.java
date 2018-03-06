@@ -31,13 +31,14 @@ public class SPMetadataParserTest {
 
   @Test
   public void testParseSPMetadata() throws Exception {
-    String metadataString = Files
-        .toString(new File(getClass().getClassLoader().getResource("ddf-sp-metadata.xml").toURI()),
+    String metadataString =
+        Files.toString(
+            new File(getClass().getClassLoader().getResource("ddf-sp-metadata.xml").toURI()),
             StandardCharsets.UTF_8);
 
-    Map<String, EntityInformation> spMetadata = SPMetadataParser
-        .parse(metadataString,
-            ImmutableSet.of(Binding.HTTP_REDIRECT, Binding.HTTP_POST));
+    Map<String, EntityInformation> spMetadata =
+        SPMetadataParser.parse(
+            metadataString, ImmutableSet.of(Binding.HTTP_REDIRECT, Binding.HTTP_POST));
 
     assertThat(spMetadata, is(notNullValue()));
     assertThat(spMetadata.size(), is(1));

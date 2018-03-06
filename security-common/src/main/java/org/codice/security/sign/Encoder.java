@@ -26,8 +26,7 @@ public class Encoder {
 
   private static final boolean GZIP_COMPATIBLE = true;
 
-  private Encoder() {
-  }
+  private Encoder() {}
 
   /**
    * Base 64 then URL encodes POST SAML messages
@@ -36,8 +35,9 @@ public class Encoder {
    * @return - decoded message
    */
   public static String encodePostMessage(String message) throws IOException {
-    return "SAMLRequest=" + URLEncoder
-        .encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
+    return "SAMLRequest="
+        + URLEncoder.encode(
+            Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
             StandardCharsets.UTF_8.name());
   }
 
@@ -49,11 +49,12 @@ public class Encoder {
    * @return - decoded message
    */
   public static String encodePostMessage(String message, String relayState) throws IOException {
-    return String.format("RelayState=%s&SAMLRequest=%s",
+    return String.format(
+        "RelayState=%s&SAMLRequest=%s",
         URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()),
-        URLEncoder
-            .encode(Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
-                StandardCharsets.UTF_8.name()));
+        URLEncoder.encode(
+            Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
+            StandardCharsets.UTF_8.name()));
   }
 
   /**

@@ -42,8 +42,8 @@ public class MetadataConfigurationParser {
     this(entityDescriptions, null);
   }
 
-  public MetadataConfigurationParser(String entityDescriptions,
-      Consumer<EntityDescriptor> updateCallback) {
+  public MetadataConfigurationParser(
+      String entityDescriptions, Consumer<EntityDescriptor> updateCallback) {
     this.updateCallback = updateCallback;
     buildEntityDescriptor(entityDescriptions);
   }
