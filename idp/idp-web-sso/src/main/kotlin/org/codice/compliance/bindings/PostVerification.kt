@@ -56,6 +56,6 @@ fun verifyPostRelayState(relayState: String?, givenRelayState: Boolean) {
         throw SAMLComplianceException.create("SAMLBindings.3.5.3_a1")
 
     if (givenRelayState) {
-        if (relayState != RELAY_STATE) throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.5.3_b1")
+        if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.5.3_b1")
     }
 }

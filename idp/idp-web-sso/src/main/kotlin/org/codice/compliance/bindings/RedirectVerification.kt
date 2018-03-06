@@ -109,8 +109,8 @@ fun verifyRedirectRelayState(encodedRelayState: String?, givenRelayState: Boolea
     }
 
     if (givenRelayState) {
-        if (decodedRelayState != RELAY_STATE) {
-            if (encodedRelayState == RELAY_STATE) {
+        if (decodedRelayState != EXAMPLE_RELAY_STATE) {
+            if (encodedRelayState == EXAMPLE_RELAY_STATE) {
                 throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
             }
             throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.4.3_b1")
