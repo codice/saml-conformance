@@ -16,8 +16,6 @@ package org.codice.compliance.saml.plugin.ddf
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.builder.RequestSpecBuilder
-import com.jayway.restassured.internal.path.xml.NodeBase
-import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.response.Response
 import io.kotlintest.matchers.shouldBe
 import org.apache.commons.lang3.StringUtils
@@ -31,6 +29,9 @@ import org.kohsuke.MetaInfServices
 
 @MetaInfServices
 class IdpResponderProvider : IdpResponder {
+    companion object {
+        val REDIR_REGEX = """var encoded\s*=\s*"(.*)";""".toRegex()
+    }
 
     override fun getIdpRedirectResponse(originalResponse: Response): String? {
         val response = parseResponseAndSendRequest(originalResponse)
@@ -45,22 +46,22 @@ class IdpResponderProvider : IdpResponder {
          * </script>
          * ...
          ************************/
-        val nodeBase = response
+        val script = response
                 .then()
                 .extract()
                 .htmlPath()
                 .getNode("html")
-                .getNode("head") as NodeBase
-        val script = nodeBase.getNode("script").value()
+                .getNode("head")
+                .getNode("script")
+                .value()
 
-        val encodedStart = script.indexOf("encoded = \"")
-        val encodedEnd = script.indexOf("\";", encodedStart)
-        return script.substring(encodedStart, encodedEnd).replace("encoded = \"", "")
+        return REDIR_REGEX.find(script)?.groups?.get(1)?.value
     }
 
     override fun getIdpPostResponse(originalResponse: Response): String? {
         val response = parseResponseAndSendRequest(originalResponse)
         response.statusCode() shouldBe 200
+
         /*************************
          * <html>
          * ...
@@ -105,16 +106,14 @@ class IdpResponderProvider : IdpResponder {
          * </script>
          * ...
          *************************/
-        val nodeImpl = response
+        val idpState = response
                 .then()
                 .extract()
                 .htmlPath()
                 .getNode("html")
                 .getNode("head")
-                .getNodes("script")[0] as NodeImpl
-
-        val idpState = nodeImpl
-                .value
+                .getNodes("script")[0]
+                .value()
                 .toString()
                 .trim()
                 .replace("window.idpState = ", "")
@@ -123,7 +122,7 @@ class IdpResponderProvider : IdpResponder {
         val queryParams = ObjectMapper()
                 .readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
 
-        queryParams.put("AuthMethod", "up")
+        queryParams["AuthMethod"] = "up"
         val requestSpec = RequestSpecBuilder().addParams(queryParams).build()
 
         return RestAssured
