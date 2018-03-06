@@ -22,7 +22,7 @@ import org.junit.Test;
 
 public class SystemCryptoTest {
 
-  private static final String HOSTNAME = "localhost";
+  private static final String HOSTNAME = "samlhost";
   private static final String PASS = "changeit";
 
   @Test
