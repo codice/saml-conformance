@@ -23,7 +23,7 @@ import org.codice.compliance.verification.binding.verifyPost
 import org.codice.compliance.verification.binding.verifyRedirect
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
-import org.codice.compliance.verification.profile.verifySsoProfile
+import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.InflationException
 import org.codice.security.sign.Decoder.InflationException.InflErrorCode
@@ -31,26 +31,63 @@ import org.w3c.dom.Node
 import java.io.IOException
 
 sealed class ResponseVerifier(val response: String, val givenRelayState: Boolean) {
-    abstract fun verifyResponse()
+    fun verifyResponse() {
+        val parsedResponse = parseResponse(response)
+
+        // Verifications from the Bindings document
+        val decodedResponse = decodeResponse(parsedResponse)
+
+        // Verifications from both the Core and Profiles document
+        val responseDomElement = buildDomAndVerify(decodedResponse)
+
+        // Verifications from the Bindings document
+        verifyBinding(responseDomElement, parsedResponse, givenRelayState)
+    }
+
+    abstract fun parseResponse(rawResponse: String): Map<String, String>
+    abstract fun decodeResponse(parsedResponse: Map<String, String>): String
+    abstract fun verifyBinding(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean)
 
     protected fun buildDomAndVerify(decodedMessage: String): Node {
         return buildDom(decodedMessage).apply {
 
-            val coreVerification = CoreVerifier(this)
-            coreVerification.verify()
+            val coreVerifier = CoreVerifier(this)
+            coreVerifier.verify()
 
-            val responseProtocolVerification = ResponseProtocolVerifier(this, ID)
-            responseProtocolVerification.verifyCoreResponseProtocol()
+            val responseProtocolVerifier = ResponseProtocolVerifier(this, ID)
+            responseProtocolVerifier.verify()
 
-            verifySsoProfile(this)
+            val singleSignOnProfileVerifier = SingleSignOnProfileVerifier(this)
+            singleSignOnProfileVerifier.verify()
         }
     }
 }
 
 class RedirectResponseVerifier(response: String, givenRelayState: Boolean = false) : ResponseVerifier(response, givenRelayState) {
-    override fun verifyResponse() {
-        val parsedResponse = parseFinalRedirectResponse(response)
+    /**
+     * Parses a redirect idp response
+     * @param - String response ordered in any order.
+     * For example, "https://host:port/location?SAMLResponse=**SAMLResponse**&SigAlg=**SigAlg**&Signature=**Signature**
+     * @return - A map from String key (Location, SAMLResponse, SigAlg, Signature, RelayState) to String value
+     */
+    override fun parseResponse(idpResponse: String): Map<String, String> {
+        val parsedResponse = mutableMapOf<String, String>()
+        parsedResponse.put("Location", idpResponse.split("?")[0])
 
+        val splitResponse = idpResponse.split("?")[1].split("&")
+        splitResponse.forEach {
+            when {
+                it.startsWith(SAML_RESPONSE) -> parsedResponse.put(SAML_RESPONSE, it.replace("$SAML_RESPONSE=", ""))
+                it.startsWith(SIG_ALG) -> parsedResponse.put(SIG_ALG, it.replace("$SIG_ALG=", ""))
+                it.startsWith(SIGNATURE) -> parsedResponse.put(SIGNATURE, it.replace("$SIGNATURE=", ""))
+                it.startsWith(RELAY_STATE) -> parsedResponse.put(RELAY_STATE, it.replace("$RELAY_STATE=", ""))
+                it.startsWith("SAMLEncoding") -> parsedResponse["SAMLEncoding"] = it.replace("SAMLEncoding=", "")
+            }
+        }
+        return parsedResponse
+    }
+
+    override fun decodeResponse(parsedResponse: Map<String, String>): String {
         val samlResponse = parsedResponse[SAML_RESPONSE]
         val samlEncoding = parsedResponse["SAMLEncoding"]
         val decodedMessage: String
@@ -75,61 +112,23 @@ class RedirectResponseVerifier(response: String, givenRelayState: Boolean = fals
         decodedMessage shouldNotBe null
         decodedMessage shouldNotBe "error"
 
-        val responseDomElement = buildDomAndVerify(decodedMessage)
-
-        verifyRedirect(responseDomElement, parsedResponse, givenRelayState)
+        return decodedMessage
     }
 
-    /**
-     * Parses a redirect idp response
-     * @param - String response ordered in any order.
-     * For example, "https://host:port/location?SAMLResponse=**SAMLResponse**&SigAlg=**SigAlg**&Signature=**Signature**
-     * @return - A map from String key (Location, SAMLResponse, SigAlg, Signature, RelayState) to String value
-     */
-    private fun parseFinalRedirectResponse(idpResponse: String): Map<String, String> {
-        val parsedResponse = mutableMapOf<String, String>()
-        parsedResponse.put("Location", idpResponse.split("?")[0])
-
-        val splitResponse = idpResponse.split("?")[1].split("&")
-        splitResponse.forEach {
-            when {
-                it.startsWith(SAML_RESPONSE) -> parsedResponse.put(SAML_RESPONSE, it.replace("$SAML_RESPONSE=", ""))
-                it.startsWith(SIG_ALG) -> parsedResponse.put(SIG_ALG, it.replace("$SIG_ALG=", ""))
-                it.startsWith(SIGNATURE) -> parsedResponse.put(SIGNATURE, it.replace("$SIGNATURE=", ""))
-                it.startsWith(RELAY_STATE) -> parsedResponse.put(RELAY_STATE, it.replace("$RELAY_STATE=", ""))
-                it.startsWith("SAMLEncoding") -> parsedResponse["SAMLEncoding"] = it.replace("SAMLEncoding=", "")
-            }
-        }
-        return parsedResponse
+    override fun verifyBinding(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
+        //TODO: Need to turn this method call into an object
+        verifyRedirect(responseDom, parsedResponse, givenRelayState)
     }
 }
 
 class PostResponseVerifier(response: String, givenRelayState: Boolean = false) : ResponseVerifier(response, givenRelayState) {
-    override fun verifyResponse() {
-        val parsedResponse = parseFinalPostResponse(response)
-
-        val samlResponse = parsedResponse[SAML_RESPONSE]
-        val decodedMessage: String
-        try {
-            decodedMessage = Decoder.decodePostMessage(samlResponse)
-        } catch (e: IOException) {
-            throw SAMLComplianceException.create("SAMLBindings.3.5.4")
-        }
-
-        decodedMessage shouldNotBe null
-
-        val responseDomElement = buildDomAndVerify(decodedMessage)
-
-        verifyPost(responseDomElement, parsedResponse, givenRelayState)
-    }
-
     /**
      * Parses a POST idp response
      * @param - String response ordered in any order.
      * For example, "SAMLResponse=**SAMLResponse**&RelayState=**RelayState**
      * @return - A map from String key (SAMLResponse, RelayState) to String value
      */
-    private fun parseFinalPostResponse(idpResponse: String): Map<String, String> {
+    override fun parseResponse(idpResponse: String): Map<String, String> {
         val parsedResponse = mutableMapOf<String, String>()
 
         val splitResponse = idpResponse.split("&")
@@ -140,6 +139,25 @@ class PostResponseVerifier(response: String, givenRelayState: Boolean = false) :
             }
         }
         return parsedResponse
+    }
+
+    override fun decodeResponse(parsedResponse: Map<String, String>): String {
+        val samlResponse = parsedResponse[SAML_RESPONSE]
+        val decodedMessage: String
+        try {
+            decodedMessage = Decoder.decodePostMessage(samlResponse)
+        } catch (e: IOException) {
+            throw SAMLComplianceException.create("SAMLBindings.3.5.4")
+        }
+
+        decodedMessage shouldNotBe null
+
+        return decodedMessage
+    }
+
+    override fun verifyBinding(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
+        //TODO: Need to turn this into an object
+        verifyPost(responseDom, parsedResponse, givenRelayState)
     }
 }
 
