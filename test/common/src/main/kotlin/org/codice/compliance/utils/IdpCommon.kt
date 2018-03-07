@@ -18,6 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
+import org.codice.compliance.SAMLComplianceException
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -41,8 +42,6 @@ val idpMetadata = Common.parseIdpMetadata()
 
 private val DEPLOY_CL = getDeployDirClassloader()
 
-class DeployDirClassloader
-
 private fun getDeployDirClassloader(): ClassLoader {
     val pluginDeploy = System.getProperty("saml.plugin.deployDir")
 
@@ -54,8 +53,8 @@ private fun getDeployDirClassloader(): ClassLoader {
                 .map { it.toURL() }
                 .toList()
 
-        URLClassLoader(jarUrls.toTypedArray(), DeployDirClassloader::class.java.classLoader)
-    } else DeployDirClassloader::class.java.classLoader
+        URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
+    } else SAMLComplianceException::class.java.classLoader
 }
 
 fun <T> getServiceProvider(type: Class<T>): T {
