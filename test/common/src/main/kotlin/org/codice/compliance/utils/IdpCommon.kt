@@ -26,7 +26,6 @@ import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
-import org.w3c.dom.Document
 import org.w3c.dom.Node
 import java.io.File
 import java.net.URLClassLoader
@@ -65,10 +64,11 @@ fun <T> getServiceProvider(type: Class<T>): T {
  * Creates a dom element given a string representation of xml
  */
 fun buildDom(decodedMessage: String): Node {
-    val docBuilder: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-    docBuilder.isNamespaceAware = true
-    val xmlDoc: Document = docBuilder.newDocumentBuilder().parse(decodedMessage.byteInputStream())
-    return xmlDoc.documentElement
+    return DocumentBuilderFactory.newInstance().apply {
+        isNamespaceAware = true
+    }.newDocumentBuilder()
+            .parse(decodedMessage.byteInputStream())
+            .documentElement
 }
 
 /**
@@ -76,12 +76,11 @@ fun buildDom(decodedMessage: String): Node {
  */
 fun generateAndRetrieveAuthnRequest(): String {
     OpenSAMLUtil.initSamlEngine()
-    val issuerObject = IssuerBuilder().buildObject().apply {
-        value = SP_ISSUER
-    }
 
     val authnRequest = AuthnRequestBuilder().buildObject().apply {
-        issuer = issuerObject
+        issuer = IssuerBuilder().buildObject().apply {
+            value = SP_ISSUER
+        }
         assertionConsumerServiceURL = ACS_URL
         id = ID
         version = SAMLVersion.VERSION_20
@@ -96,8 +95,11 @@ fun generateAndRetrieveAuthnRequest(): String {
     }
 
     SimpleSign().signSamlObject(authnRequest)
-    val doc = DOMUtils.createDocument()
-    doc.appendChild(doc.createElement("root"))
+
+    val doc = DOMUtils.createDocument().apply {
+        appendChild(createElement("root"))
+    }
+
     val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
 
     return DOM2Writer.nodeToString(requestElement)
