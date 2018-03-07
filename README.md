@@ -101,7 +101,11 @@ This module contains all the classes relating to utility for and verification of
 ### library
 This module contains an assortment of Java classes that have been copied over from DDF to support operations that shouldn't be handled by the test code; i.e. signature validation using x509 certificates.
 
-### ddf-plugins
+### plugins
+This module contains the API and provider-specific plugin implementations
+needed to interact with IdPs/SPs.
+
+#### ddf-plugins
 This module contains the ServiceProvider plugins that are used to connect with
 a DDF IdP. It should also be used as the model for building plugins for connecting
 with other IdPs for compliance testing. The generated jar file from this module

@@ -127,7 +127,7 @@
   
   <modules>
     <module>library</module>
-    <module>ddf-plugins</module>
+    <module>plugins</module>
     <module>test</module>
     <module>distribution</module>
   </modules>

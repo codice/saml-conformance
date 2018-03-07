@@ -33,12 +33,12 @@
 
             <!-- Now, select which projects to include in this module-set. -->
             <includes>
-                <include>org.codice.samlconf:ddf-plugins</include>
+                <include>org.codice.samlconf.plugins:ddf-plugins</include>
             </includes>
             <binaries>
                 <includeDependencies>false</includeDependencies>
                 <includes>
-                    <include>org.codice.samlconf:ddf-plugins</include>
+                    <include>org.codice.samlconf.plugins:ddf-plugins</include>
                 </includes>
 
                 <outputDirectory>plugins</outputDirectory>
@@ -55,12 +55,13 @@
                 <include>org.codice.samlconf.test:idp</include>
                 <include>org.codice.samlconf.test:sp</include>
                 <include>org.codice.samlconf:library</include>
+                <include>org.codice.samlconf.plugins:plugins-api</include>
                 <include>org.codice.samlconf.distribution:suites</include>
             </includes>
 
             <binaries>
                 <excludes>
-                    <exclude>org.codice.samlconf:ddf-plugins</exclude>
+                    <exclude>org.codice.samlconf.plugins:ddf-plugins</exclude>
                 </excludes>
                 <outputDirectory>lib</outputDirectory>
                 <unpack>false</unpack>

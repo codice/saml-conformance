@@ -25,6 +25,11 @@
             <artifactId>library</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.samlconf.plugins</groupId>
+            <artifactId>plugins-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <modules>
         <module>common</module>

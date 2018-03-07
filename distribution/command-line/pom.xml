@@ -15,7 +15,12 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.codice.samlconf</groupId>
+      <groupId>org.codice.samlconf.plugins</groupId>
+      <artifactId>plugins-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codice.samlconf.plugins</groupId>
       <artifactId>ddf-plugins</artifactId>
       <version>${project.version}</version>
     </dependency>
