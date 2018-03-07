@@ -8,31 +8,39 @@ SAML: https://wiki.oasis-open.org/security/FrontPage
 
 ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.0.html
 
-# Setup
-To build the project, execute `mvn clean install -nsu -DskipTests=true` at the project root.
+## Setup
+To build the project, execute `mvn clean install -nsu` at the project root.
 The `distribution` module will contain a full package of the deployment after the build.
 Tests can be run with the script:
 
-`\[PATH_TO_PROJECT\]/distribution/command-line/target/command-line-\[VERSION\]-bin/bin/samltest.sh`.
+`<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/bin/samltest.sh`.
 
 >NOTE
 >
->In order for the test kit to execute properly, you must configure both the test kit's and your IdP's/SP's metadata, as well as implement plugins for the user-handled portions of SAML profiles.
->See "Metadata" and "Plugins" for instructions.
+>In order for the test kit to execute properly, you must configure both
+the test kit's and your IdP's/SP's metadata, as well as implement plugins
+for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for instructions.
 
 ### Metadata
- * If testing an IdP:
-   * Place your IdP's metadata into `idp-metadata.xml` under `\[PATH_TO_PROJECT\]/distribution/command-line/src/main/resources/`.
-   * Copy `test-sp-metadata.xml` under `\[PATH_TO_PROJECT\]/distribution/command-line/src/main/resources/` into your IdP.
+* If testing an IdP:
+  * **TODO** *This requires the user to rebuild and is not an optimal
+  configuration solution. A solution that works with a pre-built artifact
+  should be found.* Configure the test kit with your IdP's metadata by updating
+  `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/idp-metadata.xml`
+  prior to building.
+  * Configure your IdP with the test kit's metadata from
+  `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-sp-metadata.xml`.
   
- * todo If testing an SP:
-   * Place your SP's metadata into `sp-metadata.xml` under `\[PATH_TO_PROJECT\]/distribution/command-line/src/main/resources/`.
-   * Copy `test-idp-metadata.xml` under `\[PATH_TO_PROJECT\]/distribution/command-line/src/main/resources/` into your SP.
+* **TODO** If testing an SP:
+  * Place your SP's metadata into `sp-metadata.xml` under `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources`.
+  * Copy `test-idp-metadata.xml` under `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources` into your SP.
    
 ### Plugins
-todo describe how to implement plugins
+**TODO** describe how to implement plugins
 
-Place you're plugins in `\[PATH_TO_PROJECT\]/distribution/command-line/target/command-line-\[VERSION\]-bin/plugins`.
+**TODO** *This requires the user to rebuild and is not an optimal configuration
+solution. A solution that works with a pre-built artifact should be found.*
+Place your plugins in `<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/plugins`.
 
 ### Docker
 To build a docker image, add `-P docker` to the build command. To run it, run:
@@ -40,40 +48,42 @@ To build a docker image, add `-P docker` to the build command. To run it, run:
 `docker run --rm -it -v <IDP_METADATA_PATH>:/samlconf/conf/idp-metadata.xml --add-host "<HOST_NAME>:<IP>" codice/samlconf`
 
 Where 
-* `<IDP_METADATA_PATH>` is the path to the file containing the idp's metadata (anywhere on your local machine ex: `/tmp/idp.xml`)
+* `<IDP_METADATA_PATH>` is the path to the file containing the idp's metadata
+(anywhere on your local machine ex: `/tmp/idp.xml`)
 * `<HOST_NAME>` is the hostname the IdP is running on (for DDF, DDF's hostname)
 * `<IP>` is the machine's IP address
 
 >NOTE
 >
->To run the tests using the `docker-compose.yml` file, run `docker-compose up` in the `/docker` module
+>To run the tests using the `docker-compose.yml` file, run `docker-compose up`
+in the `/docker` module.
 
 >NOTE
 >
 >If building throws a `Connect to localhost:2375 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused`
-error, go into docker settings &rarr; general &rarr; enable “Expose daemon to tcp://localhost:2375 without TLS”.
+error, go into docker settings &rarr; general &rarr; enable `Expose daemon to tcp://localhost:2375 without TLS`.
 
 ### Running Tests in IDE
 
 Edit the run configuration of your tests to include the vm variables:
 
-* `-Dsaml.plugin.deployDir=\[PATH_TO_PROJECT\]/distribution/command-line/target/command-line-\[VERSION\]-bin/plugins`
-* `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/command-line/target/command-line-\[VERSION\]-bin/conf/idp-metadata.xml`
-* todo `-Didp.metadata=\[PATH_TO_PROJECT\]/distribution/command-line/target/command-line-\[VERSION\]-bin/conf/sp-metadata.xml`
+* `-Dsaml.plugin.deployDir=<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/plugins`
+* `-Didp.metadata=<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/conf/idp-metadata.xml`
+* todo `-Didp.metadata=<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/conf/sp-metadata.xml`
 
-# Steps to Test DDF's IDP
+## Steps to Test DDF's IDP
 * Boot up DDF
 * Copy the contents of `test-sp-metadata.xml` under `...saml-conformance/distribution/command-line/src/main/resources` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/saml/sso/metadata` to `idp-metadata.xml` under `...saml-conformance/distribution/command-line/src/main/resources`.
 * Run the tests through your IDE by setting the vm variables (see "Running Tests in IDE") or by invoking the `...saml-conformance/distribution/command-line/target/command-line-\[VERSION\]-bin/bin/samltest.sh` script.
 
-# Steps to Test DDF's SP
+## Steps to Test DDF's SP
 todo
 
-# Project Structure
+## Project Structure
 This section will briefly talk about the project structure.
 
-## test
+### test
 This module contains all the test related modules: `idp`, `sp`, and `common`.
 
 #### idp
@@ -88,10 +98,10 @@ This module will contain all tests being written against a SAML SP. The src dire
 #### common
 This module contains all the classes relating to utility for and verification of the test classes.
 
-## library
+### library
 This module contains an assortment of Java classes that have been copied over from DDF to support operations that shouldn't be handled by the test code; i.e. signature validation using x509 certificates.
 
-## ddf-plugins
+### ddf-plugins
 This module contains the ServiceProvider plugins that are used to connect with
 a DDF IdP. It should also be used as the model for building plugins for connecting
 with other IdPs for compliance testing. The generated jar file from this module
@@ -101,7 +111,7 @@ referred to by system property when running tests.
 e.g. If the ServiceProvider plugin jar(s) are copied to `/home/saml-conform/deploy`
 then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-conform/deploy`.
 
-## distribution
+### distribution
 This module is the projects full package deployment consisting of: `command-line`, `docker`, and `suites`.
 
 #### command-line
