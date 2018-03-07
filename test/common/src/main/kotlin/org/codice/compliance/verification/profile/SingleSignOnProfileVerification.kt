@@ -46,7 +46,7 @@ fun verifyIssuer(node: Node) {
 
     val issuer = issuers[0]
     if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
-        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2b")
+        throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_b")
 
     if (issuer.attributes.getNamedItem("Format") != null
             && issuer.attributes.getNamedItem("Format").textContent != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
