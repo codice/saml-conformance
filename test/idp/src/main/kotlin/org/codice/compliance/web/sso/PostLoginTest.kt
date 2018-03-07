@@ -22,7 +22,7 @@ import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.generateAndRetrieveAuthnRequest
 import org.codice.compliance.utils.getServiceProvider
-import org.codice.compliance.verification.assertResponse
+import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 
@@ -44,7 +44,7 @@ class PostLoginTest : StringSpec() {
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-            assertResponse(idpResponse, false)
+            verifyResponse(idpResponse, false)
         }
 
         "POST AuthnRequest With Relay State Test" {
@@ -61,7 +61,7 @@ class PostLoginTest : StringSpec() {
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-            assertResponse(idpResponse, true)
+            verifyResponse(idpResponse, true)
         }
     }
 }

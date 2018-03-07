@@ -21,7 +21,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.*
-import org.codice.compliance.verification.assertResponse
+import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -54,7 +54,7 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-            assertResponse(idpResponse, false)
+            verifyResponse(idpResponse, false)
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -73,7 +73,7 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-            assertResponse(idpResponse, true)
+            verifyResponse(idpResponse, true)
         }
     }
 }
