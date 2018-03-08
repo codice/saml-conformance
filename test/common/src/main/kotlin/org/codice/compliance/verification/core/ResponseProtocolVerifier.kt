@@ -31,7 +31,7 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
      * Verify protocols against the Core Spec document
      * 3.2.2 Complex Type StatusResponseType
      */
-    internal fun verify() {
+    fun verify() {
         verifyStatusResponseType()
         verifyStatusesType()
         verifyNameIdMappingResponse()

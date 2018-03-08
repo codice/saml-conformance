@@ -28,7 +28,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage
      */
-    internal fun verify() {
+    fun verify() {
         if (response.localName == "Response" &&
                 (response.children(SIGNATURE).isNotEmpty() ||
                         response.children("Assertion").any { it.children(SIGNATURE).isNotEmpty() }))

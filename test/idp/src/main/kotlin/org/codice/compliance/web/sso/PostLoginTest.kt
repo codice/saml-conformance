@@ -19,12 +19,17 @@ import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.codice.compliance.*
 import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.generateAndRetrieveAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
+import org.codice.compliance.verification.core.CoreVerifier
+import org.codice.compliance.verification.core.ResponseProtocolVerifier
+import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
+import org.w3c.dom.Node
 
 class PostLoginTest : StringSpec() {
     init {
@@ -61,7 +66,16 @@ class PostLoginTest : StringSpec() {
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-            verifyResponse(idpResponse, true)
+            val responseDom = verifyResponse(idpResponse, true)
+
+            val coreVerifier = CoreVerifier(responseDom)
+            coreVerifier.verify()
+
+            val responseProtocolVerifier = ResponseProtocolVerifier(responseDom, TestCommon.ID)
+            responseProtocolVerifier.verify()
+
+            val singleSignOnProfileVerifier = SingleSignOnProfileVerifier(responseDom)
+            singleSignOnProfileVerifier.verify()
         }
     }
 }

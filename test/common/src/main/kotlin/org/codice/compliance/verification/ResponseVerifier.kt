@@ -17,12 +17,8 @@ package org.codice.compliance.verification
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.buildDom
 import org.codice.compliance.verification.binding.*
-import org.codice.compliance.verification.core.CoreVerifier
-import org.codice.compliance.verification.core.ResponseProtocolVerifier
-import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.InflationException
 import org.codice.security.sign.Decoder.InflationException.InflErrorCode
@@ -31,37 +27,21 @@ import java.io.IOException
 
 sealed class ResponseVerifier(val response: String, val givenRelayState: Boolean) {
 
-    internal fun verifyResponse() {
+    internal fun verifyResponse() : Node {
         val parsedResponse = parseResponse(response)
 
-        // Verifications from the Bindings document
         val decodedResponse = decodeResponse(parsedResponse)
-
-        // Verifications from both the Core and Profiles document
-        val responseDom = buildDomAndVerify(decodedResponse)
-
-        // Verifications from the Bindings document
+        val responseDom = buildDom(decodedResponse)
         val bindingVerifier = getBindingVerifier(responseDom, parsedResponse, givenRelayState)
         bindingVerifier.verifyBinding()
+
+        return responseDom
     }
 
     abstract protected fun parseResponse(rawResponse: String): Map<String, String>
     abstract protected fun decodeResponse(parsedResponse: Map<String, String>): String
     abstract protected fun getBindingVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier
 
-    protected fun buildDomAndVerify(decodedMessage: String): Node {
-        return buildDom(decodedMessage).apply {
-
-            val coreVerifier = CoreVerifier(this)
-            coreVerifier.verify()
-
-            val responseProtocolVerifier = ResponseProtocolVerifier(this, ID)
-            responseProtocolVerifier.verify()
-
-            val singleSignOnProfileVerifier = SingleSignOnProfileVerifier(this)
-            singleSignOnProfileVerifier.verify()
-        }
-    }
 }
 
 class RedirectResponseVerifier(response: String, givenRelayState: Boolean = false) : ResponseVerifier(response, givenRelayState) {
@@ -71,11 +51,11 @@ class RedirectResponseVerifier(response: String, givenRelayState: Boolean = fals
      * For example, "https://host:port/location?SAMLResponse=**SAMLResponse**&SigAlg=**SigAlg**&Signature=**Signature**
      * @return - A map from String key (Location, SAMLResponse, SigAlg, Signature, RelayState) to String value
      */
-    override fun parseResponse(idpResponse: String): Map<String, String> {
+    override fun parseResponse(rawResponse: String): Map<String, String> {
         val parsedResponse = mutableMapOf<String, String>()
-        parsedResponse.put("Location", idpResponse.split("?")[0])
+        parsedResponse.put("Location", rawResponse.split("?")[0])
 
-        val splitResponse = idpResponse.split("?")[1].split("&")
+        val splitResponse = rawResponse.split("?")[1].split("&")
         splitResponse.forEach {
             when {
                 it.startsWith(SAML_RESPONSE) -> parsedResponse.put(SAML_RESPONSE, it.replace("$SAML_RESPONSE=", ""))
@@ -127,10 +107,10 @@ class PostResponseVerifier(response: String, givenRelayState: Boolean = false) :
      * For example, "SAMLResponse=**SAMLResponse**&RelayState=**RelayState**
      * @return - A map from String key (SAMLResponse, RelayState) to String value
      */
-    override fun parseResponse(idpResponse: String): Map<String, String> {
+    override fun parseResponse(rawResponse: String): Map<String, String> {
         val parsedResponse = mutableMapOf<String, String>()
 
-        val splitResponse = idpResponse.split("&")
+        val splitResponse = rawResponse.split("&")
         splitResponse.forEach {
             when {
                 it.startsWith(SAML_RESPONSE) -> parsedResponse.put(SAML_RESPONSE, it.replace("$SAML_RESPONSE=", ""))
@@ -164,9 +144,9 @@ class PostResponseVerifier(response: String, givenRelayState: Boolean = false) :
 /**
  * Delegates the response to the correct POST or REDIRECT binding
  */
-fun verifyResponse(response: String, givenRelayState: Boolean) {
+fun verifyResponse(response: String, givenRelayState: Boolean) : Node {
     val verifier =
             if (response.contains("?")) RedirectResponseVerifier(response, givenRelayState)
             else PostResponseVerifier(response, givenRelayState)
-    verifier.verifyResponse()
+    return verifier.verifyResponse()
 }
