@@ -35,7 +35,31 @@ class IdpResponderProvider : IdpResponder {
 
     override fun getIdpRedirectResponse(originalResponse: Response): String? {
         val response = parseResponseAndSendRequest(originalResponse)
-        response.statusCode() shouldBe 200
+
+        /*
+        * TODO "TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
+        * When ticket is finished, replace below url building line with:
+        * .url(response.getHeader("Location"));
+         */
+
+        /*
+        * TODO "Revamp pluggable portion return an object (made by us)"
+        * When tickets are completed, insert this code and delete all the code below it in this method.
+
+        val script = response
+                .then()
+                .extract()
+                .htmlPath()
+                .getNode("html")
+                .getNode("head")
+                .getNode("script")
+                .value()
+
+        val idpRedirectResponseBuilder = IdpRedirectResponse.Builder()
+        idpRedirectResponseBuilder.httpStatusCode(response.statusCode)
+            .url(REDIR_REGEX.find(script)?.groups?.get(1)?.value); //validate that this gives you the correct url
+        return idpRedirectResponseBuilder.build()
+        */
 
         /*************************
          * <html>
@@ -53,6 +77,7 @@ class IdpResponderProvider : IdpResponder {
          * </script>
          * ...
          ************************/
+
         val script = response
                 .then()
                 .extract()
@@ -67,7 +92,6 @@ class IdpResponderProvider : IdpResponder {
 
     override fun getIdpPostResponse(originalResponse: Response): String? {
         val response = parseResponseAndSendRequest(originalResponse)
-        response.statusCode() shouldBe 200
 
         /*************************
          * <html>
@@ -79,6 +103,24 @@ class IdpResponderProvider : IdpResponder {
          * <input type="hidden" name="RelayState" value="relayState"/>
          * ...
          ************************/
+
+        /*
+        * TODO "Revamp pluggable portion return an object (made by us)"
+        * When ticket is completed, insert this code and delete all the code below it in this method.
+
+        val response = parseResponseAndSendRequest(originalResponse)
+        val idpPostResponseBuilder = IdpPostResponse.Builder()
+        idpPostResponseBuilder.httpStatusCode(response.statusCode)
+            .samlForm(response
+                .then()
+                .extract()
+                .htmlPath()
+                .getNode("html")
+                .getNode("body")
+                .getNode("form"));
+        return idpPostResponseBuilder.build()
+        */
+
         val form = response
                 .then()
                 .extract()
