@@ -23,13 +23,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.codice.security.saml.SamlProtocol.Binding;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Non-instantiable class that provides a utility function to parse service provider metadata */
 public class SPMetadataParser {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SPMetadataParser.class);
 
   private SPMetadataParser() {}
 

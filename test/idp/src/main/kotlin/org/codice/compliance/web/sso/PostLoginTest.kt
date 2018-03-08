@@ -17,7 +17,7 @@ import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
-import org.codice.compliance.*
+import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
@@ -29,7 +29,6 @@ import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
-import org.w3c.dom.Node
 
 class PostLoginTest : StringSpec() {
     init {

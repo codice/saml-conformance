@@ -212,14 +212,7 @@ public class SimpleSign {
 
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
       Certificate certificate;
-      try {
-        certificate =
-            certificateFactory.generateCertificate(
-                new ByteArrayInputStream(
-                    certificateString.getBytes(StandardCharsets.UTF_8.name())));
-      } catch (CertificateException e) {
-        throw new SignatureException(SignatureException.SigErrorCode.INVALID_CERTIFICATE);
-      }
+      certificate = getCertificate(certificateString, certificateFactory);
 
       String jceSigAlg = URI_ALG_MAP.get(sigAlg);
 
@@ -312,6 +305,20 @@ public class SimpleSign {
       throw new SignatureException(e);
     }
     return privateKey;
+  }
+
+  private Certificate getCertificate(
+      String certificateString, CertificateFactory certificateFactory)
+      throws UnsupportedEncodingException, SignatureException {
+    Certificate certificate;
+    try {
+      certificate =
+          certificateFactory.generateCertificate(
+              new ByteArrayInputStream(certificateString.getBytes(StandardCharsets.UTF_8.name())));
+    } catch (CertificateException e) {
+      throw new SignatureException(SignatureException.SigErrorCode.INVALID_CERTIFICATE);
+    }
+    return certificate;
   }
 
   @SuppressWarnings("squid:S1165" /* errorCode mutable for legacy compatibility */)
