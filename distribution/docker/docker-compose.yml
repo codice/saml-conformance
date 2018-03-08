@@ -5,7 +5,7 @@ services:
     depends_on:
       - ddf
   ddf:
-    image: "codice/ddf"
+    image: "codice/ddf:edge-alpine"
     ports:
       - 8993:8993
       - 8181:8181
