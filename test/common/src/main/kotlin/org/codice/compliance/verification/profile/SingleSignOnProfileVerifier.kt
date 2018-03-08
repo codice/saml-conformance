@@ -16,10 +16,10 @@ package org.codice.compliance.verification.profile
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
-import org.codice.compliance.utils.ACS_URL
-import org.codice.compliance.utils.ID
-import org.codice.compliance.utils.SP_ISSUER
-import org.codice.compliance.utils.idpMetadata
+import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
+import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 

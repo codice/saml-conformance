@@ -1,0 +1,111 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.compliance.utils
+
+import org.apache.cxf.helpers.DOMUtils
+import org.apache.wss4j.common.saml.OpenSAMLUtil
+import org.apache.wss4j.common.saml.builder.SAML2Constants
+import org.apache.wss4j.common.util.DOM2Writer
+import org.codice.compliance.Common
+import org.codice.compliance.IDP_METADATA
+import org.codice.compliance.SAMLComplianceException
+import org.codice.security.saml.IdpMetadata
+import org.codice.security.saml.SamlProtocol
+import org.codice.security.sign.SimpleSign
+import org.joda.time.DateTime
+import org.opensaml.saml.common.SAMLVersion
+import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
+import org.opensaml.saml.saml2.core.impl.IssuerBuilder
+import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
+import org.w3c.dom.Node
+import java.io.File
+import java.net.URLClassLoader
+import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
+
+class TestCommon {
+    companion object {
+        val SP_ISSUER = "https://samlhost:8993/services/saml"
+        val ACS_URL = "https://samlhost:8993/services/saml/sso"
+        val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
+        val EXAMPLE_RELAY_STATE = "relay+State"
+        val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
+        val idpMetadata = Common.parseIdpMetadata()
+
+        private val DEPLOY_CL = getDeployDirClassloader()
+
+        /**
+         * Creates a dom element given a string representation of xml
+         */
+        fun buildDom(decodedMessage: String): Node {
+            return DocumentBuilderFactory.newInstance().apply {
+                isNamespaceAware = true
+            }.newDocumentBuilder()
+                    .parse(decodedMessage.byteInputStream())
+                    .documentElement
+        }
+
+        /**
+         * Generates and returns a POST Authn Request
+         */
+        fun generateAndRetrieveAuthnRequest(): String {
+            OpenSAMLUtil.initSamlEngine()
+
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = SP_ISSUER
+                }
+                assertionConsumerServiceURL = ACS_URL
+                id = ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING)
+                protocolBinding = SamlProtocol.POST_BINDING
+                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
+                    allowCreate = true
+                    format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
+                    spNameQualifier = SP_ISSUER
+                }
+            }
+
+            SimpleSign().signSamlObject(authnRequest)
+
+            val doc = DOMUtils.createDocument().apply {
+                appendChild(createElement("root"))
+            }
+
+            val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
+            return DOM2Writer.nodeToString(requestElement)
+        }
+
+        fun <T> getServiceProvider(type: Class<T>): T {
+            return ServiceLoader.load(type, DEPLOY_CL).first()
+        }
+
+        private fun getDeployDirClassloader(): ClassLoader {
+            val pluginDeploy = System.getProperty("saml.plugin.deployDir")
+
+            return if (pluginDeploy != null) {
+                val walkTopDown = File(pluginDeploy).walkTopDown()
+                val jarUrls = walkTopDown.maxDepth(1)
+                        .filter { it.name.endsWith(".jar") }
+                        .map { it.toURI() }
+                        .map { it.toURL() }
+                        .toList()
+
+                URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
+            } else SAMLComplianceException::class.java.classLoader
+        }
+    }
+}

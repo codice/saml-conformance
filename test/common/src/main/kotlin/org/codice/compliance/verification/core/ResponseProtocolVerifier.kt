@@ -16,7 +16,7 @@ package org.codice.compliance.verification.core
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.utils.ACS_URL
+import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.w3c.dom.Node
 
 class ResponseProtocolVerifier(val response: Node, val id: String) {

@@ -19,9 +19,9 @@ import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.codice.compliance.*
 import org.codice.compliance.saml.plugin.IdpResponder
-import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.generateAndRetrieveAuthnRequest
-import org.codice.compliance.utils.getServiceProvider
+import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.TestCommon.Companion.generateAndRetrieveAuthnRequest
+import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder

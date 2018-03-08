@@ -15,9 +15,9 @@ package org.codice.compliance.verification.binding
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
-import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.w3c.dom.Node
 
 class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier(responseDom, parsedResponse, givenRelayState) {

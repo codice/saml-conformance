@@ -15,9 +15,9 @@ package org.codice.compliance.verification.binding
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.*
-import org.codice.compliance.utils.ACS_URL
-import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.idpMetadata
+import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
+import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.security.sign.SimpleSign
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
 import org.w3c.dom.Node

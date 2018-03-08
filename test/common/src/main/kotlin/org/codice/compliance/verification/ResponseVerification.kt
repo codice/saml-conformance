@@ -17,8 +17,8 @@ package org.codice.compliance.verification
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.utils.ID
-import org.codice.compliance.utils.buildDom
+import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.buildDom
 import org.codice.compliance.verification.binding.*
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
