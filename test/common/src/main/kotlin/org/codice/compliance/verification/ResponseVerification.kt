@@ -31,7 +31,7 @@ import java.io.IOException
 
 sealed class ResponseVerifier(val response: String, val givenRelayState: Boolean) {
 
-    fun verifyResponse() {
+    internal fun verifyResponse() {
         val parsedResponse = parseResponse(response)
 
         // Verifications from the Bindings document
@@ -45,9 +45,9 @@ sealed class ResponseVerifier(val response: String, val givenRelayState: Boolean
         bindingVerifier.verifyBinding()
     }
 
-    abstract fun parseResponse(rawResponse: String): Map<String, String>
-    abstract fun decodeResponse(parsedResponse: Map<String, String>): String
-    abstract fun getBindingVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier
+    abstract protected fun parseResponse(rawResponse: String): Map<String, String>
+    abstract protected fun decodeResponse(parsedResponse: Map<String, String>): String
+    abstract protected fun getBindingVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier
 
     protected fun buildDomAndVerify(decodedMessage: String): Node {
         return buildDom(decodedMessage).apply {

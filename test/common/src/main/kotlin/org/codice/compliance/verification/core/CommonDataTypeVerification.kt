@@ -27,12 +27,12 @@ var ids = mutableListOf<String>()
  *
  * 1.3 Common Data Types
  */
-fun verifyCommonDataType(response: Node) {
+fun verifyCommonDataType(samlDom: Node) {
     ids = mutableListOf()
-    var i = response.childNodes.length - 1
+    var i = samlDom.childNodes.length - 1
 
     while (i >= 0) {
-        val child = response.childNodes.item(i)
+        val child = samlDom.childNodes.item(i)
         val typeAttribute = child.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
         if (typeAttribute?.textContent?.contains("string") == true)
             verifyStringValues(child, null)
@@ -148,7 +148,7 @@ private fun verifyYear(year: String, errorCode: String?) {
 // todo allow an unlimited amount of fractional seconds as stated in the XML Datatypes Schema 3.2.7
 // todo "SAML system entities SHOULD NOT rely on time resolution finer than milliseconds" Core.1.3.3
 // helper for verifyTimeValues
-fun verifyRestOfDateTime(restOfDateTime: String, errorCode: String?) {
+private fun verifyRestOfDateTime(restOfDateTime: String, errorCode: String?) {
     val format = DateTimeFormatter.ofPattern("MM'-'dd'T'HH':'mm':'ss['.'SSS]['Z']")
 
     try {

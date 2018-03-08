@@ -23,9 +23,11 @@ class CoreVerifier(val node: Node) {
     /**
      * Verify response against the Core Spec document
      */
-    fun verify() {
+    internal fun verify() {
         verifyCommonDataType(node)
-        verifyAssertions(node)
+
+        val samlAssertionsVerifier = SamlAssertionsVerifier(node)
+        samlAssertionsVerifier.verify()
 
         verifySignatureSyntaxAndProcessing(node)
         verifyGeneralConsiderations(node)
