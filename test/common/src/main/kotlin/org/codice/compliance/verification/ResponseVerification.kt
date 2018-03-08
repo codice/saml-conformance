@@ -108,10 +108,9 @@ class RedirectResponseVerifier(response: String, givenRelayState: Boolean = fals
                     else -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_a1", "SAMLBindings.3.4.4.1")
                 }
             }
-        } else "error"
+        } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
 
         decodedMessage shouldNotBe null
-        decodedMessage shouldNotBe "error"
 
         return decodedMessage
     }

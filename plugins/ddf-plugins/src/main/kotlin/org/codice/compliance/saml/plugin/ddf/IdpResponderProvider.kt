@@ -42,7 +42,14 @@ class IdpResponderProvider : IdpResponder {
          * <head>
          * ...
          * <script type="text/javascript">
-         * **SAMLResponseValueHere**
+         *  window.onload = function () {
+         *      window.setTimeout(function () {
+         *          window.setInterval(function () {
+         *              var encoded = "SAMLResponse HERE";
+         *              window.location.replace(encoded);
+         *          }, 2000);
+         *      }, 100);
+         *  }
          * </script>
          * ...
          ************************/
