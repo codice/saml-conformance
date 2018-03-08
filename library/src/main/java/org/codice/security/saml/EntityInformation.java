@@ -103,6 +103,10 @@ public class EntityInformation {
             Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
   }
 
+  public ServiceInfo getAssertionConsumerService(Binding binding) {
+    return assertionConsumerServices.get(binding);
+  }
+
   public ServiceInfo getAssertionConsumerService(
       AuthnRequest request, Binding preferred, Integer index) {
     ServiceInfo si = null;

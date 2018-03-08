@@ -13,13 +13,16 @@
  */
 package org.codice.compliance
 
+import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
+import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 import java.io.File
 import java.util.*
 
-const val IDP_METADATA = "idp.metadata"
+const val IDP_METADATA_PROPERTY = "idp.metadata"
+const val SP_METADATA_PROPERTY = "sp.metadata"
 
 val SUPPORTED_BINDINGS = mutableSetOf(
         SamlProtocol.Binding.HTTP_POST,
@@ -57,14 +60,22 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
 
 class Common {
     companion object {
-        val PARSED_METADATA = File(System.getProperty(IDP_METADATA)).readText()
+        val IDP_METADATA = File(System.getProperty(org.codice.compliance.IDP_METADATA_PROPERTY)).readText()
+
+        /**
+         * Parses and returns the idp metadata
+         */
+        fun parseSpMetadata(): Map<String, EntityInformation> {
+            val spMetadata = File(System.getProperty(org.codice.compliance.SP_METADATA_PROPERTY)).readText()
+            return SPMetadataParser.parse(spMetadata, SUPPORTED_BINDINGS)
+        }
 
         /**
          * Parses and returns the idp metadata
          */
         fun parseIdpMetadata(): IdpMetadata {
             return IdpMetadata().apply {
-                setMetadata(PARSED_METADATA)
+                setMetadata(IDP_METADATA)
             }
         }
 

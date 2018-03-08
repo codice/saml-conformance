@@ -19,6 +19,7 @@ import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SP_METADATA_PROPERTY
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -37,12 +38,18 @@ class TestCommon {
         val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
 
-        val SP_ISSUER = "https://samlhost:8993/services/saml"
-        val ACS_URL = "https://samlhost:8993/services/saml/sso"
+        val idpMetadata = Common.parseIdpMetadata()
+        val spMetadata = {
+            System.setProperty(SP_METADATA_PROPERTY, "${System.getProperty("user.dir")}/distribution/command-line/src/main/resources/test-sp-metadata.xml")
+            Common.parseSpMetadata()
+        }.invoke()
+
+        val SP_ISSUER = spMetadata.keys.first()
+        val SP_INFO = spMetadata[SP_ISSUER]
+        var ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_REDIRECT)?.url
         val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         val EXAMPLE_RELAY_STATE = "relay+State"
         val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
-        val idpMetadata = Common.parseIdpMetadata()
 
         private val DEPLOY_CL = getDeployDirClassloader()
 
@@ -63,6 +70,7 @@ class TestCommon {
         fun generateAndRetrieveAuthnRequest(): String {
             OpenSAMLUtil.initSamlEngine()
 
+            ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_POST)?.url
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = SP_ISSUER
