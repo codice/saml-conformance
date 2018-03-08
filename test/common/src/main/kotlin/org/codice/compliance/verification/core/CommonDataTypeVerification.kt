@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.net.URI
 import java.time.format.DateTimeFormatter
@@ -33,7 +34,7 @@ fun verifyCommonDataType(samlDom: Node) {
 
     while (i >= 0) {
         val child = samlDom.childNodes.item(i)
-        val typeAttribute = child.attributes?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
+        val typeAttribute = child.attributes?.getNamedItemNS(XSI, "type")
         if (typeAttribute?.textContent?.contains("string") == true)
             verifyStringValues(child, null)
         if (typeAttribute?.textContent?.contains("anyURI") == true)

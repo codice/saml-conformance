@@ -17,6 +17,8 @@ import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
+import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.time.Instant
 
@@ -48,7 +50,7 @@ class SamlAssertionsVerifier(val node: Node) {
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
-                            .any { it.attributes.getNamedItem("Type").textContent != "http://www.w3.org/2001/04/xmlenc#Element" })
+                            .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
                 throw SAMLComplianceException.create("SAMLCore.2.2.4")
             // todo - For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType,
             // or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
@@ -80,7 +82,7 @@ class SamlAssertionsVerifier(val node: Node) {
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
             val statements = it.children("Statement")
-            if (statements.any { it.attributes.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type") == null })
+            if (statements.any { it.attributes.getNamedItemNS(XSI, "type") == null })
                 throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
 
             if (statements.isEmpty()
@@ -105,7 +107,7 @@ class SamlAssertionsVerifier(val node: Node) {
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
-                            .any { it.attributes.getNamedItem("Type").textContent != "http://www.w3.org/2001/04/xmlenc#Element" })
+                            .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
                 throw SAMLComplianceException.create("SAMLCore.2.3.4")
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }
@@ -140,7 +142,7 @@ class SamlAssertionsVerifier(val node: Node) {
             // KeyInfoConfirmationDataType
             // todo - verify correctness
             if (it.parentNode.attributes
-                            ?.getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type")
+                            ?.getNamedItemNS(XSI, "type")
                             ?.textContent?.contains("KeyInfoConfirmationDataType") == true
                     && it.children("KeyInfo").any { it.childNodes.length > 1 })
                 throw SAMLComplianceException.create("SAMLCore.2.4.1.3_a")
@@ -158,7 +160,7 @@ class SamlAssertionsVerifier(val node: Node) {
     private fun verifyConditions() {
         node.allChildren("Conditions").forEach {
             if (it.children("Condition")
-                            .any { it.attributes.getNamedItemNS("http://www.w3.org/2001/XMLSchemainstance", "type") == null })
+                            .any { it.attributes.getNamedItemNS(XSI, "type") == null })
                 throw SAMLComplianceException.create("SAMLCore.2.5.1_a")
 
             if (it.children("OneTimeUse").size > 1)
@@ -257,7 +259,7 @@ class SamlAssertionsVerifier(val node: Node) {
                     || (friendlyNameAttribute != null && friendlyNameAttribute.textContent == null)) {
 
                 it.children("AttributeValue").forEach {
-                    val nilAttribute = it.attributes.getNamedItemNS("http://www.w3.org/2001/XMLSchemainstance", "nil")?.textContent
+                    val nilAttribute = it.attributes.getNamedItemNS(XSI, "nil")?.textContent
                     if (StringUtils.isNotBlank(it.textContent) || (nilAttribute != "true" && nilAttribute != "1"))
                         throw SAMLComplianceException.create("SAMLCore.2.7.3.1.1_b")
                 }
@@ -272,7 +274,7 @@ class SamlAssertionsVerifier(val node: Node) {
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
-                            .any { it.attributes.getNamedItem("Type").textContent != "http://www.w3.org/2001/04/xmlenc#Element" })
+                            .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
                 throw SAMLComplianceException.create("SAMLCore.2.7.3.2_a")
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }

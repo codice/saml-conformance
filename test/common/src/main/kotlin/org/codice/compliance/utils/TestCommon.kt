@@ -18,9 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
-import org.codice.compliance.IDP_METADATA
 import org.codice.compliance.SAMLComplianceException
-import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -36,6 +34,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class TestCommon {
     companion object {
+        val XSI = "http://www.w3.org/2001/XMLSchema-instance"
+        val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
+
         val SP_ISSUER = "https://samlhost:8993/services/saml"
         val ACS_URL = "https://samlhost:8993/services/saml/sso"
         val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"

@@ -17,6 +17,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.w3c.dom.Node
 
 class CoreVerifier(val node: Node) {
@@ -74,7 +75,7 @@ class CoreVerifier(val node: Node) {
             val encryptedData = it.allChildren("EncryptedData")
             if (encryptedData.isNotEmpty() &&
                     encryptedData[0].attributes.getNamedItem("EncryptedData").textContent
-                    != "http://www.w3.org/2001/04/xmlenc#Element")
+                    != ELEMENT)
                 throw SAMLComplianceException.create("SAMLCore.6.1_b")
         }
     }
