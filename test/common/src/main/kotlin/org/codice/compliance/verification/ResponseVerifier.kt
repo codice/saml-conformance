@@ -19,8 +19,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.utils.ID
 import org.codice.compliance.utils.buildDom
-import org.codice.compliance.verification.binding.verifyPost
-import org.codice.compliance.verification.binding.verifyRedirect
+import org.codice.compliance.verification.binding.*
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
@@ -31,6 +30,7 @@ import org.w3c.dom.Node
 import java.io.IOException
 
 sealed class ResponseVerifier(val response: String, val givenRelayState: Boolean) {
+
     fun verifyResponse() {
         val parsedResponse = parseResponse(response)
 
@@ -38,15 +38,16 @@ sealed class ResponseVerifier(val response: String, val givenRelayState: Boolean
         val decodedResponse = decodeResponse(parsedResponse)
 
         // Verifications from both the Core and Profiles document
-        val responseDomElement = buildDomAndVerify(decodedResponse)
+        val responseDom = buildDomAndVerify(decodedResponse)
 
         // Verifications from the Bindings document
-        verifyBinding(responseDomElement, parsedResponse, givenRelayState)
+        val bindingVerifier = getBindingVerifier(responseDom, parsedResponse, givenRelayState)
+        bindingVerifier.verifyBinding()
     }
 
     abstract fun parseResponse(rawResponse: String): Map<String, String>
     abstract fun decodeResponse(parsedResponse: Map<String, String>): String
-    abstract fun verifyBinding(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean)
+    abstract fun getBindingVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier
 
     protected fun buildDomAndVerify(decodedMessage: String): Node {
         return buildDom(decodedMessage).apply {
@@ -115,9 +116,8 @@ class RedirectResponseVerifier(response: String, givenRelayState: Boolean = fals
         return decodedMessage
     }
 
-    override fun verifyBinding(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
-        //TODO: Need to turn this method call into an object
-        verifyRedirect(responseDom, parsedResponse, givenRelayState)
+    override fun getBindingVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier {
+        return RedirectVerifier(responseDom, parsedResponse, givenRelayState)
     }
 }
 
@@ -155,9 +155,8 @@ class PostResponseVerifier(response: String, givenRelayState: Boolean = false) :
         return decodedMessage
     }
 
-    override fun verifyBinding(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean) {
-        //TODO: Need to turn this into an object
-        verifyPost(responseDom, parsedResponse, givenRelayState)
+    override fun getBindingVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier {
+        return PostVerifier(responseDom, parsedResponse, givenRelayState)
     }
 }
 
