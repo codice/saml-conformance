@@ -6,13 +6,18 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr:'25'))
         disableConcurrentBuilds()
         timestamps()
-        skipDefaultCheckout()
     }
     triggers {
+        /*
+          Restrict nightly builds to master branch
+          Note: The BRANCH_NAME will only work with a multi-branch job using the github-branch-source
+        */
         cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
     }
     environment {
         PATH="${tool 'docker-latest'}/bin:$PATH"
+        LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
+        LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
     }
     stages {
         stage('Setup') {
@@ -45,9 +50,6 @@ pipeline {
                     }
                 }
             }
-        }
-        stage('Security Analysis') {
-
         }
         stage('Deploy') {
             when {
