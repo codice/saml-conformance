@@ -22,7 +22,7 @@ import java.io.File
 import java.util.*
 
 const val IDP_METADATA_PROPERTY = "idp.metadata"
-const val SP_METADATA_PROPERTY = "sp.metadata"
+const val TES_SP_METADATA_PROPERTY = "test.sp.metadata"
 
 val SUPPORTED_BINDINGS = mutableSetOf(
         SamlProtocol.Binding.HTTP_POST,
@@ -60,14 +60,14 @@ class SAMLComplianceException private constructor(message: String) : Exception(m
 
 class Common {
     companion object {
-        val IDP_METADATA = File(System.getProperty(org.codice.compliance.IDP_METADATA_PROPERTY)).readText()
+        private val IDP_METADATA = File(System.getProperty(org.codice.compliance.IDP_METADATA_PROPERTY)).readText()
+        private val TEST_SP_METADATA = File(System.getProperty(org.codice.compliance.TES_SP_METADATA_PROPERTY)).readText()
 
         /**
          * Parses and returns the idp metadata
          */
         fun parseSpMetadata(): Map<String, EntityInformation> {
-            val spMetadata = File(System.getProperty(org.codice.compliance.SP_METADATA_PROPERTY)).readText()
-            return SPMetadataParser.parse(spMetadata, SUPPORTED_BINDINGS)
+            return SPMetadataParser.parse(TEST_SP_METADATA, SUPPORTED_BINDINGS)
         }
 
         /**

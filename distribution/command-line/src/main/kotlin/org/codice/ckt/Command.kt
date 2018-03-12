@@ -25,6 +25,7 @@ fun main(args: Array<String>) {
             ?: "${System.getProperty("user.dir")}$distroDir/plugins"
 
     System.setProperty("idp.metadata", idpMetadata)
+    System.setProperty("sp.metadata", "${System.getProperty("user.dir")}$distroDir/conf/test-sp-metadata.xml")
     System.setProperty("saml.plugin.deployDir", pluginDir)
 
     org.junit.runner.JUnitCore.main("org.codice.compliance.tests.suites.BasicTestsSuite")
