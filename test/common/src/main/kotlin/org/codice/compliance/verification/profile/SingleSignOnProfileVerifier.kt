@@ -15,6 +15,7 @@ package org.codice.compliance.verification.profile
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -46,15 +47,15 @@ class SingleSignOnProfileVerifier(val response: Node) {
         val issuers = response.children("Issuer")
 
         if (issuers.size != 1)
-            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_a")
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a)
 
         val issuer = issuers[0]
         if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
-            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_b")
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b)
 
         if (issuer.attributes.getNamedItem("Format") != null
                 && issuer.attributes.getNamedItem("Format").textContent != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
-            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_c")
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_c)
     }
 
     /**
@@ -62,19 +63,19 @@ class SingleSignOnProfileVerifier(val response: Node) {
      * 4.1.4.2 <Response> Usage
      */
     fun verifySsoAssertions() {
-        if (response.children("Assertion").isEmpty()) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_d")
+        if (response.children("Assertion").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d)
 
         response.children("Assertion").forEach {
             verifyIssuer()
 
-            if (it.children("Subject").size != 1) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_g")
+            if (it.children("Subject").size != 1) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g)
 
             val bearerSubjectConfirmations = mutableListOf<Node>()
             it.children("Subject")[0].children("SubjectConfirmation")
                     .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                     .toCollection(bearerSubjectConfirmations)
             if (bearerSubjectConfirmations.isEmpty())
-                throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2h")
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h)
 
             // Check if NotBefore is an attribute (it shouldn't)
             val dataWithNotBefore = bearerSubjectConfirmations
@@ -94,14 +95,14 @@ class SingleSignOnProfileVerifier(val response: Node) {
                     .toCollection(bearerSubjectConfirmationsData)
 
             if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty())
-                throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_h")
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h)
 
-            if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_j")
+            if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j)
 
             if (idpMetadata.descriptor != null) {
                 if (idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty())
                     it.children("AuthnStatement").forEach {
-                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2k")
+                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k)
                     }
             }
 
@@ -111,10 +112,10 @@ class SingleSignOnProfileVerifier(val response: Node) {
                         .firstOrNull()
                         ?.children("AudienceRestriction")
                         ?.firstOrNull()
-                        ?: throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_l")
+                        ?: throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_l)
 
                 if (audienceRestriction.children("Audience").firstOrNull()?.textContent != SP_ISSUER)
-                    throw SAMLComplianceException.create("SAMLProfiles.4.1.4.2_l")
+                    throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_l)
             }
         }
     }

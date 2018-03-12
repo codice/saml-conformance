@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
@@ -44,19 +45,19 @@ class CoreVerifier(val node: Node) {
         node.children("Assertion").forEach {
             val signatures = it.children(SIGNATURE)
             if (signatures.isEmpty())
-                throw SAMLComplianceException.create("SAMLCore.5.4.1_a")
+                throw SAMLComplianceException.create(SAMLCore_5_4_1_a)
 
             if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.create("SAMLCore.5.4.2_a")
+                throw SAMLComplianceException.create(SAMLCore_5_4_2_a)
 
             signatures.forEach {
                 val references = it.allChildren("Reference")
                 if (references.size != 1)
-                    throw SAMLComplianceException.create("SAMLCore.5.4.2_b1")
+                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b1)
 
                 if (references[0].attributes.getNamedItem("URI")?.textContent
                         != "#" + it.parentNode.attributes.getNamedItem("ID")?.textContent)
-                    throw SAMLComplianceException.create("SAMLCore.5.4.2_b")
+                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b)
             }
         }
     }
@@ -76,7 +77,7 @@ class CoreVerifier(val node: Node) {
             if (encryptedData.isNotEmpty() &&
                     encryptedData[0].attributes.getNamedItem("EncryptedData").textContent
                     != ELEMENT)
-                throw SAMLComplianceException.create("SAMLCore.6.1_b")
+                throw SAMLComplianceException.create(SAMLCore_6_1_b)
         }
     }
 }

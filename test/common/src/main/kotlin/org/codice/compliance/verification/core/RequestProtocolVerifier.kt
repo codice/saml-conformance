@@ -14,6 +14,7 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
@@ -42,17 +43,17 @@ class RequestProtocolVerifier(val request: Node) {
     fun verifyRequestAbstractType() {
         if (request.attributes.getNamedItem("ID") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.1", "ID", "Request")
-        verifyIdValues(request.attributes.getNamedItem("ID"), "SAMLCore.3.2.1_a")
+        verifyIdValues(request.attributes.getNamedItem("ID"), SAMLCore_3_2_1_a)
 
         if (request.attributes.getNamedItem("Version") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.1", "Version", "Request")
 
         if (request.attributes.getNamedItem("Version").textContent != "2.0")
-            throw SAMLComplianceException.create("SAMLCore.3.2.1_b")
+            throw SAMLComplianceException.create(SAMLCore_3_2_1_b)
 
         if (request.attributes.getNamedItem("IssueInstant") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.1", "IssueInstant", "Request")
-        verifyTimeValues(request.attributes.getNamedItem("IssueInstant"), "SAMLCore.3.2.1_c")
+        verifyTimeValues(request.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_1_c)
     }
 
     /**
@@ -68,7 +69,7 @@ class RequestProtocolVerifier(val request: Node) {
                     && request.children("Assertion")
                             .filter { it.children("AuthnStatement").isNotEmpty() }
                             .none { it.attributes.getNamedItem("SessionIndex")?.textContent == querySessionIndex })
-                throw SAMLComplianceException.create("SAMLCore.3.3.2.2_a")
+                throw SAMLComplianceException.create(SAMLCore_3_3_2_2_a)
 
             //RequestedAuthnContext
             it.children("RequestedAuthnContext").forEach { verifyRequestedAuthnContext(it) }
@@ -81,7 +82,7 @@ class RequestProtocolVerifier(val request: Node) {
                             .filter { it.children("AuthnContext").isNotEmpty() }
                             .filter { verifyRequestedAuthnContext(it) }
                             .count() < 1)
-                throw SAMLComplianceException.create("SAMLCore.3.3.2.2_b")
+                throw SAMLComplianceException.create(SAMLCore_3_3_2_2_b)
         }
     }
 
@@ -115,7 +116,7 @@ class RequestProtocolVerifier(val request: Node) {
             if (name != null && nameFormat != null) {
                 if (uniqueAttributeQuery.containsKey(name.textContent)
                         && uniqueAttributeQuery[name.textContent] == nameFormat.textContent)
-                    throw SAMLComplianceException.create("SAMLCore.3.3.2.3_a")
+                    throw SAMLComplianceException.create(SAMLCore_3_3_2_3_a)
                 else uniqueAttributeQuery.put(name.textContent, nameFormat.textContent)
             }
         }

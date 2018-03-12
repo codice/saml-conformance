@@ -14,6 +14,7 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
@@ -41,7 +42,7 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
         response.children("Assertion")
                 .forEach {
                     if (it.children("AuthnStatement").isEmpty())
-                        throw SAMLComplianceException.create("SAMLCore.3.4_a")
+                        throw SAMLComplianceException.create(SAMLCore_3_4_a)
                 }
     }
 
@@ -54,25 +55,25 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
     private fun verifyStatusResponseType() {
         if (response.attributes.getNamedItem("ID") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.2", "ID", "Response")
-        verifyIdValues(response.attributes.getNamedItem("ID"), "SAMLCore.3.2.2_a")
+        verifyIdValues(response.attributes.getNamedItem("ID"), SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
         if (response.attributes.getNamedItem("InResponseTo")?.textContent != id)
-            throw SAMLComplianceException.create("SAMLCore.3.2.2_b")
+            throw SAMLComplianceException.create(SAMLCore_3_2_2_b)
 
         if (response.attributes.getNamedItem("Version") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.2", "Version", "Response")
 
         if (response.attributes.getNamedItem("Version").textContent != "2.0")
-            throw SAMLComplianceException.create("SAMLCore.3.2.2_c")
+            throw SAMLComplianceException.create(SAMLCore_3_2_2_c)
 
         if (response.attributes.getNamedItem("IssueInstant") == null)
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.2", "IssueInstant", "Response")
-        verifyTimeValues(response.attributes.getNamedItem("IssueInstant"), "SAMLCore.3.2.2_d")
+        verifyTimeValues(response.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_2_d)
 
         if (response.attributes.getNamedItem("Destination")?.textContent != null
                 && response.attributes.getNamedItem("Destination")?.textContent != ACS_URL)
-            throw SAMLComplianceException.create("SAMLCore.3.2.2_d")
+            throw SAMLComplianceException.create(SAMLCore_3_2_2_d)
 
         if (response.children("Status").isEmpty())
             throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.2", "Status", "Response")
@@ -95,7 +96,7 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.2.2", "Value", "StatusCode")
 
             if (!TOP_LEVEL_STATUS_CODES.contains(statusCodes[0].attributes.getNamedItem("Value").textContent))
-                throw SAMLComplianceException.create("SAMLCore.3.2.2.2_a", "SAMLCore.3.2.2.2_b")
+                throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a, SAMLCore_3_2_2_2_b)
         }
     }
 

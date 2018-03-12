@@ -29,35 +29,6 @@ val SUPPORTED_BINDINGS = mutableSetOf(
         SamlProtocol.Binding.HTTP_REDIRECT
 )
 
-class SAMLComplianceException private constructor(message: String) : Exception(message) {
-    companion object {
-        private val BUNDLE = ResourceBundle.getBundle("ExceptionCodes")!!
-
-        fun create(vararg codes: String): SAMLComplianceException {
-            val msg = codes.map(Companion::readCode)
-                    .fold("Errors:\n") { acc, s ->
-                        "$acc\n$s"
-                    }
-            return SAMLComplianceException(msg)
-        }
-
-        fun createWithReqMessage(section: String, attribute: String, parent: String): SAMLComplianceException {
-            return SAMLComplianceException("$section: $attribute is required in $parent.")
-        }
-
-        private fun readCode(code: String): String {
-            return "${trimUnderscore(code)}: ${BUNDLE.getString(code)}"
-        }
-
-        private fun trimUnderscore(codeValue: String): String {
-            val underscoreIndex = codeValue.indexOf("_")
-
-            return if (underscoreIndex == -1) codeValue
-            else codeValue.substring(0, underscoreIndex)
-        }
-    }
-}
-
 class Common {
     companion object {
         private val IDP_METADATA = File(System.getProperty(org.codice.compliance.IDP_METADATA_PROPERTY)).readText()

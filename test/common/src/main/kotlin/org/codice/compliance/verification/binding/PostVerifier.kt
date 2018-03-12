@@ -16,6 +16,7 @@ package org.codice.compliance.verification.binding
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.w3c.dom.Node
@@ -38,7 +39,7 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
     fun verifySsoPost(response: Node) {
         if (response.children(SIGNATURE).isEmpty()
                 || response.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
-            throw SAMLComplianceException.create("SAMLProfiles.4.1.4.5_a")
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5_a)
     }
 
     /**
@@ -48,15 +49,15 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
     fun verifyPostRelayState(relayState: String?, givenRelayState: Boolean) {
         if (relayState == null) {
             if (givenRelayState) {
-                throw SAMLComplianceException.create("GeneralRelayState_a", "SAMLBindings.3.4.3_b1")
+                throw SAMLComplianceException.create(GeneralRelayState_a, SAMLBindings_3_4_3_b1)
             }
             return
         }
         if (relayState.toByteArray().size > 80)
-            throw SAMLComplianceException.create("SAMLBindings.3.5.3_a1")
+            throw SAMLComplianceException.create(SAMLBindings_3_5_3_a1)
 
         if (givenRelayState) {
-            if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.5.3_b1")
+            if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.create(GeneralRelayState_b, SAMLBindings_3_5_3_b1)
         }
     }
 }

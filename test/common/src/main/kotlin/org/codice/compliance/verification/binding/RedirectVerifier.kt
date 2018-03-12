@@ -14,7 +14,9 @@
 package org.codice.compliance.verification.binding
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
-import org.codice.compliance.*
+import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -45,7 +47,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      */
     fun verifyRequestParam(SAMLResponse: String?) {
         if (SAMLResponse == null) {
-            throw SAMLComplianceException.create("SAMLBindings.3.4.4.1.b2")
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b2)
         }
     }
 
@@ -55,7 +57,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      */
     fun verifyNoXMLSig(node: Node) {
         if (node.children("Signature").isNotEmpty()) {
-            throw SAMLComplianceException.create("SAMLBindings.3.4.4.1")
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1)
         }
     }
 
@@ -73,16 +75,16 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
                             signature,
                             sigAlg,
                             idpMetadata.signingCertificate)) {
-                throw SAMLComplianceException.create("GeneralSignature_b", "SAMLBindings.3.4.4.1_e")
+                throw SAMLComplianceException.create(GeneralSignature_b, SAMLBindings_3_4_4_1_e)
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
-                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create("GeneralCertificate_a", "SAMLBindings.3.1.2.1_a")
-                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d1")
-                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_f2")
-                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_d2")
-                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_f1")
-                else -> throw SAMLComplianceException.create("GeneralSignature_a", "SAMLBindings.3.4.4.1_e")
+                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(GeneralCertificate_a, SAMLBindings_3_1_2_1_a)
+                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1)
+                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2)
+                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2)
+                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1)
+                else -> throw SAMLComplianceException.create(GeneralSignature_a, SAMLBindings_3_4_4_1_e)
             }
         }
     }
@@ -96,7 +98,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
 
         if (encodedRelayState == null) {
             if (givenRelayState) {
-                throw SAMLComplianceException.create("GeneralRelayState_a", "SAMLBindings.3.4.3_b1")
+                throw SAMLComplianceException.create(GeneralRelayState_a, SAMLBindings_3_4_3_b1)
             }
             return
         }
@@ -105,19 +107,19 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
         try {
             decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
         } catch (e: UnsupportedEncodingException) {
-            throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1)
         }
 
         if (decodedRelayState.toByteArray().size > 80) {
-            throw SAMLComplianceException.create("SAMLBindings.3.4.3_a")
+            throw SAMLComplianceException.create(SAMLBindings_3_4_3_a)
         }
 
         if (givenRelayState) {
             if (decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
-                    throw SAMLComplianceException.create("SAMLBindings.3.4.4.1_c1")
+                    throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1)
                 }
-                throw SAMLComplianceException.create("GeneralRelayState_b", "SAMLBindings.3.4.3_b1")
+                throw SAMLComplianceException.create(GeneralRelayState_b, SAMLBindings_3_4_3_b1)
             }
         }
     }
@@ -128,7 +130,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      */
     fun verifyRedirectDestination(responseDomElement: Node) {
         if (responseDomElement.attributes.getNamedItem("Destination")?.nodeValue != ACS_URL) {
-            throw SAMLComplianceException.create("SAMLBindings.3.4.5.2_a_1")
+            throw SAMLComplianceException.create(SAMLBindings_3_4_5_2_a_1)
         }
     }
 }

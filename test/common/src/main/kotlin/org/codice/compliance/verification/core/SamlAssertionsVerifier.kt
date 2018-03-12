@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLComplianceExceptionMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
@@ -51,7 +52,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.create("SAMLCore.2.2.4")
+                throw SAMLComplianceException.create(SAMLCore_2_2_4_a)
             // todo - For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType,
             // or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
         }
@@ -68,29 +69,29 @@ class SamlAssertionsVerifier(val node: Node) {
             if (it.attributes.getNamedItem("Version")?.textContent == null)
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
             if (it.attributes.getNamedItem("Version").textContent != "2.0")
-                throw SAMLComplianceException.create("SAMLCore.2.3.3_a")
+                throw SAMLComplianceException.create(SAMLCore_2_3_3_a)
 
             if (it.attributes.getNamedItem("ID") == null)
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
-            verifyIdValues(it.attributes.getNamedItem("ID"), "SAMLCore.2.3.3_b")
+            verifyIdValues(it.attributes.getNamedItem("ID"), SAMLCore_2_3_3_b)
 
             if (it.attributes.getNamedItem("IssueInstant") == null)
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "IssueInstant", "Assertion")
-            verifyTimeValues(it.attributes.getNamedItem("IssueInstant"), "SAMLCore.2.3.3_c")
+            verifyTimeValues(it.attributes.getNamedItem("IssueInstant"), SAMLCore_2_3_3_c)
 
             if (it.children("Issuer").isEmpty())
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
             val statements = it.children("Statement")
             if (statements.any { it.attributes.getNamedItemNS(XSI, "type") == null })
-                throw SAMLComplianceException.create("SAMLCore.2.2.3_a")
+                throw SAMLComplianceException.create(SAMLCore_2_2_3_a)
 
             if (statements.isEmpty()
                     && it.children("AuthnStatement").isEmpty()
                     && it.children("AuthzDecisionStatement").isEmpty()
                     && it.children("AttributeStatement").isEmpty()
                     && it.children("Subject").isEmpty())
-                throw SAMLComplianceException.create("SAMLCore.2.2.3_b")
+                throw SAMLComplianceException.create(SAMLCore_2_2_3_b)
         }
     }
 
@@ -108,7 +109,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.create("SAMLCore.2.3.4")
+                throw SAMLComplianceException.create(SAMLCore_2_3_4_a)
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }
     }
@@ -137,7 +138,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (notBefore != null
                     && notOnOrAfter != null
                     && Instant.parse(notBefore.textContent).isAfter(Instant.parse(notOnOrAfter.textContent)))
-                throw SAMLComplianceException.create("SAMLCore.2.4.1.2_a")
+                throw SAMLComplianceException.create(SAMLCore_2_4_1_2_a)
 
             // KeyInfoConfirmationDataType
             // todo - verify correctness
@@ -145,7 +146,7 @@ class SamlAssertionsVerifier(val node: Node) {
                             ?.getNamedItemNS(XSI, "type")
                             ?.textContent?.contains("KeyInfoConfirmationDataType") == true
                     && it.children("KeyInfo").any { it.childNodes.length > 1 })
-                throw SAMLComplianceException.create("SAMLCore.2.4.1.3_a")
+                throw SAMLComplianceException.create(SAMLCore_2_4_1_3_a)
         }
     }
 
@@ -161,15 +162,15 @@ class SamlAssertionsVerifier(val node: Node) {
         node.allChildren("Conditions").forEach {
             if (it.children("Condition")
                             .any { it.attributes.getNamedItemNS(XSI, "type") == null })
-                throw SAMLComplianceException.create("SAMLCore.2.5.1_a")
+                throw SAMLComplianceException.create(SAMLCore_2_5_1_a)
 
             if (it.children("OneTimeUse").size > 1)
-                throw SAMLComplianceException.create("SAMLCore.2.5.1_b", "SAMLCore.2.5.1.5_a")
+                throw SAMLComplianceException.create(SAMLCore_2_5_1_b, SAMLCore_2_5_1_5_a)
 
             val proxyRestrictions = it.children("ProxyRestriction")
             if (proxyRestrictions.isNotEmpty()) {
                 if (proxyRestrictions.size > 1)
-                    throw SAMLComplianceException.create("SAMLCore.2.5.1_c, SAMLCore.2.5.1.6_b")
+                    throw SAMLComplianceException.create(SAMLCore_2_5_1_c, SAMLCore_2_5_1_6_b)
                 val audiences = mutableListOf<String>()
                 proxyRestrictions.forEach {
                     it.children("Audience").forEach {
@@ -180,10 +181,10 @@ class SamlAssertionsVerifier(val node: Node) {
                 // todo - verify this section
                 node.allChildren("AudienceRestriction").forEach {
                     if (it.childNodes.length == 0)
-                        throw SAMLComplianceException.create("SAMLCore.2.5.1.6_a")
+                        throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a)
                     it.children("Audience").forEach {
                         if (!audiences.contains(it.textContent))
-                            throw SAMLComplianceException.create("SAMLCore.2.5.1.6_a")
+                            throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a)
                     }
                 }
             }
@@ -193,7 +194,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (notBefore != null
                     && notOnOrAfter != null
                     && Instant.parse(notBefore.textContent).isAfter(Instant.parse(notOnOrAfter.textContent)))
-                throw SAMLComplianceException.create("SAMLCore.2.5.1.2")
+                throw SAMLComplianceException.create(SAMLCore_2_5_1_2)
         }
     }
 
@@ -205,7 +206,7 @@ class SamlAssertionsVerifier(val node: Node) {
         if (node.allChildren("Assertion")
                         .filter { it.children("AuthnStatement").isNotEmpty() }
                         .any { it.children("Subject").isEmpty() })
-            throw SAMLComplianceException.create("SAMLCore.2.7.2_a")
+            throw SAMLComplianceException.create(SAMLCore_2_7_2_a)
 
         node.allChildren("AuthnStatement").forEach {
             if (it.attributes.getNamedItem("AuthnInstant") == null)
@@ -227,7 +228,7 @@ class SamlAssertionsVerifier(val node: Node) {
         if (node.allChildren("Assertion")
                         .filter { it.children("AttributeStatement").isNotEmpty() }
                         .any { it.children("Subject").isEmpty() })
-            throw SAMLComplianceException.create("SAMLCore.2.7.3_a")
+            throw SAMLComplianceException.create(SAMLCore_2_7_3_a)
 
         node.allChildren("AttributeStatement").forEach {
             if (it.children("Attribute").isEmpty() && it.children("EncryptedAttribute").isEmpty())
@@ -239,7 +240,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (it.attributes.getNamedItem("Name") == null)
                 throw SAMLComplianceException.createWithReqMessage("SAMLCore.2.7.3.1", "Name", "Attribute")
             if (it.childNodes.length < 1)
-                throw SAMLComplianceException.create("SAMLCore.2.7.3.1_a")
+                throw SAMLComplianceException.create(SAMLCore_2_7_3_1_a)
 
 
             val nameAttribute = it.attributes.getNamedItem("Name")
@@ -250,8 +251,8 @@ class SamlAssertionsVerifier(val node: Node) {
                             || friendlyNameAttribute?.textContent?.trim() == "")
                     && it.children("AttributeValue").any { StringUtils.isNotBlank(it.textContent) }) {
 
-                if (it.parentNode.localName == "AttributeStatement") throw SAMLComplianceException.create("SAMLCore.2.7.3.1_b", "SAMLCore.2.7.3.1.1_a")
-                else throw SAMLComplianceException.create("SAMLCore.2.7.3.1.1_a")
+                if (it.parentNode.localName == "AttributeStatement") throw SAMLComplianceException.create(SAMLCore_2_7_3_1_b, SAMLCore_2_7_3_1_1_a)
+                else throw SAMLComplianceException.create(SAMLCore_2_7_3_1_1_a)
             }
 
             if ((nameAttribute != null && nameAttribute.textContent == null)
@@ -261,7 +262,7 @@ class SamlAssertionsVerifier(val node: Node) {
                 it.children("AttributeValue").forEach {
                     val nilAttribute = it.attributes.getNamedItemNS(XSI, "nil")?.textContent
                     if (StringUtils.isNotBlank(it.textContent) || (nilAttribute != "true" && nilAttribute != "1"))
-                        throw SAMLComplianceException.create("SAMLCore.2.7.3.1.1_b")
+                        throw SAMLComplianceException.create(SAMLCore_2_7_3_1_1_b)
                 }
             }
         }
@@ -275,7 +276,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.create("SAMLCore.2.7.3.2_a")
+                throw SAMLComplianceException.create(SAMLCore_2_7_3_2_a)
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }
     }
@@ -290,7 +291,7 @@ class SamlAssertionsVerifier(val node: Node) {
         node.allChildren("Assertion").forEach {
             if (it.children("AuthzDecisionStatement").isNotEmpty()
                     && it.children("Subject").isEmpty())
-                throw SAMLComplianceException.create("SAMLCore.2.7.4_a")
+                throw SAMLComplianceException.create(SAMLCore_2_7_4_a)
         }
 
         node.allChildren("AuthzDecisionStatement").forEach {
