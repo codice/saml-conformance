@@ -15,6 +15,8 @@ pipeline {
         cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
     }
     environment {
+        LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
+        LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
         PATH="${tool 'docker-latest'}/bin:$PATH"
         LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
