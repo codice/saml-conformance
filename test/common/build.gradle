@@ -1,0 +1,8 @@
+group = 'org.codice.samlconf.test'
+description = 'Common Functions for IdP and SP Tests.'
+
+dependencies {
+    compile 'io.kotlintest:kotlintest:2.0.7'
+    compile project(':library')
+    compile project(':plugins:plugins-api')
+}

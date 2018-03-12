@@ -1,0 +1,29 @@
+plugins {
+    id 'com.palantir.docker' version '0.19.2'
+}
+
+description = 'Dockerized SAML CKT.'
+
+dependencies {
+    docker 'foogroup:barmodule:0.1.2'
+    docker project(":distribution:command-line")
+    docker project(":distribution:suites")
+}
+
+task copyDistribuion(type: Copy) {
+    from project(":distribution:command-line").file("build/distributions/samlconf-${project_version}.tar")
+    into 'build'
+    rename { String fileName ->
+        fileName.replace("-${project_version}", '')
+    }
+}
+
+docker {
+    name 'hub.docker.com/r/codice/samlconf'
+    tags 'latest'
+    dockerfile file('Dockerfile')
+    pull true
+    noCache true
+}
+
+docker.dependsOn copyDistribuion

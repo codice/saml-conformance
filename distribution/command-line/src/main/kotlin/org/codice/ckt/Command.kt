@@ -2,7 +2,7 @@ package org.codice.ckt
 
 import us.jimschubert.kopper.Parser
 
-const val distroDir = "/distribution/command-line/target/command-line-1.0-SNAPSHOT-bin"
+val samlDist = "${System.getProperty("user.dir")}/.."
 
 fun main(args: Array<String>) {
     val parser = Parser()
@@ -20,13 +20,17 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val idpMetadata = arguments.option("i")
-            ?: "${System.getProperty("user.dir")}$distroDir/conf/idp-metadata.xml"
+            ?: "$samlDist/conf/idp-metadata.xml"
     val pluginDir = arguments.option("p")
-            ?: "${System.getProperty("user.dir")}$distroDir/plugins"
+            ?: "$samlDist/plugins"
 
     System.setProperty("idp.metadata", idpMetadata)
-    System.setProperty("sp.metadata", "${System.getProperty("user.dir")}$distroDir/conf/test-sp-metadata.xml")
+    System.setProperty("test.sp.metadata", "$samlDist/conf/test-sp-metadata.xml")
     System.setProperty("saml.plugin.deployDir", pluginDir)
+
+    System.out.println("idp.metadata = $idpMetadata")
+    System.out.println("test.sp.metadata = $samlDist/conf/test-sp-metadata.xml")
+    System.out.println("saml.plugin.deployDir = $pluginDir")
 
     org.junit.runner.JUnitCore.main("org.codice.compliance.tests.suites.BasicTestsSuite")
 }

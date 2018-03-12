@@ -1,0 +1,48 @@
+apply plugin: 'application'
+
+description = "Script and CLI to run the tests."
+
+group = 'org.codice.samlconf.distribution'
+
+applicationName = 'samlconf'
+
+mainClassName = 'org.codice.ckt.CommandKt'
+
+dependencies {
+    compile project(':library')
+    compile project(':plugins:plugins-api')
+    compile project(':plugins:ddf-plugins')
+    compile project(':test:common')
+    compile project(':test:idp')
+    compile project(':test:sp')
+    compile project(':distribution:suites')
+
+    compile "us.jimschubert:kopper-typed:0.0.3"
+}
+
+// Add conf and plugins in distro
+task copyTarget(type: Copy) {
+    from project(":plugins:ddf-plugins").file("build/libs/ddf-plugins-${project_version}.jar")
+    into 'build/tmp'
+}
+
+applicationDistribution.from('src/main/resources/') {
+    into 'conf'
+}
+
+applicationDistribution.from("build/tmp/ddf-plugins-${project_version}.jar") {
+    into 'plugins'
+}
+
+// Will be deleted temporarily adding our old script to the distro for testing purposes
+applicationDistribution.from("src/main/bash") {
+    into 'bin'
+}
+
+build.finalizedBy copyTarget
+
+// Unzip distro must be called specifically (gradle build unzip)
+task unzip(type: Copy) {
+    from zipTree(file("build/distributions/samlconf-${project_version}.zip"))
+    into file("build/distributions/")
+}

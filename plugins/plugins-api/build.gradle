@@ -1,0 +1,7 @@
+group = 'org.codice.samlconf.plugins'
+description = 'API for Plugins users need to implement.'
+
+dependencies {
+    compile project(':library')
+    compile "com.jayway.restassured:rest-assured:$rest_assured_version"
+}
