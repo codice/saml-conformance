@@ -25,27 +25,10 @@ pipeline {
             }
         }
         stage('Full Build') {
-            parallel {
-                stage ('Linux') {
-                    steps {
-                        timeout(time: 3, unit: 'HOURS') {
-                            withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                                sh 'mvn clean install -P docker'
-                            }
-                        }
-                    }
-                }
-                stage ('Windows') {
-                    agent { label 'server-2016-large'}
-                    steps {
-                        retry(3) {
-                            checkout scm
-                        }
-                        timeout(time: 3, unit: 'HOURS') {
-                            withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}') {
-                                bat 'mvn clean install -P docker'
-                            }
-                        }
+            steps {
+                timeout(time: 3, unit: 'HOURS') {
+                    withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
+                        sh 'mvn clean install -P docker'
                     }
                 }
             }
