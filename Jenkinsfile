@@ -1,7 +1,7 @@
 //"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
 //More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
 pipeline {
-    agent { label 'linux-large' }
+    agent { label 'linux-docker-small' }
     options {
         buildDiscarder(logRotator(numToKeepStr:'25'))
         disableConcurrentBuilds()
@@ -15,9 +15,6 @@ pipeline {
         cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
     }
     environment {
-        LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
-        LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
-        PATH="${tool 'docker-latest'}/bin:$PATH"
         LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
     }
