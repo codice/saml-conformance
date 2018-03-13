@@ -17,6 +17,7 @@ pipeline {
     environment {
         LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
+        PATH="${tool 'docker-latest'}/bin:$PATH"
     }
     stages {
         stage('Setup') {
