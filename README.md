@@ -36,7 +36,7 @@ for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for
   * Copy `test-idp-metadata.xml` under `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources` into your SP.
    
 ### Plugins
-**TODO** describe how to implement plugins
+**TODO** *describe how to implement plugins*
 
 **TODO** *This requires the user to rebuild and is not an optimal configuration
 solution. A solution that works with a pre-built artifact should be found.*
@@ -68,8 +68,8 @@ error, go into docker settings &rarr; general &rarr; enable `Expose daemon to tc
 Edit the run configuration of your tests to include the vm variables:
 
 * `-Dsaml.plugin.deployDir=<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/plugins`
-* `-Didp.metadata=<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/conf/idp-metadata.xml`
-* todo `-Didp.metadata=<PATH_TO_PROJECT>/distribution/command-line/target/command-line-<VERSION>-bin/conf/sp-metadata.xml`
+* `-Didp.metadata=<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/idp-metadata.xml`
+* todo `-Didp.metadata=<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/sp-metadata.xml`
 
 ## Steps to Test DDF's IDP
 * Boot up DDF
