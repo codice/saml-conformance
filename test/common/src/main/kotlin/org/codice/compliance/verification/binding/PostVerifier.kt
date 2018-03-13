@@ -39,7 +39,7 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
     fun verifySsoPost(response: Node) {
         if (response.children(SIGNATURE).isEmpty()
                 || response.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5_a)
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5)
     }
 
     /**
@@ -49,15 +49,15 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
     fun verifyPostRelayState(relayState: String?, givenRelayState: Boolean) {
         if (relayState == null) {
             if (givenRelayState) {
-                throw SAMLComplianceException.create(GeneralRelayState_a, SAMLBindings_3_4_3_b1)
+                throw SAMLComplianceException.create(SAMLBindings_3_4_3_b1, message = "RelayState not found")
             }
             return
         }
         if (relayState.toByteArray().size > 80)
-            throw SAMLComplianceException.create(SAMLBindings_3_5_3_a1)
+            throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_5_3_a, "RelayState",relayState)
 
         if (givenRelayState) {
-            if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.create(GeneralRelayState_b, SAMLBindings_3_5_3_b1)
+            if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_5_3_b, "RelayState", relayState, EXAMPLE_RELAY_STATE)
         }
     }
 }

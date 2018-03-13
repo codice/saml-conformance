@@ -83,10 +83,10 @@ class RedirectResponseVerifier(response: String, givenRelayState: Boolean = fals
                 Decoder.decodeAndInflateRedirectMessage(samlResponse)
             } catch (e: InflationException) {
                 when (e.inflErrorCode) {
-                    InflErrorCode.ERROR_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1)
-                    InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1)
-                    InflErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1)
+                    InflErrorCode.ERROR_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1, message = "Could not decode the SAML response.", cause = e)
+                    InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1, message = "Could not inflate the SAML response.", cause = e)
+                    InflErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2, message = "There were linefeeds or whitespace in the SAML response.", cause = e)
+                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, SAMLBindings_3_4_4_1, cause = e)
                 }
             }
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
@@ -126,8 +126,8 @@ class PostResponseVerifier(response: String, givenRelayState: Boolean = false) :
         val decodedMessage: String
         try {
             decodedMessage = Decoder.decodePostMessage(samlResponse)
-        } catch (e: IOException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a)
+        } catch (exception: IOException) {
+            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a, cause = exception)
         }
 
         decodedMessage shouldNotBe null

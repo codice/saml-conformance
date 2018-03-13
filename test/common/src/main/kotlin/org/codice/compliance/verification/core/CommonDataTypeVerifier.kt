@@ -59,8 +59,8 @@ fun verifyCommonDataType(samlDom: Node) {
  */
 fun verifyStringValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
     if (StringUtils.isBlank(node.textContent)) {
-        if (errorCode != null) throw SAMLComplianceException.create(SAMLCore_1_3_4_b, errorCode)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_4_b)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_4)
     }
 }
 
@@ -73,8 +73,8 @@ fun verifyUriValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
     // todo - make sure uri absolute check is correct
     if (StringUtils.isBlank(node.textContent)
             && !URI.create(node.textContent).isAbsolute) {
-        if (errorCode != null) throw SAMLComplianceException.create(SAMLCore_1_3_4_b, errorCode)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_4_b)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_4)
     }
 }
 
@@ -85,8 +85,8 @@ fun verifyUriValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
  */
 fun verifyIdValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
     if (ids.contains(node.textContent)) {
-        if (errorCode != null) throw SAMLComplianceException.create(SAMLCore_1_3_4_b, errorCode)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_4_b)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_4)
     } else ids.add(node.textContent)
 }
 
@@ -110,8 +110,8 @@ private fun splitByYear(dateTime: String, errorCode: SAMLComplianceExceptionMess
     var hyphenIndex = dateTime.indexOf('-')
 
     if (hyphenIndex == -1) {
-        if (errorCode != null) throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7, SAMLCore_1_3_3_a, errorCode)
-        else throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7, SAMLCore_1_3_3_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
     }
 
     // if year is negative, find the next '-'
@@ -119,8 +119,8 @@ private fun splitByYear(dateTime: String, errorCode: SAMLComplianceExceptionMess
         hyphenIndex = dateTime.indexOf('-', hyphenIndex)
 
     if (hyphenIndex == -1) {
-        if (errorCode != null) throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7, SAMLCore_1_3_3_a, errorCode)
-        else throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7, SAMLCore_1_3_3_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
     }
     return SplitString(dateTime.substring(0, hyphenIndex), dateTime.substring(hyphenIndex + 1))
 }
@@ -131,20 +131,20 @@ private fun verifyYear(year: String, errorCode: SAMLComplianceExceptionMessage?)
 
     // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permited"
     if (!strippedYear.matches(Regex("\\d+"))) {
-        if (errorCode != null) throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7_1_a3, SAMLCore_1_3_3_a, errorCode)
-        else throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7_1_a3, SAMLCore_1_3_3_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c)
     }
 
     // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are prohibited"
     if (strippedYear.length > 4 && strippedYear.startsWith('0')) {
-        if (errorCode != null) throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7_1_a1, SAMLCore_1_3_3_a, errorCode)
-        else throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7_1_a1, SAMLCore_1_3_3_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_a)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_a)
     }
 
     // https://www.w3.org/TR/xmlschema-2/#dateTime "'0000' is prohibited"
     if (strippedYear == "0000") {
-        if (errorCode != null) throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7_1_a2, SAMLCore_1_3_3_a, errorCode)
-        else throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7_1_a2, SAMLCore_1_3_3_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_b)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_b)
     }
 }
 
@@ -157,7 +157,7 @@ private fun verifyRestOfDateTime(restOfDateTime: String, errorCode: SAMLComplian
     try {
         format.parse(restOfDateTime)
     } catch (e: DateTimeParseException) {
-        if (errorCode != null) throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7, SAMLCore_1_3_3_a, errorCode)
-        else throw SAMLComplianceException.create(XMLDatatypesSchema_3_2_7, SAMLCore_1_3_3_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, cause = e)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, cause = e)
     }
 }

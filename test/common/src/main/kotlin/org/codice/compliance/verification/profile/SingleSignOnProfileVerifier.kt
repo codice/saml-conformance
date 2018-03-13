@@ -30,10 +30,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
      * 4.1.4.2 <Response> Usage
      */
     fun verify() {
-        if (response.localName == "Response" &&
-                (response.children(SIGNATURE).isNotEmpty() ||
-                        response.children("Assertion").any { it.children(SIGNATURE).isNotEmpty() }))
-            verifyIssuer()
+        verifyIssuer()
         verifySsoAssertions()
     }
 
@@ -44,18 +41,22 @@ class SingleSignOnProfileVerifier(val response: Node) {
      * @param node - Node containing the issuer to verify.
      */
     fun verifyIssuer() {
-        val issuers = response.children("Issuer")
+        if (response.localName == "Response" &&
+                (response.children(SIGNATURE).isNotEmpty() ||
+                        response.children("Assertion").any { it.children(SIGNATURE).isNotEmpty() })) {
+            val issuers = response.children("Issuer")
 
-        if (issuers.size != 1)
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a)
+            if (issuers.size != 1)
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a)
 
-        val issuer = issuers[0]
-        if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b)
+            val issuer = issuers[0]
+            if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b)
 
-        if (issuer.attributes.getNamedItem("Format") != null
-                && issuer.attributes.getNamedItem("Format").textContent != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_c)
+            val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
+            if (issuerFormat != null && issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_c, "Format", issuerFormat, "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+        }
     }
 
     /**
@@ -63,46 +64,39 @@ class SingleSignOnProfileVerifier(val response: Node) {
      * 4.1.4.2 <Response> Usage
      */
     fun verifySsoAssertions() {
-        if (response.children("Assertion").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d)
+        val assertions = response.children("Assertion")
+        if (assertions.isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d)
 
-        response.children("Assertion").forEach {
+        assertions.forEach {
             verifyIssuer()
 
-            if (it.children("Subject").size != 1) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g)
+            if (it.children("Subject").size != 1) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f)
 
             val bearerSubjectConfirmations = mutableListOf<Node>()
             it.children("Subject")[0].children("SubjectConfirmation")
                     .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                     .toCollection(bearerSubjectConfirmations)
             if (bearerSubjectConfirmations.isEmpty())
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h)
-
-            // Check if NotBefore is an attribute (it shouldn't)
-            val dataWithNotBefore = bearerSubjectConfirmations
-                    .filter { it.children("SubjectConfirmationData").isNotEmpty() }
-                    .flatMap { it.children("SubjectConfirmationData") }
-                    .filter { it.attributes.getNamedItem("NotBefore") != null }
-                    .count()
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g)
 
             // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and NotOnOrAfter
-            val bearerSubjectConfirmationsData = mutableListOf<Node>()
-            bearerSubjectConfirmations
-                    .filter { it.children("SubjectConfirmationData").isNotEmpty() }
-                    .flatMap { it.children("SubjectConfirmationData") }
-                    .filter { it.attributes.getNamedItem("Recipient").textContent == ACS_URL }
-                    .filter { it.attributes.getNamedItem("InResponseTo").textContent == ID }
-                    .filter { it.attributes.getNamedItem("NotOnOrAfter") != null }
-                    .toCollection(bearerSubjectConfirmationsData)
+            if (bearerSubjectConfirmations
+                            .filter { it.children("SubjectConfirmationData").isNotEmpty() }
+                            .flatMap { it.children("SubjectConfirmationData") }
+                            .none {
+                                it.attributes.getNamedItem("Recipient").textContent == ACS_URL &&
+                                        it.attributes.getNamedItem("InResponseTo").textContent == ID &&
+                                        it.attributes.getNamedItem("NotOnOrAfter") != null &&
+                                        it.attributes.getNamedItem("NotBefore") == null
+                            })
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h, message = "There were no bearer SubjectConfirmation elements that matched the criteria below.")
 
-            if (dataWithNotBefore > 0 && bearerSubjectConfirmationsData.isEmpty())
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h)
-
-            if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j)
+            if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i, message = "A bearer Assertion was found without an AuthnStatement.")
 
             if (idpMetadata.descriptor != null) {
                 if (idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty())
                     it.children("AuthnStatement").forEach {
-                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k)
+                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j)
                     }
             }
 
@@ -112,10 +106,12 @@ class SingleSignOnProfileVerifier(val response: Node) {
                         .firstOrNull()
                         ?.children("AudienceRestriction")
                         ?.firstOrNull()
-                        ?: throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_l)
+                        ?.children("Audience")
+                        ?.firstOrNull()
+                        ?.textContent
 
-                if (audienceRestriction.children("Audience").firstOrNull()?.textContent != SP_ISSUER)
-                    throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_l)
+                if (audienceRestriction != SP_ISSUER)
+                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_k, "AudienceRestriction", audienceRestriction, SP_ISSUER)
             }
         }
     }

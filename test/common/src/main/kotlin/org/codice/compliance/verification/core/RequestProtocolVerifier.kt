@@ -42,17 +42,17 @@ class RequestProtocolVerifier(val request: Node) {
      */
     fun verifyRequestAbstractType() {
         if (request.attributes.getNamedItem("ID") == null)
-            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.1", "ID", "Request")
+            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.1", "ID", "Request")
         verifyIdValues(request.attributes.getNamedItem("ID"), SAMLCore_3_2_1_a)
 
         if (request.attributes.getNamedItem("Version") == null)
-            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.1", "Version", "Request")
+            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.1", "Version", "Request")
 
         if (request.attributes.getNamedItem("Version").textContent != "2.0")
-            throw SAMLComplianceException.create(SAMLCore_3_2_1_b)
+            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_3_2_1_b, "Version", request.attributes.getNamedItem("Version").textContent, "2.0")
 
         if (request.attributes.getNamedItem("IssueInstant") == null)
-            throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.2.1", "IssueInstant", "Request")
+            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.1", "IssueInstant", "Request")
         verifyTimeValues(request.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_1_c)
     }
 
@@ -65,16 +65,18 @@ class RequestProtocolVerifier(val request: Node) {
         // AuthnQuery
         request.allChildren("AuthnQuery").forEach {
             val querySessionIndex = it.attributes.getNamedItem("SessionIndex")?.textContent
+            // todo - verify correctness
             if (querySessionIndex != null
                     && request.children("Assertion")
-                            .filter { it.children("AuthnStatement").isNotEmpty() }
-                            .none { it.attributes.getNamedItem("SessionIndex")?.textContent == querySessionIndex })
-                throw SAMLComplianceException.create(SAMLCore_3_3_2_2_a)
+                            .map { it.children("AuthnStatement") }
+                            .filter { it.isNotEmpty() }
+                            .any { it.none { it.attributes.getNamedItem("SessionIndex")?.textContent == querySessionIndex } })
+                throw SAMLComplianceException.create(SAMLCore_3_3_2_2_a, message = "There was no AuthnStatement in the Assertion that had a SessionsIndex of $querySessionIndex.")
 
             //RequestedAuthnContext
             it.children("RequestedAuthnContext").forEach { verifyRequestedAuthnContext(it) }
 
-            // todo - verify correctness
+            // todo - verify correctness (brandan - I think this is correct but missing a last step: "<AuthnContext> element that satisfies the element in the query")
             if (it.children("RequestedAuthnContext").isNotEmpty()
                     && request.children("Assertion")
                             .filter { it.children("AuthnStatement").isNotEmpty() }
@@ -98,7 +100,7 @@ class RequestProtocolVerifier(val request: Node) {
     private fun verifyRequestedAuthnContext(requestedAuthnContext: Node): Boolean {
         if (requestedAuthnContext.children("AuthnContextClassRef").isEmpty()
                 && requestedAuthnContext.children("AuthnContextDeclRef").isEmpty())
-            throw SAMLComplianceException.createWithReqMessage("3.3.2.2.1", "AuthnContextClassRef or AuthnContextDeclRef", "RequestedAuthnContext")
+            throw SAMLComplianceException.createWithPropertyReqMessage("3.3.2.2.1", "AuthnContextClassRef or AuthnContextDeclRef", "RequestedAuthnContext")
         return true
     }
 
@@ -116,7 +118,7 @@ class RequestProtocolVerifier(val request: Node) {
             if (name != null && nameFormat != null) {
                 if (uniqueAttributeQuery.containsKey(name.textContent)
                         && uniqueAttributeQuery[name.textContent] == nameFormat.textContent)
-                    throw SAMLComplianceException.create(SAMLCore_3_3_2_3_a)
+                    throw SAMLComplianceException.create(SAMLCore_3_3_2_3, message = "There were two Attribute Queries with the same nameFormat of ${nameFormat.textContent} and name of ${name.textContent}.")
                 else uniqueAttributeQuery.put(name.textContent, nameFormat.textContent)
             }
         }
@@ -131,10 +133,10 @@ class RequestProtocolVerifier(val request: Node) {
     fun verifyAuthzDecisionQueries() {
         request.allChildren("AuthzDecisionQuery").forEach {
             if (it.attributes.getNamedItem("Resource") == null)
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.3.2.4", "Resource", "AuthzDecisionQuery")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.3.2.4", "Resource", "AuthzDecisionQuery")
 
             if (it.children("Action").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore3.3.2.4", "Action", "AuthzDecisionQuery")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore3.3.2.4", "Action", "AuthzDecisionQuery")
         }
     }
 
@@ -149,12 +151,12 @@ class RequestProtocolVerifier(val request: Node) {
         // IDPList
         request.allChildren("IDPList").forEach {
             if (it.children("IDPEntry").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.4.1.3", "IDPEntry", "IDPList")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.4.1.3", "IDPEntry", "IDPList")
 
             //IDPEntry
             it.children("IDPEntry").forEach {
                 if (it.attributes.getNamedItem("ProviderID") == null)
-                    throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.4.1.3.1", "ProviderID", "IDPEntry")
+                    throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.4.1.3.1", "ProviderID", "IDPEntry")
             }
         }
     }
@@ -169,7 +171,7 @@ class RequestProtocolVerifier(val request: Node) {
     fun verifyArtifactResolutionProtocol() {
         request.allChildren("ArtifactResolve").forEach {
             if (it.children("Artifact").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.5.1", "Artifact", "ArtifactResolve")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.5.1", "Artifact", "ArtifactResolve")
         }
     }
 
@@ -182,12 +184,12 @@ class RequestProtocolVerifier(val request: Node) {
     fun verifyManageNameIDRequest() {
         request.allChildren("ManageNameIDRequest").forEach {
             if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "ManageNameIDRequest")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID", "ManageNameIDRequest")
 
             if (it.children("NewID").isEmpty()
                     && it.children("NewEncryptedID").isEmpty()
                     && it.children("Terminate").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID or Terminate", "ManageNameIDRequest")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.6.1", "NameID or EncryptedID or Terminate", "ManageNameIDRequest")
         }
     }
 
@@ -202,10 +204,10 @@ class RequestProtocolVerifier(val request: Node) {
             if (it.children("BaseID").isEmpty()
                     && it.children("NameID").isEmpty()
                     && it.children("EncryptedID").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.8.1", "BaseID or NameID or EncryptedID", "NameIDMappingRequest")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.8.1", "BaseID or NameID or EncryptedID", "NameIDMappingRequest")
 
             if (it.children("NameIDPolicy").isEmpty() && it.children("EncryptedID").isEmpty())
-                throw SAMLComplianceException.createWithReqMessage("SAMLCore.3.8.1", "NameIDPolicy", "NameIDMappingRequest")
+                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.8.1", "NameIDPolicy", "NameIDMappingRequest")
         }
     }
 }

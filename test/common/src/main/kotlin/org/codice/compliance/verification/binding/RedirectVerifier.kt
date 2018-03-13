@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.binding
 
+import com.sun.org.apache.xml.internal.resolver.readers.ExtendedXMLCatalogReader
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLComplianceExceptionMessage.*
@@ -79,12 +80,12 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
-                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(GeneralCertificate_a, SAMLBindings_3_1_2_1_a)
-                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1)
-                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2)
-                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2)
-                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1)
-                else -> throw SAMLComplianceException.create(GeneralSignature_a, SAMLBindings_3_4_4_1_e)
+                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(GeneralCertificate_a, SAMLBindings_3_1_2_1, cause = e)
+                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1, cause = e)
+                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2, cause = e)
+                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2, cause = e)
+                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1, cause = e)
+                else -> throw SAMLComplianceException.create(GeneralSignature_a, SAMLBindings_3_4_4_1_e, cause = e)
             }
         }
     }
@@ -98,7 +99,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
 
         if (encodedRelayState == null) {
             if (givenRelayState) {
-                throw SAMLComplianceException.create(GeneralRelayState_a, SAMLBindings_3_4_3_b1)
+                throw SAMLComplianceException.create(SAMLBindings_3_4_3_b1, message = "RelayState not found.")
             }
             return
         }
@@ -107,19 +108,19 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
         try {
             decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
         } catch (e: UnsupportedEncodingException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1)
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1, message = "RelayState could not be URL decoded.", cause = e)
         }
 
         if (decodedRelayState.toByteArray().size > 80) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_3_a)
+            throw SAMLComplianceException.create(SAMLBindings_3_4_3_a, message = "RelayState value of $decodedRelayState was longer than 80 bytes.")
         }
 
         if (givenRelayState) {
             if (decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
-                    throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1)
+                    throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_4_4_1_c1, "RelayState", encodedRelayState)
                 }
-                throw SAMLComplianceException.create(GeneralRelayState_b, SAMLBindings_3_4_3_b1)
+                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_3_b1, "RelayState", decodedRelayState, EXAMPLE_RELAY_STATE)
             }
         }
     }
@@ -129,8 +130,9 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      * 3.4.5.2 Security Considerations
      */
     fun verifyRedirectDestination(responseDomElement: Node) {
-        if (responseDomElement.attributes.getNamedItem("Destination")?.nodeValue != ACS_URL) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_5_2_a_1)
+        val destination = responseDomElement.attributes.getNamedItem("Destination")?.nodeValue
+        if (destination != ACS_URL) {
+            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1, "Destination", destination, ACS_URL)
         }
     }
 }

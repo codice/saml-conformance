@@ -45,7 +45,7 @@ class CoreVerifier(val node: Node) {
         node.children("Assertion").forEach {
             val signatures = it.children(SIGNATURE)
             if (signatures.isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_5_4_1_a)
+                throw SAMLComplianceException.create(SAMLCore_5_4_1)
 
             if (it.attributes.getNamedItem("ID") == null)
                 throw SAMLComplianceException.create(SAMLCore_5_4_2_a)
@@ -55,9 +55,10 @@ class CoreVerifier(val node: Node) {
                 if (references.size != 1)
                     throw SAMLComplianceException.create(SAMLCore_5_4_2_b1)
 
-                if (references[0].attributes.getNamedItem("URI")?.textContent
-                        != "#" + it.parentNode.attributes.getNamedItem("ID")?.textContent)
-                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b)
+                val uriValue = references[0]?.attributes?.getNamedItem("URI")?.textContent
+                val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent
+                if (uriValue != formattedId)
+                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_5_4_2_b, "URI", uriValue, formattedId)
             }
         }
     }
@@ -73,11 +74,13 @@ class CoreVerifier(val node: Node) {
         elements.addAll(node.children("Attribute"))
 
         elements.forEach {
-            val encryptedData = it.allChildren("EncryptedData")
-            if (encryptedData.isNotEmpty() &&
-                    encryptedData[0].attributes.getNamedItem("EncryptedData").textContent
-                    != ELEMENT)
-                throw SAMLComplianceException.create(SAMLCore_6_1_b)
+            val encryptedDataNode = it.allChildren("EncryptedData")
+
+            if (encryptedDataNode.isNotEmpty()) {
+                val encryptedData = encryptedDataNode?.get(0).attributes.getNamedItem("EncryptedData").textContent
+                if (encryptedData != ELEMENT)
+                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_6_1_b,"EncryptedData", encryptedData, ELEMENT)
+            }
         }
     }
 }
