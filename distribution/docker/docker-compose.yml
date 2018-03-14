@@ -15,4 +15,5 @@ services:
       SSH_ENABLED: "true"
       INSTALL_FEATURES: profile-standard
     volumes:
-      - ./etc/:/opt/entrypoint/pre_config/etc/
+      - ./etc/org.codice.ddf.security.policy.context.impl.PolicyManager.config:/app/etc/org.codice.ddf.security.policy.context.impl.PolicyManager.config
+      - ./etc/org.codice.ddf.security.idp.server.IdpEndpoint.config:/app/etc/org.codice.ddf.security.idp.server.IdpEndpoint.config
