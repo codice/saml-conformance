@@ -48,7 +48,7 @@ class PostLoginTest : StringSpec() {
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-            verifyResponse(idpResponse, false)
+            verifyResponse(idpResponse)
         }
 
         "POST AuthnRequest With Relay State Test" {
@@ -64,8 +64,11 @@ class PostLoginTest : StringSpec() {
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
             response.statusCode shouldBe 200
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-            val responseDom = verifyResponse(idpResponse, true)
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response).apply {
+                isRelayStateGiven = true
+            }
+
+            val responseDom = verifyResponse(idpResponse)
 
             val coreVerifier = CoreVerifier(responseDom)
             coreVerifier.verify()

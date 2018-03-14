@@ -13,31 +13,31 @@
  */
 package org.codice.compliance.verification.binding
 
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
+import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.security.sign.SimpleSign
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
-import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier(responseDom, parsedResponse, givenRelayState) {
+class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     /**
      * Verify the response for a redirect binding
      */
     override fun verifyBinding() {
-        verifyRequestParam(parsedResponse[SAML_RESPONSE])
-        verifyNoXMLSig(responseDom)
-        verifyRedirectRelayState(parsedResponse[RELAY_STATE], givenRelayState)
-        parsedResponse[SIGNATURE]?.let {
-            verifyRedirectSignature(it, parsedResponse[SAML_RESPONSE], parsedResponse[RELAY_STATE], parsedResponse[SIG_ALG])
-            verifyRedirectDestination(responseDom)
+        verifyRequestParam()
+        verifyNoXMLSig()
+        verifyRedirectRelayState()
+        response.signature?.let {
+            verifyRedirectSignature()
+            verifyRedirectDestination()
         }
     }
 
@@ -45,8 +45,8 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      * Verifies the redirect response has a SAMLResponse query param according to the redirect binding rules in the binding spec
      * 3.4.4.1 DEFLATE ENCODING
      */
-    fun verifyRequestParam(SAMLResponse: String?) {
-        if (SAMLResponse == null) {
+    private fun verifyRequestParam() {
+        if (response.samlResponse == null) {
             throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b2, message = "No SAMLResponse found.")
         }
     }
@@ -55,8 +55,8 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      * Verifies the redirect response has no XMLSig in the url according to the redirect binding rules in the binding spec
      * 3.4.4.1 DEFLATE ENCODING
      */
-    fun verifyNoXMLSig(node: Node) {
-        if (node.children("Signature").isNotEmpty()) {
+    private fun verifyNoXMLSig() {
+        if (response.responseDom.children("Signature").isNotEmpty()) {
             throw SAMLComplianceException.create(SAMLBindings_3_4_4_1, message = "Signature element found.")
         }
     }
@@ -65,15 +65,15 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      * Verifies the Signature and SigAlg according to the redirect binding rules in the binding spec
      * 3.4.4.1 DEFLATE Encoding
      */
-    fun verifyRedirectSignature(signature: String, samlResponse: String?, relayState: String?, sigAlg: String?) {
-        val verify: Boolean
+    private fun verifyRedirectSignature() {
+
         try {
             if (!SimpleSign().validateSignature(
                             SAML_RESPONSE,
-                            samlResponse,
-                            relayState,
-                            signature,
-                            sigAlg,
+                            response.samlResponse,
+                            response.relayState,
+                            response.signature,
+                            response.sigAlg,
                             idpMetadata.signingCertificate)) {
                 throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e, message = "Signature does not match payload.")
             }
@@ -82,7 +82,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
                 SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(SAMLBindings_3_1_2_1, message = "The certificate was invalid.", cause = e)
                 SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1, message = "Signature Algorithm not found.", cause = e)
                 SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2, message = "Signature not found.", cause = e)
-                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2, message = "The Signature algorithm named $sigAlg is unknown.", cause = e)
+                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2, message = "The Signature algorithm named ${response.sigAlg} is unknown.", cause = e)
                 SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1, message = "Whitespace was found in the Signature.", cause = e)
                 else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e, message = "Signature does not match payload.", cause = e)
             }
@@ -94,7 +94,9 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      * 3.4.3 RelayState
      * 3.4.4.1 DEFLATE Encoding
      */
-    fun verifyRedirectRelayState(encodedRelayState: String?, givenRelayState: Boolean) {
+    private fun verifyRedirectRelayState() {
+        val encodedRelayState = response.relayState
+        val givenRelayState = response.isRelayStateGiven
 
         if (encodedRelayState == null) {
             if (givenRelayState) {
@@ -128,8 +130,8 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      * Verifies the destination is correct according to the redirect binding rules in the bindinc spec
      * 3.4.5.2 Security Considerations
      */
-    fun verifyRedirectDestination(responseDomElement: Node) {
-        val destination = responseDomElement.attributes.getNamedItem("Destination")?.nodeValue
+    private fun verifyRedirectDestination() {
+        val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
         if (destination != ACS_URL) {
             throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1, "Destination", destination, ACS_URL)
         }

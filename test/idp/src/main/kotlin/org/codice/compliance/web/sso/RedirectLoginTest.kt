@@ -57,8 +57,10 @@ class RedirectLoginTest : StringSpec() {
                     .`when`()
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
+            // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-            verifyResponse(idpResponse, false)
+
+            verifyResponse(idpResponse)
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -76,8 +78,12 @@ class RedirectLoginTest : StringSpec() {
                     .`when`()
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
-            verifyResponse(idpResponse, true)
+            // Get response from plugin portion
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response).apply {
+                isRelayStateGiven = true
+            }
+
+            verifyResponse(idpResponse)
         }
     }
 }

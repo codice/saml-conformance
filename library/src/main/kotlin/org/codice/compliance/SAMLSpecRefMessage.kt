@@ -12,6 +12,7 @@ enum class SAMLSpecRefMessage(val message: String) {
      * PROFILES
      *
      ***************/
+
     SAMLProfiles_4_1_4_2_a("If the <Response> message is signed or if an enclosed assertion is encrypted, then the <Issuer> element MUST be present."),
 
     SAMLProfiles_4_1_4_2_b("If present [the Issuer] MUST contain the unique identifier of the issuing identity provider."),
