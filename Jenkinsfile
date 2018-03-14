@@ -15,7 +15,6 @@ pipeline {
         cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
     }
     environment {
-        LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
         PATH="${tool 'docker-latest'}/bin:$PATH"
     }
@@ -28,7 +27,7 @@ pipeline {
         stage('Full Build') {
             steps {
                 timeout(time: 3, unit: 'HOURS') {
-                    withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
+                    withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
                         sh 'mvn clean install -P docker'
                     }
                 }
@@ -51,8 +50,14 @@ pipeline {
         }
         stage('Run Tests') {
             steps {
-                sh 'cd distribution/docker'
-                sh 'docker-compose up'
+                sh 'curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
+                sh 'chmod 755 /usr/local/bin/docker-compose'
+                sh 'docker-compose --file distribution/docker/docker-compose.yml up'
+            }
+            post {
+                always {
+                    sh 'docker-compose --file distribution/docker/docker-compose.yml down'
+                }
             }
         }
     }
