@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.Common
+import org.codice.compliance.saml.plugin.IdpPostResponse
+import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
@@ -33,33 +35,16 @@ class IdpResponderProvider : IdpResponder {
         val REDIR_REGEX = """var encoded\s*=\s*"(.*)";""".toRegex()
     }
 
-    override fun getIdpRedirectResponse(originalResponse: Response): String? {
+    override fun getIdpRedirectResponse(originalResponse: Response): IdpRedirectResponse {
         val response = parseResponseAndSendRequest(originalResponse)
 
         /*
         * TODO "TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
         * When ticket is finished, replace below url building line with:
         * .url(response.getHeader("Location"));
+        *
+        * And delete the html block comment
          */
-
-        /*
-        * TODO "Revamp pluggable portion return an object (made by us)"
-        * When tickets are completed, insert this code and delete all the code below it in this method.
-
-        val script = response
-                .then()
-                .extract()
-                .htmlPath()
-                .getNode("html")
-                .getNode("head")
-                .getNode("script")
-                .value()
-
-        val idpRedirectResponseBuilder = IdpRedirectResponse.Builder()
-        idpRedirectResponseBuilder.httpStatusCode(response.statusCode)
-            .url(REDIR_REGEX.find(script)?.groups?.get(1)?.value); //validate that this gives you the correct url
-        return idpRedirectResponseBuilder.build()
-        */
 
         /*************************
          * <html>
@@ -87,10 +72,13 @@ class IdpResponderProvider : IdpResponder {
                 .getNode("script")
                 .value()
 
-        return REDIR_REGEX.find(script)?.groups?.get(1)?.value
+        return IdpRedirectResponse.Builder().apply {
+            httpStatusCode(response.statusCode)
+            url(REDIR_REGEX.find(script)?.groups?.get(1)?.value)
+        }.build()
     }
 
-    override fun getIdpPostResponse(originalResponse: Response): String? {
+    override fun getIdpPostResponse(originalResponse: Response): IdpPostResponse {
         val response = parseResponseAndSendRequest(originalResponse)
 
         /*************************
@@ -104,42 +92,16 @@ class IdpResponderProvider : IdpResponder {
          * ...
          ************************/
 
-        /*
-        * TODO "Revamp pluggable portion return an object (made by us)"
-        * When ticket is completed, insert this code and delete all the code below it in this method.
-
-        val response = parseResponseAndSendRequest(originalResponse)
-        val idpPostResponseBuilder = IdpPostResponse.Builder()
-        idpPostResponseBuilder.httpStatusCode(response.statusCode)
-            .samlForm(response
-                .then()
-                .extract()
-                .htmlPath()
-                .getNode("html")
-                .getNode("body")
-                .getNode("form"));
-        return idpPostResponseBuilder.build()
-        */
-
-        val form = response
-                .then()
-                .extract()
-                .htmlPath()
-                .getNode("html")
-                .getNode("body")
-                .getNode("form")
-
-        val samlResponse = form
-                .getNodes("input")[1]
-                .getAttribute("value")
-
-        val relayState = form
-                .getNodes("input")[2]
-                .getAttribute("value")
-
-        return if (StringUtils.isNoneBlank(relayState))
-            "$RELAY_STATE=$relayState&$SAML_RESPONSE=$samlResponse"
-        else "$SAML_RESPONSE=$samlResponse"
+        return IdpPostResponse.Builder().apply {
+            httpStatusCode(response.statusCode)
+            samlForm(response
+                    .then()
+                    .extract()
+                    .htmlPath()
+                    .getNode("html")
+                    .getNode("body")
+                    .getNode("form"))
+        }.build()
     }
 
     /**

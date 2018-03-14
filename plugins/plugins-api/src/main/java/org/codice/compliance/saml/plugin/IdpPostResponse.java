@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.saml.plugin;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE;
 
@@ -47,7 +48,8 @@ import com.jayway.restassured.path.xml.element.Node;
  *
  * </blockquote>
  */
-public class IdpPostResponse {
+public class IdpPostResponse extends IdpResponse {
+
   private IdpPostResponse() {}
 
   public static class Builder {
@@ -70,15 +72,14 @@ public class IdpPostResponse {
     }
   }
 
-  // General
-  private int httpStatusCode;
-  private Node samlResponseForm;
-  private String samlResponse;
-  private String relayState;
+  private static final String VALUE = "value";
+  private static final String TYPE = "type";
+  private static final String NAME = "name";
 
-  // Flags
+  private Node samlResponseForm;
+
+  private boolean isSamlResponseHidden;
   private boolean isRelayStateHidden;
-  private boolean isRelayStateGiven;
 
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetFormValues(Node samlResponseForm) {
@@ -86,59 +87,77 @@ public class IdpPostResponse {
 
     // Bindings 3.5.4 "If the message is a SAML response, then the form control MUST be named
     // SAMLResponse."
-    samlResponse =
+    Node samlResponseNode =
         samlResponseForm
-            .getNodes("input")
+            .children()
+            .list()
             .stream()
-            .filter(node -> node.name().equals(SAML_RESPONSE))
-            .map(Node::value)
-            .findFirst()
-            .orElse(null);
-
-    Node relayStateNode =
-        samlResponseForm
-            .getNodes("input")
-            .stream()
-            .filter(node -> node.name().equals(RELAY_STATE))
+            .filter(node -> SAML_RESPONSE.equals(node.attributes().get(NAME)))
             .findFirst()
             .orElse(null);
 
     // Bindings 3.5.4 "If a “RelayState” value is to accompany the SAML protocol message, it MUST be
-    // placed in an additional hidden form control named RelayState within the same form with the
-    // SAML message"
-    if (relayStateNode != null) {
-      relayState = relayStateNode.value();
-      if (relayStateNode.getAttribute("type") != null) {
-        isRelayStateHidden = relayStateNode.getAttribute("type").equals("hidden");
+    // placed in an additional **hidden** form control named RelayState within the same form with
+    // the SAML message"
+
+    Node relayStateNode =
+        samlResponseForm
+            .children()
+            .list()
+            .stream()
+            .filter(node -> RELAY_STATE.equals(node.attributes().get(NAME)))
+            .findFirst()
+            .orElse(null);
+
+    /*
+     * Bindings 3.5.4 "A SAML protocol message is form-encoded by... placing the result **in** a
+     * **hidden** form control within a form as defined by [HTML401] Section 17"
+     *
+     * The two key words here are "in" and "hidden"
+     *
+     * Assuming "in" in the above quote means in either the value attribute or in the value
+     * itself.
+     *
+     * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form controls
+     */
+    // SAMLResponse portion
+    if (samlResponseNode != null) {
+
+      if (isNotEmpty(samlResponseNode.value())) {
+        samlResponse = samlResponseNode.value();
+      } else if (isNotEmpty(samlResponseNode.attributes().get(VALUE))) {
+        samlResponse = samlResponseNode.attributes().get(VALUE);
+      }
+
+      if (isNotEmpty(samlResponseNode.getAttribute(TYPE))) {
+        isSamlResponseHidden = samlResponseNode.getAttribute(TYPE).equals("hidden");
       }
     }
-  }
 
-  public int getHttpStatusCode() {
-    return httpStatusCode;
-  }
+    // RelayState portion
+    if (relayStateNode != null) {
 
-  public String getSamlResponse() {
-    return samlResponse;
-  }
+      if (isNotEmpty(relayStateNode.value())) {
+        relayState = relayStateNode.value();
+      } else if (isNotEmpty(relayStateNode.attributes().get(VALUE))) {
+        relayState = relayStateNode.attributes().get(VALUE);
+      }
 
-  public String getRelayState() {
-    return relayState;
+      if (isNotEmpty(relayStateNode.getAttribute(TYPE))) {
+        isRelayStateHidden = relayStateNode.getAttribute(TYPE).equals("hidden");
+      }
+    }
   }
 
   public Node getSamlResponseForm() {
     return samlResponseForm;
   }
 
+  public boolean isSamlResponseHidden() {
+    return isSamlResponseHidden;
+  }
+
   public boolean isRelayStateHidden() {
     return isRelayStateHidden;
-  }
-
-  public boolean isRelayStateGiven() {
-    return isRelayStateGiven;
-  }
-
-  public void setRelayStateGiven(boolean relayStateGiven) {
-    this.isRelayStateGiven = relayStateGiven;
   }
 }

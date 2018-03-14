@@ -47,10 +47,8 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG;
  *
  * </blockquote>
  */
-public class IdpRedirectResponse {
-  private IdpRedirectResponse() {
-    extraUrlParameters = false;
-  }
+public class IdpRedirectResponse extends IdpResponse {
+  private IdpRedirectResponse() {}
 
   public static class Builder {
 
@@ -72,19 +70,13 @@ public class IdpRedirectResponse {
     }
   }
 
-  // General
-  private int httpStatusCode;
   private String url;
   private String path;
-  private String samlResponse;
   private String samlEncoding;
   private String sigAlg;
   private String signature;
-  private String relayState;
 
-  // Flags
   private boolean extraUrlParameters;
-  private boolean isRelayStateGiven;
 
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetUrlValues(String url) {
@@ -94,6 +86,7 @@ public class IdpRedirectResponse {
     String urlParameters = url.split("\\?")[1];
 
     path = urlPath;
+    extraUrlParameters = false;
 
     for (String parameter : urlParameters.split("&")) {
       if (parameter.startsWith(SAML_RESPONSE + "=")) {
@@ -128,31 +121,11 @@ public class IdpRedirectResponse {
     return signature;
   }
 
-  public int getHttpStatusCode() {
-    return httpStatusCode;
-  }
-
-  public String getSamlResponse() {
-    return samlResponse;
-  }
-
   public String getSamlEncoding() {
     return samlEncoding;
   }
 
-  public String getRelayState() {
-    return relayState;
-  }
-
   public boolean isExtraUrlParameters() {
     return extraUrlParameters;
-  }
-
-  public boolean isRelayStateGiven() {
-    return isRelayStateGiven;
-  }
-
-  public void setRelayStateGiven(boolean relayStateGiven) {
-    this.isRelayStateGiven = relayStateGiven;
   }
 }

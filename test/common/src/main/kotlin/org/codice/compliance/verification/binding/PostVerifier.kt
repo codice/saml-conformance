@@ -13,21 +13,20 @@
  */
 package org.codice.compliance.verification.binding
 
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
+import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.w3c.dom.Node
 
-class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, givenRelayState: Boolean): BindingVerifier(responseDom, parsedResponse, givenRelayState) {
+class PostVerifier(val response: IdpPostResponse) : BindingVerifier() {
     /**
      * Verify the response for a post binding
      */
     override fun verifyBinding() {
-        verifySsoPost(responseDom)
-        verifyPostRelayState(parsedResponse[RELAY_STATE], givenRelayState)
+        verifySsoPost()
+        verifyPostRelayState()
     }
 
     /**
@@ -36,9 +35,9 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
      *
      * @param response - Response node
      */
-    fun verifySsoPost(response: Node) {
-        if (response.children(SIGNATURE).isEmpty()
-                || response.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
+    private fun verifySsoPost() {
+        if (response.responseDom.children(SIGNATURE).isEmpty()
+                || response.responseDom.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the Response or Assertions.")
     }
 
@@ -46,7 +45,10 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
      * Verifies the relay state according to the post binding rules in the binding spec
      * 3.5.3 RelayState
      */
-    fun verifyPostRelayState(relayState: String?, givenRelayState: Boolean) {
+    private fun verifyPostRelayState() {
+        val relayState = response.relayState
+        val givenRelayState = response.isRelayStateGiven
+
         if (relayState == null) {
             if (givenRelayState) {
                 throw SAMLComplianceException.create(SAMLBindings_3_4_3_b1, message = "RelayState not found.")
@@ -54,7 +56,7 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
             return
         }
         if (relayState.toByteArray().size > 80)
-            throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_5_3_a, "RelayState",relayState)
+            throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_5_3_a, "RelayState", relayState)
 
         if (givenRelayState) {
             if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_5_3_b, "RelayState", relayState, EXAMPLE_RELAY_STATE)

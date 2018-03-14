@@ -20,19 +20,38 @@ public interface IdpResponder {
   /**
    * Pluggable portion of the test.
    *
-   * @param originalResponse - the originalResponse from the initial REDIRECT authn request
-   * @return The response as a string. The location, signature algorithm and signature need to be
-   *     concatenated with the response in any order. For example,
-   *     "https://host/location?SAMLResponse=**response**&SigAlg=**alg**&Signature=**sig**&RelayState=**relay**"
+   * @param originalResponse - the original {@code RestAssured} response from the initial REDIRECT
+   *     authn request
+   * @return The response as an {@code IdpRedirectResponse}. The internal builder should be called
+   *     to build the response object:
+   *     <pre>{@code
+   * return new IdpRedirectResponse.Builder()
+   * .httpStatusCode(exampleStatusCode)
+   * .url(exampleUrl)
+   * .build();
+   * }
+   * where {@code exampleStatusCode} is the http status code returned by the IdP
+   * where {@code exampleUrl} is the url in the "Location" header returned by the IdP
+   * </pre>
    */
-  String getIdpRedirectResponse(Response originalResponse);
+  IdpRedirectResponse getIdpRedirectResponse(Response originalResponse);
 
   /**
    * Pluggable portion of the test.
    *
-   * @param originalResponse - the response from the initial POST authn request
-   * @return The response as a string. If a relay state exists concatenate it with a & For example,
-   *     RelayState=%s&SAMLResponse=%s or SAMLResponse=%s&RelayState=%s
+   * @param originalResponse - the original {@code RestAssured} response from the initial POST authn
+   *     request
+   * @return The response as an {@code IdpPostResponse}. The internal builder should be called to
+   *     build the response object:
+   *     <pre>{@code
+   * return new IdpPostResponse.Builder()
+   * .httpStatusCode(exampleStatusCode)
+   * .samlForm(exampleSampleForm)
+   * .build();
+   * }
+   * where {@code exampleStatusCode} is the http status code returned by the IdP
+   * where {@code exampleSamleForm} is the wrapping form containing the samlResponse form control returned by the IdP
+   * </pre>
    */
-  String getIdpPostResponse(Response originalResponse);
+  IdpPostResponse getIdpPostResponse(Response originalResponse);
 }

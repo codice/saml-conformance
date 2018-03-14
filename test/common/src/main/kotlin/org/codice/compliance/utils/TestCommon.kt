@@ -13,12 +13,14 @@
  */
 package org.codice.compliance.utils
 
+import com.jayway.restassured.internal.path.xml.NodeImpl
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -50,13 +52,13 @@ class TestCommon {
         private val DEPLOY_CL = getDeployDirClassloader()
 
         /**
-         * Creates a dom element given a string representation of xml
+         * Extend {@code IdpResponse} to creates a dom response from it's decoded saml response
          */
-        fun buildDom(decodedMessage: String): Node {
+        fun IdpResponse.buildDom(): Node {
             return DocumentBuilderFactory.newInstance().apply {
                 isNamespaceAware = true
             }.newDocumentBuilder()
-                    .parse(decodedMessage.byteInputStream())
+                    .parse(this.decodedSamlResponse.byteInputStream())
                     .documentElement
         }
 
