@@ -15,7 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
@@ -52,7 +52,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.create(SAMLCore_2_2_4_a)
+                throw SAMLComplianceException.create(SAMLCore_2_2_4_a, message = "Type attribute found with an incorrect value.")
             // todo - For The encrypted content MUST contain an element that has a type of NameIDType or AssertionType,
             // or a type that is derived from BaseIDAbstractType, NameIDType, or AssertionType.
         }
@@ -84,14 +84,14 @@ class SamlAssertionsVerifier(val node: Node) {
 
             val statements = it.children("Statement")
             if (statements.any { it.attributes.getNamedItemNS(XSI, "type") == null })
-                throw SAMLComplianceException.create(SAMLCore_2_2_3_a)
+                throw SAMLComplianceException.create(SAMLCore_2_2_3_a, message = "Statement element found without a type.")
 
             if (statements.isEmpty()
                     && it.children("AuthnStatement").isEmpty()
                     && it.children("AuthzDecisionStatement").isEmpty()
                     && it.children("AttributeStatement").isEmpty()
                     && it.children("Subject").isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_2_2_3_b)
+                throw SAMLComplianceException.create(SAMLCore_2_2_3_b, message = "No Subject or Statement elements found.")
         }
     }
 
@@ -109,7 +109,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.create(SAMLCore_2_3_4_a)
+                throw SAMLComplianceException.create(SAMLCore_2_3_4_a, message = "Type attribute found with an incorrect value.")
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }
     }
@@ -136,16 +136,18 @@ class SamlAssertionsVerifier(val node: Node) {
             val notBefore = it.attributes.getNamedItem("NotBefore")
             val notOnOrAfter = it.attributes.getNamedItem("NotOnOrAfter")
             if (notBefore != null
-                    && notOnOrAfter != null
-                    && Instant.parse(notBefore.textContent).isAfter(Instant.parse(notOnOrAfter.textContent)))
-                throw SAMLComplianceException.create(SAMLCore_2_4_1_2_b)
+                    && notOnOrAfter != null) {
+                val notBeforeValue = Instant.parse(notBefore.textContent)
+                val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
+                if (notBeforeValue.isAfter(notOnOrAfterValue)) throw SAMLComplianceException.create(SAMLCore_2_5_1_2, message = "NotBefore element with value $notBeforeValue is not less than NotOnOrAfter element with value $notOnOrAfterValue.")
+            }
 
             // KeyInfoConfirmationDataType
             if (it.attributes
                             ?.getNamedItemNS(XSI, "type")
                             ?.textContent?.contains("KeyInfoConfirmationDataType") == true
                     && it.children("KeyInfo").any { it.children("KeyValue").size > 1 })
-                throw SAMLComplianceException.create(SAMLCore_2_4_1_3, XMLSignature_4_5)
+                throw SAMLComplianceException.create(SAMLCore_2_4_1_3, XMLSignature_4_5, message = "Multiple Keys found within the KeyInfo element.")
         }
     }
 
@@ -162,7 +164,7 @@ class SamlAssertionsVerifier(val node: Node) {
             val conditionsElement = it
             if (conditionsElement.children("Condition")
                             .any { it.attributes.getNamedItemNS(XSI, "type") == null })
-                throw SAMLComplianceException.create(SAMLCore_2_5_1_a)
+                throw SAMLComplianceException.create(SAMLCore_2_5_1_a, message = "Condition found without a type.")
 
             if (conditionsElement.children("OneTimeUse").size > 1)
                 throw SAMLComplianceException.create(SAMLCore_2_5_1_b, SAMLCore_2_5_1_5, message = "Cannot have more than one OneTimeUse element.")
@@ -198,9 +200,11 @@ class SamlAssertionsVerifier(val node: Node) {
             val notBefore = it.attributes.getNamedItem("NotBefore")
             val notOnOrAfter = it.attributes.getNamedItem("NotOnOrAfter")
             if (notBefore != null
-                    && notOnOrAfter != null
-                    && Instant.parse(notBefore.textContent).isAfter(Instant.parse(notOnOrAfter.textContent)))
-                throw SAMLComplianceException.create(SAMLCore_2_5_1_2)
+                    && notOnOrAfter != null) {
+                val notBeforeValue = Instant.parse(notBefore.textContent)
+                val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
+                if (notBeforeValue.isAfter(notOnOrAfterValue)) throw SAMLComplianceException.create(SAMLCore_2_5_1_2, message = "NotBefore element with value $notBeforeValue is not less than NotOnOrAfter element with value $notOnOrAfterValue.")
+            }
         }
     }
 
@@ -212,7 +216,7 @@ class SamlAssertionsVerifier(val node: Node) {
         if (node.allChildren("Assertion")
                         .filter { it.children("AuthnStatement").isNotEmpty() }
                         .any { it.children("Subject").isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_2_7_2)
+            throw SAMLComplianceException.create(SAMLCore_2_7_2, message = "An AuthnStatement was found without a Subject element.")
 
         node.allChildren("AuthnStatement").forEach {
             if (it.attributes.getNamedItem("AuthnInstant") == null)
@@ -234,7 +238,7 @@ class SamlAssertionsVerifier(val node: Node) {
         if (node.allChildren("Assertion")
                         .filter { it.children("AttributeStatement").isNotEmpty() }
                         .any { it.children("Subject").isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_2_7_3)
+            throw SAMLComplianceException.create(SAMLCore_2_7_3, message = "An AttributeStatement was found without a Subject element.")
 
         node.allChildren("AttributeStatement").forEach {
             if (it.children("Attribute").isEmpty() && it.children("EncryptedAttribute").isEmpty())
@@ -286,7 +290,7 @@ class SamlAssertionsVerifier(val node: Node) {
         node.allChildren("Assertion").forEach {
             if (it.children("AuthzDecisionStatement").isNotEmpty()
                     && it.children("Subject").isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_2_7_4)
+                throw SAMLComplianceException.create(SAMLCore_2_7_4, message = "No Subject element found.")
         }
 
         node.allChildren("AuthzDecisionStatement").forEach {

@@ -15,8 +15,8 @@ package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.net.URI
@@ -57,10 +57,10 @@ fun verifyCommonDataType(samlDom: Node) {
  *
  * 1.3.1 String Values
  */
-fun verifyStringValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
+fun verifyStringValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     if (StringUtils.isBlank(node.textContent)) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_4)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_1_a, message = "The String value of ${node.textContent} is invalid.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_1_a, message = "The String value of ${node.textContent} is invalid.")
     }
 }
 
@@ -69,12 +69,12 @@ fun verifyStringValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
  *
  * 1.3.2 URI Values
  */
-fun verifyUriValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
+fun verifyUriValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     // todo - make sure uri absolute check is correct
     if (StringUtils.isBlank(node.textContent)
             && !URI.create(node.textContent).isAbsolute) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_4)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_2_a, message = "The URI value of ${node.textContent} is invalid.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_2_a, message = "The URI value of ${node.textContent} is invalid.")
     }
 }
 
@@ -83,10 +83,10 @@ fun verifyUriValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
  *
  * 1.3.4 ID and ID Reference Values
  */
-fun verifyIdValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
+fun verifyIdValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     if (ids.contains(node.textContent)) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_4)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4, message = "The ID value of ${node.textContent} is not unique.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_4, message = "The ID value of ${node.textContent} is not unique.")
     } else ids.add(node.textContent)
 }
 
@@ -95,7 +95,7 @@ fun verifyIdValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
  *
  * 1.3.3 Time Values
  */
-fun verifyTimeValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
+fun verifyTimeValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     val dateTime = node.textContent
     val (year, restOfDateTime) = splitByYear(dateTime, errorCode)
     verifyYear(year, errorCode)
@@ -106,12 +106,12 @@ fun verifyTimeValues(node: Node, errorCode: SAMLComplianceExceptionMessage?) {
 
 private data class SplitString(val year: String, val restOfDateTime: String)
 
-private fun splitByYear(dateTime: String, errorCode: SAMLComplianceExceptionMessage?): SplitString {
+private fun splitByYear(dateTime: String, errorCode: SAMLSpecRefMessage?): SplitString {
     var hyphenIndex = dateTime.indexOf('-')
 
     if (hyphenIndex == -1) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, message = "No hyphen was found in the date value of $dateTime.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, message = "No hyphen was found in the date value of $dateTime.")
     }
 
     // if year is negative, find the next '-'
@@ -119,45 +119,46 @@ private fun splitByYear(dateTime: String, errorCode: SAMLComplianceExceptionMess
         hyphenIndex = dateTime.indexOf('-', hyphenIndex)
 
     if (hyphenIndex == -1) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, message = "No hyphen was found in the date value of $dateTime.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, message = "No hyphen was found in the date value of $dateTime.")
     }
     return SplitString(dateTime.substring(0, hyphenIndex), dateTime.substring(hyphenIndex + 1))
 }
 
-private fun verifyYear(year: String, errorCode: SAMLComplianceExceptionMessage?) {
+private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
     // remove the negative sign to make verification easier
     val strippedYear: String = if (year.indexOf('-') == 0) year.substring(1) else year
 
     // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permited"
     if (!strippedYear.matches(Regex("\\d+"))) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c)
+        val list= mutableListOf<SAMLSpecRefMessage>()
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c, message = "A '+' was found.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c, message = "A '+' was found.")
     }
 
     // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are prohibited"
     if (strippedYear.length > 4 && strippedYear.startsWith('0')) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_a)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_a)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_a, message = "The year value of $strippedYear is invalid.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_a, message = "The year value of $strippedYear is invalid.")
     }
 
     // https://www.w3.org/TR/xmlschema-2/#dateTime "'0000' is prohibited"
     if (strippedYear == "0000") {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_b)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_b)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_b, message = "The year value of $strippedYear is invalid.")
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_b, message = "The year value of $strippedYear is invalid.")
     }
 }
 
 // todo allow an unlimited amount of fractional seconds as stated in the XML Datatypes Schema 3.2.7
 // todo "SAML system entities SHOULD NOT rely on time resolution finer than milliseconds" Core.1.3.3
 // helper for verifyTimeValues
-private fun verifyRestOfDateTime(restOfDateTime: String, errorCode: SAMLComplianceExceptionMessage?) {
+private fun verifyRestOfDateTime(restOfDateTime: String, errorCode: SAMLSpecRefMessage?) {
     val format = DateTimeFormatter.ofPattern("MM'-'dd'T'HH':'mm':'ss['.'SSS]['Z']")
 
     try {
         format.parse(restOfDateTime)
     } catch (e: DateTimeParseException) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, cause = e)
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, cause = e)
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, message = "The date value of $restOfDateTime is incorrectly formatted.", cause = e)
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7, message = "The date value of $restOfDateTime is incorrectly formatted.", cause = e)
     }
 }

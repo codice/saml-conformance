@@ -6,18 +6,16 @@ class SAMLComplianceException : Exception {
     private constructor(message: String, cause: Throwable) : super(message, cause)
 
     companion object {
-        fun create(vararg codes: SAMLComplianceExceptionMessage, message: String? = null, cause: Throwable? = null): SAMLComplianceException {
+        fun create(vararg codes: SAMLSpecRefMessage, message: String, cause: Throwable? = null): SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
                     .fold("SAML Specification References:\n") { acc, s ->
                         "$acc\n$s"
                     }
 
-            val exceptionMessage = if (message != null) "$message\n\n$samlExceptions" else samlExceptions
-
             if (cause != null) {
-                return SAMLComplianceException(exceptionMessage, cause)
+                return SAMLComplianceException("$message\n\n$samlExceptions\n", cause)
             } else {
-                return SAMLComplianceException(exceptionMessage)
+                return SAMLComplianceException("$message\n\n$samlExceptions\n")
             }
         }
 
@@ -25,15 +23,15 @@ class SAMLComplianceException : Exception {
             return SAMLComplianceException("$section: $property is required in $parent.")
         }
 
-        fun createWithPropertyInvalidMessage(code: SAMLComplianceExceptionMessage, property: String, propertyValue: String?): SAMLComplianceException {
+        fun createWithPropertyInvalidMessage(code: SAMLSpecRefMessage, property: String, propertyValue: String?): SAMLComplianceException {
             return SAMLComplianceException("The $property value of $propertyValue is invalid.\n\n${readCode(code)}")
         }
 
-        fun createWithPropertyNotEqualMessage(code: SAMLComplianceExceptionMessage, property: String, propertyValue: String?, otherValue: String?): SAMLComplianceException {
+        fun createWithPropertyNotEqualMessage(code: SAMLSpecRefMessage, property: String, propertyValue: String?, otherValue: String?): SAMLComplianceException {
             return SAMLComplianceException("The $property value of $propertyValue is not equal to $otherValue.\n\n${readCode(code)}")
         }
 
-        private fun readCode(code: SAMLComplianceExceptionMessage): String {
+        private fun readCode(code: SAMLSpecRefMessage): String {
             return "${trimUnderscore(code.name)}: ${code.message}"
         }
 

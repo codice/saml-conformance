@@ -15,7 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
@@ -45,15 +45,15 @@ class CoreVerifier(val node: Node) {
         node.children("Assertion").forEach {
             val signatures = it.children(SIGNATURE)
             if (signatures.isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_5_4_1)
+                throw SAMLComplianceException.create(SAMLCore_5_4_1, message = "Signature not found.")
 
             if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.create(SAMLCore_5_4_2_a)
+                throw SAMLComplianceException.create(SAMLCore_5_4_2_a, message = "ID not found.")
 
             signatures.forEach {
                 val references = it.allChildren("Reference")
                 if (references.size != 1)
-                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b1)
+                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b1, message = "${references.size} Reference elements were found.")
 
                 val uriValue = references[0]?.attributes?.getNamedItem("URI")?.textContent
                 val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent

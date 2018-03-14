@@ -16,7 +16,7 @@ package org.codice.compliance.verification.binding
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.w3c.dom.Node
@@ -39,7 +39,7 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
     fun verifySsoPost(response: Node) {
         if (response.children(SIGNATURE).isEmpty()
                 || response.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5)
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the Response or Assertions.")
     }
 
     /**
@@ -49,7 +49,7 @@ class PostVerifier(responseDom: Node, parsedResponse: Map<String, String>, given
     fun verifyPostRelayState(relayState: String?, givenRelayState: Boolean) {
         if (relayState == null) {
             if (givenRelayState) {
-                throw SAMLComplianceException.create(SAMLBindings_3_4_3_b1, message = "RelayState not found")
+                throw SAMLComplianceException.create(SAMLBindings_3_4_3_b1, message = "RelayState not found.")
             }
             return
         }

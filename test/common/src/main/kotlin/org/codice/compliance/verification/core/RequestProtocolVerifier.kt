@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
@@ -84,7 +84,7 @@ class RequestProtocolVerifier(val request: Node) {
                             .filter { it.children("AuthnContext").isNotEmpty() }
                             .filter { verifyRequestedAuthnContext(it) }
                             .count() < 1)
-                throw SAMLComplianceException.create(SAMLCore_3_3_2_2_b)
+                throw SAMLComplianceException.create(SAMLCore_3_3_2_2_b, message = "No AuthnStatement element found that meets the criteria.")
         }
     }
 

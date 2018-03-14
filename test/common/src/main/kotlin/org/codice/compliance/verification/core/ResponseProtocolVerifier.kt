@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
@@ -42,7 +42,7 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
         response.children("Assertion")
                 .forEach {
                     if (it.children("AuthnStatement").isEmpty())
-                        throw SAMLComplianceException.create(SAMLCore_3_4)
+                        throw SAMLComplianceException.create(SAMLCore_3_4, message = "AuthnStatement not found.")
                 }
     }
 

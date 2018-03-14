@@ -6,19 +6,7 @@ package org.codice.compliance
  *  - The usage of enums is less error-prone than String literals
  *  - There is no need to have this list be as dynamic as a properties file at runtime
  */
-enum class SAMLComplianceExceptionMessage(val message: String) {
-    /***************
-     *
-     * General
-     *e
-     ***************/
-
-    GeneralCertificate_a("The certificate was invalid"),
-
-    GeneralSignature_a("Error decrypting signature"),
-
-    GeneralSignature_b("Signature does not match payload"),
-
+enum class SAMLSpecRefMessage(val message: String) {
     /***************
      *
      * PROFILES
@@ -62,11 +50,11 @@ enum class SAMLComplianceExceptionMessage(val message: String) {
      *
      ***************/
 
-//    todo SAMLCore_1_3_1_a("Unless otherwise noted in this specification or particular profiles, all strings in SAML messages MUST consist of at least " +
-//    "one non-whitespace character (whitespace is defined in the XML Recommendation [XML] Section 2.3)."),
+    SAMLCore_1_3_1_a("Unless otherwise noted in this specification or particular profiles, all strings in SAML messages MUST consist of at least " +
+    "one non-whitespace character (whitespace is defined in the XML Recommendation [XML] Section 2.3)."),
 
-//    todo SAMLCore_1_3_2_a("Unless otherwise indicated in this specification, all URI reference values used within SAML-defined elements or attributes " +
-//            "MUST consist of at least one non-whitespace character, and are REQUIRED to be absolute [RFC 2396]."),
+    SAMLCore_1_3_2_a("Unless otherwise indicated in this specification, all URI reference values used within SAML-defined elements or attributes " +
+            "MUST consist of at least one non-whitespace character, and are REQUIRED to be absolute [RFC 2396]."),
 
     SAMLCore_1_3_3("All SAML time values have the type xs:dateTime, which is built in to the W3C XML Schema Datatypes specification [Schema2], " +
             "and MUST be expressed in UTC form, with no time zone component."),

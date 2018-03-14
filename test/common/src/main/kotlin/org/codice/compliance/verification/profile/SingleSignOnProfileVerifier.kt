@@ -15,7 +15,7 @@ package org.codice.compliance.verification.profile
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -47,11 +47,11 @@ class SingleSignOnProfileVerifier(val response: Node) {
             val issuers = response.children("Issuer")
 
             if (issuers.size != 1)
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a)
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a, message = "${issuers.size} Issuer elements were found.")
 
             val issuer = issuers[0]
             if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b)
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b, message = "Issuer value of ${issuer.textContent} does not match the issuing IdP.")
 
             val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
             if (issuerFormat != null && issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
@@ -65,19 +65,19 @@ class SingleSignOnProfileVerifier(val response: Node) {
      */
     fun verifySsoAssertions() {
         val assertions = response.children("Assertion")
-        if (assertions.isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d)
+        if (assertions.isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d, message = "No Assertions found.")
 
         assertions.forEach {
             verifyIssuer()
 
-            if (it.children("Subject").size != 1) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f)
+            if (it.children("Subject").size != 1) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f, message = "${it.children("Subject").size} Subject elements were found.")
 
             val bearerSubjectConfirmations = mutableListOf<Node>()
             it.children("Subject")[0].children("SubjectConfirmation")
                     .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                     .toCollection(bearerSubjectConfirmations)
             if (bearerSubjectConfirmations.isEmpty())
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g)
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g, message = "No bearer SubjectConfirmation elements were found.")
 
             // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and NotOnOrAfter
             if (bearerSubjectConfirmations
@@ -96,7 +96,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
             if (idpMetadata.descriptor != null) {
                 if (idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty())
                     it.children("AuthnStatement").forEach {
-                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j)
+                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j, message = "Single Logout support found in IdP metadata, but no SessionIndex was found.")
                     }
             }
 

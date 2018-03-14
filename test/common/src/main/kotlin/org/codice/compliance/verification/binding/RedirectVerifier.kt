@@ -13,10 +13,9 @@
  */
 package org.codice.compliance.verification.binding
 
-import com.sun.org.apache.xml.internal.resolver.readers.ExtendedXMLCatalogReader
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
@@ -48,7 +47,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      */
     fun verifyRequestParam(SAMLResponse: String?) {
         if (SAMLResponse == null) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b2)
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b2, message = "No SAMLResponse found.")
         }
     }
 
@@ -58,7 +57,7 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
      */
     fun verifyNoXMLSig(node: Node) {
         if (node.children("Signature").isNotEmpty()) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1)
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1, message = "Signature element found.")
         }
     }
 
@@ -76,16 +75,16 @@ class RedirectVerifier(responseDom: Node, parsedResponse: Map<String, String>, g
                             signature,
                             sigAlg,
                             idpMetadata.signingCertificate)) {
-                throw SAMLComplianceException.create(GeneralSignature_b, SAMLBindings_3_4_4_1_e)
+                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e, message = "Signature does not match payload.")
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
-                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(GeneralCertificate_a, SAMLBindings_3_1_2_1, cause = e)
-                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1, cause = e)
-                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2, cause = e)
-                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2, cause = e)
-                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1, cause = e)
-                else -> throw SAMLComplianceException.create(GeneralSignature_a, SAMLBindings_3_4_4_1_e, cause = e)
+                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(SAMLBindings_3_1_2_1, message = "The certificate was invalid.", cause = e)
+                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1, message = "Signature Algorithm not found.", cause = e)
+                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2, message = "Signature not found.", cause = e)
+                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2, message = "The Signature algorithm named $sigAlg is unknown.", cause = e)
+                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1, message = "Whitespace was found in the Signature.", cause = e)
+                else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e, message = "Signature does not match payload.", cause = e)
             }
         }
     }

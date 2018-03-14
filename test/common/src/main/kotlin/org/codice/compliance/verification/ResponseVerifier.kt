@@ -17,7 +17,7 @@ package org.codice.compliance.verification
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLComplianceExceptionMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.utils.TestCommon.Companion.buildDom
 import org.codice.compliance.verification.binding.*
 import org.codice.security.sign.Decoder
@@ -86,7 +86,7 @@ class RedirectResponseVerifier(response: String, givenRelayState: Boolean = fals
                     InflErrorCode.ERROR_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1, message = "Could not decode the SAML response.", cause = e)
                     InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1, message = "Could not inflate the SAML response.", cause = e)
                     InflErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2, message = "There were linefeeds or whitespace in the SAML response.", cause = e)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, SAMLBindings_3_4_4_1, cause = e)
+                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, SAMLBindings_3_4_4_1, message = "Something went wrong with the SAML response.", cause = e)
                 }
             }
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
@@ -127,7 +127,7 @@ class PostResponseVerifier(response: String, givenRelayState: Boolean = false) :
         try {
             decodedMessage = Decoder.decodePostMessage(samlResponse)
         } catch (exception: IOException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a, cause = exception)
+            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a, message = "The SAML response could not be decoded.", cause = exception)
         }
 
         decodedMessage shouldNotBe null
