@@ -17,21 +17,24 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
-import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
+import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
+import org.codice.security.sign.Decoder
+import org.codice.security.sign.Decoder.InflationException.InflErrorCode.*
 import org.codice.security.sign.SimpleSign
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
+class RedirectBindingVerifier(val response: IdpRedirectResponseDecorator) {
     /**
      * Verify the response for a redirect binding
      */
-    override fun verifyBinding() {
+    fun verify() {
+        verifyEncoding()
         verifyRequestParam()
         verifyNoXMLSig()
         verifyRedirectRelayState()
@@ -42,8 +45,37 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     }
 
     /**
+     * Verifies the encoding of the samlResponse by decoding it according to the redirect binding rules in the binding spec
+     * 3.4.4.1 Deflate Encoding
+     */
+    private fun verifyEncoding() {
+        val samlResponse = response.samlResponse
+        val samlEncoding = response.samlEncoding
+        val decodedMessage: String
+
+        /**
+         * A query string parameter named SAMLEncoding is reserved to identify the encoding mechanism used. If this
+         * parameter is omitted, then the value is assumed to be urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
+         */
+        decodedMessage = if (samlEncoding == null || samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+            try {
+                Decoder.decodeAndInflateRedirectMessage(samlResponse)
+            } catch (e: Decoder.InflationException) {
+                when (e.inflErrorCode) {
+                    ERROR_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1, message = "Could not decode the SAML response.", cause = e)
+                    ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1, message = "Could not inflate the SAML response.", cause = e)
+                    LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2, message = "There were linefeeds or whitespace in the SAML response.", cause = e)
+                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, SAMLBindings_3_4_4_1, message = "Something went wrong with the SAML response.", cause = e)
+                }
+            }
+        } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
+
+        response.decodedSamlResponse = decodedMessage
+    }
+
+    /**
      * Verifies the redirect response has a SAMLResponse query param according to the redirect binding rules in the binding spec
-     * 3.4.4.1 DEFLATE ENCODING
+     * 3.4.4.1 Deflate Encoding
      */
     private fun verifyRequestParam() {
         if (response.samlResponse == null) {
@@ -53,17 +85,17 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
 
     /**
      * Verifies the redirect response has no XMLSig in the url according to the redirect binding rules in the binding spec
-     * 3.4.4.1 DEFLATE ENCODING
+     * 3.4.4.1 Deflate Encoding
      */
     private fun verifyNoXMLSig() {
-        if (response.responseDom.children("Signature").isNotEmpty()) {
+        if (response.responseDom!!.children("Signature").isNotEmpty()) {
             throw SAMLComplianceException.create(SAMLBindings_3_4_4_1, message = "Signature element found.")
         }
     }
 
     /**
      * Verifies the Signature and SigAlg according to the redirect binding rules in the binding spec
-     * 3.4.4.1 DEFLATE Encoding
+     * 3.4.4.1 Deflate Encoding
      */
     private fun verifyRedirectSignature() {
 
@@ -92,7 +124,7 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     /**
      * Verifies the relay state according to the redirect binding rules in the binding spec
      * 3.4.3 RelayState
-     * 3.4.4.1 DEFLATE Encoding
+     * 3.4.4.1 Deflate Encoding
      */
     private fun verifyRedirectRelayState() {
         val encodedRelayState = response.relayState
@@ -127,11 +159,11 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     }
 
     /**
-     * Verifies the destination is correct according to the redirect binding rules in the bindinc spec
+     * Verifies the destination is correct according to the redirect binding rules in the binding spec
      * 3.4.5.2 Security Considerations
      */
     private fun verifyRedirectDestination() {
-        val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
+        val destination = response.responseDom!!.attributes.getNamedItem("Destination")?.nodeValue
         if (destination != ACS_URL) {
             throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1, "Destination", destination, ACS_URL)
         }

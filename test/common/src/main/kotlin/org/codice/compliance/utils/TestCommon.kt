@@ -21,6 +21,7 @@ import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.saml.plugin.IdpResponse
+import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -50,17 +51,6 @@ class TestCommon {
         val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
 
         private val DEPLOY_CL = getDeployDirClassloader()
-
-        /**
-         * Extend {@code IdpResponse} to creates a dom response from it's decoded saml response
-         */
-        fun IdpResponse.buildDom(): Node {
-            return DocumentBuilderFactory.newInstance().apply {
-                isNamespaceAware = true
-            }.newDocumentBuilder()
-                    .parse(this.decodedSamlResponse.byteInputStream())
-                    .documentElement
-        }
 
         /**
          * Generates and returns a POST Authn Request

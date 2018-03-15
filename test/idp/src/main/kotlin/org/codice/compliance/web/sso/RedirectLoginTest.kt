@@ -25,7 +25,8 @@ import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
-import org.codice.compliance.verification.verifyResponse
+import org.codice.compliance.utils.decorators.IdpResponseDecoratorFactory
+import org.codice.compliance.verification.binding.BindingVerifierFactory
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -59,8 +60,10 @@ class RedirectLoginTest : StringSpec() {
 
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
+            val idpResponseDecorator = IdpResponseDecoratorFactory.getDecorator(idpResponse)
 
-            verifyResponse(idpResponse)
+            val bindingVerifier = BindingVerifierFactory.getBindingVerifier(idpResponseDecorator)
+            bindingVerifier.verify()
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -79,11 +82,13 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response).apply {
+            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
+            val idpResponseDecorator = IdpResponseDecoratorFactory.getDecorator(idpResponse).apply {
                 isRelayStateGiven = true
             }
 
-            verifyResponse(idpResponse)
+            val bindingVerifier = BindingVerifierFactory.getBindingVerifier(idpResponseDecorator)
+            bindingVerifier.verify()
         }
     }
 }

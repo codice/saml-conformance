@@ -48,7 +48,6 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG;
  * </blockquote>
  */
 public class IdpRedirectResponse extends IdpResponse {
-  private IdpRedirectResponse() {}
 
   public static class Builder {
 
@@ -68,6 +67,17 @@ public class IdpRedirectResponse extends IdpResponse {
     public IdpRedirectResponse build() {
       return idpRedirectResponse;
     }
+  }
+
+  private IdpRedirectResponse() {}
+  // Copy constructor
+  protected IdpRedirectResponse(IdpRedirectResponse response) {
+    super(response);
+    url = response.url;
+    path = response.path;
+    samlEncoding = response.samlEncoding;
+    sigAlg = response.sigAlg;
+    signature = response.signature;
   }
 
   private String url;

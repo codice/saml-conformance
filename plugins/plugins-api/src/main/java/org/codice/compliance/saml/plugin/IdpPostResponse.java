@@ -50,8 +50,6 @@ import com.jayway.restassured.path.xml.element.Node;
  */
 public class IdpPostResponse extends IdpResponse {
 
-  private IdpPostResponse() {}
-
   public static class Builder {
 
     private IdpPostResponse idpPostResponse = new IdpPostResponse();
@@ -72,12 +70,21 @@ public class IdpPostResponse extends IdpResponse {
     }
   }
 
+  private IdpPostResponse() {}
+
+  // Copy constructor
+  protected IdpPostResponse(IdpPostResponse response) {
+    super(response);
+    samlResponseForm = response.samlResponseForm;
+    isSamlResponseHidden = response.isSamlResponseHidden;
+    isRelayStateHidden = response.isRelayStateHidden;
+  }
+
   private static final String VALUE = "value";
   private static final String TYPE = "type";
   private static final String NAME = "name";
 
   private Node samlResponseForm;
-
   private boolean isSamlResponseHidden;
   private boolean isRelayStateHidden;
 
@@ -147,17 +154,5 @@ public class IdpPostResponse extends IdpResponse {
         isRelayStateHidden = relayStateNode.getAttribute(TYPE).equals("hidden");
       }
     }
-  }
-
-  public Node getSamlResponseForm() {
-    return samlResponseForm;
-  }
-
-  public boolean isSamlResponseHidden() {
-    return isSamlResponseHidden;
-  }
-
-  public boolean isRelayStateHidden() {
-    return isRelayStateHidden;
   }
 }

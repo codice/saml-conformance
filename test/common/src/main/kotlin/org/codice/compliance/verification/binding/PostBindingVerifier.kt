@@ -13,31 +13,52 @@
  */
 package org.codice.compliance.verification.binding
 
+import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
-import org.codice.compliance.saml.plugin.IdpPostResponse
+import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
+import org.codice.security.sign.Decoder
+import java.io.IOException
 
-class PostVerifier(val response: IdpPostResponse) : BindingVerifier() {
+class PostBindingVerifier(val response: IdpPostResponseDecorator) {
     /**
      * Verify the response for a post binding
      */
-    override fun verifyBinding() {
+    fun verify() {
+        verifyEncoding()
         verifySsoPost()
         verifyPostRelayState()
     }
 
     /**
+     * Verifies the encoding of the samlResponse by decoding it according to the post binding rules in the binding spec
+     * 3.5.4 Message Encoding
+     */
+    private fun verifyEncoding() {
+        val samlResponse = response.samlResponse
+        val decodedMessage: String
+        try {
+            decodedMessage = Decoder.decodePostMessage(samlResponse)
+        } catch (exception: IOException) {
+            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a, message = "The SAML response could not be decoded.", cause = exception)
+        }
+
+        decodedMessage shouldNotBe null
+
+        response.decodedSamlResponse = decodedMessage
+    }
+
+    /**
      * Checks POST-specific rules from SSO profile spec
      * 4.1.4.5 POST-Specific Processing Rules
-     *
-     * @param response - Response node
      */
     private fun verifySsoPost() {
-        if (response.responseDom.children(SIGNATURE).isEmpty()
-                || response.responseDom.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
+        if (response.responseDom!!.children(SIGNATURE).isEmpty()
+                || response.responseDom!!.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the Response or Assertions.")
     }
 
