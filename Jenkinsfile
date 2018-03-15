@@ -50,7 +50,10 @@ pipeline {
         }
         stage('Run Tests') {
             steps {
-                sh 'docker-compose --file distribution/docker/docker-compose.yml up'
+                sh 'curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
+                sh 'chmod 755 /usr/local/bin/docker-compose'
+                sh 'docker-compose --file distribution/docker/docker-compose.yml up -d ddf'
+                sh 'docker-compose --file distribution/docker/docker-compose.yml up saml'
             }
             post {
                 always {
