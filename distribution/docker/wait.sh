@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Override the ddf profile to wait for by passing in DDF_PROFILE env var
-_target_profile=${TARGET_PROFILE:="standard"}
+_target_profile=${TARGET_PROFILE:="minimum"}
 # Override the default hostname for the system under test by passing in SUT_HOST
 _sut_host=${SUT_HOST:="ddf"}
 # Override the default port for the system under test by passing in SUT_PORT
