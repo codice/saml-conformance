@@ -1,3 +1,7 @@
+plugins {
+    id "org.jetbrains.kotlin.kapt"
+}
+
 group = 'org.codice.samlconf.plugins'
 description = 'Plugin implementation for DDF'
 
@@ -9,4 +13,6 @@ dependencies {
 
     compile project(':library')
     compile project(':plugins:plugins-api')
+
+    kapt group: 'org.kohsuke.metainf-services', name: 'metainf-services', version: '1.1'
 }
