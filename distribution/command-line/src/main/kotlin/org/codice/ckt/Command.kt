@@ -28,9 +28,5 @@ fun main(args: Array<String>) {
     System.setProperty("test.sp.metadata", "$samlDist/conf/test-sp-metadata.xml")
     System.setProperty("saml.plugin.deployDir", pluginDir)
 
-    System.out.println("idp.metadata = $idpMetadata")
-    System.out.println("test.sp.metadata = $samlDist/conf/test-sp-metadata.xml")
-    System.out.println("saml.plugin.deployDir = $pluginDir")
-
     org.junit.runner.JUnitCore.main("org.codice.compliance.tests.suites.BasicTestsSuite")
 }

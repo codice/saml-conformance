@@ -10,6 +10,7 @@ dependencies {
     docker project(":distribution:suites")
 }
 
+// Copy the distribution from the distribution module over to the build module
 task copyDistribuion(type: Copy) {
     from project(":distribution:command-line").file("build/distributions/samlconf-${project_version}.tar")
     into 'build'
