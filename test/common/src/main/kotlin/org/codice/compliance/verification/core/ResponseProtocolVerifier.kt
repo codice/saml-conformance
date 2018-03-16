@@ -97,7 +97,7 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
             if (statusCodes.any { it.attributes.getNamedItem("Value") == null })
                 throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2.2", "Value", "StatusCode")
 
-            val statusCode = statusCodes[0]?.attributes?.getNamedItem("Value")?.textContent
+            val statusCode = statusCodes[0].attributes?.getNamedItem("Value")?.textContent
             if (!TOP_LEVEL_STATUS_CODES.contains(statusCode))
                 throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLCore_3_2_2_2, "Status Code", statusCode)
         }
