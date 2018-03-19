@@ -13,7 +13,7 @@ To build the project, execute `gradle build` at the project root.
 The `distribution/command-line` module will contain a full package of the deployment after the build.
 
 Tests can be run with the `samlconf` script under `<PATH_TO_PROJECT>/distribution/command-line/build/distributions/samlconf-<VERSION>/bin/`.
-To build and unzip the distribution execute `gradle build unzip`.
+Build the project will create the distribution, to unzip it, execute `gradle build installDist`, which will unzip it and place it under `build/install`.
 
 The `samlconf` script takes multiple parameters:
 
