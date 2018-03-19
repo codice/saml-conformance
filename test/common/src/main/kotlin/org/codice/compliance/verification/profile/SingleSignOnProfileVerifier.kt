@@ -76,6 +76,8 @@ class SingleSignOnProfileVerifier(val response: Node) {
             it.children("Subject")[0].children("SubjectConfirmation")
                     .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
                     .toCollection(bearerSubjectConfirmations)
+
+            //todo - We can't throw an exception here because the spec says there could be assertions without bearer SubjectConfirmation
             if (bearerSubjectConfirmations.isEmpty())
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g, message = "No bearer SubjectConfirmation elements were found.")
 
@@ -91,6 +93,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
                             })
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h, message = "There were no bearer SubjectConfirmation elements that matched the criteria below.")
 
+            //todo - We can't throw an exception here either
             if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i, message = "A bearer Assertion was found without an AuthnStatement.")
 
             if (idpMetadata.descriptor != null) {
@@ -102,7 +105,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
 
             // Assuming the AudienceRestriction is under Conditions
             if (it.children("Conditions").isNotEmpty()) {
-                val audienceRestriction = it.children("Conditions")
+                val audience = it.children("Conditions")
                         .firstOrNull()
                         ?.children("AudienceRestriction")
                         ?.firstOrNull()
@@ -110,8 +113,8 @@ class SingleSignOnProfileVerifier(val response: Node) {
                         ?.firstOrNull()
                         ?.textContent
 
-                if (audienceRestriction != SP_ISSUER)
-                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_k, "AudienceRestriction", audienceRestriction, SP_ISSUER)
+                if (audience != SP_ISSUER)
+                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_k, "Audience", audience, SP_ISSUER)
             }
         }
     }

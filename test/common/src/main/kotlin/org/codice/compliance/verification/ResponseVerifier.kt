@@ -62,9 +62,9 @@ class RedirectResponseVerifier(response: IdpResponse) : ResponseVerifier(respons
             } catch (e: InflationException) {
                 when (e.inflErrorCode) {
                     InflErrorCode.ERROR_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1, message = "Could not decode the SAML response.", cause = e)
-                    InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1, message = "Could not inflate the SAML response.", cause = e)
+                    InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, message = "Could not inflate the SAML response.", cause = e)
                     InflErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2, message = "There were linefeeds or whitespace in the SAML response.", cause = e)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, SAMLBindings_3_4_4_1, message = "Something went wrong with the SAML response.", cause = e)
+                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, message = "Something went wrong with the SAML response.", cause = e)
                 }
             }
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
