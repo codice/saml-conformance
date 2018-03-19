@@ -1,30 +1,23 @@
-plugins {
-    id 'com.palantir.docker' version '0.19.2'
-}
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 description = 'Dockerized SAML CKT.'
 
 dependencies {
-    docker 'foogroup:barmodule:0.1.2'
-    docker project(":distribution:command-line")
-    docker project(":distribution:suites")
+    compile project(':distribution:command-line')
+    compile project(':distribution:suites')
 }
 
 // Copy the distribution from the distribution module over to the build module
 task copyDistribuion(type: Copy) {
-    from project(":distribution:command-line").file("build/distributions/samlconf-${project_version}.tar")
+    from project(':distribution:command-line').file("build/distributions/samlconf-${project_version}.tar")
     into 'build'
     rename { String fileName ->
         fileName.replace("-${project_version}", '')
     }
 }
 
-docker {
-    name 'hub.docker.com/r/codice/samlconf'
-    tags 'latest'
-    dockerfile file('Dockerfile')
-    pull true
-    noCache true
+task docker(type: DockerBuildImage) {
+    dependsOn copyDistribuion
+    dockerFile = file('Dockerfile')
+    inputDir = file("$projectDir")
 }
-
-docker.dependsOn copyDistribuion

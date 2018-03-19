@@ -17,19 +17,13 @@ dependencies {
     compile project(':test:sp')
     compile project(':distribution:suites')
 
-    compile "us.jimschubert:kopper-typed:0.0.3"
+    compile 'us.jimschubert:kopper-typed:0.0.3'
 }
 
 applicationDistribution.from('src/main/resources/') {
     into 'conf'
 }
 
-applicationDistribution.from(project(":plugins:ddf-plugins").file('build/libs')) {
+applicationDistribution.from(project(':plugins:ddf-plugins').file('build/libs')) {
     into 'plugins'
-}
-
-// Unzip distro must be called specifically (gradle build unzip)
-task unzip(type: Copy) {
-    from zipTree(file("build/distributions/samlconf-${project_version}.zip"))
-    into file('build/distributions/')
 }

@@ -138,7 +138,8 @@ This module is the projects full package deployment consisting of: `command-line
 todo: check and elaborate on this&rarr; This module contains all the runtime elements including scripts, jars, and configurations.
 
 #### docker
-todo: check this&rarr; This module contains the logic for building a docker image.
+This module contains the logic for building a docker image.
+To build this module you must run the docker task by executing `gradle build docker`.
 
 #### suites
 This module contains the test suites.
