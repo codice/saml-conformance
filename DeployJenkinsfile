@@ -1,0 +1,63 @@
+//"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
+//More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
+pipeline {
+    agent { label 'dind' }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'25'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    triggers {
+        /*
+          Restrict nightly builds to master branch
+          Note: The BRANCH_NAME will only work with a multi-branch job using the github-branch-source
+        */
+        cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
+    }
+    environment {
+        LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
+        PATH="${tool 'docker-latest'}/bin:$PATH"
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                slackSend color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+            }
+        }
+        stage('Full Build') {
+            steps {
+                timeout(time: 3, unit: 'HOURS') {
+                    withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
+                        sh 'mvn clean install -P docker'
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            when {
+                allOf {
+                    expression { env.CHANGE_ID == null }
+                    expression { env.BRANCH_NAME == "master" }
+                }
+            }
+            environment {
+                DOCKER_LOGIN = credentials('dockerhub-codicebot')
+            }
+            steps {
+                sh 'docker login -u $DOCKER_LOGIN_USR -p $DOCKER_LOGIN_PSW'
+                sh 'docker push codice/samlconf'
+            }
+        }
+    }
+    post {
+        success {
+            slackSend color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
+        }
+        failure {
+            slackSend color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+        }
+        unstable {
+            slackSend color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+        }
+    }
+}
