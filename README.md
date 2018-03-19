@@ -13,7 +13,6 @@ To build the project, execute `gradle build` at the project root.
 The `distribution/command-line` module will contain a full package of the deployment after the build.
 
 Tests can be run with the `samlconf` script under `<PATH_TO_PROJECT>/distribution/command-line/build/distributions/samlconf-<VERSION>/bin/`.
-Build the project will create the distribution, to unzip it, execute `gradle build installDist`, which will unzip it and place it under `build/install`.
 
 The `samlconf` script takes multiple parameters:
 
@@ -26,29 +25,21 @@ SYNOPSIS
            [-p path] [--plugins path] 
 
 DESCRIPTION
-       Runs the SAML Conformance Tests which tests the complance of an IdP and/or an SP
+       Runs the SAML Conformance Tests which tests the compliance of an IdP and/or an SP
        with the SAML Specifications. If a compliance issue is identified, a 
-       SAMLConformaceException will be throw with an explanation of the error an a direct
+       SAMLConformanceException will be thrown with an explanation of the error and a direct
        quote from the specification. All of the parameters are optional and if they are 
        not provided, the default values will use DDF's parameters. All parameters must 
-       be given one times.
+       be given one time.
 
 OPTIONS
-       -i path
+       -i | --idpMetadata path
            The path to the IdP metadata. If it is not given, the default IdP metadata
            is /conf/idp-metadata.xml.
            
-       --idpMetadata path
-           The path to the IdP metadata. If it is not given, the default IdP metadata
-           is /conf/idp-metadata.xml.
-           
-       -p path
-            The path to the pluggable portion. If it is not given, the default plugin
-            is /plugins/ddf-plugins-1.0-SNAPSHOT.jar.
-    
-       --plugins path
-            The path to the pluggable portion. If it is not given, the default plugin
-            is /plugins/ddf-plugins-1.0-SNAPSHOT.jar.
+       -p | --plugins path
+            The path to the custom, server-specific plugin implementations. If it is not given, 
+            the default plugin directory is /plugins.
 ```
 
 
@@ -64,7 +55,7 @@ for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for
   `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-sp-metadata.xml`
   or `samlconf-1.0-SNAPSHOT/conf/test-sp-metadata.xml` from the distribution.
   
-* **TODO** If testing an SP:
+* **TODO - not implemented yet** If testing an SP:
   * Provide your SP's metadata file path to the `samlconf` script using `-s` or `--spMetadata`.
   * Configure your SP with the test kit's IdP metadata from
     `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-idp-metadata.xml`

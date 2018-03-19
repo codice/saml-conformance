@@ -8,7 +8,7 @@ dependencies {
 }
 
 // Copy the distribution from the distribution module over to the build module
-task copyDistribuion(type: Copy) {
+task copyDistribution(type: Copy) {
     from project(':distribution:command-line').file("build/distributions/samlconf-${project_version}.tar")
     into 'build'
     rename { String fileName ->
@@ -17,7 +17,7 @@ task copyDistribuion(type: Copy) {
 }
 
 task docker(type: DockerBuildImage) {
-    dependsOn copyDistribuion
+    dependsOn copyDistribution
     dockerFile = file('Dockerfile')
     inputDir = file("$projectDir")
 }
