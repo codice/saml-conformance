@@ -48,7 +48,13 @@ class PostLoginTest : StringSpec() {
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
-            verifyResponse(idpResponse)
+            val responseDom = verifyResponse(idpResponse)
+
+            CoreVerifier(responseDom).verify()
+
+            ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
+
+            SingleSignOnProfileVerifier(responseDom).verify()
         }
 
         "POST AuthnRequest With Relay State Test" {
@@ -70,14 +76,11 @@ class PostLoginTest : StringSpec() {
 
             val responseDom = verifyResponse(idpResponse)
 
-            val coreVerifier = CoreVerifier(responseDom)
-            coreVerifier.verify()
+            CoreVerifier(responseDom).verify()
 
-            val responseProtocolVerifier = ResponseProtocolVerifier(responseDom, TestCommon.ID)
-            responseProtocolVerifier.verify()
+            ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
 
-            val singleSignOnProfileVerifier = SingleSignOnProfileVerifier(responseDom)
-            singleSignOnProfileVerifier.verify()
+            SingleSignOnProfileVerifier(responseDom).verify()
         }
     }
 }
