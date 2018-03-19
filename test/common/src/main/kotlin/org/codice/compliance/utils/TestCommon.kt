@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.utils
 
-import com.jayway.restassured.internal.path.xml.NodeImpl
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
@@ -47,7 +46,8 @@ class TestCommon {
         var ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_REDIRECT)?.url
         val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         val EXAMPLE_RELAY_STATE = "relay+State"
-        val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpecItMustNotExceed80BytesInLength"
+        val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpec" +
+                "ItMustNotExceed80BytesInLength"
 
         private val DEPLOY_CL = getDeployDirClassloader()
 

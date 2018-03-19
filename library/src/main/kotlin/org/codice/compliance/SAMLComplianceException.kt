@@ -6,7 +6,8 @@ class SAMLComplianceException : Exception {
     private constructor(message: String, cause: Throwable) : super(message, cause)
 
     companion object {
-        fun create(vararg codes: SAMLSpecRefMessage, message: String, cause: Throwable? = null): SAMLComplianceException {
+        fun create(vararg codes: SAMLSpecRefMessage, message: String, cause: Throwable? = null):
+                SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
                     .fold("SAML Specification References:\n") { acc, s ->
                         "$acc\n$s"
@@ -23,12 +24,17 @@ class SAMLComplianceException : Exception {
             return SAMLComplianceException("$section: $property is required in $parent.")
         }
 
-        fun createWithPropertyInvalidMessage(code: SAMLSpecRefMessage, property: String, propertyValue: String?): SAMLComplianceException {
+        fun createWithPropertyInvalidMessage(code: SAMLSpecRefMessage, property: String, propertyValue: String?):
+                SAMLComplianceException {
             return SAMLComplianceException("The $property value of $propertyValue is invalid.\n\n${readCode(code)}")
         }
 
-        fun createWithPropertyNotEqualMessage(code: SAMLSpecRefMessage, property: String, propertyValue: String?, otherValue: String?): SAMLComplianceException {
-            return SAMLComplianceException("The $property value of $propertyValue is not equal to $otherValue.\n\n${readCode(code)}")
+        fun createWithPropertyNotEqualMessage(code: SAMLSpecRefMessage,
+                                              property: String,
+                                              propertyValue: String?,
+                                              otherValue: String?): SAMLComplianceException {
+            return SAMLComplianceException("The $property value of $propertyValue is not equal to $otherValue." +
+                    "\n\n${readCode(code)}")
         }
 
         private fun readCode(code: SAMLSpecRefMessage): String {

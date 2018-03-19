@@ -19,20 +19,20 @@ import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 import java.io.File
-import java.util.*
 
 const val IDP_METADATA_PROPERTY = "idp.metadata"
 const val TES_SP_METADATA_PROPERTY = "test.sp.metadata"
 
-val SUPPORTED_BINDINGS = mutableSetOf(
-        SamlProtocol.Binding.HTTP_POST,
-        SamlProtocol.Binding.HTTP_REDIRECT
-)
-
 class Common {
     companion object {
+        val SUPPORTED_BINDINGS = mutableSetOf(
+                SamlProtocol.Binding.HTTP_POST,
+                SamlProtocol.Binding.HTTP_REDIRECT
+        )
+
         private val IDP_METADATA = File(System.getProperty(org.codice.compliance.IDP_METADATA_PROPERTY)).readText()
-        private val TEST_SP_METADATA = File(System.getProperty(org.codice.compliance.TES_SP_METADATA_PROPERTY)).readText()
+        private val TEST_SP_METADATA = File(System.getProperty(org.codice.compliance.TES_SP_METADATA_PROPERTY))
+                .readText()
 
         /**
          * Parses and returns the idp metadata
@@ -73,11 +73,10 @@ class Common {
  */
 fun Node.children(name: String): List<Node> {
     val childNodes = mutableListOf<Node>()
-    var i = this.childNodes.length - 1
-    while (i >= 0) {
-        val child = this.childNodes.item(i)
-        if (child.localName == name)
-            childNodes.add(child); i -= 1
+    for (i in (this.childNodes.length - 1) downTo 0) {
+        this.childNodes.item(i).apply {
+            if (localName == name) childNodes.add(this)
+        }
     }
     return childNodes
 }

@@ -40,8 +40,8 @@ sealed class ResponseVerifier(val response: IdpResponse) {
         return response.responseDom
     }
 
-    abstract protected fun decodeResponse(response: IdpResponse): String
-    abstract protected fun getBindingVerifier(response: IdpResponse): BindingVerifier
+    protected abstract fun decodeResponse(response: IdpResponse): String
+    protected abstract fun getBindingVerifier(response: IdpResponse): BindingVerifier
 
 }
 
@@ -54,17 +54,35 @@ class RedirectResponseVerifier(response: IdpResponse) : ResponseVerifier(respons
 
         /**
          * A query string parameter named SAMLEncoding is reserved to identify the encoding mechanism used. If this
-         * parameter is omitted, then the value is assumed to be urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
+         * parameter is omitted, then the value is assumed to be
+         * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
          */
-        decodedMessage = if (samlEncoding == null || samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+        decodedMessage = if (samlEncoding == null ||
+                samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
             try {
                 Decoder.decodeAndInflateRedirectMessage(samlResponse)
             } catch (e: InflationException) {
                 when (e.inflErrorCode) {
-                    InflErrorCode.ERROR_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1, message = "Could not decode the SAML response.", cause = e)
-                    InflErrorCode.ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, message = "Could not inflate the SAML response.", cause = e)
-                    InflErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2, message = "There were linefeeds or whitespace in the SAML response.", cause = e)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, message = "Something went wrong with the SAML response.", cause = e)
+                    InflErrorCode.ERROR_DECODING -> {
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
+                                message = "Could not decode the SAML response.",
+                                cause = e)
+                    }
+                    InflErrorCode.ERROR_INFLATING -> {
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1,
+                                message = "Could not inflate the SAML response.",
+                                cause = e)
+                    }
+                    InflErrorCode.LINEFEED_OR_WHITESPACE -> {
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2,
+                                message = "There were linefeeds or whitespace in the SAML response.",
+                                cause = e)
+                    }
+                    else -> {
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
+                                message = "Something went wrong with the SAML response.",
+                                cause = e)
+                    }
                 }
             }
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
@@ -87,7 +105,9 @@ class PostResponseVerifier(response: IdpPostResponse) : ResponseVerifier(respons
         try {
             decodedMessage = Decoder.decodePostMessage(samlResponse)
         } catch (exception: IOException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a, message = "The SAML response could not be decoded.", cause = exception)
+            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a,
+                    message = "The SAML response could not be decoded.",
+                    cause = exception)
         }
 
         decodedMessage shouldNotBe null
@@ -101,7 +121,8 @@ class PostResponseVerifier(response: IdpPostResponse) : ResponseVerifier(respons
 }
 
 // todo once we support more bindings, Section 3.1.1: "if a SAML request message is accompanied by RelayState data,
-// then the SAML responder MUST return its SAML protocol response using a binding that also supports a RelayState mechanism"
+// then the SAML responder MUST return its SAML protocol response using a binding that also supports a RelayState
+// mechanism"
 /**
  * Delegates the response to the correct POST or REDIRECT binding
  */

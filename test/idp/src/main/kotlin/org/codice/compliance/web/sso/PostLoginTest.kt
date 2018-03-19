@@ -30,6 +30,8 @@ import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 
+const val HTTP_OK = 200
+
 class PostLoginTest : StringSpec() {
     init {
         RestAssured.useRelaxedHTTPSValidation()
@@ -46,7 +48,7 @@ class PostLoginTest : StringSpec() {
                     .`when`()
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
-            response.statusCode shouldBe 200
+            response.statusCode shouldBe HTTP_OK
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
             val responseDom = verifyResponse(idpResponse)
 
@@ -69,7 +71,7 @@ class PostLoginTest : StringSpec() {
                     .`when`()
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
-            response.statusCode shouldBe 200
+            response.statusCode shouldBe HTTP_OK
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response).apply {
                 isRelayStateGiven = true
             }
