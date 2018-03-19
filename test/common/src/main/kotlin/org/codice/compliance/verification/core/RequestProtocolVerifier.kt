@@ -24,7 +24,7 @@ class RequestProtocolVerifier(val request: Node) {
      * Verify protocols against the Core Spec document
      * 3.2.1 Complex Type StatusResponseType
      */
-    fun verifyCoreRequestProtocol(request: Node) {
+    fun verifyCoreRequestProtocol() {
         verifyRequestAbstractType()
         verifyAuthnQueries()
         verifyAttributeQueries()

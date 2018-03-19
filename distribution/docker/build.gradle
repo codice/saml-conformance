@@ -1,0 +1,23 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+description = 'Dockerized SAML CKT.'
+
+dependencies {
+    compile project(':distribution:command-line')
+    compile project(':distribution:suites')
+}
+
+// Copy the distribution from the distribution module over to the build module
+task copyDistribution(type: Copy) {
+    from project(':distribution:command-line').file("build/distributions/samlconf-${project_version}.tar")
+    into 'build'
+    rename { String fileName ->
+        fileName.replace("-${project_version}", '')
+    }
+}
+
+task docker(type: DockerBuildImage) {
+    dependsOn copyDistribution
+    dockerFile = file('Dockerfile')
+    inputDir = file("$projectDir")
+}

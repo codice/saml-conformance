@@ -1,0 +1,60 @@
+buildscript {
+    ext.kotlin_version='1.2.30'
+    ext.gradle_docker_version='3.2.4'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.bmuschko:gradle-docker-plugin:$gradle_docker_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.30'
+}
+
+description = 'SAML Conformance Test Kit'
+
+project.ext {
+    project_version='1.0-SNAPSHOT'
+    kotlin_test_version='2.0.7'
+    rest_assured_version='2.9.0'
+    org_slf4j_version='1.7.1'
+    junit_version='4.12'
+    guava_version='24.0-jre'
+}
+
+allprojects {
+    group = 'org.codice.samlconf'
+    version = "$project_version"
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'kotlin-kapt'
+    apply plugin: 'kotlin'
+    apply plugin: 'com.bmuschko.docker-remote-api'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-reflect"
+        compile "junit:junit:$junit_version"
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        compile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+        compile "com.jayway.restassured:rest-assured:$rest_assured_version"
+        compile "org.slf4j:slf4j-api:$org_slf4j_version"
+        compile "com.google.guava:guava:$guava_version"
+    }
+}

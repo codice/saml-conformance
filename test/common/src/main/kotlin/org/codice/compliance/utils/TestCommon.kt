@@ -104,7 +104,7 @@ class TestCommon {
             val pluginDeploy = System.getProperty("saml.plugin.deployDir")
 
             return if (pluginDeploy != null) {
-                val walkTopDown = File(pluginDeploy).walkTopDown()
+                val walkTopDown = File(pluginDeploy).canonicalFile.walkTopDown()
                 val jarUrls = walkTopDown.maxDepth(1)
                         .filter { it.name.endsWith(".jar") }
                         .map { it.toURI() }

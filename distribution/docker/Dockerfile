@@ -1,8 +1,8 @@
 # First conatiner is a throw away container
 FROM alpine
 RUN apk add --no-cache curl tar gzip
-COPY target/samlconf.tar.gz /samlconf.tar.gz
-RUN mkdir -p /samlconf && tar xzvf /samlconf.tar.gz -C /samlconf
+COPY build/samlconf.tar /samlconf.tar
+RUN mkdir -p /samlconf && tar xvf /samlconf.tar -C /samlconf
 
 FROM anapsix/alpine-java:8_jdk
 LABEL maintainer=codice

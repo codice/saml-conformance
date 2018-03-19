@@ -17,10 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.builder.RequestSpecBuilder
 import com.jayway.restassured.response.Response
-import io.kotlintest.matchers.shouldBe
-import org.apache.commons.lang3.StringUtils
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse

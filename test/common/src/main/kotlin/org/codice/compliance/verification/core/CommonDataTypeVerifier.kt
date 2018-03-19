@@ -131,7 +131,6 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
 
     // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permited"
     if (!strippedYear.matches(Regex("\\d+"))) {
-        val list= mutableListOf<SAMLSpecRefMessage>()
         if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c, message = "A '+' was found.")
         else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7_1_c, message = "A '+' was found.")
     }

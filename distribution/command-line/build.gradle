@@ -1,0 +1,29 @@
+apply plugin: 'application'
+
+description = 'Script and CLI to run the tests.'
+
+group = 'org.codice.samlconf.distribution'
+
+applicationName = 'samlconf'
+
+mainClassName = 'org.codice.ckt.CommandKt'
+
+dependencies {
+    compile project(':plugins:ddf-plugins')
+    compile project(':library')
+    compile project(':plugins:plugins-api')
+    compile project(':test:common')
+    compile project(':test:idp')
+    compile project(':test:sp')
+    compile project(':distribution:suites')
+
+    compile 'us.jimschubert:kopper-typed:0.0.3'
+}
+
+applicationDistribution.from('src/main/resources/') {
+    into 'conf'
+}
+
+applicationDistribution.from(project(':plugins:ddf-plugins').file('build/libs')) {
+    into 'plugins'
+}
