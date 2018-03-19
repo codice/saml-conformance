@@ -20,11 +20,15 @@ import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
+import org.codice.compliance.verification.core.CoreVerifier
+import org.codice.compliance.verification.core.ResponseProtocolVerifier
+import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
@@ -60,7 +64,13 @@ class RedirectLoginTest : StringSpec() {
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
 
-            verifyResponse(idpResponse)
+            val responseDom = verifyResponse(idpResponse)
+
+            CoreVerifier(responseDom).verify()
+
+            ResponseProtocolVerifier(responseDom, ID).verify()
+
+            SingleSignOnProfileVerifier(responseDom).verify()
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -83,7 +93,13 @@ class RedirectLoginTest : StringSpec() {
                 isRelayStateGiven = true
             }
 
-            verifyResponse(idpResponse)
+            val responseDom = verifyResponse(idpResponse)
+
+            CoreVerifier(responseDom).verify()
+
+            ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
+
+            SingleSignOnProfileVerifier(responseDom).verify()
         }
     }
 }
