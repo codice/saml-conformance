@@ -5,9 +5,10 @@ import org.codice.compliance.PLUGIN_DIR_PROPERTY
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import us.jimschubert.kopper.Parser
 
-val samlDist = "${System.getProperty("user.dir")}/.."
-
 fun main(args: Array<String>) {
+    val samlDist = System.getProperty("app.home")
+    requireNotNull(samlDist) { "app.home System property must be set" }
+
     val parser = Parser()
     parser.setName("SAML CKT")
     parser.setApplicationDescription("SAML Conformance Test Kit")
