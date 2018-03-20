@@ -16,7 +16,7 @@ pipeline {
     }
     environment {
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
-        PATH="${tool 'docker-latest'}/bin:$PATH"
+        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.6'}/bin:$PATH"
     }
     stages {
         stage('Setup') {
@@ -26,11 +26,7 @@ pipeline {
         }
         stage('Full Build') {
             steps {
-                timeout(time: 3, unit: 'HOURS') {
-                    withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
-                        sh 'mvn clean install -P docker'
-                    }
-                }
+                sh 'gradle clean install docker'
             }
         }
         stage('Deploy') {
