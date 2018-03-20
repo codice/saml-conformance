@@ -27,3 +27,12 @@ applicationDistribution.from('src/main/resources/') {
 applicationDistribution.from(project(':plugins:ddf-plugins').file('build/libs')) {
     into 'plugins'
 }
+
+applicationDefaultJvmArgs = ["-Dapp.home=SAMLCTK_APP_HOME"]
+
+startScripts {
+    doLast {
+        unixScript.text = unixScript.text.replace('SAMLCTK_APP_HOME', '\$APP_HOME')
+        windowsScript.text = windowsScript.text.replace('SAMLCTK_APP_HOME', '%~dp0..')
+    }
+}
