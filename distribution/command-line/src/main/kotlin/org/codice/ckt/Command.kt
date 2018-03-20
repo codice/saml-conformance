@@ -1,5 +1,8 @@
 package org.codice.ckt
 
+import org.codice.compliance.IDP_METADATA_PROPERTY
+import org.codice.compliance.PLUGIN_DIR_PROPERTY
+import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import us.jimschubert.kopper.Parser
 
 val samlDist = "${System.getProperty("user.dir")}/.."
@@ -24,9 +27,9 @@ fun main(args: Array<String>) {
     val pluginDir = arguments.option("p")
             ?: "$samlDist/plugins"
 
-    System.setProperty("idp.metadata", idpMetadata)
-    System.setProperty("test.sp.metadata", "$samlDist/conf/test-sp-metadata.xml")
-    System.setProperty("saml.plugin.deployDir", pluginDir)
+    System.setProperty(IDP_METADATA_PROPERTY, idpMetadata)
+    System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/test-sp-metadata.xml")
+    System.setProperty(PLUGIN_DIR_PROPERTY, pluginDir)
 
     org.junit.runner.JUnitCore.main("org.codice.compliance.tests.suites.BasicTestsSuite")
 }
