@@ -30,9 +30,13 @@ import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 
-const val HTTP_OK = 200
+
 
 class PostLoginTest : StringSpec() {
+    companion object {
+        const val HTTP_OK = 200
+    }
+
     init {
         RestAssured.useRelaxedHTTPSValidation()
 
