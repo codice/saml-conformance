@@ -20,19 +20,32 @@ import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 import java.io.File
 
+const val PLUGIN_DIR_PROPERTY = "saml.plugin.deployDir"
 const val IDP_METADATA_PROPERTY = "idp.metadata"
-const val TES_SP_METADATA_PROPERTY = "test.sp.metadata"
+const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 
 class Common {
     companion object {
-        val SUPPORTED_BINDINGS = mutableSetOf(
+        private val SUPPORTED_BINDINGS = mutableSetOf(
                 SamlProtocol.Binding.HTTP_POST,
                 SamlProtocol.Binding.HTTP_REDIRECT
         )
 
-        private val IDP_METADATA = File(System.getProperty(org.codice.compliance.IDP_METADATA_PROPERTY)).readText()
-        private val TEST_SP_METADATA = File(System.getProperty(org.codice.compliance.TES_SP_METADATA_PROPERTY))
-                .readText()
+        private val IDP_METADATA by lazy {
+            requireNotNull(System.getProperty(IDP_METADATA_PROPERTY)) {
+                "Value required for $IDP_METADATA_PROPERTY System property."
+            }
+
+            File(System.getProperty(IDP_METADATA_PROPERTY)).readText()
+        }
+
+        private val TEST_SP_METADATA by lazy {
+            requireNotNull(System.getProperty(TEST_SP_METADATA_PROPERTY)) {
+                "Value required for $TEST_SP_METADATA_PROPERTY System property."
+            }
+
+            File(System.getProperty(TEST_SP_METADATA_PROPERTY)).readText()
+        }
 
         /**
          * Parses and returns the idp metadata

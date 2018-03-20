@@ -18,6 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
+import org.codice.compliance.PLUGIN_DIR_PROPERTY
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.security.saml.SamlProtocol
@@ -35,19 +36,20 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class TestCommon {
     companion object {
-        val XSI = "http://www.w3.org/2001/XMLSchema-instance"
-        val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
+        const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
+        const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
+        const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
+        const val EXAMPLE_RELAY_STATE = "relay+State"
+        const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpec" +
+                "ItMustNotExceed80BytesInLength"
 
         val idpMetadata = Common.parseIdpMetadata()
-        val spMetadata = Common.parseSpMetadata()
+        private val spMetadata = Common.parseSpMetadata()
 
         val SP_ISSUER = spMetadata.keys.first()
-        val SP_INFO = spMetadata[SP_ISSUER]
+        private val SP_INFO = spMetadata[SP_ISSUER]
+
         var ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_REDIRECT)?.url
-        val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
-        val EXAMPLE_RELAY_STATE = "relay+State"
-        val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpec" +
-                "ItMustNotExceed80BytesInLength"
 
         private val DEPLOY_CL = getDeployDirClassloader()
 
@@ -101,18 +103,18 @@ class TestCommon {
         }
 
         private fun getDeployDirClassloader(): ClassLoader {
-            val pluginDeploy = System.getProperty("saml.plugin.deployDir")
+            val pluginDeploy = System.getProperty(PLUGIN_DIR_PROPERTY)
+            requireNotNull(pluginDeploy) { "Value required for System property $PLUGIN_DIR_PROPERTY." }
 
-            return if (pluginDeploy != null) {
-                val walkTopDown = File(pluginDeploy).canonicalFile.walkTopDown()
-                val jarUrls = walkTopDown.maxDepth(1)
-                        .filter { it.name.endsWith(".jar") }
-                        .map { it.toURI() }
-                        .map { it.toURL() }
-                        .toList()
+            val walkTopDown = File(pluginDeploy).canonicalFile.walkTopDown()
+            val jarUrls = walkTopDown.maxDepth(1)
+                    .filter { it.name.endsWith(".jar") }
+                    .map { it.toURI() }
+                    .map { it.toURL() }
+                    .toList()
 
-                URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
-            } else SAMLComplianceException::class.java.classLoader
+            check(jarUrls.isNotEmpty()) { "No plugins found in $PLUGIN_DIR_PROPERTY; CTK can not operate."}
+            return URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
         }
     }
 }
