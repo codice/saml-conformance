@@ -128,9 +128,7 @@ class IdpResponderProvider : IdpResponder {
                 .replace("window.idpState = ", "")
                 .replace(";", "")
 
-        val gson = Gson()
-        GsonBuilder().setPrettyPrinting().create()
-        val queryParams : MutableMap<String, String> = gson.fromJson(idpState, object : TypeToken<Map<String, String>>() {}.type)
+        val queryParams : MutableMap<String, String> = Gson().fromJson(idpState, object : TypeToken<Map<String, String>>() {}.type)
 
         queryParams["AuthMethod"] = "up"
         val requestSpec = RequestSpecBuilder().addParams(queryParams).build()
