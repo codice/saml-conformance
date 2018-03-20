@@ -13,7 +13,9 @@
  */
 package org.codice.compliance.saml.plugin.ddf
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.common.reflect.TypeToken
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.builder.RequestSpecBuilder
 import com.jayway.restassured.response.Response
@@ -126,8 +128,9 @@ class IdpResponderProvider : IdpResponder {
                 .replace("window.idpState = ", "")
                 .replace(";", "")
 
-        val queryParams = ObjectMapper()
-                .readValue(idpState, MutableMap::class.java) as MutableMap<String, String>
+        val gson = Gson()
+        GsonBuilder().setPrettyPrinting().create()
+        val queryParams : MutableMap<String, String> = gson.fromJson(idpState, object : TypeToken<Map<String, String>>() {}.type)
 
         queryParams["AuthMethod"] = "up"
         val requestSpec = RequestSpecBuilder().addParams(queryParams).build()
