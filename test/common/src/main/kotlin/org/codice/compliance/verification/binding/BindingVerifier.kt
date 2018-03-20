@@ -1,8 +1,9 @@
 package org.codice.compliance.verification.binding
 
-import org.codice.compliance.saml.plugin.IdpResponse
-import org.w3c.dom.Node
-
 abstract class BindingVerifier {
+    companion object {
+        const val MAX_RELAYSTATE_LEN = 80
+    }
+
     abstract fun verifyBinding()
 }

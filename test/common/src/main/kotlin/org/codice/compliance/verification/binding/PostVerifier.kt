@@ -38,7 +38,8 @@ class PostVerifier(val response: IdpPostResponse) : BindingVerifier() {
     private fun verifySsoPost() {
         if (response.responseDom.children(SIGNATURE).isEmpty()
                 || response.responseDom.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the Response or Assertions.")
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the " +
+                    "Response or Assertions.")
     }
 
     /**
@@ -55,11 +56,18 @@ class PostVerifier(val response: IdpPostResponse) : BindingVerifier() {
             }
             return
         }
-        if (relayState.toByteArray().size > 80)
-            throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_5_3_a, "RelayState", relayState)
+        if (relayState.toByteArray().size > MAX_RELAYSTATE_LEN)
+            throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_5_3_a,
+                    "RelayState",
+                    relayState)
 
         if (givenRelayState) {
-            if (relayState != EXAMPLE_RELAY_STATE) throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_5_3_b, "RelayState", relayState, EXAMPLE_RELAY_STATE)
+            if (relayState != EXAMPLE_RELAY_STATE) {
+                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_5_3_b,
+                        "RelayState",
+                        relayState,
+                        EXAMPLE_RELAY_STATE)
+            }
         }
     }
 }

@@ -40,22 +40,27 @@ class SingleSignOnProfileVerifier(val response: Node) {
      *
      * @param node - Node containing the issuer to verify.
      */
-    fun verifyIssuer() {
+    private fun verifyIssuer() {
         if (response.localName == "Response" &&
                 (response.children(SIGNATURE).isNotEmpty() ||
                         response.children("Assertion").any { it.children(SIGNATURE).isNotEmpty() })) {
             val issuers = response.children("Issuer")
 
             if (issuers.size != 1)
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a, message = "${issuers.size} Issuer elements were found.")
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
+                        message = "${issuers.size} Issuer elements were found.")
 
             val issuer = issuers[0]
             if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b, message = "Issuer value of ${issuer.textContent} does not match the issuing IdP.")
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
+                        message = "Issuer value of ${issuer.textContent} does not match the issuing IdP.")
 
             val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
             if (issuerFormat != null && issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
-                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_c, "Format", issuerFormat, "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_c,
+                        "Format",
+                        issuerFormat,
+                        "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
         }
     }
 
@@ -63,59 +68,98 @@ class SingleSignOnProfileVerifier(val response: Node) {
      * Verify Assertion Elements against the profile document
      * 4.1.4.2 <Response> Usage
      */
-    fun verifySsoAssertions() {
+    private fun verifySsoAssertions() {
         val assertions = response.children("Assertion")
-        if (assertions.isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d, message = "No Assertions found.")
+        if (assertions.isEmpty()) {
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d, message = "No Assertions found.")
+        }
 
         assertions.forEach {
             verifyIssuer()
+            verifyHasSubject(it)
+            verifyBearerSubjectConfirmations(it)
 
-            if (it.children("Subject").size != 1) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f, message = "${it.children("Subject").size} Subject elements were found.")
-
-            val bearerSubjectConfirmations = mutableListOf<Node>()
-            it.children("Subject")[0].children("SubjectConfirmation")
-                    .filter { it.attributes.getNamedItem("Method").textContent == "urn:oasis:names:tc:SAML:2.0:cm:bearer" }
-                    .toCollection(bearerSubjectConfirmations)
-
-            //todo - We can't throw an exception here because the spec says there could be assertions without bearer SubjectConfirmation
-            if (bearerSubjectConfirmations.isEmpty())
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g, message = "No bearer SubjectConfirmation elements were found.")
-
-            // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and NotOnOrAfter
-            if (bearerSubjectConfirmations
-                            .filter { it.children("SubjectConfirmationData").isNotEmpty() }
-                            .flatMap { it.children("SubjectConfirmationData") }
-                            .none {
-                                it.attributes.getNamedItem("Recipient").textContent == ACS_URL &&
-                                        it.attributes.getNamedItem("InResponseTo").textContent == ID &&
-                                        it.attributes.getNamedItem("NotOnOrAfter") != null &&
-                                        it.attributes.getNamedItem("NotBefore") == null
-                            })
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h, message = "There were no bearer SubjectConfirmation elements that matched the criteria below.")
-
-            //todo - We can't throw an exception here either
-            if (it.children("AuthnStatement").isEmpty()) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i, message = "A bearer Assertion was found without an AuthnStatement.")
-
-            if (idpMetadata.descriptor != null) {
-                if (idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty())
-                    it.children("AuthnStatement").forEach {
-                        if (it.attributes.getNamedItem("SessionIndex") == null) throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j, message = "Single Logout support found in IdP metadata, but no SessionIndex was found.")
-                    }
-            }
+            //todo - We can't throw an exception here because the spec says there could be assertions without bearer
+            verifyAssertionsHaveAuthnStmts(it)
+            verifySingleLogoutIncludesSessionIndex(it)
 
             // Assuming the AudienceRestriction is under Conditions
-            if (it.children("Conditions").isNotEmpty()) {
-                val audience = it.children("Conditions")
-                        .firstOrNull()
-                        ?.children("AudienceRestriction")
-                        ?.firstOrNull()
-                        ?.children("Audience")
-                        ?.firstOrNull()
-                        ?.textContent
+            verifyBearerAssertionsContainAudienceRestriction(it)
+        }
+    }
 
-                if (audience != SP_ISSUER)
-                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_k, "Audience", audience, SP_ISSUER)
+    private fun verifyBearerAssertionsContainAudienceRestriction(assertion: Node) {
+        if (assertion.children("Conditions").isNotEmpty()) {
+            val audience = assertion.children("Conditions")
+                    .firstOrNull()
+                    ?.children("AudienceRestriction")
+                    ?.firstOrNull()
+                    ?.children("Audience")
+                    ?.firstOrNull()
+                    ?.textContent
+
+            if (audience != SP_ISSUER)
+                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLProfiles_4_1_4_2_k,
+                        "Audience",
+                        audience,
+                        SP_ISSUER)
+        }
+    }
+
+    private fun verifySingleLogoutIncludesSessionIndex(assertion: Node) {
+        if (idpMetadata.descriptor == null) return
+
+        if (!idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty()) return
+
+        assertion.children("AuthnStatement").forEach {
+            if (it.attributes.getNamedItem("SessionIndex") == null) {
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
+                        message = "Single Logout support found in IdP metadata, but no SessionIndex was" +
+                                " found.")
             }
+        }
+    }
+
+    private fun verifyAssertionsHaveAuthnStmts(assertion: Node) {
+        if (assertion.children("AuthnStatement").isEmpty()) {
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
+                    message = "A bearer Assertion was found without an AuthnStatement.")
+        }
+    }
+
+    @Suppress("ComplexCondition")
+    private fun verifyBearerSubjectConfirmations(assertion: Node) {
+        val bearerSubjectConfirmations = assertion.children("Subject")[0].children("SubjectConfirmation")
+                .filter {
+                    it.attributes.getNamedItem("Method").textContent ==
+                            "urn:oasis:names:tc:SAML:2.0:cm:bearer"
+                }.toList()
+
+        //todo - We can't throw an exception here because the spec says there could be assertions without bearer
+        // SubjectConfirmation
+        if (bearerSubjectConfirmations.isEmpty())
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
+                    message = "No bearer SubjectConfirmation elements were found.")
+
+        // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and NotOnOrAfter
+        if (bearerSubjectConfirmations
+                        .filter { it.children("SubjectConfirmationData").isNotEmpty() }
+                        .flatMap { it.children("SubjectConfirmationData") }
+                        .none {
+                            it.attributes.getNamedItem("Recipient").textContent == ACS_URL &&
+                                    it.attributes.getNamedItem("InResponseTo").textContent == ID &&
+                                    it.attributes.getNamedItem("NotOnOrAfter") != null &&
+                                    it.attributes.getNamedItem("NotBefore") == null
+                        }) {
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
+                    message = "There were no bearer SubjectConfirmation elements that matched the criteria below.")
+        }
+    }
+
+    private fun verifyHasSubject(assertion: Node) {
+        if (assertion.children("Subject").size != 1) {
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f,
+                    message = "${assertion.children("Subject").size} Subject elements were found.")
         }
     }
 }

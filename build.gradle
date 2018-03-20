@@ -1,6 +1,6 @@
 buildscript {
-    ext.kotlin_version='1.2.30'
-    ext.gradle_docker_version='3.2.4'
+    ext.kotlin_version = '1.2.30'
+    ext.gradle_docker_version = '3.2.4'
 
     repositories {
         jcenter()
@@ -15,17 +15,19 @@ buildscript {
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.2.30'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC6-4'
 }
 
 description = 'SAML Conformance Test Kit'
 
 project.ext {
-    project_version='1.0-SNAPSHOT'
-    kotlin_test_version='2.0.7'
-    rest_assured_version='2.9.0'
-    org_slf4j_version='1.7.1'
-    junit_version='4.12'
-    guava_version='24.0-jre'
+    project_version = '1.0-SNAPSHOT'
+    kotlin_test_version = '2.0.7'
+    rest_assured_version = '2.9.0'
+    org_slf4j_version = '1.7.1'
+    junit_version = '4.12'
+    guava_version = '24.0-jre'
+    detekt_version = '1.0.0.RC6-4'
 }
 
 allprojects {
@@ -56,5 +58,20 @@ subprojects {
         compile "com.jayway.restassured:rest-assured:$rest_assured_version"
         compile "org.slf4j:slf4j-api:$org_slf4j_version"
         compile "com.google.guava:guava:$guava_version"
+    }
+}
+
+build {
+    dependsOn(detektCheck)
+}
+
+detekt {
+    version = "$detekt_version"
+    profile = 'main'
+
+    profile('main') {
+        input = rootProject.projectDir
+        config = "$projectDir/detekt.yml"
+        filters = ".*/resources/.*,.*/tmp/.*"
     }
 }

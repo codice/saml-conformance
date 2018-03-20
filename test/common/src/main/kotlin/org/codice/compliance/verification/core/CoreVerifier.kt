@@ -53,12 +53,16 @@ class CoreVerifier(val node: Node) {
             signatures.forEach {
                 val references = it.allChildren("Reference")
                 if (references.size != 1)
-                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b1, message = "${references.size} Reference elements were found.")
+                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
+                            message = "${references.size} Reference elements were found.")
 
                 val uriValue = references[0].attributes?.getNamedItem("URI")?.textContent
                 val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent
                 if (uriValue != formattedId)
-                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_5_4_2_b, "URI", uriValue, formattedId)
+                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_5_4_2_b,
+                            "URI",
+                            uriValue,
+                            formattedId)
             }
         }
     }
@@ -79,7 +83,10 @@ class CoreVerifier(val node: Node) {
             if (encryptedDataNode.isNotEmpty()) {
                 val encryptedData = encryptedDataNode.get(0).attributes.getNamedItem("EncryptedData").textContent
                 if (encryptedData != ELEMENT)
-                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_6_1_b,"EncryptedData", encryptedData, ELEMENT)
+                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_6_1_b,
+                            "EncryptedData",
+                            encryptedData,
+                            ELEMENT)
             }
         }
     }

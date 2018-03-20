@@ -39,7 +39,12 @@ class RedirectLoginTest : StringSpec() {
     companion object {
         fun setupAuthnRequest(relayState: String?): Map<String, String> {
             val baseRequest = getResource("redirect-authn-request.xml").readText()
-            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest, ACS_URL, Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING), ID, Instant.now().toString(), SP_ISSUER))
+            val encodedRequest = Encoder.encodeRedirectMessage(String.format(baseRequest,
+                    ACS_URL,
+                    Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING),
+                    ID,
+                    Instant.now().toString(),
+                    SP_ISSUER))
             return SimpleSign().signUriString(SAML_REQUEST, encodedRequest, relayState)
         }
     }

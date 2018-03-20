@@ -42,7 +42,8 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     }
 
     /**
-     * Verifies the redirect response has a SAMLResponse query param according to the redirect binding rules in the binding spec
+     * Verifies the redirect response has a SAMLResponse query param according to the redirect binding rules in the
+     * binding spec
      * 3.4.4.1 DEFLATE ENCODING
      */
     private fun verifyRequestParam() {
@@ -52,7 +53,8 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     }
 
     /**
-     * Verifies the redirect response has no XMLSig in the url according to the redirect binding rules in the binding spec
+     * Verifies the redirect response has no XMLSig in the url according to the redirect binding rules in the binding
+     * spec
      * 3.4.4.1 DEFLATE ENCODING
      */
     private fun verifyNoXMLSig() {
@@ -65,8 +67,8 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
      * Verifies the Signature and SigAlg according to the redirect binding rules in the binding spec
      * 3.4.4.1 DEFLATE Encoding
      */
+    @Suppress("ComplexMethod" /* complexity in exception mapping to error is acceptable */)
     private fun verifyRedirectSignature() {
-
         try {
             if (!SimpleSign().validateSignature(
                             SAML_RESPONSE,
@@ -75,16 +77,29 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
                             response.signature,
                             response.sigAlg,
                             idpMetadata.signingCertificate)) {
-                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e, message = "Signature does not match payload.")
+                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e,
+                        message = "Signature does not match payload.")
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
-                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(SAMLBindings_3_1_2_1, message = "The certificate was invalid.", cause = e)
-                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1, message = "Signature Algorithm not found.", cause = e)
-                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2, message = "Signature not found.", cause = e)
-                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2, message = "The Signature algorithm named ${response.sigAlg} is unknown.", cause = e)
-                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1, message = "Whitespace was found in the Signature.", cause = e)
-                else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e, message = "Signature does not match payload.", cause = e)
+                SigErrorCode.INVALID_CERTIFICATE -> throw SAMLComplianceException.create(SAMLBindings_3_1_2_1,
+                        message = "The certificate was invalid.",
+                        cause = e)
+                SigErrorCode.SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1,
+                        message = "Signature Algorithm not found.",
+                        cause = e)
+                SigErrorCode.SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2,
+                        message = "Signature not found.",
+                        cause = e)
+                SigErrorCode.INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2,
+                        message = "The Signature algorithm named ${response.sigAlg} is unknown.",
+                        cause = e)
+                SigErrorCode.LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1,
+                        message = "Whitespace was found in the Signature.",
+                        cause = e)
+                else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e,
+                        message = "Signature does not match payload.",
+                        cause = e)
             }
         }
     }
@@ -109,19 +124,27 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
         try {
             decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
         } catch (e: UnsupportedEncodingException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1, message = "RelayState could not be URL decoded.", cause = e)
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c1,
+                    message = "RelayState could not be URL decoded.",
+                    cause = e)
         }
 
-        if (decodedRelayState.toByteArray().size > 80) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_3_a, message = "RelayState value of $decodedRelayState was longer than 80 bytes.")
+        if (decodedRelayState.toByteArray().size > MAX_RELAYSTATE_LEN) {
+            throw SAMLComplianceException.create(SAMLBindings_3_4_3_a,
+                    message = "RelayState value of $decodedRelayState was longer than 80 bytes.")
         }
 
         if (givenRelayState) {
             if (decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
-                    throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_4_4_1_c1, "RelayState", encodedRelayState)
+                    throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_4_4_1_c1,
+                            "RelayState",
+                            encodedRelayState)
                 }
-                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_3_b1, "RelayState", decodedRelayState, EXAMPLE_RELAY_STATE)
+                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_3_b1,
+                        "RelayState",
+                        decodedRelayState,
+                        EXAMPLE_RELAY_STATE)
             }
         }
     }
@@ -133,7 +156,10 @@ class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     private fun verifyRedirectDestination() {
         val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
         if (destination != ACS_URL) {
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1, "Destination", destination, ACS_URL)
+            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1,
+                    "Destination",
+                    destination,
+                    ACS_URL)
         }
     }
 }
