@@ -25,9 +25,7 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG;
  *
  * <p>The implemented {@code IdpResponder} methods should call the builder methods:
  *
- * <ul>
- *   <li>IdpRedirectResponse.Builder.httpStatusCode(int)
- *   <li>IdpRedirectResponse.Builder.url(String)
+ * <ul> <li>IdpRedirectResponse.Builder.httpStatusCode(int) <li>IdpRedirectResponse.Builder.url(String)
  * </ul>
  *
  * Before building the {@code IdpRedirectResponse} object.
@@ -39,16 +37,15 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG;
  * <blockquote>
  *
  * <pre>
- *   IdpRedirectResponse.Builder builder = new IdpRedirectResponse.Builder();
- *   builder.httpStatusCode(exampleStatusCode)
+ *   return new IdpRedirectResponse.Builder();
+ *       .httpStatusCode(exampleStatusCode)
  *       .url(exampleUrl);
- *   return builder.build();
+ *       .build();
  * </pre>
  *
  * </blockquote>
  */
 public class IdpRedirectResponse extends IdpResponse {
-  private IdpRedirectResponse() {}
 
   public static class Builder {
 
@@ -70,6 +67,20 @@ public class IdpRedirectResponse extends IdpResponse {
     }
   }
 
+  private IdpRedirectResponse() {
+  }
+
+  // Copy constructor
+  protected IdpRedirectResponse(IdpRedirectResponse response) {
+    super(response);
+    url = response.url;
+    path = response.path;
+    samlEncoding = response.samlEncoding;
+    sigAlg = response.sigAlg;
+    signature = response.signature;
+  }
+
+  // TODO remove url field if not used in Binding Verification
   private String url;
   private String path;
   private String samlEncoding;

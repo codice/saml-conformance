@@ -20,7 +20,6 @@ import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.PLUGIN_DIR_PROPERTY
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -28,11 +27,9 @@ import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
-import org.w3c.dom.Node
 import java.io.File
 import java.net.URLClassLoader
 import java.util.*
-import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.reflect.KClass
 
 class TestCommon {
@@ -43,6 +40,7 @@ class TestCommon {
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpec" +
                 "ItMustNotExceed80BytesInLength"
+        const val MAX_RELAYSTATE_LEN = 80
 
         val idpMetadata = Common.parseIdpMetadata()
         private val spMetadata = Common.parseSpMetadata()
@@ -53,17 +51,6 @@ class TestCommon {
         var ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_REDIRECT)?.url
 
         private val DEPLOY_CL = getDeployDirClassloader()
-
-        /**
-         * Extend {@code IdpResponse} to creates a dom response from it's decoded saml response
-         */
-        fun IdpResponse.buildDom(): Node {
-            return DocumentBuilderFactory.newInstance().apply {
-                isNamespaceAware = true
-            }.newDocumentBuilder()
-                    .parse(this.decodedSamlResponse.byteInputStream())
-                    .documentElement
-        }
 
         /**
          * Generates and returns a POST Authn Request

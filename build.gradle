@@ -28,6 +28,7 @@ project.ext {
     junit_version = '4.12'
     guava_version = '24.0-jre'
     detekt_version = '1.0.0.RC6-4'
+    java_encoding = 'UTF-8'
 }
 
 allprojects {
@@ -42,6 +43,7 @@ subprojects {
     apply plugin: 'kotlin'
     apply plugin: 'com.bmuschko.docker-remote-api'
 
+    compileJava.options.encoding = "$java_encoding"
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 

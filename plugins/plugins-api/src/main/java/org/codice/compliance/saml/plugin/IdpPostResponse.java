@@ -26,9 +26,7 @@ import com.jayway.restassured.path.xml.element.Node;
  *
  * <p>The implemented {@code IdpResponder} methods should call the builder methods:
  *
- * <ul>
- *   <li>IdpPostResponse.Builder.httpStatusCode(int)
- *   <li>BIdpPostResponse.Builder.samlForm(Node)
+ * <ul> <li>IdpPostResponse.Builder.httpStatusCode(int) <li>IdpPostResponse.Builder.samlForm(Node)
  * </ul>
  *
  * Before building the {@code IdpPostResponse} object.
@@ -40,17 +38,15 @@ import com.jayway.restassured.path.xml.element.Node;
  * <blockquote>
  *
  * <pre>
- *   IdpPostResponse.Builder builder = new IdpPostResponse.Builder();
- *   builder.httpStatusCode(exampleStatusCode)
- *       .samlForm(exampleSamlForm);
- *   return builder.build();
+ *   return new IdpPostResponse.Builder()
+ *       .httpStatusCode(exampleStatusCode)
+ *       .samlForm(exampleSamlForm)
+ *       .build();
  * </pre>
  *
  * </blockquote>
  */
 public class IdpPostResponse extends IdpResponse {
-
-  private IdpPostResponse() {}
 
   public static class Builder {
 
@@ -72,12 +68,23 @@ public class IdpPostResponse extends IdpResponse {
     }
   }
 
+  private IdpPostResponse() {
+  }
+
+  // Copy constructor
+  protected IdpPostResponse(IdpPostResponse response) {
+    super(response);
+    samlResponseForm = response.samlResponseForm;
+    isSamlResponseHidden = response.isSamlResponseHidden;
+    isRelayStateHidden = response.isRelayStateHidden;
+  }
+
   private static final String VALUE = "value";
   private static final String TYPE = "type";
   private static final String NAME = "name";
 
+  // TODO remove samlResponseForm field if not used in Binding Verification
   private Node samlResponseForm;
-
   private boolean isSamlResponseHidden;
   private boolean isRelayStateHidden;
 
@@ -147,17 +154,5 @@ public class IdpPostResponse extends IdpResponse {
         isRelayStateHidden = relayStateNode.getAttribute(TYPE).equals("hidden");
       }
     }
-  }
-
-  public Node getSamlResponseForm() {
-    return samlResponseForm;
-  }
-
-  public boolean isSamlResponseHidden() {
-    return isSamlResponseHidden;
-  }
-
-  public boolean isRelayStateHidden() {
-    return isRelayStateHidden;
   }
 }

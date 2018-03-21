@@ -109,7 +109,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
     private fun verifySingleLogoutIncludesSessionIndex(assertion: Node) {
         if (idpMetadata.descriptor == null) return
 
-        if (!idpMetadata.descriptor!!.singleLogoutServices.isNotEmpty()) return
+        if (idpMetadata.descriptor?.singleLogoutServices?.isNotEmpty() == true) return
 
         assertion.children("AuthnStatement").forEach {
             if (it.attributes.getNamedItem("SessionIndex") == null) {
