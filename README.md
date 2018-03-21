@@ -16,7 +16,7 @@ To build the project:
 The `distribution/command-line` module will contain a full package of the deployment after the build.
 
 ### Running Test Script
-Upon a successful build, tests can be run with the `samlconf` script found:
+Upon a successful build, tests can be run with the `samlconf` script found in:
     
     distribution/command-line/build/distributions/samlconf-<VERSION>/bin/
 
