@@ -323,6 +323,10 @@ enum class SAMLSpecRefMessage(val message: String) {
 
 //    todo SAMLBindings_3_5_4_c("SAML message could not be decoded. SAML messages should be base-64 encoded."),
 
+    SAMLBindings_3_5_5_2_a("If the message is signed, the Destination XML attribute in the root SAML element of the " +
+            "protocol message MUST contain the URL to which the sender has instructed the user agent to deliver the " +
+            "message."),
+
     /***************
      *
      * XML Datatype Schema
