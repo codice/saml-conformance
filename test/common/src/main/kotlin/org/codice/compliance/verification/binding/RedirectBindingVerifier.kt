@@ -16,8 +16,9 @@ package org.codice.compliance.verification.binding
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -30,7 +31,7 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-class RedirectBindingVerifier(val response: IdpRedirectResponseDecorator) {
+class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator) {
     /**
      * Verify the response for a redirect binding
      */
@@ -200,11 +201,14 @@ class RedirectBindingVerifier(val response: IdpRedirectResponseDecorator) {
      */
     private fun verifyRedirectDestination() {
         val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
-        if (destination != ACS_URL) {
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1,
+        val signatures = response.responseDom.allChildren("Signature")
+
+        if (signatures.isNotEmpty() && destination != TestCommon.ACS_URL) {
+            throw SAMLComplianceException.createWithPropertyNotEqualMessage(
+                    SAMLBindings_3_5_5_2_a,
                     "Destination",
                     destination,
-                    ACS_URL)
+                    TestCommon.ACS_URL)
         }
     }
 }

@@ -17,6 +17,7 @@ import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
@@ -24,7 +25,7 @@ import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
 import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
 import org.codice.security.sign.Decoder
 
-class PostBindingVerifier(val response: IdpPostResponseDecorator) {
+class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
     /**
      * Verify the response for a post binding
      */
@@ -94,13 +95,16 @@ class PostBindingVerifier(val response: IdpPostResponseDecorator) {
     }
 
     /**
-     * Verifies the destination is correct according to the redirect binding rules in the binding spec
-     * 3.4.5.2 Security Considerations
+     * Verifies the destination is correct according to the post binding rules in the binding spec
+     * 3.5.5.2 Security Considerations
      */
     private fun verifyPostDestination() {
         val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
-        if (destination != TestCommon.ACS_URL) {
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_5_2_a1,
+        val signatures = response.responseDom.allChildren("Signature")
+
+        if (signatures.isNotEmpty() && destination != TestCommon.ACS_URL) {
+            throw SAMLComplianceException.createWithPropertyNotEqualMessage(
+                    SAMLBindings_3_5_5_2_a,
                     "Destination",
                     destination,
                     TestCommon.ACS_URL)
