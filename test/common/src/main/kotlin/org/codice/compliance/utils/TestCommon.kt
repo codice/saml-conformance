@@ -33,6 +33,7 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
+import kotlin.reflect.KClass
 
 class TestCommon {
     companion object {
@@ -98,8 +99,8 @@ class TestCommon {
             return DOM2Writer.nodeToString(requestElement)
         }
 
-        fun <T> getServiceProvider(type: Class<T>): T {
-            return ServiceLoader.load(type, DEPLOY_CL).first()
+        fun <T : Any> getServiceProvider(type: KClass<T>): T {
+            return ServiceLoader.load(type.java, DEPLOY_CL).first()
         }
 
         private fun getDeployDirClassloader(): ClassLoader {

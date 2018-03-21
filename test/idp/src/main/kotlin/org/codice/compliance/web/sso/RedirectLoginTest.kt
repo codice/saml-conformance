@@ -67,7 +67,7 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response)
+            val idpResponse = getServiceProvider(IdpResponder::class).getIdpRedirectResponse(response)
 
             val responseDom = verifyResponse(idpResponse)
 
@@ -94,7 +94,7 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpRedirectResponse(response).apply {
+            val idpResponse = getServiceProvider(IdpResponder::class).getIdpRedirectResponse(response).apply {
                 isRelayStateGiven = true
             }
 
