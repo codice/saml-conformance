@@ -89,14 +89,14 @@ To build a docker image, execute `gradle build docker`.
 
 ## Steps to Test DDF's IDP
 * Start DDF
-* Copy the contents of `test-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
+* Copy the contents of `samlconf-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
 to a file and pass that file to the `samlconf` script using `-i` or `--idpMetadata`.
 * Run `samlconf`.
 
 ## Steps to Test DDF's SP
 **TODO** * Start DDF
-* Copy the contents of `test-idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
+* Copy the contents of `idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
 * If not on localhost, copy DDF's SP metadata from `https://<hostname>:<port>/services/saml/sso/metadata` 
 to a file and pass that file to the `samlconf` script using `-s` or `--spMetadata`.
 * Run `samlconf`.

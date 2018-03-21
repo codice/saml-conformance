@@ -43,12 +43,12 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val idpMetadata = arguments.option("i")
-            ?: "$samlDist/conf/test-idp-metadata.xml"
+            ?: "$samlDist/conf/idp-metadata.xml"
     val pluginDir = arguments.option("p")
             ?: "$samlDist/plugins"
 
     System.setProperty(IDP_METADATA_PROPERTY, idpMetadata)
-    System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/test-sp-metadata.xml")
+    System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")
     System.setProperty(PLUGIN_DIR_PROPERTY, pluginDir)
 
     if (arguments.flag("d")) {
