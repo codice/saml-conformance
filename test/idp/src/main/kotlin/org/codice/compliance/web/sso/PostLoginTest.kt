@@ -23,10 +23,11 @@ import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.generateAndRetrieveAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
+import org.codice.compliance.utils.decorators.bindingVerifier
+import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
-import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 
@@ -53,8 +54,12 @@ class PostLoginTest : StringSpec() {
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
             response.statusCode shouldBe HTTP_OK
-            val idpResponse = getServiceProvider(IdpResponder::class).getIdpPostResponse(response)
-            val responseDom = verifyResponse(idpResponse)
+            val idpResponse = getServiceProvider(IdpResponder::class)
+                    .getIdpPostResponse(response).decorate()
+
+            idpResponse.bindingVerifier().verify()
+
+            val responseDom = idpResponse.responseDom
 
             CoreVerifier(responseDom).verify()
 
@@ -75,12 +80,15 @@ class PostLoginTest : StringSpec() {
                     .`when`()
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
-            response.statusCode shouldBe HTTP_OK
-            val idpResponse = getServiceProvider(IdpResponder::class).getIdpPostResponse(response).apply {
-                isRelayStateGiven = true
-            }
+            response.statusCode shouldBe 200
+            val idpResponse = getServiceProvider(IdpResponder::class)
+                    .getIdpPostResponse(response).decorate().apply {
+                        isRelayStateGiven = true
+                    }
 
-            val responseDom = verifyResponse(idpResponse)
+            idpResponse.bindingVerifier().verify()
+
+            val responseDom = idpResponse.responseDom
 
             CoreVerifier(responseDom).verify()
 

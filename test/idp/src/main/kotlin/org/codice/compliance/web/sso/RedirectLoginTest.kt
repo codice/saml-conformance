@@ -26,10 +26,11 @@ import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
+import org.codice.compliance.utils.decorators.bindingVerifier
+import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
-import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -67,9 +68,12 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class).getIdpRedirectResponse(response)
+            val idpResponse = getServiceProvider(IdpResponder::class)
+                    .getIdpRedirectResponse(response).decorate()
 
-            val responseDom = verifyResponse(idpResponse)
+            idpResponse.bindingVerifier().verify()
+
+            val responseDom = idpResponse.responseDom
 
             CoreVerifier(responseDom).verify()
 
@@ -94,11 +98,15 @@ class RedirectLoginTest : StringSpec() {
                     .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class).getIdpRedirectResponse(response).apply {
-                isRelayStateGiven = true
-            }
+            val idpResponse = getServiceProvider(IdpResponder::class)
+                    .getIdpRedirectResponse(response).decorate().apply {
+                        isRelayStateGiven = true
+                    }
 
-            val responseDom = verifyResponse(idpResponse)
+            val bindingVerifier = idpResponse.bindingVerifier()
+            bindingVerifier.verify()
+
+            val responseDom = idpResponse.responseDom
 
             CoreVerifier(responseDom).verify()
 

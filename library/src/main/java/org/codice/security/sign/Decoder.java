@@ -23,12 +23,14 @@ import java.util.Base64;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import org.apache.cxf.helpers.IOUtils;
+import org.codice.security.sign.Decoder.DecoderException.InflErrorCode;
 
 public class Decoder {
 
   private static final boolean GZIP_COMPATIBLE = true;
 
-  private Decoder() {}
+  private Decoder() {
+  }
 
   /**
    * URL decodes and base 64 decodes POST SAML messages
@@ -36,10 +38,14 @@ public class Decoder {
    * @param message - SAML POST message
    * @return - decoded message
    */
-  public static String decodePostMessage(String message) throws IOException {
-    return URLDecoder.decode(
-        new String(Base64.getDecoder().decode(message.getBytes(StandardCharsets.UTF_8))),
-        StandardCharsets.UTF_8.name());
+  public static String decodePostMessage(String message) throws DecoderException {
+    try {
+      return new String(
+          Base64.getDecoder().decode(message.getBytes(StandardCharsets.UTF_8)),
+          StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new DecoderException(DecoderException.InflErrorCode.ERROR_BASE64_DECODING);
+    }
   }
 
   /**
@@ -48,38 +54,50 @@ public class Decoder {
    * @param message - SAML Redirect message
    * @return - decoded message
    */
-  public static String decodeAndInflateRedirectMessage(String message) throws InflationException {
+  public static String decodeAndInflateRedirectMessage(String message) throws DecoderException {
     String urlDecoded;
+
     try {
       urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
     } catch (UnsupportedEncodingException e) {
-      throw new InflationException(InflationException.InflErrorCode.ERROR_DECODING);
-    }
-    if (urlDecoded.matches("[ \\t\\n\\x0B\\f\\r]+")) {
-      throw new InflationException(InflationException.InflErrorCode.LINEFEED_OR_WHITESPACE);
+      throw new DecoderException(DecoderException.InflErrorCode.ERROR_URL_DECODING);
     }
 
-    byte[] deflatedValue = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
+    if (urlDecoded.matches("[ \\t\\n\\x0B\\f\\r]+")) {
+      throw new DecoderException(DecoderException.InflErrorCode.LINEFEED_OR_WHITESPACE);
+    }
+
+    byte[] base64Decoded = Base64.getDecoder().decode(urlDecoded.getBytes(StandardCharsets.UTF_8));
+    // this method is only here to try and catch a base64 decoding error
+    try {
+      new String(base64Decoded, StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new DecoderException(InflErrorCode.ERROR_BASE64_DECODING);
+    }
+
     InputStream is =
         new InflaterInputStream(
-            new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
+            new ByteArrayInputStream(base64Decoded), new Inflater(GZIP_COMPATIBLE));
+
     try {
       return IOUtils.toString(is, StandardCharsets.UTF_8.name());
     } catch (IOException e) {
-      throw new InflationException(InflationException.InflErrorCode.ERROR_INFLATING);
+      throw new DecoderException(DecoderException.InflErrorCode.ERROR_INFLATING);
     }
   }
 
-  public static class InflationException extends Exception {
+  public static class DecoderException extends Exception {
+
     public enum InflErrorCode {
-      ERROR_DECODING,
+      ERROR_BASE64_DECODING,
+      ERROR_URL_DECODING,
       LINEFEED_OR_WHITESPACE,
       ERROR_INFLATING
     }
 
     final InflErrorCode inflErrorCode;
 
-    public InflationException(InflErrorCode inflErrorCode) {
+    public DecoderException(InflErrorCode inflErrorCode) {
       super();
       this.inflErrorCode = inflErrorCode;
     }
