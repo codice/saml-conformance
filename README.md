@@ -9,12 +9,18 @@ SAML: https://wiki.oasis-open.org/security/FrontPage
 ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.0.html
 
 ## Setup
-To build the project, execute `gradle build` at the project root.
+To build the project:
+
+    gradle build
+
 The `distribution/command-line` module will contain a full package of the deployment after the build.
 
-Tests can be run with the `samlconf` script under `<PATH_TO_PROJECT>/distribution/command-line/build/distributions/samlconf-<VERSION>/bin/`.
+### Running Test Script
+Upon a successful build, tests can be run with the `samlconf` script found:
+    
+    distribution/command-line/build/distributions/samlconf-<VERSION>/bin/
 
-The `samlconf` script takes multiple parameters:
+The `samlconf` script may take the following parameters:
 
 ```
 NAME
@@ -60,13 +66,13 @@ If during development the build fails due to `format violations` run the followi
 * If testing an IdP:
   * Provide your IdP's metadata file path to the `samlconf` script using `-i` or `--idpMetadata`.
   * Configure your IdP with the test kit's SP metadata from
-  `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-sp-metadata.xml`
+  `distribution/command-line/src/main/resources/test-sp-metadata.xml`
   or `samlconf-1.0-SNAPSHOT/conf/test-sp-metadata.xml` from the distribution.
   
 * **TODO - not implemented yet** If testing an SP:
   * Provide your SP's metadata file path to the `samlconf` script using `-s` or `--spMetadata`.
   * Configure your SP with the test kit's IdP metadata from
-    `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-idp-metadata.xml`
+    `distribution/command-line/src/main/resources/test-idp-metadata.xml`
     or `samlconf-1.0-SNAPSHOT/conf/test-idp-metadata.xml` from the distribution.
    
 ### Plugins
@@ -142,17 +148,3 @@ To build this module you must run the docker task by executing `gradle build doc
 
 #### suites
 This module contains the test suites.
-
-## TODO:
-- Further determine good directory structure (this will happen over time as we add more tests)
-- Determine what inputs the test suite will need (thinking just giving it the IdP/SP metadata)
-- Determine the combinations of SP's that we want to test with
-  - DDF IdP/SP
-  - Shibboleth SP and DDF IdP
-  - Shibboleth IdP and DDF IdP
-  - Spring SP and DDF IdP
-
-## References:
- - http://kotlinlang.org/docs/reference/
- - https://github.com/kotlintest/kotlintest/blob/master/doc/reference.md
- - https://try.kotlinlang.org/#/Kotlin%20Koans/Introduction/Hello,%20world!/Task.kt

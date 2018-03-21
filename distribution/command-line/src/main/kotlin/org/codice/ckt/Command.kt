@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val idpMetadata = arguments.option("i")
-            ?: "$samlDist/conf/idp-metadata.xml"
+            ?: "$samlDist/conf/test-idp-metadata.xml"
     val pluginDir = arguments.option("p")
             ?: "$samlDist/plugins"
 
