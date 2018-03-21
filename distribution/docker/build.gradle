@@ -20,4 +20,5 @@ task docker(type: DockerBuildImage) {
     dependsOn copyDistribution
     dockerFile = file('Dockerfile')
     inputDir = file("$projectDir")
+    tag = 'codice/samlconf:latest'
 }
