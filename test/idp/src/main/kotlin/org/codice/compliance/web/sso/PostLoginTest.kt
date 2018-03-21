@@ -53,7 +53,7 @@ class PostLoginTest : StringSpec() {
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
             response.statusCode shouldBe HTTP_OK
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response)
+            val idpResponse = getServiceProvider(IdpResponder::class).getIdpPostResponse(response)
             val responseDom = verifyResponse(idpResponse)
 
             CoreVerifier(responseDom).verify()
@@ -76,7 +76,7 @@ class PostLoginTest : StringSpec() {
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
 
             response.statusCode shouldBe HTTP_OK
-            val idpResponse = getServiceProvider(IdpResponder::class.java).getIdpPostResponse(response).apply {
+            val idpResponse = getServiceProvider(IdpResponder::class).getIdpPostResponse(response).apply {
                 isRelayStateGiven = true
             }
 
