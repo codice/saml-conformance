@@ -14,6 +14,17 @@ enum class SAMLSpecRefMessage(val message: String) {
      *
      ***************/
 
+    SAMLProfiles_3_1_a("One or more <ds:KeyInfo> elements MUST be present within the <SubjectConfirmationData> " +
+            "element."),
+
+    SAMLProfiles_3_1_b("An xsi:type attribute MAY be present in the <SubjectConfirmationData> element and, " +
+            "if present, MUST be set to saml:KeyInfoConfirmationDataType (the namespace prefix is arbitrary " +
+            "but must reference the SAML assertion namespace)."),
+
+    SAMLProfiles_3_1_c("Note that in accordance with [XMLSig], each <ds:KeyInfo> element MUST identify a single " +
+            "cryptographic key. Multiple keys MAY be identified with separate <ds:KeyInfo> elements, such as when " +
+            "different confirmation keys are needed for different relying parties."),
+
     SAMLProfiles_4_1_4_2_a("If the <Response> message is signed or if an enclosed assertion is encrypted, then the " +
             "<Issuer> element MUST be present."),
 

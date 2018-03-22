@@ -29,13 +29,15 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import java.io.File
 import java.net.URLClassLoader
-import java.util.*
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 class TestCommon {
     companion object {
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
+        const val SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpec" +

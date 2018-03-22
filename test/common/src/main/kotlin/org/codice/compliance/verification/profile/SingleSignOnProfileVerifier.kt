@@ -15,7 +15,16 @@ package org.codice.compliance.verification.profile
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_c
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_d
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_f
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_g
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_h
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_i
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_j
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -32,6 +41,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
     fun verify() {
         verifyIssuer()
         verifySsoAssertions()
+        ProfilesVerifier(response).verify()
     }
 
     /**
