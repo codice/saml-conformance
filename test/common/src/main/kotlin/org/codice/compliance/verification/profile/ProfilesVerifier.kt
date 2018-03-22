@@ -53,7 +53,7 @@ class ProfilesVerifier(private val node: Node) {
                         message = "<ds:KeyInfo> not found within the <SubjectConfirmationData> element.")
 
             keyInfos.forEach {
-                if (it.childNodes.length > 1)
+                if (it.children("KeyValue").size > 1)
                     throw SAMLComplianceException.create(SAMLProfiles_3_1_c,
                             message = "<ds:KeyInfo> must not have multiple values.")
             }
