@@ -25,7 +25,6 @@ import org.codice.compliance.utils.TestCommon.Companion.generateAndRetrieveAuthn
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
-import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
@@ -61,8 +60,6 @@ class PostLoginTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
 
-            CoreVerifier(responseDom).verify()
-
             ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
 
             SingleSignOnProfileVerifier(responseDom).verify()
@@ -89,8 +86,6 @@ class PostLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-
-            CoreVerifier(responseDom).verify()
 
             ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
 

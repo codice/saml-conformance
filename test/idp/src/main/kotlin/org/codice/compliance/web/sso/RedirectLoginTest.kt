@@ -17,7 +17,10 @@ import com.google.common.io.Resources.getResource
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.specs.StringSpec
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
@@ -28,7 +31,6 @@ import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
-import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
@@ -75,8 +77,6 @@ class RedirectLoginTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
 
-            CoreVerifier(responseDom).verify()
-
             ResponseProtocolVerifier(responseDom, ID).verify()
 
             SingleSignOnProfileVerifier(responseDom).verify()
@@ -107,9 +107,7 @@ class RedirectLoginTest : StringSpec() {
             bindingVerifier.verify()
 
             val responseDom = idpResponse.responseDom
-
-            CoreVerifier(responseDom).verify()
-
+            
             ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
 
             SingleSignOnProfileVerifier(responseDom).verify()

@@ -14,17 +14,23 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_c
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_3_2_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_3_2_2_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_3_2_3
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
 
-class RequestProtocolVerifier(val request: Node) {
+class RequestProtocolVerifier(private val request: Node) {
     /**
      * Verify protocols against the Core Spec document
      * 3.2.1 Complex Type StatusResponseType
      */
     fun verifyCoreRequestProtocol() {
+        CoreVerifier(request).verify()
         verifyRequestAbstractType()
         verifyAuthnQueries()
         verifyAttributeQueries()
@@ -40,7 +46,7 @@ class RequestProtocolVerifier(val request: Node) {
      * 3.2.1 Complex Type RequestAbstractType
      * All SAML requests are of types that are derived from the abstract RequestAbstractType complex type.
      */
-    fun verifyRequestAbstractType() {
+    private fun verifyRequestAbstractType() {
         if (request.attributes.getNamedItem("ID") == null)
             throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.1",
                     "ID",
@@ -71,7 +77,7 @@ class RequestProtocolVerifier(val request: Node) {
      * The <AuthnQuery> message element is used to make the query “What assertions containing authentication statements
      * are available for this subject?”
      */
-    fun verifyAuthnQueries() {
+    private fun verifyAuthnQueries() {
         // AuthnQuery
         request.allChildren("AuthnQuery").forEach {
             val querySessionIndex = it.attributes.getNamedItem("SessionIndex")?.textContent
@@ -132,7 +138,7 @@ class RequestProtocolVerifier(val request: Node) {
      * 3.3.2.3 Element <AttributeQuery>
      * The <AttributeQuery> element is used to make the query “Return the requested attributes for this subject.”
      */
-    fun verifyAttributeQueries() {
+    private fun verifyAttributeQueries() {
         val uniqueAttributeQuery = mutableMapOf<String, String>()
         request.allChildren("AuthnQuery").forEach {
             val name = it.attributes.getNamedItem("Name")
@@ -155,7 +161,7 @@ class RequestProtocolVerifier(val request: Node) {
      * The <AuthzDecisionQuery> element is used to make the query “Should these actions on this resource be allowed for
      * this subject, given this evidence?”
      */
-    fun verifyAuthzDecisionQueries() {
+    private fun verifyAuthzDecisionQueries() {
         request.allChildren("AuthzDecisionQuery").forEach {
             if (it.attributes.getNamedItem("Resource") == null)
                 throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.3.2.4",
@@ -177,7 +183,7 @@ class RequestProtocolVerifier(val request: Node) {
      * The <IDPEntry> element specifies a single identity provider trusted by the requester to authenticate the
      * presenter.
      */
-    fun verifyAuthenticationRequestProtocol() {
+    private fun verifyAuthenticationRequestProtocol() {
         // IDPList
         request.allChildren("IDPList").forEach {
             if (it.children("IDPEntry").isEmpty())
@@ -202,7 +208,7 @@ class RequestProtocolVerifier(val request: Node) {
      * The <ArtifactResolve> message is used to request that a SAML protocol message be returned in an
      * <ArtifactResponse> message by specifying an artifact that represents the SAML protocol message.
      */
-    fun verifyArtifactResolutionProtocol() {
+    private fun verifyArtifactResolutionProtocol() {
         request.allChildren("ArtifactResolve").forEach {
             if (it.children("Artifact").isEmpty())
                 throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.5.1",
@@ -218,7 +224,7 @@ class RequestProtocolVerifier(val request: Node) {
      * This message has the complex type ManageNameIDRequestType, which extends RequestAbstractType and adds the
      * following elements
      */
-    fun verifyManageNameIDRequest() {
+    private fun verifyManageNameIDRequest() {
         request.allChildren("ManageNameIDRequest").forEach {
             if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
                 throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.6.1",
@@ -241,7 +247,7 @@ class RequestProtocolVerifier(val request: Node) {
      * To request an alternate name identifier for a principal from an identity provider, a requester sends an
      * <NameIDMappingRequest> message.
      */
-    fun verifyNameIdMappingRequest() {
+    private fun verifyNameIdMappingRequest() {
         request.allChildren("NameIDMappingRequest").forEach {
             if (it.children("BaseID").isEmpty()
                     && it.children("NameID").isEmpty()
