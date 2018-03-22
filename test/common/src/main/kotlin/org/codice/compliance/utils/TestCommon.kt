@@ -15,18 +15,12 @@ package org.codice.compliance.utils
 
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
-import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.PLUGIN_DIR_PROPERTY
 import org.codice.compliance.SAMLComplianceException
 import org.codice.security.saml.SamlProtocol
-import org.codice.security.sign.SimpleSign
-import org.joda.time.DateTime
-import org.opensaml.saml.common.SAMLVersion
-import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
-import org.opensaml.saml.saml2.core.impl.IssuerBuilder
-import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
+import org.opensaml.saml.saml2.core.AuthnRequest
 import java.io.File
 import java.net.URLClassLoader
 import java.util.ServiceLoader
@@ -44,42 +38,28 @@ class TestCommon {
                 "ItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
 
-        val idpMetadata = Common.parseIdpMetadata()
+        private val DEPLOY_CL = getDeployDirClassloader()
         private val spMetadata = Common.parseSpMetadata()
 
+        val idpMetadata = Common.parseIdpMetadata()
         val SP_ISSUER = spMetadata.keys.first()
-        private val SP_INFO = spMetadata[SP_ISSUER]
 
-        var ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_REDIRECT)?.url
-
-        private val DEPLOY_CL = getDeployDirClassloader()
+        val acsUrl: Map<SamlProtocol.Binding, String?> by lazy {
+            val spInfo = spMetadata[SP_ISSUER]
+            if (spInfo == null) {
+                emptyMap()
+            } else {
+                SamlProtocol.Binding.values()
+                        .associate {
+                                it to spInfo.getAssertionConsumerService(it)?.url
+                        }
+            }
+        }
 
         /**
-         * Generates and returns a POST Authn Request
+         * Converts the {@param authnRequest} to a String
          */
-        fun generateAndRetrieveAuthnRequest(): String {
-            OpenSAMLUtil.initSamlEngine()
-
-            ACS_URL = SP_INFO?.getAssertionConsumerService(SamlProtocol.Binding.HTTP_POST)?.url
-            val authnRequest = AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply {
-                    value = SP_ISSUER
-                }
-                assertionConsumerServiceURL = ACS_URL
-                id = ID
-                version = SAMLVersion.VERSION_20
-                issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING)
-                protocolBinding = SamlProtocol.POST_BINDING
-                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
-                    allowCreate = true
-                    format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
-                    spNameQualifier = SP_ISSUER
-                }
-            }
-
-            SimpleSign().signSamlObject(authnRequest)
-
+        fun authnRequestToString(authnRequest: AuthnRequest): String {
             val doc = DOMUtils.createDocument().apply {
                 appendChild(createElement("root"))
             }

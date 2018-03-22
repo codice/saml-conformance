@@ -23,10 +23,9 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_e
 import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_4
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.w3c.dom.Node
 
-class ResponseProtocolVerifier(private val response: Node, val id: String) {
+class ResponseProtocolVerifier(private val response: Node, private val id: String, private val acsUrl: String?) {
     companion object {
         private val TOP_LEVEL_STATUS_CODES = setOf("urn:oasis:names:tc:SAML:2.0:status:Success",
                 "urn:oasis:names:tc:SAML:2.0:status:Requester",
@@ -91,11 +90,11 @@ class ResponseProtocolVerifier(private val response: Node, val id: String) {
         verifyTimeValues(response.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_2_d)
 
         val destination = response.attributes?.getNamedItem("Destination")?.textContent
-        if (destination != ACS_URL)
+        if (destination != acsUrl)
             throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_3_2_2_e,
                     "Destination",
                     destination,
-                    ACS_URL)
+                    acsUrl ?: "No ACS URL Found")
 
         if (response.children("Status").isEmpty())
             throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2",

@@ -24,10 +24,11 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
+import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
 
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
@@ -107,12 +108,12 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
         val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
         val signatures = response.responseDom.allChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != TestCommon.ACS_URL) {
+        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
             throw SAMLComplianceException.createWithPropertyNotEqualMessage(
                     SAMLBindings_3_5_5_2_a,
                     "Destination",
                     destination,
-                    TestCommon.ACS_URL)
+                    acsUrl[HTTP_POST])
         }
     }
 }

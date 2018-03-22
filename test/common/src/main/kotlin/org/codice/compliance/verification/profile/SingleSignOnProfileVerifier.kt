@@ -26,14 +26,13 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_i
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_j
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
-class SingleSignOnProfileVerifier(val response: Node) {
+class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl: String?) {
     /**
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage
@@ -156,7 +155,7 @@ class SingleSignOnProfileVerifier(val response: Node) {
                         .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                         .flatMap { it.children("SubjectConfirmationData") }
                         .none {
-                            it.attributes.getNamedItem("Recipient").textContent == ACS_URL &&
+                            it.attributes.getNamedItem("Recipient").textContent == acsUrl &&
                                     it.attributes.getNamedItem("InResponseTo").textContent == ID &&
                                     it.attributes.getNamedItem("NotOnOrAfter") != null &&
                                     it.attributes.getNamedItem("NotBefore") == null
