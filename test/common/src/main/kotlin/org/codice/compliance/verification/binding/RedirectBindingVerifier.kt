@@ -33,11 +33,12 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_f2
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
+import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BASE64_DECODING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_INFLATING
@@ -221,12 +222,12 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
         val signatures = response.responseDom.allChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != TestCommon.ACS_URL) {
+        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
             throw SAMLComplianceException.createWithPropertyNotEqualMessage(
                     SAMLBindings_3_5_5_2_a,
                     "Destination",
                     destination,
-                    TestCommon.ACS_URL)
+                    acsUrl[HTTP_REDIRECT])
         }
     }
 }

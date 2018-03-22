@@ -17,30 +17,62 @@ import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
+import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.generateAndRetrieveAuthnRequest
+import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
-import org.codice.security.saml.SamlProtocol
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.codice.security.saml.SamlProtocol.POST_BINDING
 import org.codice.security.sign.Encoder
+import org.codice.security.sign.SimpleSign
+import org.joda.time.DateTime
+import org.opensaml.saml.common.SAMLVersion
+import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
+import org.opensaml.saml.saml2.core.impl.IssuerBuilder
+import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class PostLoginTest : StringSpec() {
     companion object {
         const val HTTP_OK = 200
+
+        /** Sets up positive path tests.
+         * @return A string representation of a valid encoded POST AuthnRequest.
+         */
+        private fun createValidAuthnRequest(): String {
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = TestCommon.SP_ISSUER
+                }
+                assertionConsumerServiceURL = acsUrl[HTTP_POST]
+                id = TestCommon.ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = Common.getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
+                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
+                    allowCreate = true
+                    format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
+                    spNameQualifier = TestCommon.SP_ISSUER
+                }
+            }.apply { SimpleSign().signSamlObject(this) }
+
+            return authnRequestToString(authnRequest)
+        }
     }
 
     init {
         RestAssured.useRelaxedHTTPSValidation()
 
         "POST AuthnRequest Test" {
-            val authnRequest = generateAndRetrieveAuthnRequest()
-            val encodedRequest = Encoder.encodePostMessage(authnRequest)
+            val encodedRequest = Encoder.encodePostMessage(createValidAuthnRequest())
             val response = given()
                     .urlEncodingEnabled(false)
                     .body(encodedRequest)
@@ -48,24 +80,21 @@ class PostLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
 
             response.statusCode shouldBe HTTP_OK
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate()
-
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-
-            ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
-
-            SingleSignOnProfileVerifier(responseDom).verify()
+            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         "POST AuthnRequest With Relay State Test" {
-            val authnRequest = generateAndRetrieveAuthnRequest()
-            val encodedRequest = Encoder.encodePostMessage(authnRequest, EXAMPLE_RELAY_STATE)
+            val encodedRequest = Encoder.encodePostMessage(
+                    createValidAuthnRequest(), EXAMPLE_RELAY_STATE)
             val response = given()
                     .urlEncodingEnabled(false)
                     .body(encodedRequest)
@@ -73,7 +102,7 @@ class PostLoginTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
 
             response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -84,10 +113,46 @@ class PostLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+        }
 
-            ResponseProtocolVerifier(responseDom, TestCommon.ID).verify()
+        "POST AuthnRequest Without ACS Url Test" {
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = TestCommon.SP_ISSUER
+                }
+                id = TestCommon.ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = Common.getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
+                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
+                    allowCreate = true
+                    format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
+                    spNameQualifier = TestCommon.SP_ISSUER
+                }
+            }.apply { SimpleSign().signSamlObject(this) }
 
-            SingleSignOnProfileVerifier(responseDom).verify()
+            val encodedRequest = Encoder.encodePostMessage(
+                    authnRequestToString(authnRequest), EXAMPLE_RELAY_STATE)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+
+            response.statusCode shouldBe HTTP_OK
+            val idpResponse = getServiceProvider(IdpResponder::class)
+                    .getIdpPostResponse(response).decorate()
+            idpResponse.bindingVerifier().verify()
+
+            val responseDom = idpResponse.responseDom
+            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
     }
 }
