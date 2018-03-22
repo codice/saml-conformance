@@ -20,11 +20,6 @@ import org.codice.compliance.verification.binding.RedirectBindingVerifier
 import org.w3c.dom.Node
 import javax.xml.parsers.DocumentBuilderFactory
 
-/*
- * These functions are responsible for returning the correct instance of
- * a decorator from a response and
- * a binding verifier from a decorator
- */
 fun IdpRedirectResponse.decorate(): IdpRedirectResponseDecorator {
     return IdpRedirectResponseDecorator(this)
 }
@@ -41,25 +36,7 @@ fun IdpPostResponseDecorator.bindingVerifier(): PostBindingVerifier {
     return PostBindingVerifier(this)
 }
 
-class IdpRedirectResponseDecorator(response: IdpRedirectResponse) : IdpRedirectResponse(response) {
-    var isRelayStateGiven: Boolean = false
-    lateinit var decodedSamlResponse: String
-    val responseDom: Node by lazy {
-        checkNotNull(decodedSamlResponse)
-        buildDom(decodedSamlResponse)
-    }
-}
-
-class IdpPostResponseDecorator(response: IdpPostResponse) : IdpPostResponse(response) {
-    var isRelayStateGiven: Boolean = false
-    lateinit var decodedSamlResponse: String
-    val responseDom: Node by lazy {
-        checkNotNull(decodedSamlResponse)
-        buildDom(decodedSamlResponse)
-    }
-}
-
-private fun buildDom(decodedSamlResponse: String): Node {
+internal fun buildDom(decodedSamlResponse: String): Node {
     return DocumentBuilderFactory.newInstance().apply {
         isNamespaceAware = true
     }.newDocumentBuilder()

@@ -255,10 +255,6 @@ enum class SAMLSpecRefMessage(val message: String) {
      *
      ***************/
 
-//    # todo SAMLBindings_3_1_1_a("if a SAML request message is accompanied by RelayState data, then ... it MUST place
-// the exact \ # RelayState data it received with the request into the corresponding RelayState parameter
-// in the response."),
-
 //    # todo SAMLBindings_3_1_1_b("Implementations MUST carefully sanitize the URL schemes they permit (for example,
 // disallowing \ # anything but "http" or "https"), and should disallow unencoded characters that may be used in
 // mounting such attacks."),
@@ -275,6 +271,9 @@ enum class SAMLSpecRefMessage(val message: String) {
     SAMLBindings_3_4_3_b1("If a SAML request message is accompanied by RelayState data, then the SAML responder... " +
             "MUST place the exact data it received with the request into the corresponding RelayState parameter in " +
             "the response."),
+
+    SAMLBindings_3_4_4_a("A URL encoding MUST place the message entirely within the URL query string, and MUST reserve the " +
+            "rest of the URL for the endpoint of the message recipient"),
 
     SAMLBindings_3_4_4_1("Any signature on the SAML protocol message, including the <ds:Signature> XML element " +
             "itself, MUST be removed"),
@@ -338,10 +337,32 @@ enum class SAMLSpecRefMessage(val message: String) {
             "the response."),
 
     SAMLBindings_3_5_4_a("A SAML protocol message is form-encoded by applying the base-64 encoding rules to the XML " +
+            "representation of the message and placing the result in a hidden form control within a form as defined " +
+            "by [HTML401] Section 17."),
+
+    SAMLBindings_3_5_4_a1("A SAML protocol message is form-encoded by applying the base-64 encoding rules to the XML " +
             "representation of the message"),
 
-//    todo SAMLBindings_3_5_4_b("If a “RelayState” value is to accompany the SAML protocol message, it MUST be placed in
-// an additional hidden form control named RelayState within the same form with the SAML message."),
+    SAMLBindings_3_5_4_a2("A SAML protocol message is form-encoded by... placing the result in a hidden form control " +
+            "within a form as defined by [HTML401] Section 17."),
+
+    SAMLBindings_3_5_4_b("If the message is a SAML request, then the form control MUST be named SAMLRequest. If the " +
+            "message is a SAML response, then the form control MUST be named SAMLResponse. Any additional form controls " +
+            "or presentation MAY be included but MUST NOT be required in order for the recipient to process the message"),
+
+    SAMLBindings_3_5_4_b1("If the message is a SAML request, then the form control MUST be named SAMLRequest. If the " +
+            "message is a SAML response, then the form control MUST be named SAMLResponse."),
+
+    SAMLBindings_3_5_4_c("If a “RelayState” value is to accompany the SAML protocol message, it MUST be placed in an " +
+            "additional hidden form control named RelayState within the same form with the SAML message."),
+
+    SAMLBindings_3_5_4_d("The action attribute of the form MUST be the recipient's HTTP endpoint for the protocol or " +
+            "profile using this binding to which the SAML message is to be delivered. The method attribute MUST be \"POST\"."),
+
+    SAMLBindings_3_5_4_d1("The action attribute of the form MUST be the recipient's HTTP endpoint for the protocol or " +
+            "profile using this binding to which the SAML message is to be delivered."),
+
+    SAMLBindings_3_5_4_d2("The method attribute [of the form] MUST be \"POST\"."),
 
 //    todo SAMLBindings_3_5_4_c("SAML message could not be decoded. SAML messages should be base-64 encoded."),
 
@@ -355,8 +376,7 @@ enum class SAMLSpecRefMessage(val message: String) {
      *
      ***************/
 
-    XMLDatatypesSchema_3_2_7("See XML Schema 2 [https://www.w3.org/TR/xmlschema-2/] section 3.2.7 for more " +
-            "information"),
+    XMLDatatypesSchema_3_2_7("See XML Schema 2 [https://www.w3.org/TR/xmlschema-2/] section 3.2.7 for more information"),
 
     XMLDatatypesSchema_3_2_7_1_a("if [the year has] more than four digits, leading zeros are prohibited"),
 

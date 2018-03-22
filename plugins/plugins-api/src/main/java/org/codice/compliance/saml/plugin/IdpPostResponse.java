@@ -54,7 +54,6 @@ public class IdpPostResponse extends IdpResponse {
 
     private IdpPostResponse idpPostResponse = new IdpPostResponse();
 
-    // General
     public Builder httpStatusCode(int httpStatusCode) {
       idpPostResponse.httpStatusCode = httpStatusCode;
       return this;
@@ -70,37 +69,42 @@ public class IdpPostResponse extends IdpResponse {
     }
   }
 
+  private static final String VALUE = "value";
+  protected static final String NAME = "name";
+
   private IdpPostResponse() {}
 
   // Copy constructor
   protected IdpPostResponse(IdpPostResponse response) {
     super(response);
+    responseForm = response.responseForm;
     samlResponseForm = response.samlResponseForm;
-    isSamlResponseHidden = response.isSamlResponseHidden;
-    isRelayStateHidden = response.isRelayStateHidden;
+    relayStateForm = response.relayStateForm;
   }
 
-  private static final String VALUE = "value";
-  private static final String TYPE = "type";
-  private static final String NAME = "name";
+  // TODO remove responseForm field if not used in Binding Verification
+  protected Node responseForm;
+  protected Node samlResponseForm;
+  protected Node relayStateForm;
 
-  // TODO remove samlResponseForm field if not used in Binding Verification
-  private Node samlResponseForm;
-  private boolean isSamlResponseHidden;
-  private boolean isRelayStateHidden;
-
+  /**
+   * This method is responsible for
+   *
+   * @param responseForm is a RestAssured response node that is returned from the user-interactive
+   *     plugin portion of the
+   */
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
-  private void parseAndSetFormValues(Node samlResponseForm) {
-    this.samlResponseForm = samlResponseForm;
+  private void parseAndSetFormValues(Node responseForm) {
+    this.responseForm = responseForm;
 
     // Bindings 3.5.4 "If the message is a SAML response, then the form control MUST be named
     // SAMLResponse."
-    Node samlResponseNode =
-        samlResponseForm
+    samlResponseForm =
+        responseForm
             .children()
             .list()
             .stream()
-            .filter(node -> SAML_RESPONSE.equals(node.attributes().get(NAME)))
+            .filter(node -> SAML_RESPONSE.equalsIgnoreCase(node.attributes().get(NAME)))
             .findFirst()
             .orElse(null);
 
@@ -108,12 +112,12 @@ public class IdpPostResponse extends IdpResponse {
     // placed in an additional **hidden** form control named RelayState within the same form with
     // the SAML message"
 
-    Node relayStateNode =
-        samlResponseForm
+    relayStateForm =
+        responseForm
             .children()
             .list()
             .stream()
-            .filter(node -> RELAY_STATE.equals(node.attributes().get(NAME)))
+            .filter(node -> RELAY_STATE.equalsIgnoreCase(node.attributes().get(NAME)))
             .findFirst()
             .orElse(null);
 
@@ -129,30 +133,20 @@ public class IdpPostResponse extends IdpResponse {
      * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form controls
      */
     // SAMLResponse portion
-    if (samlResponseNode != null) {
-
-      if (isNotEmpty(samlResponseNode.value())) {
-        samlResponse = samlResponseNode.value();
-      } else if (isNotEmpty(samlResponseNode.attributes().get(VALUE))) {
-        samlResponse = samlResponseNode.attributes().get(VALUE);
-      }
-
-      if (isNotEmpty(samlResponseNode.getAttribute(TYPE))) {
-        isSamlResponseHidden = samlResponseNode.getAttribute(TYPE).equals("hidden");
+    if (samlResponseForm != null) {
+      if (isNotEmpty(samlResponseForm.value())) {
+        samlResponse = samlResponseForm.value();
+      } else if (isNotEmpty(samlResponseForm.attributes().get(VALUE))) {
+        samlResponse = samlResponseForm.attributes().get(VALUE);
       }
     }
 
     // RelayState portion
-    if (relayStateNode != null) {
-
-      if (isNotEmpty(relayStateNode.value())) {
-        relayState = relayStateNode.value();
-      } else if (isNotEmpty(relayStateNode.attributes().get(VALUE))) {
-        relayState = relayStateNode.attributes().get(VALUE);
-      }
-
-      if (isNotEmpty(relayStateNode.getAttribute(TYPE))) {
-        isRelayStateHidden = relayStateNode.getAttribute(TYPE).equals("hidden");
+    if (relayStateForm != null) {
+      if (isNotEmpty(relayStateForm.value())) {
+        relayState = relayStateForm.value();
+      } else if (isNotEmpty(relayStateForm.attributes().get(VALUE))) {
+        relayState = relayStateForm.attributes().get(VALUE);
       }
     }
   }

@@ -225,7 +225,8 @@ public class SimpleSign {
       sig.update(queryParams.toString().getBytes(StandardCharsets.UTF_8.name()));
 
       byte[] decodedSignature = Base64.getDecoder().decode(signature);
-      if (new String(decodedSignature, StandardCharsets.UTF_8.name()).matches("[ \\t\\n\\x0B\\f\\r]+")) {
+      if (new String(decodedSignature, StandardCharsets.UTF_8.name())
+          .matches("[ \\t\\n\\x0B\\f\\r]+")) {
         throw new SignatureException(SignatureException.SigErrorCode.LINEFEED_OR_WHITESPACE);
       }
 
