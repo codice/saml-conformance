@@ -14,11 +14,13 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.w3c.dom.Node
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 class ResponseProtocolVerifier(val response: Node, val id: String) {
     companion object {

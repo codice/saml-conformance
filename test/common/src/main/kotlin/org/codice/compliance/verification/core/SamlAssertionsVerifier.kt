@@ -15,13 +15,15 @@ package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.time.Instant
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 @Suppress("LargeClass", "TooManyFunctions"
 /* Core assertion verification is a complex, but single responsibility issue. */)
@@ -166,7 +168,6 @@ class SamlAssertionsVerifier(val node: Node) {
                         message = "Multiple Keys found within the KeyInfo element.")
         }
     }
-
 
     /**
      * Verify the <Conditions> element against the Core Spec

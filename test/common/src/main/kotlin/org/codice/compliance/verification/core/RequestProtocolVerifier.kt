@@ -14,10 +14,12 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 class RequestProtocolVerifier(val request: Node) {
     /**

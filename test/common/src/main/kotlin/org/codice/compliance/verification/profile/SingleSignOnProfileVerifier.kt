@@ -15,7 +15,6 @@ package org.codice.compliance.verification.profile
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -23,6 +22,9 @@ import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 class SingleSignOnProfileVerifier(val response: Node) {
     /**

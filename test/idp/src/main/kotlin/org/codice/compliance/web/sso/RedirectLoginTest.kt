@@ -17,7 +17,6 @@ import com.google.common.io.Resources.getResource
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.specs.StringSpec
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
@@ -34,6 +33,9 @@ import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
 import java.time.Instant
+
+/* ktlint-disable no-wildcard-imports */
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
 
 class RedirectLoginTest : StringSpec() {
     companion object {

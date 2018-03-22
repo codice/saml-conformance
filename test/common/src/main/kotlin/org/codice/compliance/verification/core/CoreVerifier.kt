@@ -15,11 +15,13 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.w3c.dom.Node
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 class CoreVerifier(val node: Node) {
     /**

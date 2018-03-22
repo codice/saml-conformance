@@ -16,6 +16,7 @@ buildscript {
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.2.30'
     id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC6-4'
+    id 'com.diffplug.gradle.spotless' version '3.10.0'
 }
 
 description = 'SAML Conformance Test Kit'
@@ -41,6 +42,7 @@ subprojects {
     apply plugin: 'kotlin-kapt'
     apply plugin: 'kotlin'
     apply plugin: 'com.bmuschko.docker-remote-api'
+    apply plugin: 'com.diffplug.gradle.spotless'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -61,6 +63,14 @@ subprojects {
         compile "com.jayway.restassured:rest-assured:$rest_assured_version"
         compile "org.slf4j:slf4j-api:$org_slf4j_version"
         compile "com.google.guava:guava:$guava_version"
+    }
+
+    spotless {
+        kotlin {
+            ktlint()
+
+            licenseHeaderFile rootProject.file('spotless.license.kt')
+        }
     }
 }
 

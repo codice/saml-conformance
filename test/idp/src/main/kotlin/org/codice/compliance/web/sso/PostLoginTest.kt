@@ -30,8 +30,6 @@ import org.codice.compliance.verification.verifyResponse
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 
-
-
 class PostLoginTest : StringSpec() {
     companion object {
         const val HTTP_OK = 200

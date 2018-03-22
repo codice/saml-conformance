@@ -15,10 +15,12 @@ package org.codice.compliance.verification.binding
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 class PostVerifier(val response: IdpPostResponse) : BindingVerifier() {
     /**

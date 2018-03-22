@@ -11,12 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package org.codice.compliance.verification
 
 import io.kotlintest.matchers.shouldNotBe
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.saml.plugin.IdpResponse
@@ -30,6 +28,9 @@ import org.codice.security.sign.Decoder.InflationException.InflErrorCode
 import org.w3c.dom.Node
 import java.io.IOException
 
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
+
 sealed class ResponseVerifier(val response: IdpResponse) {
 
     internal fun verifyResponse(): Node {
@@ -42,7 +43,6 @@ sealed class ResponseVerifier(val response: IdpResponse) {
 
     protected abstract fun decodeResponse(response: IdpResponse): String
     protected abstract fun getBindingVerifier(response: IdpResponse): BindingVerifier
-
 }
 
 class RedirectResponseVerifier(response: IdpResponse) : ResponseVerifier(response) {

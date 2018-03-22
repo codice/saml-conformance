@@ -16,12 +16,14 @@ package org.codice.compliance.verification.core
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.net.URI
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 const val FOUR_DIGIT_YEAR_LEN = 4
 

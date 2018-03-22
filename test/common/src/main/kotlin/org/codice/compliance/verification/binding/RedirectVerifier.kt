@@ -15,7 +15,6 @@ package org.codice.compliance.verification.binding
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
 import org.codice.compliance.children
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
@@ -26,6 +25,9 @@ import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+
+/* ktlint-disable no-wildcard-imports */
+import org.codice.compliance.SAMLSpecRefMessage.*
 
 class RedirectVerifier(val response: IdpRedirectResponse) : BindingVerifier() {
     /**

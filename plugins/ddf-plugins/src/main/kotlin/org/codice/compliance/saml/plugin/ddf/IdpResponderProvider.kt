@@ -25,7 +25,6 @@ import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
 
-
 @MetaInfServices
 class IdpResponderProvider : IdpResponder {
     companion object {
@@ -127,7 +126,7 @@ class IdpResponderProvider : IdpResponder {
                 .replace("window.idpState = ", "")
                 .replace(";", "")
 
-        val queryParams : MutableMap<String, String> =
+        val queryParams: MutableMap<String, String> =
                 Gson().fromJson(idpState, object : TypeToken<Map<String, String>>() {}.type)
 
         queryParams["AuthMethod"] = "up"
