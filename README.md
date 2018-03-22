@@ -96,7 +96,7 @@ to a file and pass that file to the `samlconf` script using `-i` or `--idpMetada
 
 ## Steps to Test DDF's SP
 **TODO** * Start DDF
-* Copy the contents of `idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
+* Copy the contents of `samlconf-idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
 * If not on localhost, copy DDF's SP metadata from `https://<hostname>:<port>/services/saml/sso/metadata` 
 to a file and pass that file to the `samlconf` script using `-s` or `--spMetadata`.
 * Run `samlconf`.
