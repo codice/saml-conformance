@@ -14,13 +14,19 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_c
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_d
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_e
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_4
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL
 import org.w3c.dom.Node
 
-class ResponseProtocolVerifier(val response: Node, val id: String) {
+class ResponseProtocolVerifier(private val response: Node, val id: String) {
     companion object {
         private val TOP_LEVEL_STATUS_CODES = setOf("urn:oasis:names:tc:SAML:2.0:status:Success",
                 "urn:oasis:names:tc:SAML:2.0:status:Requester",
@@ -33,6 +39,7 @@ class ResponseProtocolVerifier(val response: Node, val id: String) {
      * 3.2.2 Complex Type StatusResponseType
      */
     fun verify() {
+        CoreVerifier(response).verify()
         verifyStatusResponseType()
         verifyStatusesType()
         verifyNameIdMappingResponse()
