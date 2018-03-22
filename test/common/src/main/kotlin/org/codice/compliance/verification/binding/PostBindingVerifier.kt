@@ -16,7 +16,12 @@ package org.codice.compliance.verification.binding
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_b1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_3_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_3_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon

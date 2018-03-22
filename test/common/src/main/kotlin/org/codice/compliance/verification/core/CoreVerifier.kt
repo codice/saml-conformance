@@ -15,7 +15,11 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_5_4_1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_5_4_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_5_4_2_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_5_4_2_b1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_6_1_b
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT

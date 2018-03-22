@@ -15,7 +15,22 @@ package org.codice.compliance.verification.binding
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_1_2_1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_b1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_a1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_a2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_b1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_b2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_c1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_d1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_d2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_e
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_f1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_f2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
@@ -24,7 +39,10 @@ import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
 import org.codice.security.sign.Decoder
-import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.*
+import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BASE64_DECODING
+import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_INFLATING
+import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_URL_DECODING
+import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.LINEFEED_OR_WHITESPACE
 import org.codice.security.sign.SimpleSign
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode
 import java.io.UnsupportedEncodingException

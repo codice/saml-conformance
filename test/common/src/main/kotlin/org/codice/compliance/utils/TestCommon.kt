@@ -103,7 +103,7 @@ class TestCommon {
                     .map { it.toURL() }
                     .toList()
 
-            check(jarUrls.isNotEmpty()) { "No plugins found in $PLUGIN_DIR_PROPERTY; CTK can not operate."}
+            check(jarUrls.isNotEmpty()) { "No plugins found in $PLUGIN_DIR_PROPERTY; CTK can not operate." }
             return URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
         }
     }
