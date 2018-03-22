@@ -17,7 +17,10 @@ import com.google.common.io.Resources.getResource
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import io.kotlintest.specs.StringSpec
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.*
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon

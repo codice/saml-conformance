@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.compliance
 
 /**
@@ -225,7 +238,6 @@ enum class SAMLSpecRefMessage(val message: String) {
     SAMLCore_6_1_b("The <EncryptedData> element's Type attribute SHOULD be used and, if it is present, MUST have the " +
             "value http://www.w3.org/2001/04/xmlenc#Element."),
 
-
     /***************
      *
      * BINDINGS
@@ -319,7 +331,6 @@ enum class SAMLSpecRefMessage(val message: String) {
 
 //    todo SAMLBindings_3_5_4_b("If a “RelayState” value is to accompany the SAML protocol message, it MUST be placed in
 // an additional hidden form control named RelayState within the same form with the SAML message."),
-
 
 //    todo SAMLBindings_3_5_4_c("SAML message could not be decoded. SAML messages should be base-64 encoded."),
 

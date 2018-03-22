@@ -14,7 +14,13 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_c
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_d
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_e
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_4
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ACS_URL

@@ -48,6 +48,11 @@ OPTIONS
 > In order for the test kit to execute properly, you must configure both the test kit's and your IdP's/SP's metadata, as well as implement plugins
 for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for instructions.
 
+### Formatting
+If during development the build fails due to `format violations` run the following command to format:
+
+    gradle spotlessApply
+
 ### Metadata
 * If testing an IdP:
   * Provide your IdP's metadata file path to the `samlconf` script using `-i` or `--idpMetadata`.

@@ -29,7 +29,7 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import java.io.File
 import java.net.URLClassLoader
-import java.util.*
+import java.util.ServiceLoader
 import kotlin.reflect.KClass
 
 class TestCommon {
@@ -101,7 +101,7 @@ class TestCommon {
                     .map { it.toURL() }
                     .toList()
 
-            check(jarUrls.isNotEmpty()) { "No plugins found in $PLUGIN_DIR_PROPERTY; CTK can not operate."}
+            check(jarUrls.isNotEmpty()) { "No plugins found in $PLUGIN_DIR_PROPERTY; CTK can not operate." }
             return URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
         }
     }

@@ -14,7 +14,12 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.*
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_c
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_3_2_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_3_2_2_b
+import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_3_2_3
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
