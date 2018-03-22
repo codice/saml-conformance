@@ -13,7 +13,9 @@
  */
 package org.codice.compliance.verification.binding
 
+import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_1_2_1
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_a
@@ -55,6 +57,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * Verify the response for a redirect binding
      */
     fun verify() {
+        Log.debug("Starting the Binding Verifications for the Redirect Binding.")
         decodeAndVerify()
         verifyRequestParam()
         verifyNoXMLSig()
@@ -63,6 +66,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             verifyRedirectSignature()
             verifyRedirectDestination()
         }
+        Log.debug("Starting the Binding Verifications for the Redirect Binding.")
     }
 
     /**
@@ -103,6 +107,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             }
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
 
+        Log.debug(Common.prettyPrintXml(decodedMessage))
         response.decodedSamlResponse = decodedMessage
     }
 

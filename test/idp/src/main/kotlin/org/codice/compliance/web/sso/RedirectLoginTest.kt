@@ -15,6 +15,7 @@ package org.codice.compliance.web.sso
 
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
+import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
@@ -61,7 +62,9 @@ class RedirectLoginTest : StringSpec() {
                 setIsPassive(true)
             }
 
-            return Encoder.encodeRedirectMessage(authnRequestToString(authnRequest))
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debug(Common.prettyPrintXml(authnRequestString))
+            return Encoder.encodeRedirectMessage(authnRequestString)
         }
     }
 
@@ -69,6 +72,7 @@ class RedirectLoginTest : StringSpec() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "Redirect AuthnRequest Test" {
+            Log.debug("Redirect AuthnRequest Test")
             val queryParams = SimpleSign()
                     .signUriString(SAML_REQUEST, createValidAuthnRequest(), null)
 
@@ -94,6 +98,7 @@ class RedirectLoginTest : StringSpec() {
         }
 
         "Redirect AuthnRequest With Relay State Test" {
+            Log.debug("Redirect AuthnRequest With Relay State Test")
             val queryParams = SimpleSign()
                     .signUriString(SAML_REQUEST, createValidAuthnRequest(), EXAMPLE_RELAY_STATE)
 
@@ -124,6 +129,7 @@ class RedirectLoginTest : StringSpec() {
         }
 
         "Redirect AuthnRequest Without ACS Url Test" {
+            Log.debug("Redirect AuthnRequest Without ACS Url Test")
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = TestCommon.SP_ISSUER
@@ -137,7 +143,10 @@ class RedirectLoginTest : StringSpec() {
                 setIsPassive(true)
             }
 
-            val encodedRequest = Encoder.encodeRedirectMessage(authnRequestToString(authnRequest))
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debug(Common.prettyPrintXml(authnRequestString))
+
+            val encodedRequest = Encoder.encodeRedirectMessage(authnRequestString)
             val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
 
             // Get response from AuthnRequest

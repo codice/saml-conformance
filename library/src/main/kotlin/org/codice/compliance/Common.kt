@@ -13,12 +13,18 @@
  */
 package org.codice.compliance
 
+import com.sun.org.apache.xml.internal.serialize.OutputFormat
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer
 import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
+import org.xml.sax.InputSource
 import java.io.File
+import java.io.StringReader
+import java.io.StringWriter
+import javax.xml.parsers.DocumentBuilderFactory
 
 const val PLUGIN_DIR_PROPERTY = "saml.plugin.deployDir"
 const val IDP_METADATA_PROPERTY = "idp.metadata"
@@ -72,6 +78,21 @@ class Common {
                     ?.singleSignOnServices
                     ?.first { it.binding == binding }
                     ?.location
+        }
+
+        fun prettyPrintXml(xml: String): String {
+            val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            val document = documentBuilder.parse(InputSource(StringReader(xml)))
+
+            val format = OutputFormat(document).apply {
+                indenting = true
+                indent = 2
+                omitXMLDeclaration = false
+                lineWidth = Integer.MAX_VALUE
+            }
+            val outxml = StringWriter()
+            XMLSerializer(outxml, format).serialize(document)
+            return outxml.toString()
         }
     }
 }
