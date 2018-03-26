@@ -15,12 +15,17 @@ package org.codice.compliance.verification.binding
 
 import de.jupf.staticlog.Log
 import io.kotlintest.matchers.shouldNotBe
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_b1
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_3_b
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_a1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_a2
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_b1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_c
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_d1
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_d2
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
@@ -39,10 +44,46 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      * Verify the response for a post binding
      */
     fun verify() {
+        verifyNoNulls()
         decodeAndVerify()
-        verifySsoPost()
-        verifyPostRelayState()
+        verifyPostSSO()
+        if (response.isRelayStateGiven || response.relayState != null) {
+            verifyPostRelayState()
+        }
         verifyPostDestination()
+        verifyPostForm()
+    }
+
+    /**
+     * Verifies the presence of post forms and values according to the post binding rules in the binding spec
+     * 3.5.4 Message Encoding
+     */
+    private fun verifyNoNulls() {
+        with(response) {
+            if (isResponseFormNull || isSamlResponseFormNull) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_a2,
+                        SAMLBindings_3_5_4_b1,
+                        message = "The form containing the SAMLResponse from control could not be found.")
+            }
+            if (isRelayStateGiven && isRelayStateFormNull) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_c,
+                        message = "The RelayState form control could not be found.")
+            }
+            if (samlResponse == null) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_a2,
+                        SAMLBindings_3_5_4_b1,
+                        message = "The SAMLResponse within the SAMLResponse form control could not be found.")
+            }
+            if (isRelayStateGiven && relayState == null) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_3_b,
+                        SAMLBindings_3_5_4_c,
+                        message = "The RelayState within the RelayState form control could not be found.")
+            }
+        }
     }
 
     /**
@@ -51,11 +92,15 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      */
     private fun decodeAndVerify() {
         val samlResponse = response.samlResponse
+
         val decodedMessage: String
         try {
             decodedMessage = Decoder.decodePostMessage(samlResponse)
         } catch (exception: Decoder.DecoderException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_5_4_a, message = "The SAML response could not be base64 decoded.", cause = exception)
+            throw SAMLComplianceException.create(
+                    SAMLBindings_3_5_4_a1,
+                    message = "The SAML response could not be base64 decoded.",
+                    cause = exception)
         }
 
         decodedMessage shouldNotBe null
@@ -67,7 +112,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      * Checks POST-specific rules from SSO profile spec
      * 4.1.4.5 POST-Specific Processing Rules
      */
-    private fun verifySsoPost() {
+    private fun verifyPostSSO() {
         if (response.responseDom.children(SIGNATURE).isEmpty()
                 || response.responseDom.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the " +
@@ -80,23 +125,19 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      */
     private fun verifyPostRelayState() {
         val relayState = response.relayState
-        val givenRelayState = response.isRelayStateGiven
+        val isRelayStateGiven = response.isRelayStateGiven
 
-        if (relayState == null) {
-            if (givenRelayState) {
-                throw SAMLComplianceException.create(SAMLBindings_3_4_3_b1, message = "RelayState not found.")
-            }
-            return
-        }
         if (relayState.toByteArray().size > MAX_RELAYSTATE_LEN)
-            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_5_3_a,
-                    property = "RelayState",
+            throw SAMLComplianceException.createWithPropertyMessage(
+                    code = SAMLBindings_3_5_3_a,
+                    property = RELAY_STATE,
                     actual = relayState)
 
-        if (givenRelayState) {
+        if (isRelayStateGiven) {
             if (relayState != EXAMPLE_RELAY_STATE) {
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_5_3_b,
-                        property = "RelayState",
+                throw SAMLComplianceException.createWithPropertyMessage(
+                        code = SAMLBindings_3_5_3_b,
+                        property = RELAY_STATE,
                         actual = relayState,
                         expected = EXAMPLE_RELAY_STATE)
             }
@@ -117,6 +158,46 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
                     property = "Destination",
                     actual = destination,
                     expected = acsUrl[HTTP_POST])
+        }
+    }
+
+    /**
+     * Verifies the form carrying the SAMLRequest was properly formatted according to the post binding rules in the binding spec
+     * 3.5.4 Message Encoding
+     */
+    // TODO refactor this method and response objects so we can show values in the errors
+    private fun verifyPostForm() {
+        with(response) {
+            if (!isFormActionCorrect) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_d1,
+                        message = """The form "action" is incorrect.""")
+            }
+            if (!isFormMethodCorrect) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_d2,
+                        message = """The form "method" is incorrect.""")
+            }
+            if (!isSamlResponseNameCorrect) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_b1,
+                        message = "The SAMLResponse form control was incorrectly named.")
+            }
+            if (!isSamlResponseHidden) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_a2,
+                        message = "The SAMLResponse form control was not hidden.")
+            }
+            if (!isRelayStateNameCorrect) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_c,
+                        message = "The RelayState form control was incorrectly named.")
+            }
+            if (!isRelayStateHidden) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_c,
+                        message = "The RelayState form control was not hidden.")
+            }
         }
     }
 }

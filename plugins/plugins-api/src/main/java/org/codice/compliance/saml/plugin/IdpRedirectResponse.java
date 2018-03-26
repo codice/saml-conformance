@@ -13,12 +13,8 @@
  */
 package org.codice.compliance.saml.plugin;
 
-import static org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE;
-import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE;
-import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE;
-import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG;
-
 import com.google.common.base.Splitter;
+import java.util.List;
 
 /**
  * This class is the return type for methods of the {@code IdpResponder} interface on the REDIRECT
@@ -78,68 +74,19 @@ public class IdpRedirectResponse extends IdpResponse {
     super(response);
     url = response.url;
     path = response.path;
-    samlEncoding = response.samlEncoding;
-    sigAlg = response.sigAlg;
-    signature = response.signature;
+    parameters = response.parameters;
   }
 
   // TODO remove url field if not used in Binding Verification
-  private String url;
-  private String path;
-  private String samlEncoding;
-  private String sigAlg;
-  private String signature;
-
-  private boolean extraUrlParameters;
+  protected String url;
+  protected String path;
+  protected String parameters;
 
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetUrlValues(String url) {
     this.url = url;
-
-    String urlPath = url.split("\\?")[0];
-    String urlParameters = url.split("\\?")[1];
-
-    path = urlPath;
-    extraUrlParameters = false;
-
-    for (String parameter : Splitter.on("&").split(urlParameters)) {
-      if (parameter.startsWith(SAML_RESPONSE + "=")) {
-        samlResponse = parameter.replace(SAML_RESPONSE + "=", "");
-      } else if (parameter.startsWith(SIG_ALG + "=")) {
-        sigAlg = parameter.replace(SIG_ALG + "=", "");
-      } else if (parameter.startsWith(SIGNATURE + "=")) {
-        signature = parameter.replace(SIGNATURE + "=", "");
-      } else if (parameter.startsWith(RELAY_STATE + "=")) {
-        relayState = parameter.replace(RELAY_STATE + "=", "");
-      } else if (parameter.startsWith("SAMLEncoding=")) {
-        samlEncoding = parameter.replace("SAMLEncoding=", "");
-      } else {
-        extraUrlParameters = true;
-      }
-    }
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public String getPath() {
-    return path;
-  }
-
-  public String getSigAlg() {
-    return sigAlg;
-  }
-
-  public String getSignature() {
-    return signature;
-  }
-
-  public String getSamlEncoding() {
-    return samlEncoding;
-  }
-
-  public boolean isExtraUrlParameters() {
-    return extraUrlParameters;
+    List<String> splitUrl = Splitter.on("\\?").splitToList(url);
+    path = splitUrl.get(0);
+    parameters = splitUrl.get(1);
   }
 }
