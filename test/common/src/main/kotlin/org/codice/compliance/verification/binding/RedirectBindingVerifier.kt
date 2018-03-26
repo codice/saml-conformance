@@ -116,12 +116,14 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      */
     private fun verifyHttpStatusCode() {
         // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status code for Redirect" is completed
-        if (response.httpStatusCode != 200 && response.httpStatusCode != 302 && response.httpStatusCode != 303) {
+        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             SAMLComplianceException.createWithPropertyMessage(
                     SAMLSpecRefMessage.SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
                     actual = response.httpStatusCode.toString(),
-                    expected = HttpStatusCodes.STATUS_CODE_OK.toString()
+                    expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"
             )
         }
     }

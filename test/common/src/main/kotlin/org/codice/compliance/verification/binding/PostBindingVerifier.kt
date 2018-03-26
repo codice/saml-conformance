@@ -94,12 +94,12 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      * 3.5.6 Error Reporting
      */
     private fun verifyHttpStatusCode() {
-        if (response.httpStatusCode != 200) {
+        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK) {
             SAMLComplianceException.createWithPropertyMessage(
                     SAMLBindings_3_5_6_a,
                     property = "HTTP Status Code",
                     actual = response.httpStatusCode.toString(),
-                    expected = HttpStatusCodes.STATUS_CODE_OK.toString()
+                    expected = "${HttpStatusCodes.STATUS_CODE_OK}"
             )
         }
     }
