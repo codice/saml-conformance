@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.binding
 
+import de.jupf.staticlog.Log
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
@@ -24,6 +25,8 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.debugWithSupplier
+import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
@@ -56,7 +59,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
         }
 
         decodedMessage shouldNotBe null
-
+        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
         response.decodedSamlResponse = decodedMessage
     }
 

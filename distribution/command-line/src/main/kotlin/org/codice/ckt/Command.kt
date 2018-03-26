@@ -13,6 +13,8 @@
  */
 package org.codice.ckt
 
+import de.jupf.staticlog.Log
+import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.IDP_METADATA_PROPERTY
 import org.codice.compliance.PLUGIN_DIR_PROPERTY
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
@@ -34,6 +36,10 @@ fun main(args: Array<String>) {
             listOf("plugins"),
             description = "Path to the plugins directory")
 
+    parser.flag("d",
+            listOf("debug"),
+            description = "Turn on debug logs.")
+
     val arguments = parser.parse(args)
 
     val idpMetadata = arguments.option("i")
@@ -45,5 +51,10 @@ fun main(args: Array<String>) {
     System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/test-sp-metadata.xml")
     System.setProperty(PLUGIN_DIR_PROPERTY, pluginDir)
 
+    if (arguments.flag("d")) {
+        Log.logLevel = LogLevel.DEBUG
+    } else {
+        Log.logLevel = LogLevel.INFO
+    }
     org.junit.runner.JUnitCore.main("org.codice.compliance.tests.suites.BasicTestsSuite")
 }

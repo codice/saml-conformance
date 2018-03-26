@@ -34,8 +34,11 @@ DESCRIPTION
 
 OPTIONS
        -i | --idpMetadata path
-           The path to the IdP metadata. If it is not given, the default IdP metadata
-           is /conf/idp-metadata.xml.
+            The path to the IdP metadata. If it is not given, the default IdP metadata
+            is /conf/idp-metadata.xml.
+                  
+       -d | --debug
+           Sets the log level to debug.
            
        -p | --plugins path
             The path to the custom, server-specific plugin implementations. If it is not given, 
