@@ -18,6 +18,8 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG;
 
+import com.google.common.base.Splitter;
+
 /**
  * This class is the return type for methods of the {@code IdpResponder} interface on the REDIRECT
  * Binding. An internal static builder class {@code Builder} should be used to build the {@code
@@ -99,7 +101,7 @@ public class IdpRedirectResponse extends IdpResponse {
     path = urlPath;
     extraUrlParameters = false;
 
-    for (String parameter : urlParameters.split("&")) {
+    for (String parameter : Splitter.on("&").split(urlParameters)) {
       if (parameter.startsWith(SAML_RESPONSE + "=")) {
         samlResponse = parameter.replace(SAML_RESPONSE + "=", "");
       } else if (parameter.startsWith(SIG_ALG + "=")) {

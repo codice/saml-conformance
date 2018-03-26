@@ -283,7 +283,7 @@ public class IdpMetadata {
     return null;
   }
 
-  protected class EntityData {
+  static class EntityData {
 
     private final EntityDescriptor entityDescriptor;
     private final Duration cacheDuration;

@@ -17,6 +17,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.2.30'
     id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC6-4'
     id 'com.diffplug.gradle.spotless' version '3.10.0'
+    id 'net.ltgt.errorprone' version '0.0.13'
 }
 
 description = 'SAML Conformance Test Kit'
@@ -44,6 +45,7 @@ subprojects {
     apply plugin: 'kotlin'
     apply plugin: 'com.bmuschko.docker-remote-api'
     apply plugin: 'com.diffplug.gradle.spotless'
+    apply plugin: 'net.ltgt.errorprone'
 
     compileJava.options.encoding = "$java_encoding"
     sourceCompatibility = 1.8
