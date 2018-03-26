@@ -36,3 +36,5 @@ startScripts {
         windowsScript.text = windowsScript.text.replace('SAMLCTK_APP_HOME', '%~dp0..')
     }
 }
+
+build.finalizedBy(installDist)

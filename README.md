@@ -18,7 +18,7 @@ The `distribution/command-line` module will contain a full package of the deploy
 ### Running Test Script
 Upon a successful build, tests can be run with the `samlconf` script found in:
     
-    distribution/command-line/build/distributions/samlconf-<VERSION>/bin/
+    distribution/command-line/build/install/samlconf/bin/samlconf
 
 The `samlconf` script may take the following parameters:
 
@@ -66,14 +66,8 @@ If during development the build fails due to `format violations` run the followi
 * If testing an IdP:
   * Provide your IdP's metadata file path to the `samlconf` script using `-i` or `--idpMetadata`.
   * Configure your IdP with the test kit's SP metadata from
-  `distribution/command-line/src/main/resources/test-sp-metadata.xml`
+  `distribution/command-line/build/install/samlconf/conf/samlconf-sp-metadata.xml`
   or `samlconf-1.0-SNAPSHOT/conf/test-sp-metadata.xml` from the distribution.
-  
-* **TODO - not implemented yet** If testing an SP:
-  * Provide your SP's metadata file path to the `samlconf` script using `-s` or `--spMetadata`.
-  * Configure your SP with the test kit's IdP metadata from
-    `distribution/command-line/src/main/resources/test-idp-metadata.xml`
-    or `samlconf-1.0-SNAPSHOT/conf/test-idp-metadata.xml` from the distribution.
    
 ### Plugins
 **TODO** *describe how to implement plugins*
