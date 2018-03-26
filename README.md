@@ -9,12 +9,18 @@ SAML: https://wiki.oasis-open.org/security/FrontPage
 ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.0.html
 
 ## Setup
-To build the project, execute `gradle build` at the project root.
+To build the project:
+
+    gradlew build
+
 The `distribution/command-line` module will contain a full package of the deployment after the build.
 
-Tests can be run with the `samlconf` script under `<PATH_TO_PROJECT>/distribution/command-line/build/distributions/samlconf-<VERSION>/bin/`.
+### Running Test Script
+Upon a successful build, tests can be run with the `samlconf` script found in:
+    
+    distribution/command-line/build/install/samlconf/bin/samlconf
 
-The `samlconf` script takes multiple parameters:
+The `samlconf` script may take the following parameters:
 
 ```
 NAME
@@ -54,20 +60,14 @@ for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for
 ### Formatting
 If during development the build fails due to `format violations` run the following command to format:
 
-    gradle spotlessApply
+    gradlew spotlessApply
 
 ### Metadata
 * If testing an IdP:
   * Provide your IdP's metadata file path to the `samlconf` script using `-i` or `--idpMetadata`.
   * Configure your IdP with the test kit's SP metadata from
-  `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-sp-metadata.xml`
+  `distribution/command-line/build/install/samlconf/conf/samlconf-sp-metadata.xml`
   or `samlconf-1.0-SNAPSHOT/conf/test-sp-metadata.xml` from the distribution.
-  
-* **TODO - not implemented yet** If testing an SP:
-  * Provide your SP's metadata file path to the `samlconf` script using `-s` or `--spMetadata`.
-  * Configure your SP with the test kit's IdP metadata from
-    `<PATH_TO_PROJECT>/distribution/command-line/src/main/resources/test-idp-metadata.xml`
-    or `samlconf-1.0-SNAPSHOT/conf/test-idp-metadata.xml` from the distribution.
    
 ### Plugins
 **TODO** *describe how to implement plugins*
@@ -75,7 +75,7 @@ If during development the build fails due to `format violations` run the followi
 * Provide your plugins directory to the `samlconf` script using `-p` or `--plugins`.
 
 ### Docker
-To build a docker image, execute `gradle build docker`. 
+To build a docker image, execute `gradlew build docker`. 
 
 > NOTE
 >
@@ -83,14 +83,14 @@ To build a docker image, execute `gradle build docker`.
 
 ## Steps to Test DDF's IDP
 * Start DDF
-* Copy the contents of `test-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
+* Copy the contents of `samlconf-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
 to a file and pass that file to the `samlconf` script using `-i` or `--idpMetadata`.
 * Run `samlconf`.
 
 ## Steps to Test DDF's SP
 **TODO** * Start DDF
-* Copy the contents of `test-idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
+* Copy the contents of `samlconf-idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
 * If not on localhost, copy DDF's SP metadata from `https://<hostname>:<port>/services/saml/sso/metadata` 
 to a file and pass that file to the `samlconf` script using `-s` or `--spMetadata`.
 * Run `samlconf`.
@@ -138,21 +138,7 @@ todo: check and elaborate on this&rarr; This module contains all the runtime ele
 
 #### docker
 This module contains the logic for building a docker image.
-To build this module you must run the docker task by executing `gradle build docker`.
+To build this module you must run the docker task by executing `gradlew build docker`.
 
 #### suites
 This module contains the test suites.
-
-## TODO:
-- Further determine good directory structure (this will happen over time as we add more tests)
-- Determine what inputs the test suite will need (thinking just giving it the IdP/SP metadata)
-- Determine the combinations of SP's that we want to test with
-  - DDF IdP/SP
-  - Shibboleth SP and DDF IdP
-  - Shibboleth IdP and DDF IdP
-  - Spring SP and DDF IdP
-
-## References:
- - http://kotlinlang.org/docs/reference/
- - https://github.com/kotlintest/kotlintest/blob/master/doc/reference.md
- - https://try.kotlinlang.org/#/Kotlin%20Koans/Introduction/Hello,%20world!/Task.kt
