@@ -13,6 +13,9 @@
  */
 package org.codice.compliance.saml.plugin;
 
+import com.google.common.base.Splitter;
+import java.util.List;
+
 /**
  * This class is the return type for methods of the {@code IdpResponder} interface on the REDIRECT
  * Binding. An internal static builder class {@code Builder} should be used to build the {@code
@@ -82,8 +85,8 @@ public class IdpRedirectResponse extends IdpResponse {
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetUrlValues(String url) {
     this.url = url;
-    String[] splitUrl = url.split("\\?");
-    path = splitUrl[0];
-    parameters = splitUrl[1];
+    List<String> splitUrl = Splitter.on("\\?").splitToList(url);
+    path = splitUrl.get(0);
+    parameters = splitUrl.get(1);
   }
 }
