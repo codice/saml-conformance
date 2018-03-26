@@ -133,22 +133,19 @@ public class IdpPostResponse extends IdpResponse {
      *
      * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form controls
      */
-    // SAMLResponse portion
-    if (samlResponseForm != null) {
-      if (isNotEmpty(samlResponseForm.value())) {
-        samlResponse = samlResponseForm.value();
-      } else if (isNotEmpty(samlResponseForm.attributes().get(VALUE))) {
-        samlResponse = samlResponseForm.attributes().get(VALUE);
-      }
-    }
 
-    // RelayState portion
-    if (relayStateForm != null) {
-      if (isNotEmpty(relayStateForm.value())) {
-        relayState = relayStateForm.value();
-      } else if (isNotEmpty(relayStateForm.attributes().get(VALUE))) {
-        relayState = relayStateForm.attributes().get(VALUE);
+    samlResponse = extractValue(samlResponseNode);
+    relayState = extractValue(relayStateNode);
+  }
+
+  private String extractValue(Node node) {
+    if (node != null) {
+      if (isNotEmpty(node.value())) {
+        return node.value();
+      } else if (isNotEmpty(node.attributes().get(VALUE))) {
+        return node.attributes().get(VALUE);
       }
     }
+    return null;
   }
 }
