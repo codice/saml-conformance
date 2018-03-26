@@ -88,10 +88,10 @@ public class IdpPostResponse extends IdpResponse {
   protected Node relayStateForm;
 
   /**
-   * This method is responsible for
+   * This method is responsible for parsing out the SamlResponse form control from the big wrapping response from
    *
    * @param responseForm is a RestAssured response node that is returned from the user-interactive
-   *     plugin portion of the
+   *     plugin portion of the Post binding as defined in the binding spec in section 3.5.5 step 4
    */
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetFormValues(Node responseForm) {

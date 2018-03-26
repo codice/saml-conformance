@@ -35,6 +35,7 @@ class IdpPostResponseDecorator : IdpPostResponse {
 
     var isRelayStateGiven: Boolean = false
     lateinit var decodedSamlResponse: String
+
     val responseDom: w3Node by lazy {
         checkNotNull(decodedSamlResponse)
         buildDom(decodedSamlResponse)
@@ -63,6 +64,7 @@ class IdpPostResponseDecorator : IdpPostResponse {
         checkNotNull(acsUrl[SamlProtocol.Binding.HTTP_POST])
         checkNodeAttribute(responseForm, ACTION, acsUrl[SamlProtocol.Binding.HTTP_POST]!!)
     }
+
     val isFormMethodCorrect: Boolean by lazy {
         checkNodeAttribute(responseForm, METHOD, POST)
                 // TODO remove this or when we fix DDF to have a method value of "POST"

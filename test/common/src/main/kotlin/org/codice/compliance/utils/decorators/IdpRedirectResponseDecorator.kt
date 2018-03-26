@@ -20,21 +20,19 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.w3c.dom.Node
 
-class IdpRedirectResponseDecorator : IdpRedirectResponse {
+class IdpRedirectResponseDecorator// can only instantiate by using extension methods in IdpResponseDecorators.kt
+internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response) {
 
-    // can only instantiate by using extension methods in IdpResponseDecorators.kt
-    internal constructor(response: IdpRedirectResponse) : super(response) {
+    private val paramMap: Map<String, String> by lazy {
         parameters.split("&")
-                .forEach({
-                    val (key, value) = it.split("=")
-                    paramMap[key] = value
-                })
+                .map { s -> s.split("=") }
+                .associate { s -> s[0] to s[1] }
+    }
 
+    init {
         samlResponse = paramMap[SAML_RESPONSE]
         relayState = paramMap[RELAY_STATE]
     }
-
-    private val paramMap: MutableMap<String, String> = HashMap()
 
     val samlEncoding: String? by lazy {
         paramMap["SAMLEncoding"]

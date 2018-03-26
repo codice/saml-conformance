@@ -264,10 +264,6 @@ enum class SAMLSpecRefMessage(val message: String) {
     SAMLBindings_3_4_3_a("RelayState data MAY be included with a SAML protocol message transmitted with this " +
             "binding. The value MUST NOT exceed 80 bytes in length"),
 
-//    todo SAMLBindings_3_4_3_b("If a SAML request message is accompanied by RelayState data, then the SAML responder
-// MUST return its SAML protocol response using a binding that also supports a RelayState mechanism, and it MUST place
-// the exact data it received with the request into the corresponding RelayState parameter in the response."),
-
     SAMLBindings_3_4_3_b1("If a SAML request message is accompanied by RelayState data, then the SAML responder... " +
             "MUST place the exact data it received with the request into the corresponding RelayState parameter in " +
             "the response."),
@@ -353,7 +349,7 @@ enum class SAMLSpecRefMessage(val message: String) {
     SAMLBindings_3_5_4_b1("If the message is a SAML request, then the form control MUST be named SAMLRequest. If the " +
             "message is a SAML response, then the form control MUST be named SAMLResponse."),
 
-    SAMLBindings_3_5_4_c("If a “RelayState” value is to accompany the SAML protocol message, it MUST be placed in an " +
+    SAMLBindings_3_5_4_c("If a \"RelayState\" value is to accompany the SAML protocol message, it MUST be placed in an " +
             "additional hidden form control named RelayState within the same form with the SAML message."),
 
     SAMLBindings_3_5_4_d("The action attribute of the form MUST be the recipient's HTTP endpoint for the protocol or " +

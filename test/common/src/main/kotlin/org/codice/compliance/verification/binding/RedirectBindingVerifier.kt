@@ -78,27 +78,27 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     private fun verifyNoNulls() {
         with(response) {
             if (isUrlNull) {
-                SAMLComplianceException.create(
+                throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
                         message = "Url not found.")
             }
             if (isPathNull) {
-                SAMLComplianceException.create(
+                throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
                         message = "Path not found.")
             }
             if (isParametersNull) {
-                SAMLComplianceException.create(
+                throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
                         message = "Parameters not found.")
             }
             if (samlResponse == null) {
-                SAMLComplianceException.create(
+                throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
                         message = "SAMLResponse not found.")
             }
             if (isRelayStateGiven && relayState == null) {
-                SAMLComplianceException.create(
+                throw SAMLComplianceException.create(
                         SAMLBindings_3_4_3_b1,
                         message = "RelayState not found.")
             }

@@ -164,7 +164,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
     }
 
     /**
-     * Verifies the form carrying the SAMLRequest was properly formatted according to teh post binding rules in the binding spec
+     * Verifies the form carrying the SAMLRequest was properly formatted according to the post binding rules in the binding spec
      * 3.5.4 Message Encoding
      */
     // TODO refactor this method and response objects so we can show values in the errors
@@ -173,7 +173,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
             if (!isFormActionCorrect) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_d1,
-                        message = "The form \"action\" is incorrect.")
+                        message = """The form "action" is incorrect.""")
             }
             if (!isFormMethodCorrect) {
                 throw SAMLComplianceException.create(
