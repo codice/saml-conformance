@@ -87,7 +87,7 @@ class Common {
     }
 }
 
-/** Extensions function **/
+/** Extensions functions **/
 
 /**
  * Finds a Node's child by its name.
@@ -145,9 +145,9 @@ fun String.prettyPrintXml(): String {
 }
 
 private fun createTransformer(): Transformer {
-    val transformer = TransformerFactory.newInstance().newTransformer()
-    transformer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name())
-    transformer.setOutputProperty(OutputKeys.INDENT, "yes")
-    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
-    return transformer
+    return TransformerFactory.newInstance().newTransformer().apply {
+        setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name())
+        setOutputProperty(OutputKeys.INDENT, "yes")
+        setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+    }
 }
