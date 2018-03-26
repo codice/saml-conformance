@@ -11,7 +11,7 @@ ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.
 ## Setup
 To build the project:
 
-    gradle build
+    gradlew build
 
 The `distribution/command-line` module will contain a full package of the deployment after the build.
 
@@ -60,7 +60,7 @@ for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for
 ### Formatting
 If during development the build fails due to `format violations` run the following command to format:
 
-    gradle spotlessApply
+    gradlew spotlessApply
 
 ### Metadata
 * If testing an IdP:
@@ -75,7 +75,7 @@ If during development the build fails due to `format violations` run the followi
 * Provide your plugins directory to the `samlconf` script using `-p` or `--plugins`.
 
 ### Docker
-To build a docker image, execute `gradle build docker`. 
+To build a docker image, execute `gradlew build docker`. 
 
 > NOTE
 >
@@ -138,7 +138,7 @@ todo: check and elaborate on this&rarr; This module contains all the runtime ele
 
 #### docker
 This module contains the logic for building a docker image.
-To build this module you must run the docker task by executing `gradle build docker`.
+To build this module you must run the docker task by executing `gradlew build docker`.
 
 #### suites
 This module contains the test suites.
