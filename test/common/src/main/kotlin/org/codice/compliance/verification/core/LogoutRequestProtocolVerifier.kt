@@ -31,7 +31,7 @@ class LogoutRequestProtocolVerifier(val request: Node) {
             if (it.children("BaseID").isEmpty()
                     && it.children("NameID").isEmpty()
                     && it.children("EncryptedID").isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.7.1",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.7.1",
                         "BaseID or NameID or EncryptedID",
                         "LogoutRequest")
         }

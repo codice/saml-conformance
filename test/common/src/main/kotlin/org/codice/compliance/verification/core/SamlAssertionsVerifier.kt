@@ -69,7 +69,7 @@ class SamlAssertionsVerifier(val node: Node) {
         node.allChildren("EncryptedID").forEach {
             val encryptedData = it.children("EncryptedData")
             if (encryptedData.isEmpty()) throw SAMLComplianceException
-                    .createWithPropertyReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
+                    .createWithXmlPropertyReqMessage("SAMLCore.2.2.4", "EncryptedData", "EncryptedId")
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
@@ -92,25 +92,25 @@ class SamlAssertionsVerifier(val node: Node) {
     private fun verifyCoreAssertion() {
         node.allChildren("Assertion").forEach {
             if (it.attributes.getNamedItem("Version")?.textContent == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
             if (it.attributes.getNamedItem("Version").textContent != "2.0")
-                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_2_3_3_a,
-                        "Version",
-                        it.attributes.getNamedItem("Version").textContent,
-                        "2.0")
+                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_2_3_3_a,
+                        property = "Version",
+                        actual = it.attributes.getNamedItem("Version").textContent,
+                        expected = "2.0")
 
             if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3", "ID", "Assertion")
             verifyIdValues(it.attributes.getNamedItem("ID"), SAMLCore_2_3_3_b)
 
             if (it.attributes.getNamedItem("IssueInstant") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.3.3",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3",
                         "IssueInstant",
                         "Assertion")
             verifyTimeValues(it.attributes.getNamedItem("IssueInstant"), SAMLCore_2_3_3_c)
 
             if (it.children("Issuer").isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3", "Issuer", "Assertion")
 
             val statements = it.children("Statement")
             if (statements.any { it.attributes.getNamedItemNS(XSI, "type") == null })
@@ -136,7 +136,7 @@ class SamlAssertionsVerifier(val node: Node) {
             val encryptedData = it.children("EncryptedData")
             if (encryptedData.isEmpty())
                 throw SAMLComplianceException
-                        .createWithPropertyReqMessage("SAMLCore.2.3.4", "EncryptedData", "EncryptedAssertion")
+                        .createWithXmlPropertyReqMessage("SAMLCore.2.3.4", "EncryptedData", "EncryptedAssertion")
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
@@ -158,7 +158,7 @@ class SamlAssertionsVerifier(val node: Node) {
         if (node.allChildren("SubjectConfirmation")
                         .any { it.attributes.getNamedItem("Method") == null })
             throw SAMLComplianceException
-                    .createWithPropertyReqMessage("SAMLCore.2.4.1.1", "Method", "SubjectConfirmation")
+                    .createWithXmlPropertyReqMessage("SAMLCore.2.4.1.1", "Method", "SubjectConfirmation")
 
         // SubjectConfirmationData
         node.allChildren("SubjectConfirmationData").forEach {
@@ -277,12 +277,12 @@ class SamlAssertionsVerifier(val node: Node) {
 
         node.allChildren("AuthnStatement").forEach {
             if (it.attributes.getNamedItem("AuthnInstant") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.2",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.2",
                         "AuthnInstant",
                         "AuthnStatement")
 
             if (it.children("AuthnContext").isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.2",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.2",
                         "AuthnContext",
                         "AuthnStatement")
         }
@@ -304,17 +304,17 @@ class SamlAssertionsVerifier(val node: Node) {
         node.allChildren("EncryptedAttribute").forEach {
             val encryptedData = it.children("EncryptedData")
             if (encryptedData.isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.3.2",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.3.2",
                         "EncryptedData",
                         "EncryptedAttribute")
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_2_7_3_2_a,
-                        "Type",
-                        it.attributes.getNamedItem("Type").textContent,
-                        ELEMENT)
+                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_2_7_3_2_a,
+                        property = "Type",
+                        actual = it.attributes.getNamedItem("Type").textContent,
+                        expected = ELEMENT)
             // todo - The encrypted content MUST contain an element that has a type of or derived from AssertionType.
         }
     }
@@ -323,7 +323,7 @@ class SamlAssertionsVerifier(val node: Node) {
     private fun verifyAttribute() {
         node.allChildren("Attribute").forEach {
             if (it.attributes.getNamedItem("Name") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.3.1", "Name", "Attribute")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.3.1", "Name", "Attribute")
 
             val nameAttribute = it.attributes.getNamedItem("Name")
             val nameFormatAttribute = it.attributes.getNamedItem("NameFormat")
@@ -341,9 +341,9 @@ class SamlAssertionsVerifier(val node: Node) {
         it.children("AttributeValue").forEach {
             val nilAttribute = it.attributes.getNamedItemNS(XSI, "nil")?.textContent
             if (StringUtils.isNotBlank(it.textContent) || (nilAttribute != "true" && nilAttribute != "1"))
-                throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLCore_2_7_3_1_1,
-                        "xsi:nil XML attribute",
-                        nilAttribute)
+                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_2_7_3_1_1,
+                        property = "xsi:nil XML attribute",
+                        actual = nilAttribute)
         }
     }
 
@@ -356,7 +356,7 @@ class SamlAssertionsVerifier(val node: Node) {
 
         node.allChildren("AttributeStatement").forEach {
             if (it.children("Attribute").isEmpty() && it.children("EncryptedAttribute").isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.3",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.3",
                         "Attribute or EncryptedAttribute",
                         "AttributeStatement")
         }
@@ -377,15 +377,15 @@ class SamlAssertionsVerifier(val node: Node) {
 
         node.allChildren("AuthzDecisionStatement").forEach {
             if (it.attributes.getNamedItem("Resource") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.4",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.4",
                         "Resource",
                         "AuthzDecisionStatement")
             if (it.attributes.getNamedItem("Decision") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.4",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.4",
                         "Decision",
                         "AuthzDecisionStatement")
             if (it.children("Action").isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.4",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.4",
                         "Action",
                         "AuthzDecisionStatement")
         }
@@ -394,7 +394,7 @@ class SamlAssertionsVerifier(val node: Node) {
         val actions = node.allChildren("Action")
         actions.forEach {
             if (it.attributes.getNamedItem("Namespace") == null)
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.7.4.2", "Namespace", "Action")
         }
     }
 }

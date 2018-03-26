@@ -63,10 +63,10 @@ class CoreVerifier(val node: Node) {
                 val uriValue = references[0].attributes?.getNamedItem("URI")?.textContent
                 val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent
                 if (uriValue != formattedId)
-                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_5_4_2_b,
-                            "URI",
-                            uriValue,
-                            formattedId)
+                    throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_5_4_2_b,
+                            property = "URI",
+                            actual = uriValue,
+                            expected = formattedId)
             }
         }
     }
@@ -87,10 +87,10 @@ class CoreVerifier(val node: Node) {
             if (encryptedDataNode.isNotEmpty()) {
                 val encryptedData = encryptedDataNode.get(0).attributes.getNamedItem("EncryptedData").textContent
                 if (encryptedData != ELEMENT)
-                    throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_6_1_b,
-                            "EncryptedData",
-                            encryptedData,
-                            ELEMENT)
+                    throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_6_1_b,
+                            property = "EncryptedData",
+                            actual = encryptedData,
+                            expected = ELEMENT)
             }
         }
     }

@@ -60,44 +60,44 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
      */
     private fun verifyStatusResponseType() {
         if (response.attributes.getNamedItem("ID") == null)
-            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2", "ID", "Response")
+            throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2", "ID", "Response")
         verifyIdValues(response.attributes.getNamedItem("ID"), SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
         val inResponseTo = response.attributes?.getNamedItem("InResponseTo")?.textContent
         if (inResponseTo != id)
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_3_2_2_b,
-                    "InResponseTo",
-                    inResponseTo,
-                    id)
+            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_b,
+                    property = "InResponseTo",
+                    actual = inResponseTo,
+                    expected = id)
 
         if (response.attributes.getNamedItem("Version") == null)
-            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2",
+            throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2",
                     "Version",
                     "Response")
 
         val version = response.attributes?.getNamedItem("Version")?.textContent
         if (version != "2.0")
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_3_2_2_c,
-                    "Version",
-                    version,
-                    "2.0")
+            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_c,
+                    property = "Version",
+                    actual = version,
+                    expected = "2.0")
 
         if (response.attributes.getNamedItem("IssueInstant") == null)
-            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2",
+            throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2",
                     "IssueInstant",
                     "Response")
         verifyTimeValues(response.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_2_d)
 
         val destination = response.attributes?.getNamedItem("Destination")?.textContent
         if (destination != acsUrl)
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLCore_3_2_2_e,
-                    "Destination",
-                    destination,
-                    acsUrl ?: "No ACS URL Found")
+            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_e,
+                    property = "Destination",
+                    actual = destination,
+                    expected = acsUrl ?: "No ACS URL Found")
 
         if (response.children("Status").isEmpty())
-            throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2",
+            throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2",
                     "Status",
                     "Response")
     }
@@ -112,17 +112,17 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
         response.children("Status").forEach {
             val statusCodes = it.children("StatusCode")
             if (statusCodes.isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2.1", "StatusCode", "Status")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2.1", "StatusCode", "Status")
 
             // StatusCode
             if (statusCodes.any { it.attributes.getNamedItem("Value") == null })
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.2.2.2", "Value", "StatusCode")
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2.2", "Value", "StatusCode")
 
             val statusCode = statusCodes[0].attributes?.getNamedItem("Value")?.textContent
             if (!TOP_LEVEL_STATUS_CODES.contains(statusCode))
-                throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLCore_3_2_2_2,
-                        "Status Code",
-                        statusCode)
+                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_2,
+                        property = "Status Code",
+                        actual = statusCode)
         }
     }
 
@@ -133,7 +133,7 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
     private fun verifyNameIdMappingResponse() {
         response.allChildren("NameIDMappingResponse").forEach {
             if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
-                throw SAMLComplianceException.createWithPropertyReqMessage("SAMLCore.3.6.1",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.6.1",
                         "NameID or EncryptedID",
                         "NameIDMappingResponse")
         }

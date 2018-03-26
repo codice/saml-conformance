@@ -206,14 +206,14 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         if (givenRelayState) {
             if (decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
-                    throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_4_4_1_c1,
-                            "RelayState",
-                            encodedRelayState)
+                    throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_4_4_1_c1,
+                            property = "RelayState",
+                            actual = encodedRelayState)
                 }
-                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_4_3_b1,
-                        "RelayState",
-                        decodedRelayState,
-                        EXAMPLE_RELAY_STATE)
+                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_4_3_b1,
+                        property = "RelayState",
+                        actual = decodedRelayState,
+                        expected = EXAMPLE_RELAY_STATE)
             }
         }
     }
@@ -227,11 +227,11 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         val signatures = response.responseDom.allChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(
-                    SAMLBindings_3_5_5_2_a,
-                    "Destination",
-                    destination,
-                    acsUrl[HTTP_REDIRECT])
+            throw SAMLComplianceException.createWithPropertyMessage(
+                    code = SAMLBindings_3_5_5_2_a,
+                    property = "Destination",
+                    actual = destination,
+                    expected = acsUrl[HTTP_REDIRECT])
         }
     }
 }
