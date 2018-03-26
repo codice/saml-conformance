@@ -22,34 +22,32 @@ Upon a successful build, tests can be run with the `samlconf` script found in:
 
 The `samlconf` script may take the following parameters:
 
-```
-NAME
-       samlconf - Runs the SAML Conformance Tests against an IdP or an SP
-
-SYNOPSIS
-       samlconf [-i path] [--idpMetadata path]
-           [-p path] [--plugins path] 
-
-DESCRIPTION
-       Runs the SAML Conformance Tests which tests the compliance of an IdP and/or an SP
-       with the SAML Specifications. If a compliance issue is identified, a 
-       SAMLConformanceException will be thrown with an explanation of the error and a direct
-       quote from the specification. All of the parameters are optional and if they are 
-       not provided, the default values will use DDF's parameters. All parameters must 
-       be given one time.
-
-OPTIONS
-       -i | --idpMetadata path
-            The path to the IdP metadata. If it is not given, the default IdP metadata
-            is /conf/idp-metadata.xml.
-                  
-       -d | --debug
-           Sets the log level to debug.
-           
-       -p | --plugins path
-            The path to the custom, server-specific plugin implementations. If it is not given, 
-            the default plugin directory is /plugins.
-```
+    NAME
+           samlconf - Runs the SAML Conformance Tests against an IdP or an SP
+    
+    SYNOPSIS
+           samlconf [-i path] [--idpMetadata path]
+               [-p path] [--plugins path] 
+    
+    DESCRIPTION
+           Runs the SAML Conformance Tests which tests the compliance of an IdP and/or an SP
+           with the SAML Specifications. If a compliance issue is identified, a 
+           SAMLConformanceException will be thrown with an explanation of the error and a direct
+           quote from the specification. All of the parameters are optional and if they are 
+           not provided, the default values will use DDF's parameters. All parameters must 
+           be given one time.
+    
+    OPTIONS
+           -i | --idpMetadata path
+                The path to the IdP metadata. If it is not given, the default IdP metadata
+                is /conf/idp-metadata.xml.
+                      
+           -d | --debug
+               Sets the log level to debug.
+               
+           -p | --plugins path
+                The path to the custom, server-specific plugin implementations. If it is not given, 
+                the default plugin directory is /plugins.
 
 
 > NOTE
@@ -60,7 +58,7 @@ for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for
 ### Formatting
 If during development the build fails due to `format violations` run the following command to format:
 
-    gradlew spotlessApply
+    gradlew spotlessApply goJF
 
 ### Metadata
 * If testing an IdP:
