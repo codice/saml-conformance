@@ -134,8 +134,8 @@ public class IdpPostResponse extends IdpResponse {
      * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form controls
      */
 
-    samlResponse = extractValue(samlResponseNode);
-    relayState = extractValue(relayStateNode);
+    samlResponse = extractValue(samlResponseForm);
+    relayState = extractValue(relayStateForm);
   }
 
   private String extractValue(Node node) {
