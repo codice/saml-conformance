@@ -34,6 +34,7 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_f2
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
@@ -105,7 +106,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             }
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
 
-        Log.debug(decodedMessage.prettyPrintXml())
+        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
         response.decodedSamlResponse = decodedMessage
     }
 

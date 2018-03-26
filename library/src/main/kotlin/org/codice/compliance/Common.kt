@@ -13,6 +13,8 @@
  */
 package org.codice.compliance
 
+import de.jupf.staticlog.Log
+import de.jupf.staticlog.core.LogLevel
 import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
@@ -126,6 +128,12 @@ fun Node.prettyPrintXml(): String {
     val output = StringWriter()
     transformer.transform(DOMSource(this), StreamResult(output))
     return output.toString()
+}
+
+fun Log.debugWithSupplier(message: () -> String) {
+    if (this.logLevel == LogLevel.DEBUG) {
+        this.debug(message())
+    }
 }
 
 fun String.prettyPrintXml(): String {

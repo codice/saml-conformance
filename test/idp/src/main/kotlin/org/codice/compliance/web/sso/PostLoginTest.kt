@@ -20,6 +20,7 @@ import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
+import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
@@ -67,7 +68,7 @@ class PostLoginTest : StringSpec() {
             }.apply { SimpleSign().signSamlObject(this) }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debug(authnRequestString.prettyPrintXml())
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
             return authnRequestString
         }
     }
@@ -76,7 +77,7 @@ class PostLoginTest : StringSpec() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "POST AuthnRequest Test" {
-            Log.debug("Starting POST AuthnRequest Test")
+            Log.debugWithSupplier { "Starting POST AuthnRequest Test" }
             val encodedRequest = Encoder.encodePostMessage(createValidAuthnRequest())
             val response = given()
                     .urlEncodingEnabled(false)
@@ -98,7 +99,7 @@ class PostLoginTest : StringSpec() {
         }
 
         "POST AuthnRequest With Relay State Test" {
-            Log.debug("Starting POST AuthnRequest With Relay State Test")
+            Log.debugWithSupplier { "Starting POST AuthnRequest With Relay State Test" }
             val encodedRequest = Encoder.encodePostMessage(
                     createValidAuthnRequest(), EXAMPLE_RELAY_STATE)
             val response = given()
@@ -124,7 +125,7 @@ class PostLoginTest : StringSpec() {
         }
 
         "POST AuthnRequest Without ACS Url Test" {
-            Log.debug("Starting POST AuthnRequest Without ACS Url Test")
+            Log.debugWithSupplier { "Starting POST AuthnRequest Without ACS Url Test" }
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = TestCommon.SP_ISSUER
@@ -142,7 +143,7 @@ class PostLoginTest : StringSpec() {
             }.apply { SimpleSign().signSamlObject(this) }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debug(authnRequestString.prettyPrintXml())
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
             val response = given()
