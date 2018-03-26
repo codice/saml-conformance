@@ -30,24 +30,17 @@ import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
-import org.slf4j.LoggerFactory
 import org.w3c.dom.Node
 
 class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl: String?) {
-    companion object {
-        private val logger = LoggerFactory.getLogger(SingleSignOnProfileVerifier::class.java)
-    }
-
     /**
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage
      */
     fun verify() {
-        logger.debug("Starting the Profiles Verifications for the Single Sign On Verification.")
         verifyIssuer()
         verifySsoAssertions()
         ProfilesVerifier(response).verify()
-        logger.debug("Completed the Profiles Verifications for the Single Sign On Verification.")
     }
 
     /**

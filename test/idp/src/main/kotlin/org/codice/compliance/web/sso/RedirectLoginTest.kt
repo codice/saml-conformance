@@ -22,6 +22,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
+import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
@@ -63,7 +64,7 @@ class RedirectLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debug(Common.prettyPrintXml(authnRequestString))
+            Log.debug(authnRequestString.prettyPrintXml())
             return Encoder.encodeRedirectMessage(authnRequestString)
         }
     }
@@ -144,7 +145,7 @@ class RedirectLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debug(Common.prettyPrintXml(authnRequestString))
+            Log.debug(authnRequestString.prettyPrintXml())
 
             val encodedRequest = Encoder.encodeRedirectMessage(authnRequestString)
             val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)

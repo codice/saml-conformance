@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.verification.core
 
-import de.jupf.staticlog.Log
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_2
 import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_2_a
@@ -39,7 +38,6 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
      * 3.2.2 Complex Type StatusResponseType
      */
     fun verify() {
-        Log.debug("Starting the Core Verifications.")
         CoreVerifier(response).verify()
         verifyStatusResponseType()
         verifyStatusesType()
@@ -52,7 +50,6 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
                     if (it.children("AuthnStatement").isEmpty())
                         throw SAMLComplianceException.create(SAMLCore_3_4, message = "AuthnStatement not found.")
                 }
-        Log.debug("Completed the Core Verification.")
     }
 
     /**

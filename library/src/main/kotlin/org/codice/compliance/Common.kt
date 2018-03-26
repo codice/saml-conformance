@@ -13,18 +13,21 @@
  */
 package org.codice.compliance
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer
 import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
-import org.xml.sax.InputSource
 import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
-import javax.xml.parsers.DocumentBuilderFactory
+import java.nio.charset.StandardCharsets
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.Transformer
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.stream.StreamSource
 
 const val PLUGIN_DIR_PROPERTY = "saml.plugin.deployDir"
 const val IDP_METADATA_PROPERTY = "idp.metadata"
@@ -79,25 +82,10 @@ class Common {
                     ?.first { it.binding == binding }
                     ?.location
         }
-
-        fun prettyPrintXml(xml: String): String {
-            val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            val document = documentBuilder.parse(InputSource(StringReader(xml)))
-
-            val format = OutputFormat(document).apply {
-                indenting = true
-                indent = 2
-                omitXMLDeclaration = false
-                lineWidth = Integer.MAX_VALUE
-            }
-            val outxml = StringWriter()
-            XMLSerializer(outxml, format).serialize(document)
-            return outxml.toString()
-        }
     }
 }
 
-/** Extensions to Node class **/
+/** Extensions function **/
 
 /**
  * Finds a Node's child by its name.
@@ -131,4 +119,27 @@ fun Node.allChildren(name: String): List<Node> {
         nodes.addAll(child.allChildren(name)); i -= 1
     }
     return nodes
+}
+
+fun Node.prettyPrintXml(): String {
+    val transformer = createTransformer()
+    val output = StringWriter()
+    transformer.transform(DOMSource(this), StreamResult(output))
+    return output.toString()
+}
+
+fun String.prettyPrintXml(): String {
+    val input = StreamSource(StringReader(this))
+    val output = StreamResult(StringWriter())
+    val transformer = createTransformer()
+    transformer.transform(input, output)
+    return output.writer.toString()
+}
+
+private fun createTransformer(): Transformer {
+    val transformer = TransformerFactory.newInstance().newTransformer()
+    transformer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name())
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+    return transformer
 }

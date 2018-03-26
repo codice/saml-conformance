@@ -20,7 +20,7 @@ import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
-import org.codice.compliance.Common.Companion.prettyPrintXml
+import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
@@ -67,7 +67,7 @@ class PostLoginTest : StringSpec() {
             }.apply { SimpleSign().signSamlObject(this) }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debug(prettyPrintXml(authnRequestString))
+            Log.debug(authnRequestString.prettyPrintXml())
             return authnRequestString
         }
     }
@@ -142,7 +142,7 @@ class PostLoginTest : StringSpec() {
             }.apply { SimpleSign().signSamlObject(this) }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debug(prettyPrintXml(authnRequestString))
+            Log.debug(authnRequestString.prettyPrintXml())
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
             val response = given()

@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.verification.core
 
-import de.jupf.staticlog.Log
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_2_1_b
@@ -31,7 +30,6 @@ class RequestProtocolVerifier(private val request: Node) {
      * 3.2.1 Complex Type StatusResponseType
      */
     fun verifyCoreRequestProtocol() {
-        Log.debug("Starting the Core Verifications.")
         CoreVerifier(request).verify()
         verifyRequestAbstractType()
         verifyAuthnQueries()
@@ -41,7 +39,6 @@ class RequestProtocolVerifier(private val request: Node) {
         verifyArtifactResolutionProtocol()
         verifyManageNameIDRequest()
         verifyNameIdMappingRequest()
-        Log.debug("Completed the Core Verifications.")
     }
 
     /**

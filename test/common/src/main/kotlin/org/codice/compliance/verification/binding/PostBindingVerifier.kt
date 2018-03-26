@@ -16,7 +16,6 @@ package org.codice.compliance.verification.binding
 import de.jupf.staticlog.Log
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
-import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_b1
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_3_a
@@ -26,6 +25,7 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
@@ -38,12 +38,10 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      * Verify the response for a post binding
      */
     fun verify() {
-        Log.debug("Starting the Binding Verifications for the POST Binding.")
         decodeAndVerify()
         verifySsoPost()
         verifyPostRelayState()
         verifyPostDestination()
-        Log.debug("Completed the Binding Verifications for the POST Binding.")
     }
 
     /**
@@ -60,7 +58,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
         }
 
         decodedMessage shouldNotBe null
-        Log.debug(Common.prettyPrintXml(decodedMessage))
+        Log.debug(decodedMessage.prettyPrintXml())
         response.decodedSamlResponse = decodedMessage
     }
 
