@@ -26,7 +26,9 @@ import com.jayway.restassured.path.xml.element.Node;
  *
  * <p>The implemented {@code IdpResponder} methods should call the builder methods:
  *
- * <ul> <li>IdpPostResponse.Builder.httpStatusCode(int) <li>IdpPostResponse.Builder.samlForm(Node)
+ * <ul>
+ *   <li>IdpPostResponse.Builder.httpStatusCode(int)
+ *   <li>IdpPostResponse.Builder.samlForm(Node)
  * </ul>
  *
  * Before building the {@code IdpPostResponse} object.
@@ -68,8 +70,7 @@ public class IdpPostResponse extends IdpResponse {
     }
   }
 
-  private IdpPostResponse() {
-  }
+  private IdpPostResponse() {}
 
   // Copy constructor
   protected IdpPostResponse(IdpPostResponse response) {

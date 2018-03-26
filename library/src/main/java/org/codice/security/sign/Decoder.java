@@ -29,8 +29,7 @@ public class Decoder {
 
   private static final boolean GZIP_COMPATIBLE = true;
 
-  private Decoder() {
-  }
+  private Decoder() {}
 
   /**
    * URL decodes and base 64 decodes POST SAML messages

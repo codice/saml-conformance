@@ -27,7 +27,9 @@ import com.google.common.base.Splitter;
  *
  * <p>The implemented {@code IdpResponder} methods should call the builder methods:
  *
- * <ul> <li>IdpRedirectResponse.Builder.httpStatusCode(int) <li>IdpRedirectResponse.Builder.url(String)
+ * <ul>
+ *   <li>IdpRedirectResponse.Builder.httpStatusCode(int)
+ *   <li>IdpRedirectResponse.Builder.url(String)
  * </ul>
  *
  * Before building the {@code IdpRedirectResponse} object.
@@ -69,8 +71,7 @@ public class IdpRedirectResponse extends IdpResponse {
     }
   }
 
-  private IdpRedirectResponse() {
-  }
+  private IdpRedirectResponse() {}
 
   // Copy constructor
   protected IdpRedirectResponse(IdpRedirectResponse response) {
