@@ -85,7 +85,7 @@ public class IdpRedirectResponse extends IdpResponse {
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetUrlValues(String url) {
     this.url = url;
-    List<String> splitUrl = Splitter.on("\\?").splitToList(url);
+    List<String> splitUrl = Splitter.on("?").splitToList(url);
     path = splitUrl.get(0);
     parameters = splitUrl.get(1);
   }

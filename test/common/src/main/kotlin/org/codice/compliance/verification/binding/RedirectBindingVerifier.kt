@@ -13,9 +13,11 @@
  */
 package org.codice.compliance.verification.binding
 
+import com.google.api.client.http.HttpStatusCodes
 import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_1_2_1
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_b1
@@ -62,6 +64,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      */
     fun verify() {
         verifyNoNulls()
+        verifyHttpStatusCode()
         decodeAndVerify()
         verifyNoXMLSig()
         if (response.isRelayStateGiven || response.relayState != null) {
@@ -104,6 +107,24 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                         SAMLBindings_3_4_3_b1,
                         message = "RelayState not found.")
             }
+        }
+    }
+
+    /**
+     * Verifies the http status code of the response according to the redirect binding rules in the binding spec
+     * 3.4.6 Error Reporting
+     */
+    private fun verifyHttpStatusCode() {
+        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status code for Redirect" is completed
+        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+            SAMLComplianceException.createWithPropertyMessage(
+                    SAMLSpecRefMessage.SAMLBindings_3_4_6_a,
+                    property = "HTTP Status Code",
+                    actual = response.httpStatusCode.toString(),
+                    expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"
+            )
         }
     }
 

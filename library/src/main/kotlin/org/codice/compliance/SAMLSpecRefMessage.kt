@@ -326,6 +326,9 @@ enum class SAMLSpecRefMessage(val message: String) {
 //    todo SAMLBindings_3_4_5_2_a2("If the message is signed, the... recipient MUST then verify that the [Destination]
 // value matches the location at which the message has been received."),
 
+    SAMLBindings_3_4_6_a("HTTP interactions during the message exchange MUST NOT use HTTP error status codes to indicate " +
+            "failures in SAML processing, since the user agent is not a full party to the SAML protocol exchange."),
+
     SAMLBindings_3_5_3_a("The [RelayState] value MUST NOT exceed 80 bytes in length"),
 
     SAMLBindings_3_5_3_b("If a SAML request message is accompanied by RelayState data, then the SAML responder... " +
@@ -365,6 +368,9 @@ enum class SAMLSpecRefMessage(val message: String) {
     SAMLBindings_3_5_5_2_a("If the message is signed, the Destination XML attribute in the root SAML element of the " +
             "protocol message MUST contain the URL to which the sender has instructed the user agent to deliver the " +
             "message."),
+
+    SAMLBindings_3_5_6_a("HTTP interactions during the message exchange MUST NOT use HTTP error status codes to indicate " +
+            "failures in SAML processing, since the user agent is not a full party to the SAML protocol exchange."),
 
     /***************
      *

@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.binding
 
+import com.google.api.client.http.HttpStatusCodes
 import de.jupf.staticlog.Log
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
@@ -27,6 +28,7 @@ import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_c
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_d1
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_4_d2
 import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
+import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_6_a
 import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
@@ -45,6 +47,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      */
     fun verify() {
         verifyNoNulls()
+        verifyHttpStatusCode()
         decodeAndVerify()
         verifyPostSSO()
         if (response.isRelayStateGiven || response.relayState != null) {
@@ -83,6 +86,21 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
                         SAMLBindings_3_5_4_c,
                         message = "The RelayState within the RelayState form control could not be found.")
             }
+        }
+    }
+
+    /**
+     * Verifies the http status code of the response according to the post binding rules in the post spec
+     * 3.5.6 Error Reporting
+     */
+    private fun verifyHttpStatusCode() {
+        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK) {
+            SAMLComplianceException.createWithPropertyMessage(
+                    SAMLBindings_3_5_6_a,
+                    property = "HTTP Status Code",
+                    actual = response.httpStatusCode.toString(),
+                    expected = "${HttpStatusCodes.STATUS_CODE_OK}"
+            )
         }
     }
 
