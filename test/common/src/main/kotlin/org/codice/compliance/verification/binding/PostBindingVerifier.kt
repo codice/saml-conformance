@@ -47,7 +47,9 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
         verifyNoNulls()
         decodeAndVerify()
         verifyPostSSO()
-        verifyPostRelayState()
+        if (response.isRelayStateGiven || response.relayState != null) {
+            verifyPostRelayState()
+        }
         verifyPostDestination()
         verifyPostForm()
     }
@@ -123,11 +125,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
      */
     private fun verifyPostRelayState() {
         val relayState = response.relayState
-        val givenRelayState = response.isRelayStateGiven
-
-        if (!givenRelayState && relayState == null) {
-            return
-        }
+        val isRelayStateGiven = response.isRelayStateGiven
 
         if (relayState.toByteArray().size > MAX_RELAYSTATE_LEN)
             throw SAMLComplianceException.createWithPropertyMessage(
@@ -135,7 +133,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
                     property = RELAY_STATE,
                     actual = relayState)
 
-        if (givenRelayState) {
+        if (isRelayStateGiven) {
             if (relayState != EXAMPLE_RELAY_STATE) {
                 throw SAMLComplianceException.createWithPropertyMessage(
                         code = SAMLBindings_3_5_3_b,
@@ -178,7 +176,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
             if (!isFormMethodCorrect) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_d2,
-                        message = "The form \"method\" is incorrect.")
+                        message = """The form "method" is incorrect.""")
             }
             if (!isSamlResponseNameCorrect) {
                 throw SAMLComplianceException.create(

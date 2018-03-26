@@ -61,13 +61,12 @@ class IdpPostResponseDecorator : IdpPostResponse {
      * The method attribute MUST be "POST"."
      */
     val isFormActionCorrect: Boolean by lazy {
-        checkNotNull(acsUrl[SamlProtocol.Binding.HTTP_POST])
-        checkNodeAttribute(responseForm, ACTION, acsUrl[SamlProtocol.Binding.HTTP_POST]!!)
+        checkNodeAttribute(responseForm, ACTION, checkNotNull(acsUrl[SamlProtocol.Binding.HTTP_POST]))
     }
 
     val isFormMethodCorrect: Boolean by lazy {
         checkNodeAttribute(responseForm, METHOD, POST)
-                // TODO remove this or when we fix DDF to have a method value of "POST"
+                // TODO remove after "DDF form method on Post binding is "post" when it is supposed to be "POST"" is fixed
                 || checkNodeAttribute(responseForm, METHOD, POST.toLowerCase())
     }
 

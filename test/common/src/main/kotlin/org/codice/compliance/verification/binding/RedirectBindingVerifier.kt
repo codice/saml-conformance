@@ -64,7 +64,9 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         verifyNoNulls()
         decodeAndVerify()
         verifyNoXMLSig()
-        verifyRedirectRelayState()
+        if (response.isRelayStateGiven || response.relayState != null) {
+            verifyRedirectRelayState()
+        }
         response.signature?.let {
             verifyRedirectSignature()
             verifyRedirectDestination()
@@ -206,11 +208,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      */
     private fun verifyRedirectRelayState() {
         val encodedRelayState = response.relayState
-        val givenRelayState = response.isRelayStateGiven
-
-        if (!givenRelayState && encodedRelayState == null) {
-            return
-        }
+        val isRelayStateGiven = response.isRelayStateGiven
 
         val decodedRelayState: String
         try {
@@ -226,7 +224,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                     message = "RelayState value of $decodedRelayState was longer than 80 bytes.")
         }
 
-        if (givenRelayState) {
+        if (isRelayStateGiven) {
             if (decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
                     throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_4_4_1_c1,
