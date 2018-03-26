@@ -13,41 +13,52 @@
  */
 package org.codice.compliance
 
+import org.w3c.dom.Node
+
 class SAMLComplianceException : Exception {
 
     private constructor(message: String) : super(message)
     private constructor(message: String, cause: Throwable) : super(message, cause)
 
     companion object {
-        fun create(vararg codes: SAMLSpecRefMessage, message: String, cause: Throwable? = null):
+        fun create(vararg codes: SAMLSpecRefMessage,
+                   message: String,
+                   cause: Throwable? = null,
+                   node: Node? = null):
                 SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
                     .fold("SAML Specification References:\n") { acc, s ->
                         "$acc\n$s"
                     }
 
-            if (cause != null) {
-                return SAMLComplianceException("$message\n\n$samlExceptions\n", cause)
+            return if (cause != null) {
+                SAMLComplianceException("$message\n\n$samlExceptions\n\n${node?.prettyPrintXml() ?: ""}\n", cause)
             } else {
-                return SAMLComplianceException("$message\n\n$samlExceptions\n")
+                SAMLComplianceException("$message\n\n$samlExceptions\n\n${node?.prettyPrintXml() ?: ""}\n")
             }
         }
 
-        fun createWithPropertyReqMessage(section: String, property: String, parent: String): SAMLComplianceException {
-            return SAMLComplianceException("$section: $property is required in $parent.")
+        fun createWithXmlPropertyReqMessage(section: String,
+                                            property: String,
+                                            parent: String,
+                                            node: Node? = null): SAMLComplianceException {
+            return SAMLComplianceException("$section: $property is required in $parent.\n\n" +
+                    (node?.prettyPrintXml() ?: ""))
         }
 
-        fun createWithPropertyInvalidMessage(code: SAMLSpecRefMessage, property: String, propertyValue: String?):
-                SAMLComplianceException {
-            return SAMLComplianceException("The $property value of $propertyValue is invalid.\n\n${readCode(code)}")
-        }
-
-        fun createWithPropertyNotEqualMessage(code: SAMLSpecRefMessage,
-                                              property: String,
-                                              propertyValue: String?,
-                                              otherValue: String?): SAMLComplianceException {
-            return SAMLComplianceException("The $property value of $propertyValue is not equal to $otherValue." +
-                    "\n\n${readCode(code)}")
+        @Suppress("LongParameterList")
+        fun createWithPropertyMessage(code: SAMLSpecRefMessage,
+                                      property: String,
+                                      actual: String?,
+                                      expected: String? = null,
+                                      node: Node? = null): SAMLComplianceException {
+            return if (expected == null) {
+                SAMLComplianceException("The $property value of $actual is invalid.\n\n${readCode(code)}\n\n" +
+                        (node?.prettyPrintXml() ?: ""))
+            } else {
+                SAMLComplianceException("The $property value of $actual is not equal to $expected." +
+                        "\n\n${readCode(code)}\n\n${node?.prettyPrintXml() ?: ""}")
+            }
         }
 
         private fun readCode(code: SAMLSpecRefMessage): String {

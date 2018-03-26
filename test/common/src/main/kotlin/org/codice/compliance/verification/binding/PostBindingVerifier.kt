@@ -89,16 +89,16 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
             return
         }
         if (relayState.toByteArray().size > MAX_RELAYSTATE_LEN)
-            throw SAMLComplianceException.createWithPropertyInvalidMessage(SAMLBindings_3_5_3_a,
-                    "RelayState",
-                    relayState)
+            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_5_3_a,
+                    property = "RelayState",
+                    actual = relayState)
 
         if (givenRelayState) {
             if (relayState != EXAMPLE_RELAY_STATE) {
-                throw SAMLComplianceException.createWithPropertyNotEqualMessage(SAMLBindings_3_5_3_b,
-                        "RelayState",
-                        relayState,
-                        EXAMPLE_RELAY_STATE)
+                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLBindings_3_5_3_b,
+                        property = "RelayState",
+                        actual = relayState,
+                        expected = EXAMPLE_RELAY_STATE)
             }
         }
     }
@@ -112,11 +112,11 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
         val signatures = response.responseDom.allChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
-            throw SAMLComplianceException.createWithPropertyNotEqualMessage(
-                    SAMLBindings_3_5_5_2_a,
-                    "Destination",
-                    destination,
-                    acsUrl[HTTP_POST])
+            throw SAMLComplianceException.createWithPropertyMessage(
+                    code = SAMLBindings_3_5_5_2_a,
+                    property = "Destination",
+                    actual = destination,
+                    expected = acsUrl[HTTP_POST])
         }
     }
 }
