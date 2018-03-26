@@ -84,7 +84,7 @@ subprojects {
 }
 
 build {
-    dependsOn(detektCheck)
+//    dependsOn(detektCheck)
 }
 
 detekt {
