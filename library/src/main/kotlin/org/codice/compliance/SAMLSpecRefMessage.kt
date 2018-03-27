@@ -268,8 +268,8 @@ enum class SAMLSpecRefMessage(val message: String) {
             "MUST place the exact data it received with the request into the corresponding RelayState parameter in " +
             "the response."),
 
-    SAMLBindings_3_4_4_a("A URL encoding MUST place the message entirely within the URL query string, and MUST reserve the " +
-            "rest of the URL for the endpoint of the message recipient"),
+    SAMLBindings_3_4_4_a("A URL encoding MUST place the message entirely within the URL query string, and MUST " +
+            "reserve the rest of the URL for the endpoint of the message recipient"),
 
     SAMLBindings_3_4_4_1("Any signature on the SAML protocol message, including the <ds:Signature> XML element " +
             "itself, MUST be removed"),
@@ -326,8 +326,9 @@ enum class SAMLSpecRefMessage(val message: String) {
 //    todo SAMLBindings_3_4_5_2_a2("If the message is signed, the... recipient MUST then verify that the [Destination]
 // value matches the location at which the message has been received."),
 
-    SAMLBindings_3_4_6_a("HTTP interactions during the message exchange MUST NOT use HTTP error status codes to indicate " +
-            "failures in SAML processing, since the user agent is not a full party to the SAML protocol exchange."),
+    SAMLBindings_3_4_6_a("HTTP interactions during the message exchange MUST NOT use HTTP error status codes to " +
+            "indicate failures in SAML processing, since the user agent is not a full party to the SAML protocol " +
+            "exchange."),
 
     SAMLBindings_3_5_3_a("The [RelayState] value MUST NOT exceed 80 bytes in length"),
 
@@ -345,21 +346,23 @@ enum class SAMLSpecRefMessage(val message: String) {
     SAMLBindings_3_5_4_a2("A SAML protocol message is form-encoded by... placing the result in a hidden form control " +
             "within a form as defined by [HTML401] Section 17."),
 
-    SAMLBindings_3_5_4_b("If the message is a SAML request, then the form control MUST be named SAMLRequest. If the " +
-            "message is a SAML response, then the form control MUST be named SAMLResponse. Any additional form controls " +
-            "or presentation MAY be included but MUST NOT be required in order for the recipient to process the message"),
+    SAMLBindings_3_5_4_b("If the message is a SAML request, then the form control MUST be named SAMLRequest. If " +
+            "the message is a SAML response, then the form control MUST be named SAMLResponse. Any additional form " +
+            "controls or presentation MAY be included but MUST NOT be required in order for the recipient to process " +
+            "the message"),
 
     SAMLBindings_3_5_4_b1("If the message is a SAML request, then the form control MUST be named SAMLRequest. If the " +
             "message is a SAML response, then the form control MUST be named SAMLResponse."),
 
-    SAMLBindings_3_5_4_c("If a \"RelayState\" value is to accompany the SAML protocol message, it MUST be placed in an " +
-            "additional hidden form control named RelayState within the same form with the SAML message."),
+    SAMLBindings_3_5_4_c("If a \"RelayState\" value is to accompany the SAML protocol message, it MUST be placed " +
+            "in an additional hidden form control named RelayState within the same form with the SAML message."),
 
     SAMLBindings_3_5_4_d("The action attribute of the form MUST be the recipient's HTTP endpoint for the protocol or " +
-            "profile using this binding to which the SAML message is to be delivered. The method attribute MUST be \"POST\"."),
+            "profile using this binding to which the SAML message is to be delivered. The method attribute MUST " +
+            "be \"POST\"."),
 
-    SAMLBindings_3_5_4_d1("The action attribute of the form MUST be the recipient's HTTP endpoint for the protocol or " +
-            "profile using this binding to which the SAML message is to be delivered."),
+    SAMLBindings_3_5_4_d1("The action attribute of the form MUST be the recipient's HTTP endpoint for the " +
+            "protocol or profile using this binding to which the SAML message is to be delivered."),
 
     SAMLBindings_3_5_4_d2("The method attribute [of the form] MUST be \"POST\"."),
 
@@ -369,8 +372,9 @@ enum class SAMLSpecRefMessage(val message: String) {
             "protocol message MUST contain the URL to which the sender has instructed the user agent to deliver the " +
             "message."),
 
-    SAMLBindings_3_5_6_a("HTTP interactions during the message exchange MUST NOT use HTTP error status codes to indicate " +
-            "failures in SAML processing, since the user agent is not a full party to the SAML protocol exchange."),
+    SAMLBindings_3_5_6_a("HTTP interactions during the message exchange MUST NOT use HTTP error status codes " +
+            "to indicate failures in SAML processing, since the user agent is not a full party to the SAML protocol " +
+            "exchange."),
 
     /***************
      *
@@ -378,7 +382,8 @@ enum class SAMLSpecRefMessage(val message: String) {
      *
      ***************/
 
-    XMLDatatypesSchema_3_2_7("See XML Schema 2 [https://www.w3.org/TR/xmlschema-2/] section 3.2.7 for more information"),
+    XMLDatatypesSchema_3_2_7("See XML Schema 2 [https://www.w3.org/TR/xmlschema-2/] section 3.2.7 for more " +
+            "information"),
 
     XMLDatatypesSchema_3_2_7_1_a("if [the year has] more than four digits, leading zeros are prohibited"),
 
