@@ -42,12 +42,29 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
 
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
+    companion object {
+        /**
+         * Verifies the http status code of the response according to the post binding rules in the post spec
+         * 3.5.6 Error Reporting
+         */
+        fun verifyHttpStatusCode(code: Int) {
+            if (code != HttpStatusCodes.STATUS_CODE_OK) {
+                throw SAMLComplianceException.createWithPropertyMessage(
+                        SAMLBindings_3_5_6_a,
+                        property = "HTTP Status Code",
+                        actual = code.toString(),
+                        expected = "${HttpStatusCodes.STATUS_CODE_OK}"
+                )
+            }
+        }
+    }
+
     /**
      * Verify the response for a post binding
      */
     fun verify() {
+        verifyHttpStatusCode(response.httpStatusCode)
         verifyNoNulls()
-        verifyHttpStatusCode()
         decodeAndVerify()
         verifyPostSSO()
         if (response.isRelayStateGiven || response.relayState != null) {
@@ -86,21 +103,6 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
                         SAMLBindings_3_5_4_c,
                         message = "The RelayState within the RelayState form control could not be found.")
             }
-        }
-    }
-
-    /**
-     * Verifies the http status code of the response according to the post binding rules in the post spec
-     * 3.5.6 Error Reporting
-     */
-    private fun verifyHttpStatusCode() {
-        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK) {
-            SAMLComplianceException.createWithPropertyMessage(
-                    SAMLBindings_3_5_6_a,
-                    property = "HTTP Status Code",
-                    actual = response.httpStatusCode.toString(),
-                    expected = "${HttpStatusCodes.STATUS_CODE_OK}"
-            )
         }
     }
 

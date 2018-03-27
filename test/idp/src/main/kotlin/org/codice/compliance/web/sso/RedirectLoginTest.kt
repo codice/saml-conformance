@@ -33,6 +33,7 @@ import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
+import org.codice.compliance.verification.binding.RedirectBindingVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -88,6 +89,7 @@ class RedirectLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            RedirectBindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -115,6 +117,7 @@ class RedirectLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            RedirectBindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -161,6 +164,7 @@ class RedirectLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            RedirectBindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class)
