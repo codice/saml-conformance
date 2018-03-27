@@ -19,7 +19,7 @@ package org.codice.compliance
  *  - The usage of enums is less error-prone than String literals
  *  - There is no need to have this list be as dynamic as a properties file at runtime
  */
-@Suppress("""StringLiteralDuplication""")
+@Suppress("StringLiteralDuplication")
 enum class SAMLSpecRefMessage(val message: String) {
     /***************
      *
@@ -197,13 +197,13 @@ enum class SAMLSpecRefMessage(val message: String) {
             """location at which the message was received. If it does not, the response MUST be discarded. Some """ +
             """protocol bindings may require the use of this attribute (see [SAMLBind])."""),
 
-    SAMLCore_3_2_2_2("""The value of the topmost <StatusCode> element MUST be from the top-level list provided in this """ +
-            """section.""" +
-            "\n" + """The permissible top-level <StatusCode> values are as follows:""" +
-            "\n" + """- urn:oasis:names:tc:SAML:2.0:status:Success""" +
-            "\n" + """- urn:oasis:names:tc:SAML:2.0:status:Requester""" +
-            "\n" + """- urn:oasis:names:tc:SAML:2.0:status:Responder""" +
-            "\n" + """- urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"""),
+    SAMLCore_3_2_2_2("The value of the topmost <StatusCode> element MUST be from the top-level list provided in this " +
+            "section.\n" +
+            "The permissible top-level <StatusCode> values are as follows: \n " +
+            "- urn:oasis:names:tc:SAML:2.0:status:Success \n " +
+            "- urn:oasis:names:tc:SAML:2.0:status:Requester \n " +
+            "- urn:oasis:names:tc:SAML:2.0:status:Responder \n " +
+            "- urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"),
 
     SAMLCore_3_3_2_2_a("""If the SessionIndex attribute is present in the query, at least one <AuthnStatement> element """ +
             """in the set of returned assertions MUST contain a SessionIndex attribute that matches the SessionIndex """ +
