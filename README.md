@@ -65,7 +65,7 @@ If during development the build fails due to `format violations` run the followi
   * Provide your IdP's metadata file path to the `samlconf` script using `-i` or `--idpMetadata`.
   * Configure your IdP with the test kit's SP metadata from
   `distribution/command-line/build/install/samlconf/conf/samlconf-sp-metadata.xml`
-  or `samlconf-1.0-SNAPSHOT/conf/test-sp-metadata.xml` from the distribution.
+  or `samlconf-1.0-SNAPSHOT/conf/samlconf-sp-metadata.xml` from the distribution.
    
 ### Plugins
 **TODO** *describe how to implement plugins*
@@ -84,13 +84,6 @@ To build a docker image, execute `gradlew build docker`.
 * Copy the contents of `samlconf-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
 to a file and pass that file to the `samlconf` script using `-i` or `--idpMetadata`.
-* Run `samlconf`.
-
-## Steps to Test DDF's SP
-**TODO** * Start DDF
-* Copy the contents of `samlconf-idp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPClient -> IdP Metadata`.
-* If not on localhost, copy DDF's SP metadata from `https://<hostname>:<port>/services/saml/sso/metadata` 
-to a file and pass that file to the `samlconf` script using `-s` or `--spMetadata`.
 * Run `samlconf`.
 
 ## Project Structure
