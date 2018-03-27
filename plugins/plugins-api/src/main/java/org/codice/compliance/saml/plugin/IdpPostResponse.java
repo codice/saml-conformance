@@ -122,30 +122,27 @@ public class IdpPostResponse extends IdpResponse {
             .findFirst()
             .orElse(null);
 
-    /*
-     * Bindings 3.5.4 "A SAML protocol message is form-encoded by... placing the result **in** a
-     * **hidden** form control within a form as defined by [HTML401] Section 17"
-     *
-     * The two key words here are "in" and "hidden"
-     *
-     * Assuming "in" in the above quote means in either the value attribute or in the value
-     * itself.
-     *
-     * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form controls
-     */
-
     samlResponse = extractValue(samlResponseForm);
     relayState = extractValue(relayStateForm);
   }
 
   private String extractValue(Node node) {
-    if (node != null) {
-      if (isNotEmpty(node.value())) {
-        return node.value();
-      } else if (isNotEmpty(node.attributes().get(VALUE))) {
-        return node.attributes().get(VALUE);
-      }
+    if (node == null) {
+      return null;
     }
+
+    if (isNotEmpty(node.value())) {
+      return node.value();
+    }
+
+    if (node.attributes() == null) {
+      return null;
+    }
+
+    if (isNotEmpty(node.attributes().get(VALUE))) {
+      return node.attributes().get(VALUE);
+    }
+
     return null;
   }
 }
