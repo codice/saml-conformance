@@ -16,24 +16,24 @@ package org.codice.compliance.verification.binding
 import com.google.api.client.http.HttpStatusCodes
 import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.SAMLBindings_3_1_2_1
+import org.codice.compliance.SAMLBindings_3_4_3_a
+import org.codice.compliance.SAMLBindings_3_4_3_b1
+import org.codice.compliance.SAMLBindings_3_4_4_1
+import org.codice.compliance.SAMLBindings_3_4_4_1_a
+import org.codice.compliance.SAMLBindings_3_4_4_1_a1
+import org.codice.compliance.SAMLBindings_3_4_4_1_a2
+import org.codice.compliance.SAMLBindings_3_4_4_1_b1
+import org.codice.compliance.SAMLBindings_3_4_4_1_c1
+import org.codice.compliance.SAMLBindings_3_4_4_1_d1
+import org.codice.compliance.SAMLBindings_3_4_4_1_d2
+import org.codice.compliance.SAMLBindings_3_4_4_1_e
+import org.codice.compliance.SAMLBindings_3_4_4_1_f1
+import org.codice.compliance.SAMLBindings_3_4_4_1_f2
+import org.codice.compliance.SAMLBindings_3_4_4_a
+import org.codice.compliance.SAMLBindings_3_4_6_a
+import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_1_2_1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_a
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_3_b1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_a
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_a1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_a2
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_b1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_c1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_d1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_d2
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_e
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_f1
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_1_f2
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_4_4_a
-import org.codice.compliance.SAMLSpecRefMessage.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
@@ -120,7 +120,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             SAMLComplianceException.createWithPropertyMessage(
-                    SAMLSpecRefMessage.SAMLBindings_3_4_6_a,
+                    SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
                     actual = response.httpStatusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"

@@ -15,15 +15,15 @@ package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_1_3_1_a
+import org.codice.compliance.SAMLCore_1_3_2_a
+import org.codice.compliance.SAMLCore_1_3_3
+import org.codice.compliance.SAMLCore_1_3_4
 import org.codice.compliance.SAMLSpecRefMessage
-import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_1_3_1_a
-import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_1_3_2_a
-import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_1_3_3
-import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_1_3_4
-import org.codice.compliance.SAMLSpecRefMessage.XMLDatatypesSchema_3_2_7
-import org.codice.compliance.SAMLSpecRefMessage.XMLDatatypesSchema_3_2_7_1_a
-import org.codice.compliance.SAMLSpecRefMessage.XMLDatatypesSchema_3_2_7_1_b
-import org.codice.compliance.SAMLSpecRefMessage.XMLDatatypesSchema_3_2_7_1_c
+import org.codice.compliance.XMLDatatypesSchema_3_2_7
+import org.codice.compliance.XMLDatatypesSchema_3_2_7_1_a
+import org.codice.compliance.XMLDatatypesSchema_3_2_7_1_b
+import org.codice.compliance.XMLDatatypesSchema_3_2_7_1_c
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.net.URI

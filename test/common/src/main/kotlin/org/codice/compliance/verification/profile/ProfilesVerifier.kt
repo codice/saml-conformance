@@ -14,9 +14,9 @@
 package org.codice.compliance.verification.profile
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_3_1_a
-import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_3_1_b
-import org.codice.compliance.SAMLSpecRefMessage.SAMLProfiles_3_1_c
+import org.codice.compliance.SAMLProfiles_3_1_a
+import org.codice.compliance.SAMLProfiles_3_1_b
+import org.codice.compliance.SAMLProfiles_3_1_c
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
