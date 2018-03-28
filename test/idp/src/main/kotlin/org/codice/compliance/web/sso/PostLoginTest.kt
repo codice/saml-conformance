@@ -29,7 +29,7 @@ import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
-import org.codice.compliance.verification.binding.PostBindingVerifier
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -86,7 +86,7 @@ class PostLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
-            PostBindingVerifier.verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate()
@@ -109,7 +109,7 @@ class PostLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
-            PostBindingVerifier.verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate().apply {
@@ -153,7 +153,7 @@ class PostLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
-            PostBindingVerifier.verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate()

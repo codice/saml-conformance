@@ -58,32 +58,13 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator) {
-    companion object {
-        /**
-         * Verifies the http status code of the response according to the redirect binding rules in the binding spec
-         * 3.4.6 Error Reporting
-         */
-        fun verifyHttpStatusCode(code: Int) {
-            // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status code for Redirect" is completed
-            if (code != HttpStatusCodes.STATUS_CODE_OK
-                    && code != HttpStatusCodes.STATUS_CODE_FOUND
-                    && code != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
-                throw SAMLComplianceException.createWithPropertyMessage(
-                        SAMLSpecRefMessage.SAMLBindings_3_4_6_a,
-                        property = "HTTP Status Code",
-                        actual = code.toString(),
-                        expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"
-                )
-            }
-        }
-    }
+class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator) : BindingVerifier() {
 
     /**
      * Verify the response for a redirect binding
      */
     fun verify() {
-        verifyHttpStatusCode(response.httpStatusCode)
+        verifyHttpRedirectStatusCode()
         verifyNoNulls()
         decodeAndVerify()
         verifyNoXMLSig()
@@ -93,6 +74,24 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         response.signature?.let {
             verifyRedirectSignature()
             verifyRedirectDestination()
+        }
+    }
+
+    /**
+     * Verifies the http status code of the response according to the redirect binding rules in the binding spec
+     * 3.4.6 Error Reporting
+     */
+    fun verifyHttpRedirectStatusCode() {
+        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status code for Redirect" is completed
+        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+            throw SAMLComplianceException.createWithPropertyMessage(
+                    SAMLSpecRefMessage.SAMLBindings_3_4_6_a,
+                    property = "HTTP Status Code",
+                    actual = response.httpStatusCode.toString(),
+                    expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"
+            )
         }
     }
 
