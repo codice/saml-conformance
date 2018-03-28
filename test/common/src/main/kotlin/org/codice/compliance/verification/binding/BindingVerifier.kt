@@ -14,8 +14,8 @@
 package org.codice.compliance.verification.binding
 
 import com.google.api.client.http.HttpStatusCodes
+import org.codice.compliance.SAMLBindings_3_5_6_a
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage
 
 open class BindingVerifier {
     companion object {
@@ -28,7 +28,7 @@ open class BindingVerifier {
         fun verifyHttpStatusCode(code: Int) {
             if (code >= HTTP_ERROR_THRESHOLD) {
                 throw SAMLComplianceException.createWithPropertyMessage(
-                        SAMLSpecRefMessage.SAMLBindings_3_5_6_a,
+                        SAMLBindings_3_5_6_a,
                         property = "HTTP Status Code",
                         actual = code.toString(),
                         expected = "${HttpStatusCodes.STATUS_CODE_OK}"

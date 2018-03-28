@@ -87,7 +87,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             throw SAMLComplianceException.createWithPropertyMessage(
-                    SAMLSpecRefMessage.SAMLBindings_3_4_6_a,
+                    SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
                     actual = response.httpStatusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"
