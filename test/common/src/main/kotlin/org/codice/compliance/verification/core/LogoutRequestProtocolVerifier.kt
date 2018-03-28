@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLSpecRefMessage.SAMLCore_3_7_1
+import org.codice.compliance.SAMLCore_3_7_1
 import org.codice.compliance.children
 import org.w3c.dom.Node
 

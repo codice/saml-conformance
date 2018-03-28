@@ -300,10 +300,10 @@ style:
     ignoreNamedArgument: true
     ignoreEnums: false
   MaxLineLength:
-    active: false
-    maxLineLength: 120
-    excludePackageStatements: false
-    excludeImportStatements: false
+    active: true
+    maxLineLength: 100
+    excludePackageStatements: true
+    excludeImportStatements: true
   MayBeConst:
     active: false
   ModifierOrder:

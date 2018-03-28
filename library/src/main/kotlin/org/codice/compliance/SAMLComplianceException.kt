@@ -32,9 +32,11 @@ class SAMLComplianceException : Exception {
                     }
 
             return if (cause != null) {
-                SAMLComplianceException("$message\n\n$samlExceptions\n\n${node?.prettyPrintXml() ?: ""}\n", cause)
+                SAMLComplianceException("$message\n\n$samlExceptions\n\n" +
+                        "${node?.prettyPrintXml() ?: ""}\n", cause)
             } else {
-                SAMLComplianceException("$message\n\n$samlExceptions\n\n${node?.prettyPrintXml() ?: ""}\n")
+                SAMLComplianceException("$message\n\n$samlExceptions\n\n" +
+                        "${node?.prettyPrintXml() ?: ""}\n")
             }
         }
 
@@ -53,11 +55,11 @@ class SAMLComplianceException : Exception {
                                       expected: String? = null,
                                       node: Node? = null): SAMLComplianceException {
             return if (expected == null) {
-                SAMLComplianceException("The $property value of $actual is invalid.\n\n${readCode(code)}\n\n" +
-                        (node?.prettyPrintXml() ?: ""))
+                SAMLComplianceException("The $property value of $actual is invalid.\n\n" +
+                        "${readCode(code)}\n\n" + (node?.prettyPrintXml() ?: ""))
             } else {
-                SAMLComplianceException("The $property value of $actual is not equal to $expected." +
-                        "\n\n${readCode(code)}\n\n${node?.prettyPrintXml() ?: ""}")
+                SAMLComplianceException("The $property value of $actual is not equal to " +
+                        "$expected.\n\n${readCode(code)}\n\n${node?.prettyPrintXml() ?: ""}")
             }
         }
 
