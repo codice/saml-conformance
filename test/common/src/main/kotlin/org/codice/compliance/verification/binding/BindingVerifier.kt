@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.verification.binding
 
-import com.google.api.client.http.HttpStatusCodes
 import org.codice.compliance.SAMLBindings_3_5_6_a
 import org.codice.compliance.SAMLComplianceException
 
@@ -31,7 +30,7 @@ open class BindingVerifier {
                         SAMLBindings_3_5_6_a,
                         property = "HTTP Status Code",
                         actual = code.toString(),
-                        expected = "${HttpStatusCodes.STATUS_CODE_OK}"
+                        expected = "A non-error http status code, i.e. less than $HTTP_ERROR_THRESHOLD"
                 )
             }
         }
