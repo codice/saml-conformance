@@ -50,24 +50,28 @@ class RequestProtocolVerifier(private val request: Node) {
         if (request.attributes.getNamedItem("ID") == null)
             throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.1",
                     "ID",
-                    "Request")
+                    "Request",
+                    node = request)
         verifyIdValues(request.attributes.getNamedItem("ID"), SAMLCore_3_2_1_a)
 
         if (request.attributes.getNamedItem("Version") == null)
             throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.1",
                     "Version",
-                    "Request")
+                    "Request",
+                    node = request)
 
         if (request.attributes.getNamedItem("Version").textContent != "2.0")
             throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_1_b,
                     property = "Version",
                     actual = request.attributes.getNamedItem("Version").textContent,
-                    expected = "2.0")
+                    expected = "2.0",
+                    node = request)
 
         if (request.attributes.getNamedItem("IssueInstant") == null)
             throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.1",
                     "IssueInstant",
-                    "Request")
+                    "Request",
+                    node = request)
         verifyTimeValues(request.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_1_c)
     }
 
@@ -93,7 +97,8 @@ class RequestProtocolVerifier(private val request: Node) {
                             }) {
                 throw SAMLComplianceException.create(SAMLCore_3_3_2_2_a,
                         message = "There was no AuthnStatement in the Assertion that had a SessionsIndex of " +
-                                "$querySessionIndex.")
+                                "$querySessionIndex.",
+                        node = request)
             }
 
             //RequestedAuthnContext
@@ -109,7 +114,8 @@ class RequestProtocolVerifier(private val request: Node) {
                             .filter { verifyRequestedAuthnContext(it) }
                             .count() < 1)
                 throw SAMLComplianceException.create(SAMLCore_3_3_2_2_b,
-                        message = "No AuthnStatement element found that meets the criteria.")
+                        message = "No AuthnStatement element found that meets the criteria.",
+                        node = request)
         }
     }
 
@@ -128,7 +134,8 @@ class RequestProtocolVerifier(private val request: Node) {
                 && requestedAuthnContext.children("AuthnContextDeclRef").isEmpty())
             throw SAMLComplianceException.createWithXmlPropertyReqMessage("3.3.2.2.1",
                     "AuthnContextClassRef or AuthnContextDeclRef",
-                    "RequestedAuthnContext")
+                    "RequestedAuthnContext",
+                    node = requestedAuthnContext)
         return true
     }
 
@@ -148,7 +155,8 @@ class RequestProtocolVerifier(private val request: Node) {
                         && uniqueAttributeQuery[name.textContent] == nameFormat.textContent)
                     throw SAMLComplianceException.create(SAMLCore_3_3_2_3,
                             message = "There were two Attribute Queries with the same nameFormat of " +
-                                    "${nameFormat.textContent} and name of ${name.textContent}.")
+                                    "${nameFormat.textContent} and name of ${name.textContent}.",
+                            node = request)
                 else uniqueAttributeQuery.put(name.textContent, nameFormat.textContent)
             }
         }
@@ -166,12 +174,14 @@ class RequestProtocolVerifier(private val request: Node) {
             if (it.attributes.getNamedItem("Resource") == null)
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.3.2.4",
                         "Resource",
-                        "AuthzDecisionQuery")
+                        "AuthzDecisionQuery",
+                        node = request)
 
             if (it.children("Action").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore3.3.2.4",
                         "Action",
-                        "AuthzDecisionQuery")
+                        "AuthzDecisionQuery",
+                        node = request)
         }
     }
 
@@ -189,14 +199,16 @@ class RequestProtocolVerifier(private val request: Node) {
             if (it.children("IDPEntry").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.4.1.3",
                         "IDPEntry",
-                        "IDPList")
+                        "IDPList",
+                        node = request)
 
             //IDPEntry
             it.children("IDPEntry").forEach {
                 if (it.attributes.getNamedItem("ProviderID") == null)
                     throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.4.1.3.1",
                             "ProviderID",
-                            "IDPEntry")
+                            "IDPEntry",
+                            node = request)
             }
         }
     }
@@ -213,7 +225,8 @@ class RequestProtocolVerifier(private val request: Node) {
             if (it.children("Artifact").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.5.1",
                         "Artifact",
-                        "ArtifactResolve")
+                        "ArtifactResolve",
+                        node = request)
         }
     }
 
@@ -229,14 +242,16 @@ class RequestProtocolVerifier(private val request: Node) {
             if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.6.1",
                         "NameID or EncryptedID",
-                        "ManageNameIDRequest")
+                        "ManageNameIDRequest",
+                        node = request)
 
             if (it.children("NewID").isEmpty()
                     && it.children("NewEncryptedID").isEmpty()
                     && it.children("Terminate").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.6.1",
                         "NameID or EncryptedID or Terminate",
-                        "ManageNameIDRequest")
+                        "ManageNameIDRequest",
+                        node = request)
         }
     }
 
@@ -254,12 +269,14 @@ class RequestProtocolVerifier(private val request: Node) {
                     && it.children("EncryptedID").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.8.1",
                         "BaseID or NameID or EncryptedID",
-                        "NameIDMappingRequest")
+                        "NameIDMappingRequest",
+                        node = request)
 
             if (it.children("NameIDPolicy").isEmpty() && it.children("EncryptedID").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.8.1",
                         "NameIDPolicy",
-                        "NameIDMappingRequest")
+                        "NameIDMappingRequest",
+                        node = request)
         }
     }
 }

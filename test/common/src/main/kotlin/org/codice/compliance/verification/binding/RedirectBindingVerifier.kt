@@ -177,7 +177,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      */
     private fun verifyNoXMLSig() {
         if (response.responseDom.children("Signature").isNotEmpty()) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1, message = "Signature element found.")
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1, message = "Signature element found.", node = response.responseDom)
         }
     }
 
@@ -273,7 +273,8 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                     code = SAMLBindings_3_5_5_2_a,
                     property = "Destination",
                     actual = destination,
-                    expected = acsUrl[HTTP_REDIRECT])
+                    expected = acsUrl[HTTP_REDIRECT],
+                    node = response.responseDom)
         }
     }
 }

@@ -43,23 +43,27 @@ class ProfilesVerifier(private val node: Node) {
                 throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_3_1_b,
                         property = "type",
                         actual = type.textContent,
-                        expected = "KeyInfoConfirmationDataType")
+                        expected = "KeyInfoConfirmationDataType",
+                        node = node)
 
             if (type.firstChild.namespaceURI != SAML_NAMESPACE)
                 throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_3_1_b,
                         property = "the namespace prefix",
                         actual = type.firstChild.namespaceURI,
-                        expected = SAML_NAMESPACE)
+                        expected = SAML_NAMESPACE,
+                        node = node)
 
             val keyInfos = it.children("KeyInfo")
             if (keyInfos.isEmpty())
                 throw SAMLComplianceException.create(SAMLProfiles_3_1_a,
-                        message = "<ds:KeyInfo> not found within the <SubjectConfirmationData> element.")
+                        message = "<ds:KeyInfo> not found within the <SubjectConfirmationData> element.",
+                        node = node)
 
             keyInfos.forEach {
                 if (it.children("KeyValue").size > 1)
                     throw SAMLComplianceException.create(SAMLProfiles_3_1_c,
-                            message = "<ds:KeyInfo> must not have multiple values.")
+                            message = "<ds:KeyInfo> must not have multiple values.",
+                            node = node)
             }
         }
     }

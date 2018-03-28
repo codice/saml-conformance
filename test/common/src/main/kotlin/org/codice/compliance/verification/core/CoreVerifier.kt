@@ -49,16 +49,17 @@ class CoreVerifier(val node: Node) {
         node.children("Assertion").forEach {
             val signatures = it.children(SIGNATURE)
             if (signatures.isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_5_4_1, message = "Signature not found.")
+                throw SAMLComplianceException.create(SAMLCore_5_4_1, message = "Signature not found.", node = node)
 
             if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.create(SAMLCore_5_4_2_a, message = "ID not found.")
+                throw SAMLComplianceException.create(SAMLCore_5_4_2_a, message = "ID not found.", node = node)
 
             signatures.forEach {
                 val references = it.allChildren("Reference")
                 if (references.size != 1)
                     throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
-                            message = "${references.size} Reference elements were found.")
+                            message = "${references.size} Reference elements were found.",
+                            node = node)
 
                 val uriValue = references[0].attributes?.getNamedItem("URI")?.textContent
                 val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent
@@ -66,7 +67,8 @@ class CoreVerifier(val node: Node) {
                     throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_5_4_2_b,
                             property = "URI",
                             actual = uriValue,
-                            expected = formattedId)
+                            expected = formattedId,
+                            node = node)
             }
         }
     }
@@ -90,7 +92,8 @@ class CoreVerifier(val node: Node) {
                     throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_6_1_b,
                             property = "EncryptedData",
                             actual = encryptedData,
-                            expected = ELEMENT)
+                            expected = ELEMENT,
+                            node = node)
             }
         }
     }

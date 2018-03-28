@@ -57,19 +57,22 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
 
             if (issuers.size != 1)
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
-                        message = "${issuers.size} Issuer elements were found.")
+                        message = "${issuers.size} Issuer elements were found.",
+                        node = response)
 
             val issuer = issuers[0]
             if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
-                        message = "Issuer value of ${issuer.textContent} does not match the issuing IdP.")
+                        message = "Issuer value of ${issuer.textContent} does not match the issuing IdP.",
+                        node = response)
 
             val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
             if (issuerFormat != null && issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
                 throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_4_1_4_2_c,
                         property = "Format",
                         actual = issuerFormat,
-                        expected = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+                        expected = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity",
+                        node = response)
         }
     }
 
@@ -80,7 +83,7 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
     private fun verifySsoAssertions() {
         val assertions = response.children("Assertion")
         if (assertions.isEmpty()) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d, message = "No Assertions found.")
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d, message = "No Assertions found.", node = response)
         }
 
         assertions.forEach {
@@ -111,7 +114,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
                 throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_4_1_4_2_k,
                         property = "Audience",
                         actual = audience,
-                        expected = SP_ISSUER)
+                        expected = SP_ISSUER,
+                        node = response)
         }
     }
 
@@ -124,7 +128,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
             if (it.attributes.getNamedItem("SessionIndex") == null) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
                         message = "Single Logout support found in IdP metadata, but no SessionIndex was" +
-                                " found.")
+                                " found.",
+                        node = response)
             }
         }
     }
@@ -132,7 +137,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
     private fun verifyAssertionsHaveAuthnStmts(assertion: Node) {
         if (assertion.children("AuthnStatement").isEmpty()) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
-                    message = "A bearer Assertion was found without an AuthnStatement.")
+                    message = "A bearer Assertion was found without an AuthnStatement.",
+                    node = response)
         }
     }
 
@@ -148,7 +154,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
         // SubjectConfirmation
         if (bearerSubjectConfirmations.isEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
-                    message = "No bearer SubjectConfirmation elements were found.")
+                    message = "No bearer SubjectConfirmation elements were found.",
+                    node = response)
 
         // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and NotOnOrAfter
         if (bearerSubjectConfirmations
@@ -161,14 +168,16 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
                                     it.attributes.getNamedItem("NotBefore") == null
                         }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
-                    message = "There were no bearer SubjectConfirmation elements that matched the criteria below.")
+                    message = "There were no bearer SubjectConfirmation elements that matched the criteria below.",
+                    node = response)
         }
     }
 
     private fun verifyHasSubject(assertion: Node) {
         if (assertion.children("Subject").size != 1) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f,
-                    message = "${assertion.children("Subject").size} Subject elements were found.")
+                    message = "${assertion.children("Subject").size} Subject elements were found.",
+                    node = response)
         }
     }
 }
