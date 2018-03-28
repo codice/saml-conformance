@@ -134,7 +134,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) {
         if (response.responseDom.children(SIGNATURE).isEmpty()
                 || response.responseDom.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the " +
-                    "Response or Assertions.", node = response.responseDom)
+                    "Response or Assertions.",
+                    node = response.responseDom)
     }
 
     /**
