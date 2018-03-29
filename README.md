@@ -13,12 +13,12 @@ To build the project:
 
     gradlew build
 
-The `distribution/command-line` module will contain a full package of the deployment after the build.
+The `deployment/distribution` module will contain a full package of the deployment after the build.
 
 ### Running Test Script
 Upon a successful build, tests can be run with the `samlconf` script found in:
     
-    distribution/command-line/build/install/samlconf/bin/samlconf
+    deployment/distribution/build/install/samlconf/bin/samlconf
 
 The `samlconf` script may take the following parameters:
 
@@ -26,8 +26,7 @@ The `samlconf` script may take the following parameters:
            samlconf - Runs the SAML Conformance Tests against an IdP or an SP
     
     SYNOPSIS
-           samlconf [-i path] [--idpMetadata path]
-               [-p path] [--plugins path] 
+           samlconf [-i path] [--implementation path]
     
     DESCRIPTION
            Runs the SAML Conformance Tests which tests the compliance of an IdP and/or an SP
@@ -38,16 +37,12 @@ The `samlconf` script may take the following parameters:
            be given one time.
     
     OPTIONS
-           -i | --idpMetadata path
-                The path to the IdP metadata. If it is not given, the default IdP metadata
-                is /conf/idp-metadata.xml.
+           -i | --implementation path
+                The path to the custom, server-specific implementation, including its plugins and metadata. If it is not given, 
+                the default implementation directory is /implementations/ddf.
                       
            -d | --debug
                Sets the log level to debug.
-               
-           -p | --plugins path
-                The path to the custom, server-specific plugin implementations. If it is not given, 
-                the default plugin directory is /plugins.
 
 
 > NOTE
@@ -62,15 +57,16 @@ If during development the build fails due to `format violations` run the followi
 
 ### Metadata
 * If testing an IdP:
-  * Provide your IdP's metadata file path to the `samlconf` script using `-i` or `--idpMetadata`.
+  * Provide your IdP's metadata to the `samlconf` script by including it in the directory pointed to by
+   `-i` or `--implementations`.
   * Configure your IdP with the test kit's SP metadata from
-  `distribution/command-line/build/install/samlconf/conf/samlconf-sp-metadata.xml`
+  `deployment/distribution/build/install/samlconf/conf/samlconf-sp-metadata.xml`
   or `samlconf-1.0-SNAPSHOT/conf/samlconf-sp-metadata.xml` from the distribution.
    
-### Plugins
-**TODO** *describe how to implement plugins*
+### Implementations
+**TODO** *describe how to create implementations*
 
-* Provide your plugins directory to the `samlconf` script using `-p` or `--plugins`.
+* Provide your implementations directory to the `samlconf` script using `-i` or `--implementations`.
 
 ### Docker
 To build a docker image, execute `gradlew build docker`. 
@@ -83,7 +79,7 @@ To build a docker image, execute `gradlew build docker`.
 * Start DDF
 * Copy the contents of `samlconf-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
-to a file and pass that file to the `samlconf` script using `-i` or `--idpMetadata`.
+to a file and pass that file to the `samlconf` script using `-i` or `--implementations`.
 * Run `samlconf`.
 
 ## Project Structure
@@ -107,25 +103,37 @@ This module contains all the classes relating to utility for and verification of
 ### library
 This module contains an assortment of Java classes that have been copied over from DDF to support operations that shouldn't be handled by the test code; i.e. signature validation using x509 certificates.
 
-### plugins
-This module contains the API and provider-specific plugin implementations
-needed to interact with IdPs/SPs.
+### external
+This module contains the API for a plugin that needs to be implemented for each external SAML product before these tests
+can be run against it. There are also a few that are already implemented. The generated jar file from these modules
+needs to be installed to a deployment directory of the user's choosing and then referred to by system property when
+running tests.
 
-#### ddf-plugins
-This module contains the ServiceProvider plugins that are used to connect with
-a DDF IdP. It should also be used as the model for building plugins for connecting
-with other IdPs for compliance testing. The generated jar file from this module
-needs to be installed to a deployment directory of the user's choosing and then
-referred to by system property when running tests.
-
-e.g. If the ServiceProvider plugin jar(s) are copied to `/home/saml-conform/deploy`
+e.g. If the ServiceProvider plugin jar is copied to `/home/saml-conform/deploy`
 then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-conform/deploy`.
 
-### distribution
-This module is the projects full package deployment consisting of: `command-line`, `docker`, and `suites`.
+#### api
+This module contains the API that must be implemented to run this test kit against a SAML product.
 
-#### command-line
-todo: check and elaborate on this&rarr; This module contains all the runtime elements including scripts, jars, and configurations.
+#### implementations
+This module contains implementations of the API for specific SAML products.
+
+##### ddf
+Plugin and idp-metadata.xml for the ddf implementation of IdP. It should also be used as the model for building plugins
+for connecting with other IdPs for compliance testing.
+
+##### keycloak
+Plugin and idp-metadata.xml for the Keycloak implementation of IdP.
+
+##### keycloak-plugins
+This module contains the ServiceProvider plugin that is used to connect with
+a Keycloak IdP.
+
+### deployment
+This module is the projects full package deployment.
+
+#### distribution
+This module contains all the runtime elements including scripts, jars, and configurations.
 
 #### docker
 This module contains the logic for building a docker image.

@@ -17,7 +17,7 @@ import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
-import org.codice.compliance.PLUGIN_DIR_PROPERTY
+import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.AuthnRequest
@@ -79,8 +79,8 @@ class TestCommon {
         }
 
         private fun getDeployDirClassloader(): ClassLoader {
-            val pluginDeploy = System.getProperty(PLUGIN_DIR_PROPERTY)
-            requireNotNull(pluginDeploy) { "Value required for System property $PLUGIN_DIR_PROPERTY." }
+            val pluginDeploy = System.getProperty(IMPLEMENTATION_PATH)
+            requireNotNull(pluginDeploy) { "Value required for System property $IMPLEMENTATION_PATH." }
 
             val walkTopDown = File(pluginDeploy).canonicalFile.walkTopDown()
             val jarUrls = walkTopDown.maxDepth(1)
@@ -89,7 +89,7 @@ class TestCommon {
                     .map { it.toURL() }
                     .toList()
 
-            check(jarUrls.isNotEmpty()) { "No plugins found in $PLUGIN_DIR_PROPERTY; CTK can not operate." }
+            check(jarUrls.isNotEmpty()) { "No plugins found in $IMPLEMENTATION_PATH; CTK can not operate." }
             return URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
         }
     }

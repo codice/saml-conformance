@@ -21,16 +21,16 @@ pipeline {
         stage('Setup') {
             steps {
                 slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
-                sh 'docker-compose --file distribution/docker/docker-compose.yml pull'
+                sh 'docker-compose --file deployment/docker/docker-compose.yml pull'
             }
         }
         stage('Run Tests') {
             steps {
-                sh 'docker-compose --file distribution/docker/docker-compose.yml up --abort-on-container-exit'
+                sh 'docker-compose --file deployment/docker/docker-compose.yml up --abort-on-container-exit'
             }
             post {
                 always {
-                    sh 'docker-compose --file distribution/docker/docker-compose.yml down'
+                    sh 'docker-compose --file deployment/docker/docker-compose.yml down'
                 }
             }
         }
