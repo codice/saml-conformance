@@ -32,6 +32,9 @@ class ProfilesVerifier(private val node: Node) {
         verifyHolderOfKey()
     }
 
+    /**
+     * 3.1 Holder of Key
+     */
     private fun verifyHolderOfKey() {
         val subjectConfirmationDataList = node.allChildren("SubjectConfirmation")
                 .filter { it.attributes.getNamedItem("Method").textContent == HOLDER_OF_KEY_URI }
@@ -40,13 +43,13 @@ class ProfilesVerifier(private val node: Node) {
         subjectConfirmationDataList.forEach {
             val type = it.attributes.getNamedItemNS(XSI, "type")
             if (type != null && !type.textContent.contains("KeyInfoConfirmationDataType"))
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_3_1_b,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
                         property = "type",
                         actual = type.textContent,
                         expected = "KeyInfoConfirmationDataType")
 
             if (type.firstChild.namespaceURI != SAML_NAMESPACE)
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_3_1_b,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
                         property = "the namespace prefix",
                         actual = type.firstChild.namespaceURI,
                         expected = SAML_NAMESPACE)

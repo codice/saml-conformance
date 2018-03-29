@@ -15,17 +15,51 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_3_2_1_d
 import org.codice.compliance.SAMLCore_5_4_1
 import org.codice.compliance.SAMLCore_5_4_2_a
 import org.codice.compliance.SAMLCore_5_4_2_b
 import org.codice.compliance.SAMLCore_5_4_2_b1
 import org.codice.compliance.SAMLCore_6_1_b
+import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
+import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.w3c.dom.Node
 
 class CoreVerifier(val node: Node) {
+
+    /**
+     * Verifies that a response has the expected status code.
+     * This should be called explicitly if an error is expected.
+     *
+     * @param samlErrorCode - The error code you wish to use for the SAMLComplianceException
+     * @param expectedStatusCode - the uri of the expected status code.
+     * For example, urn:oasis:names:tc:SAML:2.0:status:Requester.
+     */
+    fun verifyErrorStatusCode(samlErrorCode: SAMLSpecRefMessage, expectedStatusCode: String) {
+        val status = node.children("Status")
+        if (status.size != 1)
+            throw SAMLComplianceException.createWithPropertyMessage(samlErrorCode,
+                    property = "Status",
+                    actual = "[]",
+                    expected = "<Status>",
+                    node = node)
+        status[0].children("StatusCode").forEach {
+            val code = it.attributes.getNamedItem("Value").textContent
+            if (code != expectedStatusCode) {
+                var exceptions = arrayOf(samlErrorCode)
+                if (expectedStatusCode == REQUESTER)
+                    exceptions = arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
+                throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
+                        property = "Status Code",
+                        actual = code,
+                        expected = expectedStatusCode,
+                        node = status[0])
+            }
+        }
+    }
     /**
      * Verify response against the Core Spec document
      */
@@ -63,7 +97,7 @@ class CoreVerifier(val node: Node) {
                 val uriValue = references[0].attributes?.getNamedItem("URI")?.textContent
                 val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent
                 if (uriValue != formattedId)
-                    throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_5_4_2_b,
+                    throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_5_4_2_b,
                             property = "URI",
                             actual = uriValue,
                             expected = formattedId)
@@ -87,7 +121,7 @@ class CoreVerifier(val node: Node) {
             if (encryptedDataNode.isNotEmpty()) {
                 val encryptedData = encryptedDataNode.get(0).attributes.getNamedItem("EncryptedData").textContent
                 if (encryptedData != ELEMENT)
-                    throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_6_1_b,
+                    throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
                             property = "EncryptedData",
                             actual = encryptedData,
                             expected = ELEMENT)

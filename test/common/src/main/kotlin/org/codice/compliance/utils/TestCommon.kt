@@ -38,6 +38,12 @@ class TestCommon {
                 "ItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
 
+        const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
+        const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
+        private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
+        private const val RESPONDER = "urn:oasis:names:tc:SAML:2.0:status:Responder"
+        val TOP_LEVEL_STATUS_CODES = setOf(SUCCESS, REQUESTER, RESPONDER, VERSION_MISMATCH)
+
         private val DEPLOY_CL = getDeployDirClassloader()
         private val spMetadata = Common.parseSpMetadata()
 
@@ -51,7 +57,7 @@ class TestCommon {
             } else {
                 SamlProtocol.Binding.values()
                         .associate {
-                                it to spInfo.getAssertionConsumerService(it)?.url
+                            it to spInfo.getAssertionConsumerService(it)?.url
                         }
             }
         }
