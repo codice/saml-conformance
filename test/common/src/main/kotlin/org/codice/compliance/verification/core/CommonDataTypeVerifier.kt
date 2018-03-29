@@ -153,7 +153,7 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
     else arrayOf(errorCode)
 
     // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permitted"
-    if (!strippedYear.matches(Regex("\\d+"))) {
+    if (!strippedYear.matches("""\d+""".toRegex())) {
         throw SAMLComplianceException.create(*codes,
                 SAMLCore_1_3_3,
                 XMLDatatypesSchema_3_2_7_1_c,

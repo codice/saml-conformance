@@ -64,15 +64,15 @@ class SAMLComplianceException : Exception {
         }
 
         private fun readCode(code: SAMLSpecRefMessage): String {
-            return "${trimUnderscore(code.name)}: ${code.message}"
+            return "${trimRefQualifier(code.name)}: ${code.message}"
         }
 
-        private fun trimUnderscore(codeValue: String): String {
-            val underscoreIndex = codeValue.lastIndexOf("_")
-            val trimmedCodeValue = if (underscoreIndex == -1) codeValue
-            else codeValue.substring(0, underscoreIndex)
-
-            return trimmedCodeValue.replace("_", ".")
+        private fun trimRefQualifier(codeValue: String): String? {
+            return """([a-zA-Z]*(_[\d*])*)([_][a-z])?"""
+                    .toRegex()
+                    .find(codeValue)
+                    ?.groupValues
+                    ?.get(1)
         }
     }
 }
