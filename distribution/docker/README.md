@@ -1,6 +1,6 @@
 # SAMLconf in Docker
 
-This image can execute a test against a remote host
+This image can execute a test against a remote host. It is used to run the conformance test against DDF.
 
 To use, run `docker run -it -e SUT_HOST=<target_hostname> -e SUT_PORT=<target_port> codice/samlconf`
 
