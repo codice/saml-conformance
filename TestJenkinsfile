@@ -20,7 +20,7 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow' color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+                slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
                 sh 'docker-compose --file distribution/docker/docker-compose.yml pull'
             }
         }
