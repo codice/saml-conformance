@@ -16,7 +16,6 @@ package org.codice.compliance.web.sso
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
 import de.jupf.staticlog.Log
-import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
@@ -30,6 +29,7 @@ import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -44,7 +44,6 @@ import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class PostLoginTest : StringSpec() {
     companion object {
-        const val HTTP_OK = 200
 
         /** Sets up positive path tests.
          * @return A string representation of a valid encoded POST AuthnRequest.
@@ -87,8 +86,8 @@ class PostLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            response.statusCode shouldBe HTTP_OK
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate()
             idpResponse.bindingVerifier().verify()
@@ -110,8 +109,8 @@ class PostLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            response.statusCode shouldBe 200
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate().apply {
                         isRelayStateGiven = true
@@ -154,8 +153,8 @@ class PostLoginTest : StringSpec() {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            response.statusCode shouldBe HTTP_OK
             val idpResponse = getServiceProvider(IdpResponder::class)
                     .getIdpPostResponse(response).decorate()
             idpResponse.bindingVerifier().verify()
