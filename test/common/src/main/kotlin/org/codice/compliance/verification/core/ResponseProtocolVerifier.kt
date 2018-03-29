@@ -23,16 +23,10 @@ import org.codice.compliance.SAMLCore_3_2_2_e
 import org.codice.compliance.SAMLCore_3_4
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.w3c.dom.Node
 
 class ResponseProtocolVerifier(private val response: Node, private val id: String, private val acsUrl: String?) {
-    companion object {
-        private val TOP_LEVEL_STATUS_CODES = setOf("urn:oasis:names:tc:SAML:2.0:status:Success",
-                "urn:oasis:names:tc:SAML:2.0:status:Requester",
-                "urn:oasis:names:tc:SAML:2.0:status:Responder",
-                "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch")
-    }
-
     /**
      * Verify protocols against the Core Spec document
      * 3.2.2 Complex Type StatusResponseType
@@ -66,7 +60,7 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
         // Assuming response is generated in response to a request
         val inResponseTo = response.attributes?.getNamedItem("InResponseTo")?.textContent
         if (inResponseTo != id)
-            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_b,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_b,
                     property = "InResponseTo",
                     actual = inResponseTo,
                     expected = id)
@@ -78,7 +72,7 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
 
         val version = response.attributes?.getNamedItem("Version")?.textContent
         if (version != "2.0")
-            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_c,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_c,
                     property = "Version",
                     actual = version,
                     expected = "2.0")
@@ -91,7 +85,7 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
 
         val destination = response.attributes?.getNamedItem("Destination")?.textContent
         if (destination != acsUrl)
-            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_e,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                     property = "Destination",
                     actual = destination,
                     expected = acsUrl ?: "No ACS URL Found")
@@ -120,7 +114,7 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
 
             val statusCode = statusCodes[0].attributes?.getNamedItem("Value")?.textContent
             if (!TOP_LEVEL_STATUS_CODES.contains(statusCode))
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_2_2,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_2,
                         property = "Status Code",
                         actual = statusCode)
         }

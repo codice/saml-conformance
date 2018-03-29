@@ -49,17 +49,21 @@ class SAMLComplianceException : Exception {
         }
 
         @Suppress("LongParameterList")
-        fun createWithPropertyMessage(code: SAMLSpecRefMessage,
+        fun createWithPropertyMessage(vararg codes: SAMLSpecRefMessage,
                                       property: String,
                                       actual: String?,
                                       expected: String? = null,
                                       node: Node? = null): SAMLComplianceException {
+            val samlExceptions = codes.map(Companion::readCode)
+                    .fold("SAML Specification References:\n") { acc, s ->
+                        "$acc\n$s"
+                    }
             return if (expected == null) {
                 SAMLComplianceException("The $property value of $actual is invalid.\n\n" +
-                        "${readCode(code)}\n\n" + (node?.prettyPrintXml() ?: ""))
+                        "$samlExceptions\n\n" + (node?.prettyPrintXml() ?: ""))
             } else {
                 SAMLComplianceException("The $property value of $actual is not equal to " +
-                        "$expected.\n\n${readCode(code)}\n\n${node?.prettyPrintXml() ?: ""}")
+                        "$expected.\n\n$samlExceptions\n\n${node?.prettyPrintXml() ?: ""}")
             }
         }
 

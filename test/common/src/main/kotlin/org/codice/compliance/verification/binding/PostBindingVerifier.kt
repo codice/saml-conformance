@@ -129,15 +129,13 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         val isRelayStateGiven = response.isRelayStateGiven
 
         if (relayState.toByteArray().size > MAX_RELAYSTATE_LEN)
-            throw SAMLComplianceException.createWithPropertyMessage(
-                    code = SAMLBindings_3_5_3_a,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_3_a,
                     property = RELAY_STATE,
                     actual = relayState)
 
         if (isRelayStateGiven) {
             if (relayState != EXAMPLE_RELAY_STATE) {
-                throw SAMLComplianceException.createWithPropertyMessage(
-                        code = SAMLBindings_3_5_3_b,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_3_b,
                         property = RELAY_STATE,
                         actual = relayState,
                         expected = EXAMPLE_RELAY_STATE)
@@ -154,8 +152,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         val signatures = response.responseDom.allChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
-            throw SAMLComplianceException.createWithPropertyMessage(
-                    code = SAMLBindings_3_5_5_2_a,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = "Destination",
                     actual = destination,
                     expected = acsUrl[HTTP_POST])

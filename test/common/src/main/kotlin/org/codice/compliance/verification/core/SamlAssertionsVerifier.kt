@@ -94,7 +94,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (it.attributes.getNamedItem("Version")?.textContent == null)
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3", "Version", "Assertion")
             if (it.attributes.getNamedItem("Version").textContent != "2.0")
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_2_3_3_a,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_3_3_a,
                         property = "Version",
                         actual = it.attributes.getNamedItem("Version").textContent,
                         expected = "2.0")
@@ -311,7 +311,7 @@ class SamlAssertionsVerifier(val node: Node) {
             if (encryptedData
                             .filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_2_7_3_2_a,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_7_3_2_a,
                         property = "Type",
                         actual = it.attributes.getNamedItem("Type").textContent,
                         expected = ELEMENT)
@@ -341,7 +341,7 @@ class SamlAssertionsVerifier(val node: Node) {
         it.children("AttributeValue").forEach {
             val nilAttribute = it.attributes.getNamedItemNS(XSI, "nil")?.textContent
             if (StringUtils.isNotBlank(it.textContent) || (nilAttribute != "true" && nilAttribute != "1"))
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_2_7_3_1_1,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_7_3_1_1,
                         property = "xsi:nil XML attribute",
                         actual = nilAttribute)
         }

@@ -59,7 +59,7 @@ class RequestProtocolVerifier(private val request: Node) {
                     "Request")
 
         if (request.attributes.getNamedItem("Version").textContent != "2.0")
-            throw SAMLComplianceException.createWithPropertyMessage(code = SAMLCore_3_2_1_b,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_1_b,
                     property = "Version",
                     actual = request.attributes.getNamedItem("Version").textContent,
                     expected = "2.0")

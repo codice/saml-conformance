@@ -66,7 +66,7 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
 
             val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
             if (issuerFormat != null && issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_4_1_4_2_c,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
                         property = "Format",
                         actual = issuerFormat,
                         expected = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
@@ -108,7 +108,7 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
                     ?.textContent
 
             if (audience != SP_ISSUER)
-                throw SAMLComplianceException.createWithPropertyMessage(code = SAMLProfiles_4_1_4_2_k,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_k,
                         property = "Audience",
                         actual = audience,
                         expected = SP_ISSUER)
