@@ -9,6 +9,7 @@ dependencies {
 
 // Copy the distribution from the distribution module over to the build module
 task copyDistribution(type: Copy) {
+    dependsOn(':deployment:distribution:build')
     from project(':deployment:distribution').file("build/distributions/samlconf-${project_version}.tar")
     into 'build'
     rename { String fileName ->
