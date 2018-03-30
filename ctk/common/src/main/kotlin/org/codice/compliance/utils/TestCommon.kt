@@ -13,12 +13,17 @@
  */
 package org.codice.compliance.utils
 
+import com.jayway.restassured.response.Response
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.saml.plugin.IdpPostResponse
+import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.utils.decorators.IdpResponseDecorator
+import org.codice.compliance.utils.decorators.decorate
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.AuthnRequest
 import java.io.File
@@ -96,6 +101,35 @@ class TestCommon {
             }
             return URLClassLoader(jarUrls.toTypedArray(),
                     SAMLComplianceException::class.java.classLoader)
+        }
+
+        /*
+         * Since errors shouldn't be passed to user implementations, this acts as the "user implementation"
+         * and parses the response into the correct idp object for further processing.
+         *
+         * @param response The error response returned from the first interaction with the IdP under test.
+         * @return An {@code IdpResponse} object created from the error response.
+         */
+        fun parseErrorResponse(response: Response): IdpResponseDecorator {
+            return if (response.header("LOCATION") != null) {
+                /*
+                 * TODO TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
+                 * Change this line to:
+                 IdpRedirectResponse(response)
+                 *
+                 * And delete parseRedirectErrorResponse method when finished with ticket
+                 */
+                parseRedirectErrorResponse(response).decorate()
+            } else {
+                IdpPostResponse(response).decorate()
+            }
+        }
+
+        private fun parseRedirectErrorResponse(response: Response): IdpRedirectResponse {
+            return IdpRedirectResponse.Builder().apply {
+                httpStatusCode(response.statusCode)
+                url(response.header("LOCATION"))
+            }.build()
         }
     }
 }

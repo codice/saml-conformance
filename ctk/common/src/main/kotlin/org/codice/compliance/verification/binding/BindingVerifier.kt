@@ -16,7 +16,7 @@ package org.codice.compliance.verification.binding
 import org.codice.compliance.SAMLBindings_3_5_6_a
 import org.codice.compliance.SAMLComplianceException
 
-open class BindingVerifier {
+abstract class BindingVerifier {
     companion object {
         private const val HTTP_ERROR_THRESHOLD = 400
         /**
@@ -36,4 +36,6 @@ open class BindingVerifier {
             }
         }
     }
+
+    abstract fun verify()
 }

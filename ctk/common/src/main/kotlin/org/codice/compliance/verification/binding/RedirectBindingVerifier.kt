@@ -64,7 +64,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     /**
      * Verify the response for a redirect binding
      */
-    fun verify() {
+    override fun verify() {
         verifyHttpRedirectStatusCode()
         verifyNoNulls()
         decodeAndVerify()

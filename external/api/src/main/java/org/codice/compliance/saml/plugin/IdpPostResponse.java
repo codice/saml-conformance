@@ -18,61 +18,39 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE;
 
 import com.jayway.restassured.path.xml.element.Node;
+import com.jayway.restassured.response.Response;
+import java.util.stream.Collectors;
 
 /**
  * This class is the return type for methods of the {@code IdpResponder} interface for the POST
- * Binding. An internal static builder class {@code Builder} should be used to build the {@code
- * IdpPostResponse} object.
+ * Binding. Once the user implemented portion finishes its interaction with the IdP under testing,
+ * it should return an {@code IdpPostResponse}.
  *
- * <p>The implemented {@code IdpResponder} methods should call the builder methods:
+ * <p>An {@code IdpPostResponse} is created by passing in the resultant RestAssured {@code Response}
+ * to its constructor.
  *
- * <ul>
- *   <li>IdpPostResponse.Builder.httpStatusCode(int)
- *   <li>IdpPostResponse.Builder.samlForm(Node)
- * </ul>
- *
- * Before building the {@code IdpPostResponse} object.
- *
- * <p>Example usage:
- *
- * <p>
- *
- * <blockquote>
- *
- * <pre>
- *   return new IdpPostResponse.Builder()
- *       .httpStatusCode(exampleStatusCode)
- *       .samlForm(exampleSamlForm)
- *       .build();
- * </pre>
- *
- * </blockquote>
+ * <p>Example: {@code return IdpPostResponse(restAssuredResponse); }
  */
 public class IdpPostResponse extends IdpResponse {
-
-  public static class Builder {
-
-    private IdpPostResponse idpPostResponse = new IdpPostResponse();
-
-    public Builder httpStatusCode(int httpStatusCode) {
-      idpPostResponse.httpStatusCode = httpStatusCode;
-      return this;
-    }
-
-    public Builder samlForm(Node samlResponseForm) {
-      idpPostResponse.parseAndSetFormValues(samlResponseForm);
-      return this;
-    }
-
-    public IdpPostResponse build() {
-      return idpPostResponse;
-    }
-  }
 
   private static final String VALUE = "value";
   protected static final String NAME = "name";
 
-  private IdpPostResponse() {}
+  public IdpPostResponse(Response response) {
+    Node responseBody = response.then().extract().htmlPath().getNode("html").getNode("body");
+
+    responseForm =
+        responseBody
+            .getNodes("form")
+            .stream()
+            .filter(this::hasSamlResponseFormControl)
+            .findFirst()
+            .orElse(null);
+
+    if (responseForm != null) {
+      parseAndSetFormValues();
+    }
+  }
 
   // Copy constructor
   protected IdpPostResponse(IdpPostResponse response) {
@@ -87,17 +65,16 @@ public class IdpPostResponse extends IdpResponse {
   protected Node samlResponseForm;
   protected Node relayStateForm;
 
-  /**
-   * This method is responsible for parsing out the SamlResponse form control from the big wrapping
-   * response from
-   *
-   * @param responseForm is a RestAssured response node that is returned from the user-interactive
-   *     plugin portion of the Post binding as defined in the binding spec in section 3.5.5 step 4
-   */
-  @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
-  private void parseAndSetFormValues(Node responseForm) {
-    this.responseForm = responseForm;
+  private boolean hasSamlResponseFormControl(Node form) {
+    return !form.children()
+        .list()
+        .stream()
+        .filter(formControl -> SAML_RESPONSE.equalsIgnoreCase(formControl.getAttribute(NAME)))
+        .collect(Collectors.toSet())
+        .isEmpty();
+  }
 
+  private void parseAndSetFormValues() {
     // Bindings 3.5.4 "If the message is a SAML response, then the form control MUST be named
     // SAMLResponse."
     samlResponseForm =

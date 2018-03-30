@@ -17,12 +17,17 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
 @Suppress("StringLiteralDuplication")
-class IdpPostResponseDecorator : IdpPostResponse {
+/**
+ * This class  can only be instantiated by using extension methods in IdpResponseDecorators.kt
+ */
+class IdpPostResponseDecorator
+internal constructor(response: IdpPostResponse) : IdpPostResponse(response), IdpResponseDecorator {
     companion object {
         private const val HIDDEN = "hidden"
         private const val TYPE = "type"
@@ -30,9 +35,6 @@ class IdpPostResponseDecorator : IdpPostResponse {
         private const val METHOD = "method"
         private const val POST = "POST"
     }
-
-    // can only instantiate by using extension methods in IdpResponseDecorators.kt
-    internal constructor(response: IdpPostResponse): super(response)
 
     var isRelayStateGiven: Boolean = false
     lateinit var decodedSamlResponse: String
@@ -100,5 +102,9 @@ class IdpPostResponseDecorator : IdpPostResponse {
                                    attributeName: String,
                                    expectedValue: String): Boolean {
         return expectedValue == node.getAttribute(attributeName)
+    }
+
+    override fun bindingVerifier(): PostBindingVerifier {
+        return PostBindingVerifier(this)
     }
 }

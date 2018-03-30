@@ -18,34 +18,41 @@ import java.util.List;
 
 /**
  * This class is the return type for methods of the {@code IdpResponder} interface on the REDIRECT
- * Binding. An internal static builder class {@code Builder} should be used to build the {@code
- * IdpRedirectResponse object}.
+ * Binding. Once the user implemented portion finishes its interaction with the IdP under testing,
+ * it should return an {@code IdpRedirectResponse}.
  *
- * <p>The implemented {@code IdpResponder} methods should call the builder methods:
+ * <p>An {@code IdpRedirectResponse} is created by passing in the resultant RestAssured {@code
+ * Response} to its constructor.
  *
- * <ul>
- *   <li>IdpRedirectResponse.Builder.httpStatusCode(int)
- *   <li>IdpRedirectResponse.Builder.url(String)
- * </ul>
- *
- * Before building the {@code IdpRedirectResponse} object.
- *
- * <p>Example usage:
- *
- * <p>
- *
- * <blockquote>
- *
- * <pre>
- *   return new IdpRedirectResponse.Builder();
- *       .httpStatusCode(exampleStatusCode)
- *       .url(exampleUrl);
- *       .build();
- * </pre>
- *
- * </blockquote>
+ * <p>Example: {@code return IdpRedirectResponse(restAssuredResponse); }
  */
 public class IdpRedirectResponse extends IdpResponse {
+
+  // Copy constructor
+  protected IdpRedirectResponse(IdpRedirectResponse response) {
+    super(response);
+    url = response.url;
+    path = response.path;
+    parameters = response.parameters;
+  }
+
+  // TODO remove url field if not used in Binding Verification
+  protected String url;
+  protected String path;
+  protected String parameters;
+
+  /* TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
+  * When ticket is finished, put in this constructor:
+  *
+  public IdpRedirectResponse(Response response) {
+    this.url = response.header("Location");
+    List<String> splitUrl = Splitter.on("?").splitToList(url);
+    path = splitUrl.get(0);
+    parameters = splitUrl.get(1);
+  }
+  *
+  * And delete everything below in this class
+  */
 
   public static class Builder {
 
@@ -68,19 +75,6 @@ public class IdpRedirectResponse extends IdpResponse {
   }
 
   private IdpRedirectResponse() {}
-
-  // Copy constructor
-  protected IdpRedirectResponse(IdpRedirectResponse response) {
-    super(response);
-    url = response.url;
-    path = response.path;
-    parameters = response.parameters;
-  }
-
-  // TODO remove url field if not used in Binding Verification
-  protected String url;
-  protected String path;
-  protected String parameters;
 
   @SuppressWarnings("squid:S3398" /* Method in here to simplify builder class */)
   private void parseAndSetUrlValues(String url) {

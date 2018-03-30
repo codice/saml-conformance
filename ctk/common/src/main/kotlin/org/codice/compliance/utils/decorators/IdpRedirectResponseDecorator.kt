@@ -18,13 +18,14 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.verification.binding.RedirectBindingVerifier
 import org.w3c.dom.Node
 
 /**
- * This class can only be instantiated by using extension methods in IdpResponseDecorators.kt
+ * This class  can only be instantiated by using extension methods in IdpResponseDecorators.kt
  */
 class IdpRedirectResponseDecorator
-internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response) {
+internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response), IdpResponseDecorator {
 
     private val paramMap: Map<String, String> by lazy {
         parameters.split("&")
@@ -73,5 +74,9 @@ internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(respon
     }
     val isParametersNull: Boolean by lazy {
         parameters == null
+    }
+
+    override fun bindingVerifier(): RedirectBindingVerifier {
+        return RedirectBindingVerifier(this)
     }
 }

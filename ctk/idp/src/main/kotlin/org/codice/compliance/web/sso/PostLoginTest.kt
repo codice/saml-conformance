@@ -19,7 +19,6 @@ import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
-import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
@@ -28,7 +27,6 @@ import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
-import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
@@ -137,17 +135,13 @@ class PostLoginTest : StringSpec() {
                     .`when`()
                     .post(Common.getSingleSignOnLocation(POST_BINDING))
 
-            response.statusCode shouldBe 200
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getIdpPostResponse(response).decorate().apply {
-                        isRelayStateGiven = true
-                    }
+            val idpResponse = TestCommon.parseErrorResponse(response)
 
             idpResponse.bindingVerifier().verify()
 
-            val responseDom = idpResponse.responseDom
-            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verifyErrorResponse(SAMLBindings_3_5_3_a)
+//            val responseDom = idpResponse.responseDom
+//            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verifyErrorResponse(SAMLBindings_3_5_3_a)
         }
 
         "POST AuthnRequest Without ACS Url Test" {

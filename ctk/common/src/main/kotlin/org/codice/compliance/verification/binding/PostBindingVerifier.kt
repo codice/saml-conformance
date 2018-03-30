@@ -44,7 +44,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
     /**
      * Verify the response for a post binding
      */
-    fun verify() {
+    override fun verify() {
         verifyHttpStatusCode(response.httpStatusCode)
         verifyNoNulls()
         decodeAndVerify()

@@ -32,15 +32,17 @@ class DDFIdpResponderProvider : IdpResponder {
     }
 
     override fun getIdpRedirectResponse(originalResponse: Response): IdpRedirectResponse {
-        val response = parseResponseAndSendRequest(originalResponse)
 
         /*
         * TODO "TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
-        * When ticket is finished, replace below url building line with:
-        * .url(response.getHeader("Location"));
+        * When ticket is finished, put in this line:
         *
-        * And delete the html block comment
-         */
+        return IdpRedirectResponse(parseResponseAndSendRequest(originalResponse))
+        *
+        * and delete everything below in this method
+        */
+
+        val response = parseResponseAndSendRequest(originalResponse)
 
         /*************************
          * <html>
@@ -75,29 +77,7 @@ class DDFIdpResponderProvider : IdpResponder {
     }
 
     override fun getIdpPostResponse(originalResponse: Response): IdpPostResponse {
-        val response = parseResponseAndSendRequest(originalResponse)
-
-        /*************************
-         * <html>
-         * ...
-         * <body>
-         * <form id="postform" method="post" action="https://localhost:8993/services/saml/sso">
-         * <input class="idp-form-submit" type="submit" style="display:none;"/>
-         * <input type="hidden" name="SAMLResponse" value="**SAMLResponseValueHere**"/>
-         * <input type="hidden" name="RelayState" value="relayState"/>
-         * ...
-         ************************/
-
-        return IdpPostResponse.Builder().apply {
-            httpStatusCode(response.statusCode)
-            samlForm(response
-                    .then()
-                    .extract()
-                    .htmlPath()
-                    .getNode("html")
-                    .getNode("body")
-                    .getNode("form"))
-        }.build()
+        return IdpPostResponse(parseResponseAndSendRequest(originalResponse))
     }
 
     /**
