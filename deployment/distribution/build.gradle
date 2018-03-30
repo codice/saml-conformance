@@ -9,8 +9,8 @@ applicationName = 'samlconf'
 mainClassName = 'org.codice.ckt.CommandKt'
 
 dependencies {
-    compile project(':external:implementations:ddf')
-    compile project(':external:implementations:keycloak')
+    compile project(':external:implementations:samlconf-ddf-impl')
+    compile project(':external:implementations:samlconf-keycloak-impl')
     compile project(':library')
     compile project(':external:api')
     compile project(':test:common')
@@ -25,8 +25,7 @@ applicationDistribution.from('src/main/resources/') {
     into 'conf'
 }
 
-project(':external:implementations').getSubprojects().each{ subProject ->
-    System.out.println(subProject.getName())
+project(':external:implementations').getSubprojects().each { subProject ->
     applicationDistribution.from(subProject.file('build/libs')) {
         into 'implementations/' + subProject.name
     }

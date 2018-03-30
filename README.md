@@ -39,7 +39,7 @@ The `samlconf` script may take the following parameters:
     OPTIONS
            -i | --implementation path
                 The path to the custom, server-specific implementation, including its plugins and metadata. If it is not given, 
-                the default implementation directory is /implementations/ddf.
+                the default implementation directory is /implementations/samlconf-ddf-impl.
                       
            -d | --debug
                Sets the log level to debug.
@@ -53,7 +53,7 @@ for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for
 ### Formatting
 If during development the build fails due to `format violations` run the following command to format:
 
-    gradlew spotlessApply goJF
+    gradlew spotlessApply
 
 ### Metadata
 * If testing an IdP:
@@ -106,11 +106,11 @@ This module contains an assortment of Java classes that have been copied over fr
 ### external
 This module contains the API for a plugin that needs to be implemented for each external SAML product before these tests
 can be run against it. There are also a few that are already implemented. The generated jar file from these modules
-needs to be installed to a deployment directory of the user's choosing and then referred to by system property when
-running tests.
+needs to be installed to a deployment directory of the user's choosing along with the necessary metadata. Then that 
+directory should be referred to by system property when running tests. (See "Running Test Script")
 
-e.g. If the ServiceProvider plugin jar is copied to `/home/saml-conform/deploy`
-then the tests should be invoked with `-Dsaml.plugin.deployDir=/home/saml-conform/deploy`.
+e.g. If the ServiceProvider plugin jar and necessary metadata is copied to `/home/saml-conform/deploy`
+then the test script should be invoked with `-i /home/saml-conform/deploy`.
 
 #### api
 This module contains the API that must be implemented to run this test kit against a SAML product.
@@ -118,19 +118,15 @@ This module contains the API that must be implemented to run this test kit again
 #### implementations
 This module contains implementations of the API for specific SAML products.
 
-##### ddf
+##### samlconf-ddf-impl
 Plugin and idp-metadata.xml for the ddf implementation of IdP. It should also be used as the model for building plugins
 for connecting with other IdPs for compliance testing.
 
-##### keycloak
+##### samlconf-keycloak-impl
 Plugin and idp-metadata.xml for the Keycloak implementation of IdP.
 
-##### keycloak-plugins
-This module contains the ServiceProvider plugin that is used to connect with
-a Keycloak IdP.
-
 ### deployment
-This module is the projects full package deployment.
+This module is the project's full package deployment.
 
 #### distribution
 This module contains all the runtime elements including scripts, jars, and configurations.
