@@ -23,7 +23,6 @@ import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
 import org.codice.compliance.utils.TestCommon.Companion.SAML_NAMESPACE
 import org.codice.compliance.utils.TestCommon.Companion.XSI
-import org.codice.compliance.verification.core.CoreVerifier
 import org.w3c.dom.Node
 
 class ProfilesVerifier(private val node: Node) {
@@ -32,8 +31,8 @@ class ProfilesVerifier(private val node: Node) {
      * Verify Error Response against the Profiles document.
      * This should be called explicitly if an error is expected.
      */
-    fun verifyErrorResponse(){
-        if(node.allChildren("Assertion").isNotEmpty())
+    fun verifyErrorResponse() {
+        if (node.allChildren("Assertion").isNotEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_l,
                     message = "A Response must not have an assertion if it's an error response.",
                     node = node)
