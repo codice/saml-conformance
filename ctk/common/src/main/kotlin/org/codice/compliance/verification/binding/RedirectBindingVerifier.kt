@@ -58,7 +58,8 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
-class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator) : BindingVerifier() {
+class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator)
+    : BindingVerifier() {
 
     /**
      * Verify the response for a redirect binding
@@ -78,11 +79,13 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     }
 
     /**
-     * Verifies the http status code of the response according to the redirect binding rules in the binding spec
+     * Verifies the http status code of the response according to the redirect binding rules in the
+     * binding spec
      * 3.4.6 Error Reporting
      */
     fun verifyHttpRedirectStatusCode() {
-        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status code for Redirect" is completed
+        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
+        // code for Redirect" is completed
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
@@ -90,13 +93,15 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                     SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
                     actual = response.httpStatusCode.toString(),
-                    expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or ${HttpStatusCodes.STATUS_CODE_SEE_OTHER}"
+                    expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
+                            HttpStatusCodes.STATUS_CODE_SEE_OTHER
             )
         }
     }
 
     /**
-     * Verifies the presence of redirect parameters according to the redirect binding rules in the binding spec
+     * Verifies the presence of redirect parameters according to the redirect binding rules in the
+     * binding spec
      * 3.4.4 Message Encoding
      */
     private fun verifyNoNulls() {
@@ -130,7 +135,8 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     }
 
     /**
-     * Verifies the encoding of the samlResponse by decoding it according to the redirect binding rules in the binding spec
+     * Verifies the encoding of the samlResponse by decoding it according to the redirect binding
+     * rules in the binding spec
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
@@ -140,45 +146,56 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         val decodedMessage: String
 
         /**
-         * A query string parameter named SAMLEncoding is reserved to identify the encoding mechanism used. If this
-         * parameter is omitted, then the value is assumed to be urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
+         * A query string parameter named SAMLEncoding is reserved to identify the encoding
+         * mechanism used. If this parameter is omitted, then the value is assumed to be
+         * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
          */
-        decodedMessage = if (samlEncoding == null || samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+        decodedMessage = if (samlEncoding == null ||
+                samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
             try {
                 Decoder.decodeAndInflateRedirectMessage(samlResponse)
             } catch (e: Decoder.DecoderException) {
                 when (e.inflErrorCode) {
-                    ERROR_URL_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
-                            message = "Could not url decode the SAML response.",
-                            cause = e)
-                    ERROR_BASE64_DECODING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
-                            message = "Could not base64 decode the SAML response.",
-                            cause = e)
-                    ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1, SAMLBindings_3_4_4_1,
+                    ERROR_URL_DECODING ->
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
+                                message = "Could not url decode the SAML response.",
+                                cause = e)
+                    ERROR_BASE64_DECODING ->
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
+                                message = "Could not base64 decode the SAML response.",
+                                cause = e)
+                    ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1,
+                            SAMLBindings_3_4_4_1,
                             message = "Could not inflate the SAML response.",
                             cause = e)
-                    LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2,
-                            message = "There were linefeeds or whitespace in the SAML response.",
-                            cause = e)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a, SAMLBindings_3_4_4_1,
+                    LINEFEED_OR_WHITESPACE ->
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2,
+                                message = "There were linefeeds or whitespace in the SAML " +
+                                        "response.",
+                                cause = e)
+                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
+                            SAMLBindings_3_4_4_1,
                             message = "Something went wrong with the SAML response.",
                             cause = e)
                 }
             }
-        } else throw UnsupportedOperationException("This test suite only supports DEFLATE encoding currently.")
+        } else throw UnsupportedOperationException("This test suite only supports DEFLATE " +
+                "encoding currently.")
 
         Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
         response.decodedSamlResponse = decodedMessage
     }
 
     /**
-     * Verifies the redirect response has no XMLSig in the url according to the redirect binding rules in the binding
-     * spec
+     * Verifies the redirect response has no XMLSig in the url according to the redirect binding
+     * rules in the binding spec
      * 3.4.4.1 DEFLATE Encoding
      */
     private fun verifyNoXMLSig() {
         if (response.responseDom.children("Signature").isNotEmpty()) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1, message = "Signature element found.", node = response.responseDom)
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1,
+                    message = "Signature element found.",
+                    node = response.responseDom)
         }
     }
 
@@ -204,18 +221,21 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 INVALID_CERTIFICATE -> throw SAMLComplianceException.create(SAMLBindings_3_1_2_1,
                         message = "The certificate was invalid.",
                         cause = e)
-                SIG_ALG_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1,
-                        message = "Signature Algorithm not found.",
-                        cause = e)
-                SIGNATURE_NOT_PROVIDED -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2,
-                        message = "Signature not found.",
-                        cause = e)
+                SIG_ALG_NOT_PROVIDED ->
+                    throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d1,
+                            message = "Signature Algorithm not found.",
+                            cause = e)
+                SIGNATURE_NOT_PROVIDED ->
+                    throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f2,
+                            message = "Signature not found.",
+                            cause = e)
                 INVALID_URI -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d2,
                         message = "The Signature algorithm named ${response.sigAlg} is unknown.",
                         cause = e)
-                LINEFEED_OR_WHITESPACE -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1,
-                        message = "Whitespace was found in the Signature.",
-                        cause = e)
+                LINEFEED_OR_WHITESPACE ->
+                    throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f1,
+                            message = "Whitespace was found in the Signature.",
+                            cause = e)
                 else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e,
                         message = "Signature does not match payload.",
                         cause = e)
@@ -262,7 +282,8 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     }
 
     /**
-     * Verifies the destination is correct according to the redirect binding rules in the binding spec
+     * Verifies the destination is correct according to the redirect binding rules in the binding
+     * spec
      * 3.4.5.2 Security Considerations
      */
     private fun verifyRedirectDestination() {

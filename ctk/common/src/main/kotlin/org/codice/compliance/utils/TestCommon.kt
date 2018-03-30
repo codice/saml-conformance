@@ -34,8 +34,8 @@ class TestCommon {
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
-        const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToTheSamlSpec" +
-                "ItMustNotExceed80BytesInLength"
+        const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToThe" +
+                "SamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
 
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
@@ -80,7 +80,9 @@ class TestCommon {
 
         private fun getDeployDirClassloader(): ClassLoader {
             val pluginDeploy = System.getProperty(IMPLEMENTATION_PATH)
-            requireNotNull(pluginDeploy) { "Value required for System property $IMPLEMENTATION_PATH." }
+            requireNotNull(pluginDeploy) {
+                "Value required for System property $IMPLEMENTATION_PATH."
+            }
 
             val walkTopDown = File(pluginDeploy).canonicalFile.walkTopDown()
             val jarUrls = walkTopDown.maxDepth(1)
@@ -89,8 +91,11 @@ class TestCommon {
                     .map { it.toURL() }
                     .toList()
 
-            check(jarUrls.isNotEmpty()) { "No plugins found in $IMPLEMENTATION_PATH; CTK can not operate." }
-            return URLClassLoader(jarUrls.toTypedArray(), SAMLComplianceException::class.java.classLoader)
+            check(jarUrls.isNotEmpty()) {
+                "No plugins found in $IMPLEMENTATION_PATH; CTK can not operate."
+            }
+            return URLClassLoader(jarUrls.toTypedArray(),
+                    SAMLComplianceException::class.java.classLoader)
         }
     }
 }

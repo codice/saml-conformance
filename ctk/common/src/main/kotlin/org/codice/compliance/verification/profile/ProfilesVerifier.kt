@@ -72,7 +72,8 @@ class ProfilesVerifier(private val node: Node) {
             val keyInfos = it.children("KeyInfo")
             if (keyInfos.isEmpty())
                 throw SAMLComplianceException.create(SAMLProfiles_3_1_a,
-                        message = "<ds:KeyInfo> not found within the <SubjectConfirmationData> element.",
+                        message = "<ds:KeyInfo> not found within the <SubjectConfirmationData> " +
+                                "element.",
                         node = node)
 
             keyInfos.forEach {

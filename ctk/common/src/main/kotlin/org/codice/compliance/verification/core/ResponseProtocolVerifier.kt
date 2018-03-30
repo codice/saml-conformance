@@ -26,7 +26,10 @@ import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.w3c.dom.Node
 
-class ResponseProtocolVerifier(private val response: Node, private val id: String, private val acsUrl: String?) {
+@Suppress("StringLiteralDuplication")
+class ResponseProtocolVerifier(private val response: Node,
+                               private val id: String,
+                               private val acsUrl: String?) {
     /**
      * Verify protocols against the Core Spec document
      * 3.2.2 Complex Type StatusResponseType
@@ -56,7 +59,10 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
      */
     private fun verifyStatusResponseType() {
         if (response.attributes.getNamedItem("ID") == null)
-            throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2", "ID", "Response", node = response)
+            throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2",
+                    "ID",
+                    "Response",
+                    node = response)
         verifyIdValues(response.attributes.getNamedItem("ID"), SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
@@ -114,11 +120,17 @@ class ResponseProtocolVerifier(private val response: Node, private val id: Strin
         response.children("Status").forEach {
             val statusCodes = it.children("StatusCode")
             if (statusCodes.isEmpty())
-                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2.1", "StatusCode", "Status", node = response)
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2.1",
+                        "StatusCode",
+                        "Status",
+                        node = response)
 
             // StatusCode
             if (statusCodes.any { it.attributes.getNamedItem("Value") == null })
-                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2.2", "Value", "StatusCode", node = response)
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.2.2.2",
+                        "Value",
+                        "StatusCode",
+                        node = response)
 
             val statusCode = statusCodes[0].attributes?.getNamedItem("Value")?.textContent
             if (!TOP_LEVEL_STATUS_CODES.contains(statusCode))

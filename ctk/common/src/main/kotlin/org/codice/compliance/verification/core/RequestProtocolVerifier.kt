@@ -24,6 +24,7 @@ import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.w3c.dom.Node
 
+@Suppress("StringLiteralDuplication")
 class RequestProtocolVerifier(private val request: Node) {
     /**
      * Verify protocols against the Core Spec document
@@ -44,7 +45,8 @@ class RequestProtocolVerifier(private val request: Node) {
     /**
      * Verify the Request Abstract Types
      * 3.2.1 Complex Type RequestAbstractType
-     * All SAML requests are of types that are derived from the abstract RequestAbstractType complex type.
+     * All SAML requests are of types that are derived from the abstract RequestAbstractType
+     * complex type.
      */
     private fun verifyRequestAbstractType() {
         if (request.attributes.getNamedItem("ID") == null)
@@ -78,33 +80,31 @@ class RequestProtocolVerifier(private val request: Node) {
     /**
      * Verify the Authn Queries
      * 3.3.2.2 Element <AuthnQuery>
-     * The <AuthnQuery> message element is used to make the query “What assertions containing authentication statements
-     * are available for this subject?”
+     * The <AuthnQuery> message element is used to make the query “What assertions containing
+     * authentication statements are available for this subject?”
      */
     private fun verifyAuthnQueries() {
         // AuthnQuery
         request.allChildren("AuthnQuery").forEach {
             val querySessionIndex = it.attributes.getNamedItem("SessionIndex")?.textContent
-            // todo - verify correctness
             if (querySessionIndex != null
                     && request.children("Assertion")
-                            .map { it.children("AuthnStatement") }
-                            .filter { it.isNotEmpty() }
-                            .any {
-                                it.none {
-                                    it.attributes.getNamedItem("SessionIndex")?.textContent == querySessionIndex
-                                }
-                            }) {
+                            .flatMap { ast -> ast.children("AuthnStatements") }
+                            .map { auth -> auth.attributes.getNamedItem("SessionIndex") }
+                            .filterNotNull()
+                            .map { sidx -> sidx.textContent }
+                            .none { t -> t == querySessionIndex }) {
                 throw SAMLComplianceException.create(SAMLCore_3_3_2_2_a,
-                        message = "There was no AuthnStatement in the Assertion that had a SessionsIndex of " +
-                                "$querySessionIndex.",
+                        message = "There was no AuthnStatement in the Assertion that had a " +
+                                "SessionsIndex of $querySessionIndex.",
                         node = request)
             }
 
             //RequestedAuthnContext
             it.children("RequestedAuthnContext").forEach { verifyRequestedAuthnContext(it) }
 
-            // todo - verify correctness (brandan - I think this is correct but missing a last step: "<AuthnContext>
+            // todo - verify correctness (brandan - I think this is correct but missing a last step:
+            // "<AuthnContext>
             // element that satisfies the element in the query")
             if (it.children("RequestedAuthnContext").isNotEmpty()
                     && request.children("Assertion")
@@ -123,8 +123,8 @@ class RequestProtocolVerifier(private val request: Node) {
      * Verifies the Requested Authn Contexts against the core spec
      *
      * 3.3.2.2.1 Element <RequestedAuthnContext>
-     * The <RequestedAuthnContext> element specifies the authentication context requirements of authentication
-     * statements returned in response to a request or query.
+     * The <RequestedAuthnContext> element specifies the authentication context requirements of
+     * authentication statements returned in response to a request or query.
      *
      * @throws SAMLComplianceException - if the check fails
      * @return true - if the check succeeds
@@ -143,7 +143,8 @@ class RequestProtocolVerifier(private val request: Node) {
      * Verify the Attribute Queries
      *
      * 3.3.2.3 Element <AttributeQuery>
-     * The <AttributeQuery> element is used to make the query “Return the requested attributes for this subject.”
+     * The <AttributeQuery> element is used to make the query “Return the requested attributes for
+     * this subject.”
      */
     private fun verifyAttributeQueries() {
         val uniqueAttributeQuery = mutableMapOf<String, String>()
@@ -154,8 +155,8 @@ class RequestProtocolVerifier(private val request: Node) {
                 if (uniqueAttributeQuery.containsKey(name.textContent)
                         && uniqueAttributeQuery[name.textContent] == nameFormat.textContent)
                     throw SAMLComplianceException.create(SAMLCore_3_3_2_3,
-                            message = "There were two Attribute Queries with the same nameFormat of " +
-                                    "${nameFormat.textContent} and name of ${name.textContent}.",
+                            message = "There were two Attribute Queries with the same nameFormat " +
+                                    "of ${nameFormat.textContent} and name of ${name.textContent}.",
                             node = request)
                 else uniqueAttributeQuery.put(name.textContent, nameFormat.textContent)
             }
@@ -166,8 +167,8 @@ class RequestProtocolVerifier(private val request: Node) {
      * Verify the Authz Decision Queries
      *
      * 3.3.2.4 Element <AuthzDecisionQuery>
-     * The <AuthzDecisionQuery> element is used to make the query “Should these actions on this resource be allowed for
-     * this subject, given this evidence?”
+     * The <AuthzDecisionQuery> element is used to make the query “Should these actions on this
+     * resource be allowed for this subject, given this evidence?”
      */
     private fun verifyAuthzDecisionQueries() {
         request.allChildren("AuthzDecisionQuery").forEach {
@@ -190,8 +191,8 @@ class RequestProtocolVerifier(private val request: Node) {
      * 3.4.1.3 Element <IDPList>
      * 3.4.1.3.1 Element <IDPEntry>
      *
-     * The <IDPEntry> element specifies a single identity provider trusted by the requester to authenticate the
-     * presenter.
+     * The <IDPEntry> element specifies a single identity provider trusted by the requester to
+     * authenticate the presenter.
      */
     private fun verifyAuthenticationRequestProtocol() {
         // IDPList
@@ -205,7 +206,8 @@ class RequestProtocolVerifier(private val request: Node) {
             //IDPEntry
             it.children("IDPEntry").forEach {
                 if (it.attributes.getNamedItem("ProviderID") == null)
-                    throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.4.1.3.1",
+                    throw SAMLComplianceException
+                            .createWithXmlPropertyReqMessage("SAMLCore.3.4.1.3.1",
                             "ProviderID",
                             "IDPEntry",
                             node = request)
@@ -217,8 +219,9 @@ class RequestProtocolVerifier(private val request: Node) {
      * Verify the Artifact Resolution Protocol
      * 3.5.1 Element <ArtifactResolve>
      *
-     * The <ArtifactResolve> message is used to request that a SAML protocol message be returned in an
-     * <ArtifactResponse> message by specifying an artifact that represents the SAML protocol message.
+     * The <ArtifactResolve> message is used to request that a SAML protocol message be returned in
+     * an <ArtifactResponse> message by specifying an artifact that represents the SAML protocol
+     * message.
      */
     private fun verifyArtifactResolutionProtocol() {
         request.allChildren("ArtifactResolve").forEach {
@@ -234,8 +237,8 @@ class RequestProtocolVerifier(private val request: Node) {
      * Verify the Manage Name ID Requests
      * 3.6.1 Element <ManageNameIDRequest>
      *
-     * This message has the complex type ManageNameIDRequestType, which extends RequestAbstractType and adds the
-     * following elements
+     * This message has the complex type ManageNameIDRequestType, which extends RequestAbstractType
+     * and adds the following elements
      */
     private fun verifyManageNameIDRequest() {
         request.allChildren("ManageNameIDRequest").forEach {
@@ -259,8 +262,8 @@ class RequestProtocolVerifier(private val request: Node) {
      * Verify the Name Identifier Mapping Request
      * 3.8.1 Element <NameIDMappingRequest>
      *
-     * To request an alternate name identifier for a principal from an identity provider, a requester sends an
-     * <NameIDMappingRequest> message.
+     * To request an alternate name identifier for a principal from an identity provider, a
+     * requester sends an <NameIDMappingRequest> message.
      */
     private fun verifyNameIdMappingRequest() {
         request.allChildren("NameIDMappingRequest").forEach {

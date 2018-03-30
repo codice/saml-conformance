@@ -20,7 +20,10 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.w3c.dom.Node
 
-class IdpRedirectResponseDecorator// can only instantiate by using extension methods in IdpResponseDecorators.kt
+/**
+ * This class can only be instantiated by using extension methods in IdpResponseDecorators.kt
+ */
+class IdpRedirectResponseDecorator
 internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response) {
 
     private val paramMap: Map<String, String> by lazy {

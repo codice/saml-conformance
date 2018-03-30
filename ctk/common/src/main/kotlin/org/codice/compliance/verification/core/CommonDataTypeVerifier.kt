@@ -11,6 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+@file:Suppress("StringLiteralDuplication")
 package org.codice.compliance.verification.core
 
 import org.apache.commons.lang3.StringUtils
@@ -125,9 +126,12 @@ private fun splitByYear(dateTime: String, errorCode: SAMLSpecRefMessage?): Split
     var hyphenIndex = dateTime.indexOf('-')
 
     if (hyphenIndex == -1) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7,
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode,
+                SAMLCore_1_3_3,
+                XMLDatatypesSchema_3_2_7,
                 message = "No hyphen was found in the date value of $dateTime.")
-        else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7,
+        else throw SAMLComplianceException.create(SAMLCore_1_3_3,
+                XMLDatatypesSchema_3_2_7,
                 message = "No hyphen was found in the date value of $dateTime.")
     }
 
@@ -136,7 +140,9 @@ private fun splitByYear(dateTime: String, errorCode: SAMLSpecRefMessage?): Split
         hyphenIndex = dateTime.indexOf('-', hyphenIndex)
 
     if (hyphenIndex == -1) {
-        if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7,
+        if (errorCode != null) throw SAMLComplianceException.create(errorCode,
+                SAMLCore_1_3_3,
+                XMLDatatypesSchema_3_2_7,
                 message = "No hyphen was found in the date value of $dateTime.")
         else throw SAMLComplianceException.create(SAMLCore_1_3_3, XMLDatatypesSchema_3_2_7,
                 message = "No hyphen was found in the date value of $dateTime.")
@@ -152,7 +158,8 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
     val codes = if (errorCode == null) emptyArray()
     else arrayOf(errorCode)
 
-    // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is not permitted"
+    // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is
+    // not permitted"
     if (!strippedYear.matches("""\d+""".toRegex())) {
         throw SAMLComplianceException.create(*codes,
                 SAMLCore_1_3_3,
@@ -160,7 +167,8 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
                 message = "A '+' was found.")
     }
 
-    // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are prohibited"
+    // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are
+    // prohibited"
     if (strippedYear.length > FOUR_DIGIT_YEAR_LEN && strippedYear.startsWith('0')) {
         throw SAMLComplianceException.create(*codes,
                 SAMLCore_1_3_3,

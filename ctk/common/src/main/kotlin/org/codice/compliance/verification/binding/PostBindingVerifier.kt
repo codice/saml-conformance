@@ -39,6 +39,7 @@ import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
 
+@Suppress("StringLiteralDuplication")
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) : BindingVerifier() {
     /**
      * Verify the response for a post binding
@@ -56,7 +57,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
     }
 
     /**
-     * Verifies the presence of post forms and values according to the post binding rules in the binding spec
+     * Verifies the presence of post forms and values according to the post binding rules in
+     * the binding spec
      * 3.5.4 Message Encoding
      */
     private fun verifyNoNulls() {
@@ -65,7 +67,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
-                        message = "The form containing the SAMLResponse from control could not be found.")
+                        message = "The form containing the SAMLResponse from control could " +
+                                "not be found.")
             }
             if (isRelayStateGiven && isRelayStateFormNull) {
                 throw SAMLComplianceException.create(
@@ -76,19 +79,22 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
-                        message = "The SAMLResponse within the SAMLResponse form control could not be found.")
+                        message = "The SAMLResponse within the SAMLResponse form control could " +
+                                "not be found.")
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_3_b,
                         SAMLBindings_3_5_4_c,
-                        message = "The RelayState within the RelayState form control could not be found.")
+                        message = "The RelayState within the RelayState form control could " +
+                                "not be found.")
             }
         }
     }
 
     /**
-     * Verifies the encoding of the samlResponse by decoding it according to the post binding rules in the binding spec
+     * Verifies the encoding of the samlResponse by decoding it according to the post binding rules
+     * in the binding spec
      * 3.5.4 Message Encoding
      */
     private fun decodeAndVerify() {
@@ -115,9 +121,11 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      */
     private fun verifyPostSSO() {
         if (response.responseDom.children(SIGNATURE).isEmpty()
-                || response.responseDom.children("Assertion").any { it.children(SIGNATURE).isEmpty() })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5, message = "No digital signature found on the " +
-                    "Response or Assertions.",
+                || response.responseDom.children("Assertion").any {
+                    it.children(SIGNATURE).isEmpty()
+                })
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5,
+                    message = "No digital signature found on the Response or Assertions.",
                     node = response.responseDom)
     }
 
@@ -162,7 +170,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
     }
 
     /**
-     * Verifies the form carrying the SAMLRequest was properly formatted according to the post binding rules in the binding spec
+     * Verifies the form carrying the SAMLRequest was properly formatted according to the post
+     * binding rules in the binding spec
      * 3.5.4 Message Encoding
      */
     // TODO refactor this method and response objects so we can show values in the errors
