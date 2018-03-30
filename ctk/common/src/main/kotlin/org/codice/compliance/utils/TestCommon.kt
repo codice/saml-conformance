@@ -43,6 +43,9 @@ class TestCommon {
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
 
+        const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
+                "with a correctly formatted SAML error response (See section 3.2.1 in the SAML Core " +
+                "specification)"
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
         const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
         private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"

@@ -61,6 +61,18 @@ import java.nio.charset.StandardCharsets
 class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator)
     : BindingVerifier() {
 
+    override fun verifyError(extraMessage: String) {
+        val formattedMessage = if (extraMessage.isEmpty()) {
+            ""
+        } else {
+            "\n$extraMessage"
+        }
+
+        verifyHttpRedirectStatusCode(formattedMessage)
+        verifyNoNulls(formattedMessage)
+        decodeAndVerify(formattedMessage)
+    }
+
     /**
      * Verify the response for a redirect binding
      */
@@ -83,7 +95,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec
      * 3.4.6 Error Reporting
      */
-    fun verifyHttpRedirectStatusCode() {
+    fun verifyHttpRedirectStatusCode(formattedMessage: String = "") {
         // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
         // code for Redirect" is completed
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
@@ -94,7 +106,8 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                     property = "HTTP Status Code",
                     actual = response.httpStatusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
-                            HttpStatusCodes.STATUS_CODE_SEE_OTHER
+                            HttpStatusCodes.STATUS_CODE_SEE_OTHER +
+                            formattedMessage
             )
         }
     }
@@ -104,32 +117,32 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec
      * 3.4.4 Message Encoding
      */
-    private fun verifyNoNulls() {
+    private fun verifyNoNulls(formattedMessage: String = "") {
         with(response) {
             if (isUrlNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "Url not found.")
+                        message = "Url not found.$formattedMessage")
             }
             if (isPathNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "Path not found.")
+                        message = "Path not found.$formattedMessage")
             }
             if (isParametersNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "Parameters not found.")
+                        message = "Parameters not found.$formattedMessage")
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "SAMLResponse not found.")
+                        message = "SAMLResponse not found.$formattedMessage")
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_3_b1,
-                        message = "RelayState not found.")
+                        message = "RelayState not found.$formattedMessage")
             }
         }
     }
@@ -140,7 +153,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decodeAndVerify() {
+    private fun decodeAndVerify(formattedMessage: String = "") {
         val samlResponse = response.samlResponse
         val samlEncoding = response.samlEncoding
         val decodedMessage: String
@@ -158,24 +171,24 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 when (e.inflErrorCode) {
                     ERROR_URL_DECODING ->
                         throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
-                                message = "Could not url decode the SAML response.",
+                                message = "Could not url decode the SAML response.$formattedMessage",
                                 cause = e)
                     ERROR_BASE64_DECODING ->
                         throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
-                                message = "Could not base64 decode the SAML response.",
+                                message = "Could not base64 decode the SAML response.$formattedMessage",
                                 cause = e)
                     ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1,
                             SAMLBindings_3_4_4_1,
-                            message = "Could not inflate the SAML response.",
+                            message = "Could not inflate the SAML response.$formattedMessage",
                             cause = e)
                     LINEFEED_OR_WHITESPACE ->
                         throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2,
                                 message = "There were linefeeds or whitespace in the SAML " +
-                                        "response.",
+                                        "response.$formattedMessage",
                                 cause = e)
                     else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
                             SAMLBindings_3_4_4_1,
-                            message = "Something went wrong with the SAML response.",
+                            message = "Something went wrong with the SAML response.$formattedMessage",
                             cause = e)
                 }
             }

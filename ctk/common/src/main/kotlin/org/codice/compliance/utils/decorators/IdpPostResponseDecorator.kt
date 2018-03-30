@@ -24,7 +24,7 @@ import org.w3c.dom.Node as w3Node
 
 @Suppress("StringLiteralDuplication")
 /**
- * This class  can only be instantiated by using extension methods in IdpResponseDecorators.kt
+ * This class  can only be instantiated by using extension methods in IdpResponseDecorator.kt
  */
 class IdpPostResponseDecorator
 internal constructor(response: IdpPostResponse) : IdpPostResponse(response), IdpResponseDecorator {
@@ -36,10 +36,10 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         private const val POST = "POST"
     }
 
-    var isRelayStateGiven: Boolean = false
-    lateinit var decodedSamlResponse: String
+    override var isRelayStateGiven: Boolean = false
+    override lateinit var decodedSamlResponse: String
 
-    val responseDom: w3Node by lazy {
+    override val responseDom: w3Node by lazy {
         checkNotNull(decodedSamlResponse)
         buildDom(decodedSamlResponse)
     }

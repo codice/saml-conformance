@@ -22,6 +22,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
+import org.codice.compliance.SAMLBindings_3_4_3_a1
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
@@ -32,6 +33,7 @@ import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -148,18 +150,13 @@ class RedirectLoginTest : StringSpec() {
                     .`when`()
                     .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
 
-            // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getIdpRedirectResponse(response).decorate().apply {
-                        isRelayStateGiven = true
-                    }
+            val idpResponse = TestCommon.parseErrorResponse(response)
 
-            val bindingVerifier = idpResponse.bindingVerifier()
-            bindingVerifier.verify()
+            idpResponse.bindingVerifier().verifyError(TestCommon.IDP_ERROR_RESPONSE_REMINDER_MESSAGE)
 
-//            val responseDom = idpResponse.responseDom
-//            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_REDIRECT]).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_REDIRECT]).verifyErrorResponse(SAMLBindings_3_4_3_a1)
+            val responseDom = idpResponse.responseDom
+
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_4_3_a1, TestCommon.REQUESTER)
         }
 
         "Redirect AuthnRequest Without ACS Url Test" {

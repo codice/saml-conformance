@@ -19,6 +19,7 @@ import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
+import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
@@ -29,6 +30,7 @@ import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -137,11 +139,11 @@ class PostLoginTest : StringSpec() {
 
             val idpResponse = TestCommon.parseErrorResponse(response)
 
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier().verifyError(TestCommon.IDP_ERROR_RESPONSE_REMINDER_MESSAGE)
 
-//            val responseDom = idpResponse.responseDom
-//            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verifyErrorResponse(SAMLBindings_3_5_3_a)
+            val responseDom = idpResponse.responseDom
+
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_5_3_a, TestCommon.REQUESTER)
         }
 
         "POST AuthnRequest Without ACS Url Test" {

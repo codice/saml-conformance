@@ -42,6 +42,21 @@ import org.codice.security.sign.Decoder
 @Suppress("StringLiteralDuplication")
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) : BindingVerifier() {
     /**
+     * Verify an error response
+     */
+    override fun verifyError(extraMessage: String) {
+        val formattedMessage = if (extraMessage.isEmpty()) {
+            ""
+        } else {
+            "\n$extraMessage"
+        }
+
+        verifyHttpStatusCode(response.httpStatusCode, formattedMessage)
+        verifyNoNulls(formattedMessage)
+        decodeAndVerify(formattedMessage)
+    }
+
+    /**
      * Verify the response for a post binding
      */
     override fun verify() {
@@ -61,33 +76,33 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * the binding spec
      * 3.5.4 Message Encoding
      */
-    private fun verifyNoNulls() {
+    private fun verifyNoNulls(formattedMessage: String = "") {
         with(response) {
             if (isResponseFormNull || isSamlResponseFormNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
                         message = "The form containing the SAMLResponse from control could " +
-                                "not be found.")
+                                "not be found.$formattedMessage")
             }
             if (isRelayStateGiven && isRelayStateFormNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_c,
-                        message = "The RelayState form control could not be found.")
+                        message = "The RelayState form control could not be found.$formattedMessage")
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
                         message = "The SAMLResponse within the SAMLResponse form control could " +
-                                "not be found.")
+                                "not be found.$formattedMessage")
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_3_b,
                         SAMLBindings_3_5_4_c,
                         message = "The RelayState within the RelayState form control could " +
-                                "not be found.")
+                                "not be found.$formattedMessage")
             }
         }
     }
@@ -97,7 +112,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * in the binding spec
      * 3.5.4 Message Encoding
      */
-    private fun decodeAndVerify() {
+    private fun decodeAndVerify(formattedMessage: String = "") {
         val samlResponse = response.samlResponse
 
         val decodedMessage: String
@@ -106,7 +121,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         } catch (exception: Decoder.DecoderException) {
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_4_a1,
-                    message = "The SAML response could not be base64 decoded.",
+                    message = "The SAML response could not be base64 decoded.$formattedMessage",
                     cause = exception)
         }
 
