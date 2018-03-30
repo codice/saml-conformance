@@ -1,4 +1,4 @@
-group = 'org.codice.samlconf.plugins'
+group = 'org.codice.samlconf.implementations'
 description = 'Implementation for DDF'
 
 dependencies {

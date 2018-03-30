@@ -1,5 +1,5 @@
-group = 'org.codice.samlconf.plugins'
-description = 'Plugin implementation for Keycloak'
+group = 'org.codice.samlconf.implementations'
+description = 'Implementation for Keycloak'
 
 dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
