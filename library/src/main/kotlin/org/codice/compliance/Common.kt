@@ -31,8 +31,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
 
-const val PLUGIN_DIR_PROPERTY = "saml.plugin.deployDir"
-const val IDP_METADATA_PROPERTY = "idp.metadata"
+const val IMPLEMENTATION_PATH = "implementation.path"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 
 class Common {
@@ -43,11 +42,13 @@ class Common {
         )
 
         private val IDP_METADATA by lazy {
-            requireNotNull(System.getProperty(IDP_METADATA_PROPERTY)) {
-                "Value required for $IDP_METADATA_PROPERTY System property."
+            requireNotNull(System.getProperty(IMPLEMENTATION_PATH)) {
+                "Value required for $IMPLEMENTATION_PATH System property."
             }
 
-            File(System.getProperty(IDP_METADATA_PROPERTY)).readText()
+            File(System.getProperty(IMPLEMENTATION_PATH)).walkTopDown().first {
+                it.name.endsWith("idp-metadata.xml")
+            }.readText()
         }
 
         private val TEST_SP_METADATA by lazy {

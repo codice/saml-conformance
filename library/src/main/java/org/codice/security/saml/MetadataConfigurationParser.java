@@ -78,14 +78,14 @@ public class MetadataConfigurationParser {
     try {
       entityDoc = StaxUtils.read(reader);
     } catch (Exception ex) {
-      throw new IllegalArgumentException("Unable to read SAMLRequest as XML.");
+      throw new IllegalArgumentException("Unable to read SAMLRequest as XML.", ex);
     }
     XMLObject entityXmlObj;
     try {
       entityXmlObj = OpenSAMLUtil.fromDom(entityDoc.getDocumentElement());
     } catch (WSSecurityException ex) {
       throw new IllegalArgumentException(
-          "Unable to convert EntityDescriptor document to XMLObject.");
+          "Unable to convert EntityDescriptor document to XMLObject.", ex);
     }
     EntityDescriptor root = (EntityDescriptor) entityXmlObj;
     validateMetadata(root);

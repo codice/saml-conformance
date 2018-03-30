@@ -1,0 +1,46 @@
+apply plugin: 'application'
+
+description = 'Script and CLI to run the tests.'
+
+group = 'org.codice.samlconf.deployment'
+
+applicationName = 'samlconf'
+
+mainClassName = 'org.codice.ckt.CommandKt'
+
+dependencies {
+    compile project(':external:implementations:samlconf-ddf-impl')
+    compile project(':external:implementations:samlconf-keycloak-impl')
+    compile project(':library')
+    compile project(':external:api')
+    compile project(':test:common')
+    compile project(':test:idp')
+    compile project(':test:sp')
+    compile project(':deployment:suites')
+
+    compile 'us.jimschubert:kopper-typed:0.0.3'
+}
+
+applicationDistribution.from('src/main/resources/') {
+    into 'conf'
+}
+
+project(':external:implementations').getSubprojects().each { subProject ->
+    applicationDistribution.from(subProject.file('build/libs')) {
+        into 'implementations/' + subProject.name
+    }
+    applicationDistribution.from(subProject.file('build/resources/main')) {
+        into 'implementations/' + subProject.name
+    }
+}
+
+applicationDefaultJvmArgs = ["-Dapp.home=SAMLCTK_APP_HOME"]
+
+startScripts {
+    doLast {
+        unixScript.text = unixScript.text.replace('SAMLCTK_APP_HOME', '\$APP_HOME')
+        windowsScript.text = windowsScript.text.replace('SAMLCTK_APP_HOME', '%~dp0..')
+    }
+}
+
+build.finalizedBy(installDist)

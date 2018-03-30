@@ -1,0 +1,7 @@
+group = 'org.codice.samlconf.deployment'
+
+description = 'Suites to run tests.'
+
+dependencies {
+    compile project(':test:idp')
+}

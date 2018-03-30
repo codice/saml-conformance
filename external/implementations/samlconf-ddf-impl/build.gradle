@@ -1,0 +1,14 @@
+group = 'org.codice.samlconf.implementations'
+description = 'Implementation for DDF'
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'io.kotlintest:kotlintest:2.0.7'
+    compile 'org.kohsuke.metainf-services:metainf-services:1.1'
+    compile 'org.apache.cxf:cxf-rt-rs-security-sso-saml:3.1.13'
+
+    compile project(':library')
+    compile project(':external:api')
+
+    kapt 'org.kohsuke.metainf-services:metainf-services:1.1'
+}
