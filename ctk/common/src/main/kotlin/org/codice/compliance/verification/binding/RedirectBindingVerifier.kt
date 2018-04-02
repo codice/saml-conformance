@@ -59,6 +59,7 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
+@Suppress("TooManyFunctions" /* At least at present, there is no value in refactoring */)
 class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator)
     : BindingVerifier() {
 

@@ -44,8 +44,8 @@ class TestCommon {
         const val MAX_RELAYSTATE_LEN = 80
 
         const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
-                "with a correctly formatted SAML error response (See section 3.2.1 in the SAML Core " +
-                "specification)"
+                "with a correctly formatted SAML error response (See section 3.2.1 in the SAML " +
+                "Core specification)"
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
         const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
         private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
@@ -107,10 +107,12 @@ class TestCommon {
         }
 
         /*
-         * Since errors shouldn't be passed to user implementations, this acts as the "user implementation"
-         * and parses the response into the correct idp object for further processing.
+         * Since errors shouldn't be passed to user implementations, this acts as the "user
+         * implementation" and parses the response into the correct idp object for further
+         * processing.
          *
-         * @param response The error response returned from the first interaction with the IdP under test.
+         * @param response The error response returned from the first interaction with the IdP under
+          * test.
          * @return An {@code IdpResponse} object created from the error response.
          */
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
