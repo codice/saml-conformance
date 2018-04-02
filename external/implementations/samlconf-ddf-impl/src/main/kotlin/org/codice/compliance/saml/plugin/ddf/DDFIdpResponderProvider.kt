@@ -106,6 +106,8 @@ class DDFIdpResponderProvider : IdpResponder {
                 .replace("window.idpState = ", "")
                 .replace(";", "")
 
+        // TypeToken<Map<String, String>> gets the type of Map<String, String> since it doesn't
+        // have a class representation
         val queryParams: MutableMap<String, String> =
                 Gson().fromJson(idpState, object : TypeToken<Map<String, String>>() {}.type)
 
