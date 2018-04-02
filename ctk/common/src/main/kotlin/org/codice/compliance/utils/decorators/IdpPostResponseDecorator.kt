@@ -17,6 +17,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
@@ -71,9 +72,6 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
 
     val isFormMethodCorrect: Boolean by lazy {
         checkNodeAttribute(responseForm, METHOD, POST)
-                // TODO remove after "DDF form method on Post binding is "post" when it is supposed
-                // to be "POST"" is fixed
-                || checkNodeAttribute(responseForm, METHOD, POST.toLowerCase())
     }
 
     /*
@@ -104,7 +102,7 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         return expectedValue == node.getAttribute(attributeName)
     }
 
-    override fun bindingVerifier(): PostBindingVerifier {
+    override fun bindingVerifier(): BindingVerifier {
         return PostBindingVerifier(this)
     }
 }

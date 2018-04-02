@@ -152,7 +152,7 @@ class RedirectLoginTest : StringSpec() {
 
             val idpResponse = TestCommon.parseErrorResponse(response)
 
-            idpResponse.bindingVerifier().verifyError(TestCommon.IDP_ERROR_RESPONSE_REMINDER_MESSAGE)
+            idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
 

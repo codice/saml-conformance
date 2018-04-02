@@ -139,11 +139,13 @@ class PostLoginTest : StringSpec() {
 
             val idpResponse = TestCommon.parseErrorResponse(response)
 
-            idpResponse.bindingVerifier().verifyError(TestCommon.IDP_ERROR_RESPONSE_REMINDER_MESSAGE)
+            idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
 
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_5_3_a, TestCommon.REQUESTER)
+            CoreVerifier(responseDom).verifyErrorStatusCode(
+                    samlErrorCode = SAMLBindings_3_5_3_a,
+                    expectedStatusCode = TestCommon.REQUESTER)
         }
 
         "POST AuthnRequest Without ACS Url Test" {

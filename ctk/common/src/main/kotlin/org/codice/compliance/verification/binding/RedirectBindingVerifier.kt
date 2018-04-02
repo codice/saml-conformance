@@ -39,6 +39,7 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -61,18 +62,6 @@ import java.nio.charset.StandardCharsets
 class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator)
     : BindingVerifier() {
 
-    override fun verifyError(extraMessage: String) {
-        val formattedMessage = if (extraMessage.isEmpty()) {
-            ""
-        } else {
-            "\n$extraMessage"
-        }
-
-        verifyHttpRedirectStatusCode(formattedMessage)
-        verifyNoNulls(formattedMessage)
-        decodeAndVerify(formattedMessage)
-    }
-
     /**
      * Verify the response for a redirect binding
      */
@@ -91,11 +80,41 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     }
 
     /**
+     * Verify an error response (Negative path)
+     */
+    override fun verifyError() {
+        verifyHttpRedirectStatusCodeNegative()
+        verifyNoNullsNegative()
+        decodeAndVerifyNegative()
+    }
+
+    /**
      * Verifies the http status code of the response according to the redirect binding rules in the
      * binding spec
      * 3.4.6 Error Reporting
      */
-    fun verifyHttpRedirectStatusCode(formattedMessage: String = "") {
+    fun verifyHttpRedirectStatusCode() {
+        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
+        // code for Redirect" is completed
+        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+            throw SAMLComplianceException.createWithPropertyMessage(
+                    SAMLBindings_3_4_6_a,
+                    property = "HTTP Status Code",
+                    actual = response.httpStatusCode.toString(),
+                    expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
+                            HttpStatusCodes.STATUS_CODE_SEE_OTHER
+            )
+        }
+    }
+
+    /**
+     * Verifies the http status code of the response according to the redirect binding rules in the
+     * binding spec (Negative path)
+     * 3.4.6 Error Reporting
+     */
+    fun verifyHttpRedirectStatusCodeNegative() {
         // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
         // code for Redirect" is completed
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
@@ -107,7 +126,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                     actual = response.httpStatusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
                             HttpStatusCodes.STATUS_CODE_SEE_OTHER +
-                            formattedMessage
+                            "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE"
             )
         }
     }
@@ -117,32 +136,72 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec
      * 3.4.4 Message Encoding
      */
-    private fun verifyNoNulls(formattedMessage: String = "") {
+    private fun verifyNoNulls() {
         with(response) {
             if (isUrlNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "Url not found.$formattedMessage")
+                        message = "Url not found.")
             }
             if (isPathNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "Path not found.$formattedMessage")
+                        message = "Path not found.")
             }
             if (isParametersNull) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "Parameters not found.$formattedMessage")
+                        message = "Parameters not found.")
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_a,
-                        message = "SAMLResponse not found.$formattedMessage")
+                        message = "SAMLResponse not found.")
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_4_3_b1,
-                        message = "RelayState not found.$formattedMessage")
+                        message = "RelayState not found.")
+            }
+        }
+    }
+
+    /**
+     * Verifies the presence of redirect parameters according to the redirect binding rules in the
+     * binding spec (Negative path)
+     * 3.4.4 Message Encoding
+     */
+    private fun verifyNoNullsNegative() {
+        with(response) {
+            if (isUrlNull) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_4_4_a,
+                        message = "Url not found." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+            if (isPathNull) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_4_4_a,
+                        message = "Path not found." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+            if (isParametersNull) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_4_4_a,
+                        message = "Parameters not found." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+            if (samlResponse == null) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_4_4_a,
+                        message = "SAMLResponse not found." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+            if (isRelayStateGiven && relayState == null) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_4_3_b1,
+                        message = "RelayState not found." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
         }
     }
@@ -153,7 +212,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decodeAndVerify(formattedMessage: String = "") {
+    private fun decodeAndVerify() {
         val samlResponse = response.samlResponse
         val samlEncoding = response.samlEncoding
         val decodedMessage: String
@@ -171,24 +230,81 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 when (e.inflErrorCode) {
                     ERROR_URL_DECODING ->
                         throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
-                                message = "Could not url decode the SAML response.$formattedMessage",
+                                message = "Could not url decode the SAML response.",
                                 cause = e)
                     ERROR_BASE64_DECODING ->
                         throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
-                                message = "Could not base64 decode the SAML response.$formattedMessage",
+                                message = "Could not base64 decode the SAML response.",
                                 cause = e)
                     ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1,
                             SAMLBindings_3_4_4_1,
-                            message = "Could not inflate the SAML response.$formattedMessage",
+                            message = "Could not inflate the SAML response.",
                             cause = e)
                     LINEFEED_OR_WHITESPACE ->
                         throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2,
                                 message = "There were linefeeds or whitespace in the SAML " +
-                                        "response.$formattedMessage",
+                                        "response.",
                                 cause = e)
                     else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
                             SAMLBindings_3_4_4_1,
-                            message = "Something went wrong with the SAML response.$formattedMessage",
+                            message = "Something went wrong with the SAML response.",
+                            cause = e)
+                }
+            }
+        } else throw UnsupportedOperationException("This test suite only supports DEFLATE " +
+                "encoding currently.")
+
+        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
+        response.decodedSamlResponse = decodedMessage
+    }
+
+    /**
+     * Verifies the encoding of the samlResponse by decoding it according to the redirect binding
+     * rules in the binding spec (Negative path)
+     * 3.4.4.1 Deflate Encoding
+     */
+    @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
+    private fun decodeAndVerifyNegative() {
+        val samlResponse = response.samlResponse
+        val samlEncoding = response.samlEncoding
+        val decodedMessage: String
+
+        /**
+         * A query string parameter named SAMLEncoding is reserved to identify the encoding
+         * mechanism used. If this parameter is omitted, then the value is assumed to be
+         * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
+         */
+        decodedMessage = if (samlEncoding == null ||
+                samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+            try {
+                Decoder.decodeAndInflateRedirectMessage(samlResponse)
+            } catch (e: Decoder.DecoderException) {
+                when (e.inflErrorCode) {
+                    ERROR_URL_DECODING ->
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
+                                message = "Could not url decode the SAML response." +
+                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
+                                cause = e)
+                    ERROR_BASE64_DECODING ->
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b1,
+                                message = "Could not base64 decode the SAML response." +
+                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
+                                cause = e)
+                    ERROR_INFLATING -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a1,
+                            SAMLBindings_3_4_4_1,
+                            message = "Could not inflate the SAML response." +
+                                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
+                            cause = e)
+                    LINEFEED_OR_WHITESPACE ->
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a2,
+                                message = "There were linefeeds or whitespace in the SAML " +
+                                        "response." +
+                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
+                                cause = e)
+                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
+                            SAMLBindings_3_4_4_1,
+                            message = "Something went wrong with the SAML response." +
+                                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                             cause = e)
                 }
             }

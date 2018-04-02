@@ -116,7 +116,7 @@ class TestCommon {
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
             return if (response.header("LOCATION") != null) {
                 /*
-                 * TODO TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
+                 * TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
                  * Change this line to:
                  IdpRedirectResponse(response)
                  *

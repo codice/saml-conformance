@@ -19,7 +19,6 @@ import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE;
 
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.response.Response;
-import java.util.stream.Collectors;
 
 /**
  * This class is the return type for methods of the {@code IdpResponder} interface for the POST
@@ -37,11 +36,12 @@ public class IdpPostResponse extends IdpResponse {
   protected static final String NAME = "name";
 
   public IdpPostResponse(Response response) {
-    Node responseBody = response.then().extract().htmlPath().getNode("html").getNode("body");
-
     responseForm =
-        responseBody
-            .getNodes("form")
+        response
+            .then()
+            .extract()
+            .htmlPath()
+            .getList("**.find { it.name() == 'form' }", Node.class)
             .stream()
             .filter(this::hasSamlResponseFormControl)
             .findFirst()
@@ -66,12 +66,11 @@ public class IdpPostResponse extends IdpResponse {
   protected Node relayStateForm;
 
   private boolean hasSamlResponseFormControl(Node form) {
-    return !form.children()
+    return form.children()
         .list()
         .stream()
-        .filter(formControl -> SAML_RESPONSE.equalsIgnoreCase(formControl.getAttribute(NAME)))
-        .collect(Collectors.toSet())
-        .isEmpty();
+        .map(formControl -> formControl.getAttribute(NAME))
+        .anyMatch(SAML_RESPONSE::equalsIgnoreCase);
   }
 
   private void parseAndSetFormValues() {
