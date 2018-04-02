@@ -42,7 +42,7 @@ abstract class BindingVerifier {
          * according to the binding spec (Negative path)
          * 3.4.6 & 3.5.6 Error Reporting
          */
-        fun verifyHttpStatusCodeNegative(code: Int) {
+        fun verifyHttpStatusCodeErrorResponse(code: Int) {
             if (code >= HTTP_ERROR_THRESHOLD) {
                 throw SAMLComplianceException.createWithPropertyMessage(
                         SAMLBindings_3_5_6_a,

@@ -62,9 +62,9 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * Verify an error response (Negative path)
      */
     override fun verifyError() {
-        verifyHttpStatusCodeNegative(response.httpStatusCode)
-        verifyNoNullsNegative()
-        decodeAndVerifyNegative()
+        verifyHttpStatusCodeErrorResponse(response.httpStatusCode)
+        verifyNoNullsErrorResponse()
+        decodeAndVerifyErrorResponse()
     }
 
     /**
@@ -108,7 +108,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * the binding spec (Negative path)
      * 3.5.4 Message Encoding
      */
-    private fun verifyNoNullsNegative() {
+    private fun verifyNoNullsErrorResponse() {
         with(response) {
             if (isResponseFormNull || isSamlResponseFormNull) {
                 throw SAMLComplianceException.create(
@@ -171,7 +171,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * in the binding spec (Negative path)
      * 3.5.4 Message Encoding
      */
-    private fun decodeAndVerifyNegative() {
+    private fun decodeAndVerifyErrorResponse() {
         val samlResponse = response.samlResponse
 
         val decodedMessage: String

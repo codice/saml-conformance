@@ -83,9 +83,9 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * Verify an error response (Negative path)
      */
     override fun verifyError() {
-        verifyHttpRedirectStatusCodeNegative()
-        verifyNoNullsNegative()
-        decodeAndVerifyNegative()
+        verifyHttpRedirectStatusCodeErrorResponse()
+        verifyNoNullsErrorResponse()
+        decodeAndVerifyErrorResponse()
     }
 
     /**
@@ -93,7 +93,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec
      * 3.4.6 Error Reporting
      */
-    fun verifyHttpRedirectStatusCode() {
+    private fun verifyHttpRedirectStatusCode() {
         // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
         // code for Redirect" is completed
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
@@ -114,7 +114,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec (Negative path)
      * 3.4.6 Error Reporting
      */
-    fun verifyHttpRedirectStatusCodeNegative() {
+    private fun verifyHttpRedirectStatusCodeErrorResponse() {
         // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
         // code for Redirect" is completed
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
@@ -171,7 +171,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec (Negative path)
      * 3.4.4 Message Encoding
      */
-    private fun verifyNoNullsNegative() {
+    private fun verifyNoNullsErrorResponse() {
         with(response) {
             if (isUrlNull) {
                 throw SAMLComplianceException.create(
@@ -264,7 +264,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decodeAndVerifyNegative() {
+    private fun decodeAndVerifyErrorResponse() {
         val samlResponse = response.samlResponse
         val samlEncoding = response.samlEncoding
         val decodedMessage: String
