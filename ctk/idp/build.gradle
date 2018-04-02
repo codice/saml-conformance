@@ -2,5 +2,5 @@ group = 'org.codice.samlconf.test'
 description = 'IdP Tests'
 
 dependencies {
-    compile project(':test:common')
+    compile project(':ctk:common')
 }

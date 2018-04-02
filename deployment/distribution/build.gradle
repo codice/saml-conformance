@@ -13,9 +13,9 @@ dependencies {
     compile project(':external:implementations:samlconf-keycloak-impl')
     compile project(':library')
     compile project(':external:api')
-    compile project(':test:common')
-    compile project(':test:idp')
-    compile project(':test:sp')
+    compile project(':ctk:common')
+    compile project(':ctk:idp')
+    compile project(':ctk:sp')
     compile project(':deployment:suites')
 
     compile 'us.jimschubert:kopper-typed:0.0.3'

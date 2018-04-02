@@ -21,6 +21,7 @@ import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
+@Suppress("StringLiteralDuplication")
 class IdpPostResponseDecorator : IdpPostResponse {
     companion object {
         private const val HIDDEN = "hidden"
@@ -61,12 +62,15 @@ class IdpPostResponseDecorator : IdpPostResponse {
      * The method attribute MUST be "POST"."
      */
     val isFormActionCorrect: Boolean by lazy {
-        checkNodeAttribute(responseForm, ACTION, checkNotNull(acsUrl[SamlProtocol.Binding.HTTP_POST]))
+        checkNodeAttribute(responseForm,
+                ACTION,
+                checkNotNull(acsUrl[SamlProtocol.Binding.HTTP_POST]))
     }
 
     val isFormMethodCorrect: Boolean by lazy {
         checkNodeAttribute(responseForm, METHOD, POST)
-                // TODO remove after "DDF form method on Post binding is "post" when it is supposed to be "POST"" is fixed
+                // TODO remove after "DDF form method on Post binding is "post" when it is supposed
+                // to be "POST"" is fixed
                 || checkNodeAttribute(responseForm, METHOD, POST.toLowerCase())
     }
 
@@ -79,7 +83,8 @@ class IdpPostResponseDecorator : IdpPostResponse {
      * Assuming "in" in the above quote means in either the value attribute or in the value
      * itself.
      *
-     * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form controls
+     * And "hidden" means both the SAMLResponse and RelayState MUST be placed in "hidden" form
+     * controls
      */
     val isSamlResponseHidden: Boolean by lazy {
         checkNodeAttribute(samlResponseForm, TYPE, HIDDEN)
@@ -91,7 +96,9 @@ class IdpPostResponseDecorator : IdpPostResponse {
         checkNodeAttribute(relayStateForm, TYPE, HIDDEN)
     }
 
-    private fun checkNodeAttribute(node: raNode, attributeName: String, expectedValue: String): Boolean {
+    private fun checkNodeAttribute(node: raNode,
+                                   attributeName: String,
+                                   expectedValue: String): Boolean {
         return expectedValue == node.getAttribute(attributeName)
     }
 }

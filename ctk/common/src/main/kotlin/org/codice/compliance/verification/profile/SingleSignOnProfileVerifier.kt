@@ -32,6 +32,7 @@ import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
+@Suppress("StringLiteralDuplication")
 class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl: String?) {
     /**
      * Verify response against the Core Spec document
@@ -52,7 +53,10 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
     private fun verifyIssuer() {
         if (response.localName == "Response" &&
                 (response.children(SIGNATURE).isNotEmpty() ||
-                        response.children("Assertion").any { it.children(SIGNATURE).isNotEmpty() })) {
+                        response.children("Assertion")
+                                .any {
+                                    it.children(SIGNATURE).isNotEmpty()
+                                })) {
             val issuers = response.children("Issuer")
 
             if (issuers.size != 1)
@@ -61,13 +65,16 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
                         node = response)
 
             val issuer = issuers[0]
-            if (issuer.textContent != (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
+            if (issuer.textContent !=
+                    (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
-                        message = "Issuer value of ${issuer.textContent} does not match the issuing IdP.",
+                        message = "Issuer value of ${issuer.textContent} does not match the " +
+                                "issuing IdP.",
                         node = response)
 
             val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
-            if (issuerFormat != null && issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+            if (issuerFormat != null &&
+                    issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
                         property = "Format",
                         actual = issuerFormat,
@@ -83,7 +90,9 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
     private fun verifySsoAssertions() {
         val assertions = response.children("Assertion")
         if (assertions.isEmpty()) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d, message = "No Assertions found.", node = response)
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d,
+                    message = "No Assertions found.",
+                    node = response)
         }
 
         assertions.forEach {
@@ -91,7 +100,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
             verifyHasSubject(it)
             verifyBearerSubjectConfirmations(it)
 
-            //todo - We can't throw an exception here because the spec says there could be assertions without bearer
+            // todo - We can't throw an exception here because the spec says there could be
+            // assertions without bearer
             verifyAssertionsHaveAuthnStmts(it)
             verifySingleLogoutIncludesSessionIndex(it)
 
@@ -127,8 +137,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
         assertion.children("AuthnStatement").forEach {
             if (it.attributes.getNamedItem("SessionIndex") == null) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
-                        message = "Single Logout support found in IdP metadata, but no SessionIndex was" +
-                                " found.",
+                        message = "Single Logout support found in IdP metadata, but no " +
+                                "SessionIndex was found.",
                         node = response)
             }
         }
@@ -144,20 +154,22 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
 
     @Suppress("ComplexCondition")
     private fun verifyBearerSubjectConfirmations(assertion: Node) {
-        val bearerSubjectConfirmations = assertion.children("Subject")[0].children("SubjectConfirmation")
+        val bearerSubjectConfirmations = assertion.children("Subject")[0]
+                .children("SubjectConfirmation")
                 .filter {
                     it.attributes.getNamedItem("Method").textContent ==
                             "urn:oasis:names:tc:SAML:2.0:cm:bearer"
                 }.toList()
 
-        //todo - We can't throw an exception here because the spec says there could be assertions without bearer
-        // SubjectConfirmation
+        //gtodo - We can't throw an exception here because the spec says there could be assertions
+        // without bearer SubjectConfirmation
         if (bearerSubjectConfirmations.isEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
                     message = "No bearer SubjectConfirmation elements were found.",
                     node = response)
 
-        // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and NotOnOrAfter
+        // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and
+        // NotOnOrAfter
         if (bearerSubjectConfirmations
                         .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                         .flatMap { it.children("SubjectConfirmationData") }
@@ -168,7 +180,8 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
                                     it.attributes.getNamedItem("NotBefore") == null
                         }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
-                    message = "There were no bearer SubjectConfirmation elements that matched the criteria below.",
+                    message = "There were no bearer SubjectConfirmation elements that matched " +
+                            "the criteria below.",
                     node = response)
         }
     }

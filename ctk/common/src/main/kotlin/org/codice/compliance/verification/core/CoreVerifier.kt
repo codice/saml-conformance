@@ -28,6 +28,7 @@ import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.w3c.dom.Node
 
+@Suppress("StringLiteralDuplication")
 class CoreVerifier(val node: Node) {
 
     /**
@@ -52,6 +53,8 @@ class CoreVerifier(val node: Node) {
                 var exceptions = arrayOf(samlErrorCode)
                 if (expectedStatusCode == REQUESTER)
                     exceptions = arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
+
+                @Suppress("SpreadOperator")
                 throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
                         property = "Status Code",
                         actual = code,
@@ -83,10 +86,14 @@ class CoreVerifier(val node: Node) {
         node.children("Assertion").forEach {
             val signatures = it.children(SIGNATURE)
             if (signatures.isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_5_4_1, message = "Signature not found.", node = node)
+                throw SAMLComplianceException.create(SAMLCore_5_4_1,
+                        message = "Signature not found.",
+                        node = node)
 
             if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.create(SAMLCore_5_4_2_a, message = "ID not found.", node = node)
+                throw SAMLComplianceException.create(SAMLCore_5_4_2_a,
+                        message = "ID not found.",
+                        node = node)
 
             signatures.forEach {
                 val references = it.allChildren("Reference")
@@ -108,8 +115,8 @@ class CoreVerifier(val node: Node) {
     }
 
     private fun verifyGeneralConsiderations(node: Node) {
-        // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext information
-        // in the same location within the XML instance.
+        // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext
+        // information in the same location within the XML instance.
 
         val elements = mutableListOf<Node>()
         elements.addAll(node.children("Assertion"))
@@ -121,7 +128,11 @@ class CoreVerifier(val node: Node) {
             val encryptedDataNode = it.allChildren("EncryptedData")
 
             if (encryptedDataNode.isNotEmpty()) {
-                val encryptedData = encryptedDataNode.get(0).attributes.getNamedItem("EncryptedData").textContent
+                val encryptedData = encryptedDataNode
+                        .get(0)
+                        .attributes
+                        .getNamedItem("EncryptedData")
+                        .textContent
                 if (encryptedData != ELEMENT)
                     throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
                             property = "EncryptedData",
