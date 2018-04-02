@@ -15,10 +15,12 @@ package org.codice.compliance.verification.binding
 
 import org.codice.compliance.SAMLBindings_3_5_6_a
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 
-open class BindingVerifier {
+abstract class BindingVerifier {
     companion object {
         private const val HTTP_ERROR_THRESHOLD = 400
+
         /**
          * Verifies the http status code of the response is not an error status code
          * according to the binding spec
@@ -31,9 +33,28 @@ open class BindingVerifier {
                         property = "HTTP Status Code",
                         actual = code.toString(),
                         expected = "A non-error http status code, i.e. less than " +
-                                HTTP_ERROR_THRESHOLD
-                )
+                                HTTP_ERROR_THRESHOLD)
+            }
+        }
+
+        /**
+         * Verifies the http status code of the response is not an error status code
+         * according to the binding spec (Negative path)
+         * 3.4.6 & 3.5.6 Error Reporting
+         */
+        fun verifyHttpStatusCodeErrorResponse(code: Int) {
+            if (code >= HTTP_ERROR_THRESHOLD) {
+                throw SAMLComplianceException.createWithPropertyMessage(
+                        SAMLBindings_3_5_6_a,
+                        property = "HTTP Status Code",
+                        actual = code.toString(),
+                        expected = "A non-error http status code, i.e. less than " +
+                                HTTP_ERROR_THRESHOLD +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
         }
     }
+
+    abstract fun verifyError()
+    abstract fun verify()
 }

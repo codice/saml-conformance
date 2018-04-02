@@ -19,6 +19,7 @@ import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
+import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
@@ -27,9 +28,9 @@ import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
-import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -76,7 +77,7 @@ class PostLoginTest : StringSpec() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "POST AuthnRequest Test" {
-            Log.debugWithSupplier { "Starting POST AuthnRequest Test" }
+            Log.debugWithSupplier { "POST AuthnRequest Test" }
             val encodedRequest = Encoder.encodePostMessage(createValidAuthnRequest())
             val response = given()
                     .urlEncodingEnabled(false)
@@ -98,7 +99,7 @@ class PostLoginTest : StringSpec() {
         }
 
         "POST AuthnRequest With Relay State Test" {
-            Log.debugWithSupplier { "Starting POST AuthnRequest With Relay State Test" }
+            Log.debugWithSupplier { "POST AuthnRequest With Relay State Test" }
             val encodedRequest = Encoder.encodePostMessage(
                     createValidAuthnRequest(), EXAMPLE_RELAY_STATE)
             val response = given()
@@ -123,8 +124,32 @@ class PostLoginTest : StringSpec() {
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
+        "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" {
+            Log.debugWithSupplier { "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" }
+            val encodedRequest = Encoder.encodePostMessage(
+                    createValidAuthnRequest(), TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+
+            idpResponse.bindingVerifier().verifyError()
+
+            val responseDom = idpResponse.responseDom
+
+            CoreVerifier(responseDom).verifyErrorStatusCode(
+                    samlErrorCode = SAMLBindings_3_5_3_a,
+                    expectedStatusCode = TestCommon.REQUESTER)
+        }
+
         "POST AuthnRequest Without ACS Url Test" {
-            Log.debugWithSupplier { "Starting POST AuthnRequest Without ACS Url Test" }
+            Log.debugWithSupplier { "POST AuthnRequest Without ACS Url Test" }
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = TestCommon.SP_ISSUER

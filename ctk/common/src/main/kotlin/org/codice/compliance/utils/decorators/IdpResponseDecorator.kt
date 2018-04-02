@@ -15,10 +15,17 @@ package org.codice.compliance.utils.decorators
 
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
-import org.codice.compliance.verification.binding.PostBindingVerifier
-import org.codice.compliance.verification.binding.RedirectBindingVerifier
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.w3c.dom.Node
 import javax.xml.parsers.DocumentBuilderFactory
+
+interface IdpResponseDecorator {
+    var isRelayStateGiven: Boolean
+    var decodedSamlResponse: String
+    val responseDom: Node
+
+    fun bindingVerifier(): BindingVerifier
+}
 
 fun IdpRedirectResponse.decorate(): IdpRedirectResponseDecorator {
     return IdpRedirectResponseDecorator(this)
@@ -26,14 +33,6 @@ fun IdpRedirectResponse.decorate(): IdpRedirectResponseDecorator {
 
 fun IdpPostResponse.decorate(): IdpPostResponseDecorator {
     return IdpPostResponseDecorator(this)
-}
-
-fun IdpRedirectResponseDecorator.bindingVerifier(): RedirectBindingVerifier {
-    return RedirectBindingVerifier(this)
-}
-
-fun IdpPostResponseDecorator.bindingVerifier(): PostBindingVerifier {
-    return PostBindingVerifier(this)
 }
 
 internal fun buildDom(decodedSamlResponse: String): Node {

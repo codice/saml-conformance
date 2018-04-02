@@ -18,13 +18,15 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.binding.RedirectBindingVerifier
 import org.w3c.dom.Node
 
 /**
- * This class can only be instantiated by using extension methods in IdpResponseDecorators.kt
+ * This class  can only be instantiated by using extension methods in IdpResponseDecorator.kt
  */
 class IdpRedirectResponseDecorator
-internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response) {
+internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response), IdpResponseDecorator {
 
     private val paramMap: Map<String, String> by lazy {
         parameters.split("&")
@@ -58,9 +60,9 @@ internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(respon
         tempMap.size > 0
     }
 
-    var isRelayStateGiven: Boolean = false
-    lateinit var decodedSamlResponse: String
-    val responseDom: Node by lazy {
+    override var isRelayStateGiven: Boolean = false
+    override lateinit var decodedSamlResponse: String
+    override val responseDom: Node by lazy {
         checkNotNull(decodedSamlResponse)
         buildDom(decodedSamlResponse)
     }
@@ -73,5 +75,9 @@ internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(respon
     }
     val isParametersNull: Boolean by lazy {
         parameters == null
+    }
+
+    override fun bindingVerifier(): BindingVerifier {
+        return RedirectBindingVerifier(this)
     }
 }

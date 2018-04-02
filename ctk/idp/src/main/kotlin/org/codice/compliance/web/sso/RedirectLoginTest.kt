@@ -22,18 +22,18 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
+import org.codice.compliance.SAMLBindings_3_4_3_a1
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
-import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
-import org.codice.compliance.utils.decorators.bindingVerifier
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -104,7 +104,7 @@ class RedirectLoginTest : StringSpec() {
         "Redirect AuthnRequest With Relay State Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Relay State Test" }
             val queryParams = SimpleSign()
-                    .signUriString(SAML_REQUEST, createValidAuthnRequest(), EXAMPLE_RELAY_STATE)
+                    .signUriString(SAML_REQUEST, createValidAuthnRequest(), TestCommon.EXAMPLE_RELAY_STATE)
 
             // Get response from AuthnRequest
             val response = given()
@@ -131,6 +131,33 @@ class RedirectLoginTest : StringSpec() {
             val responseDom = idpResponse.responseDom
             ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_REDIRECT]).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_REDIRECT]).verify()
+        }
+
+        "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" {
+            Log.debugWithSupplier { "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" }
+            val queryParams = SimpleSign()
+                    .signUriString(SAML_REQUEST, createValidAuthnRequest(),
+                            TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
+
+            // Get response from AuthnRequest
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
+                    .param(SIG_ALG, queryParams[SIG_ALG])
+                    .param(SIGNATURE, queryParams[SIGNATURE])
+                    .param(RELAY_STATE, queryParams[RELAY_STATE])
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+
+            idpResponse.bindingVerifier().verifyError()
+
+            val responseDom = idpResponse.responseDom
+
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_4_3_a1, TestCommon.REQUESTER)
         }
 
         "Redirect AuthnRequest Without ACS Url Test" {

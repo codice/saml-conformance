@@ -147,6 +147,7 @@ object SAMLCore_6_1_b : SAMLCoreRefMessage()
 object SAMLBindings_3_1_2_1 : SAMLBindingRefMessage()
 
 object SAMLBindings_3_4_3_a : SAMLBindingRefMessage()
+object SAMLBindings_3_4_3_a1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_3_b1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1 : SAMLBindingRefMessage()

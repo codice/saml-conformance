@@ -17,12 +17,18 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
 @Suppress("StringLiteralDuplication")
-class IdpPostResponseDecorator : IdpPostResponse {
+/**
+ * This class  can only be instantiated by using extension methods in IdpResponseDecorator.kt
+ */
+class IdpPostResponseDecorator
+internal constructor(response: IdpPostResponse) : IdpPostResponse(response), IdpResponseDecorator {
     companion object {
         private const val HIDDEN = "hidden"
         private const val TYPE = "type"
@@ -31,13 +37,10 @@ class IdpPostResponseDecorator : IdpPostResponse {
         private const val POST = "POST"
     }
 
-    // can only instantiate by using extension methods in IdpResponseDecorators.kt
-    internal constructor(response: IdpPostResponse): super(response)
+    override var isRelayStateGiven: Boolean = false
+    override lateinit var decodedSamlResponse: String
 
-    var isRelayStateGiven: Boolean = false
-    lateinit var decodedSamlResponse: String
-
-    val responseDom: w3Node by lazy {
+    override val responseDom: w3Node by lazy {
         checkNotNull(decodedSamlResponse)
         buildDom(decodedSamlResponse)
     }
@@ -69,9 +72,6 @@ class IdpPostResponseDecorator : IdpPostResponse {
 
     val isFormMethodCorrect: Boolean by lazy {
         checkNodeAttribute(responseForm, METHOD, POST)
-                // TODO remove after "DDF form method on Post binding is "post" when it is supposed
-                // to be "POST"" is fixed
-                || checkNodeAttribute(responseForm, METHOD, POST.toLowerCase())
     }
 
     /*
@@ -100,5 +100,9 @@ class IdpPostResponseDecorator : IdpPostResponse {
                                    attributeName: String,
                                    expectedValue: String): Boolean {
         return expectedValue == node.getAttribute(attributeName)
+    }
+
+    override fun bindingVerifier(): BindingVerifier {
+        return PostBindingVerifier(this)
     }
 }

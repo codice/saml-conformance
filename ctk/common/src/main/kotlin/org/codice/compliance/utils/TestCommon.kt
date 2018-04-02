@@ -13,12 +13,17 @@
  */
 package org.codice.compliance.utils
 
+import com.jayway.restassured.response.Response
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.saml.plugin.IdpPostResponse
+import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.utils.decorators.IdpResponseDecorator
+import org.codice.compliance.utils.decorators.decorate
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.AuthnRequest
 import java.io.File
@@ -34,10 +39,13 @@ class TestCommon {
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
-        const val INCORRECT_RELAY_STATE = "RelayStateLongerThan80CharsIsIncorrectAccordingToThe" +
-                "SamlSpecItMustNotExceed80BytesInLength"
+        const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
+                "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
 
+        const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
+                "with a correctly formatted SAML error response (See section 3.2.1 in the SAML Core " +
+                "specification)"
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
         const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
         private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
@@ -96,6 +104,35 @@ class TestCommon {
             }
             return URLClassLoader(jarUrls.toTypedArray(),
                     SAMLComplianceException::class.java.classLoader)
+        }
+
+        /*
+         * Since errors shouldn't be passed to user implementations, this acts as the "user implementation"
+         * and parses the response into the correct idp object for further processing.
+         *
+         * @param response The error response returned from the first interaction with the IdP under test.
+         * @return An {@code IdpResponse} object created from the error response.
+         */
+        fun parseErrorResponse(response: Response): IdpResponseDecorator {
+            return if (response.header("LOCATION") != null) {
+                /*
+                 * TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
+                 * Change this line to:
+                 IdpRedirectResponse(response)
+                 *
+                 * And delete parseRedirectErrorResponse method when finished with ticket
+                 */
+                parseRedirectErrorResponse(response).decorate()
+            } else {
+                IdpPostResponse(response).decorate()
+            }
+        }
+
+        private fun parseRedirectErrorResponse(response: Response): IdpRedirectResponse {
+            return IdpRedirectResponse.Builder().apply {
+                httpStatusCode(response.statusCode)
+                url(response.header("LOCATION"))
+            }.build()
         }
     }
 }
