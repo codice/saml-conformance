@@ -45,6 +45,7 @@ public class IdpRedirectResponse extends IdpResponse {
   * When ticket is finished, put in this constructor:
   *
   public IdpRedirectResponse(Response response) {
+    httpStatusCode = response.statusCode();
     this.url = response.header("Location");
     List<String> splitUrl = Splitter.on("?").splitToList(url);
     path = splitUrl.get(0);

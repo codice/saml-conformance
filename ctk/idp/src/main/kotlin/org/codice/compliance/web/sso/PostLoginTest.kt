@@ -20,6 +20,7 @@ import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLBindings_3_5_3_a
+import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugWithSupplier
@@ -37,6 +38,7 @@ import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
+import org.codice.security.saml.SamlProtocol
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.POST_BINDING
 import org.codice.security.sign.Encoder
@@ -257,5 +259,44 @@ class PostLoginTest : StringSpec() {
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b, REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
         }.config(enabled = false)
+
+        "POST AuthnRequest With Non-Matching Destination" {
+            Log.debugWithSupplier { "Redirect AuthnRequest With Non-Matching Destination" }
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = TestCommon.SP_ISSUER
+                }
+                assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
+                id = TestCommon.ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = "https://incorrect.destination.com"
+                protocolBinding = SamlProtocol.POST_BINDING
+                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
+                    allowCreate = true
+                    format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
+                    spNameQualifier = TestCommon.SP_ISSUER
+                }
+            }.apply { SimpleSign().signSamlObject(this) }
+
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+
+            val encodedRequest = Encoder.encodePostMessage(authnRequestString)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+            val idpResponse = TestCommon.parseErrorResponse(response)
+            idpResponse.bindingVerifier().verifyError()
+            val responseDom = idpResponse.responseDom
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, TestCommon.REQUESTER)
+        }
     }
 }

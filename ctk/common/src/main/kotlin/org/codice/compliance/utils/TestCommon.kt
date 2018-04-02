@@ -116,7 +116,7 @@ class TestCommon {
          * @return An {@code IdpResponse} object created from the error response.
          */
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
-            return if (response.header("LOCATION") != null) {
+            return if (response.header("Location") != null) {
                 /*
                  * TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
                  * Change this line to:
@@ -133,7 +133,7 @@ class TestCommon {
         private fun parseRedirectErrorResponse(response: Response): IdpRedirectResponse {
             return IdpRedirectResponse.Builder().apply {
                 httpStatusCode(response.statusCode)
-                url(response.header("LOCATION"))
+                url(response.header("Location"))
             }.build()
         }
     }
