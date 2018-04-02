@@ -136,7 +136,8 @@ class RedirectLoginTest : StringSpec() {
         "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" }
             val queryParams = SimpleSign()
-                    .signUriString(SAML_REQUEST, createValidAuthnRequest(), TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
+                    .signUriString(SAML_REQUEST, createValidAuthnRequest(),
+                            TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
 
             // Get response from AuthnRequest
             val response = given()
