@@ -28,6 +28,7 @@ import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
@@ -72,7 +73,8 @@ class PostLoginTest : StringSpec() {
                     format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
                     spNameQualifier = TestCommon.SP_ISSUER
                 }
-            }.apply { SimpleSign().signSamlObject(this) }
+                SimpleSign().signSamlObject(this)
+            }
 
             val authnRequestString = authnRequestToString(authnRequest)
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
@@ -153,7 +155,7 @@ class PostLoginTest : StringSpec() {
             CoreVerifier(responseDom).verifyErrorStatusCode(
                     samlErrorCode = SAMLBindings_3_5_3_a,
                     expectedStatusCode = TestCommon.REQUESTER)
-        }
+        }.config(enabled = false)
 
         "POST AuthnRequest Without ACS Url Test" {
             Log.debugWithSupplier { "POST AuthnRequest Without ACS Url Test" }
@@ -171,7 +173,8 @@ class PostLoginTest : StringSpec() {
                     format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
                     spNameQualifier = TestCommon.SP_ISSUER
                 }
-            }.apply { SimpleSign().signSamlObject(this) }
+                SimpleSign().signSamlObject(this)
+            }
 
             val authnRequestString = authnRequestToString(authnRequest)
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
@@ -261,7 +264,7 @@ class PostLoginTest : StringSpec() {
         }.config(enabled = false)
 
         "POST AuthnRequest With Non-Matching Destination" {
-            Log.debugWithSupplier { "Redirect AuthnRequest With Non-Matching Destination" }
+            Log.debugWithSupplier { "POST AuthnRequest With Non-Matching Destination" }
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = TestCommon.SP_ISSUER
@@ -270,14 +273,15 @@ class PostLoginTest : StringSpec() {
                 id = TestCommon.ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = "https://incorrect.destination.com"
+                destination = INCORRECT_DESTINATION
                 protocolBinding = SamlProtocol.POST_BINDING
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     allowCreate = true
                     format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
                     spNameQualifier = TestCommon.SP_ISSUER
                 }
-            }.apply { SimpleSign().signSamlObject(this) }
+                SimpleSign().signSamlObject(this)
+            }
 
             val authnRequestString = authnRequestToString(authnRequest)
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
@@ -297,6 +301,6 @@ class PostLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
             val responseDom = idpResponse.responseDom
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, TestCommon.REQUESTER)
-        }
+        }.config(enabled = false)
     }
 }

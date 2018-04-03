@@ -42,6 +42,7 @@ class TestCommon {
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
+        const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
         const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
                 "with a correctly formatted SAML error response (See section 3.2.1 in the SAML " +

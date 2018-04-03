@@ -29,6 +29,7 @@ import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
@@ -159,7 +160,7 @@ class RedirectLoginTest : StringSpec() {
             val responseDom = idpResponse.responseDom
 
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_4_3_a1, TestCommon.REQUESTER)
-        }
+        }.config(enabled = false)
 
         "Redirect AuthnRequest Without ACS Url Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest Without ACS Url Test" }
@@ -214,7 +215,7 @@ class RedirectLoginTest : StringSpec() {
                 id = TestCommon.ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = "https://incorrect.destination.com"
+                destination = INCORRECT_DESTINATION
                 protocolBinding = REDIRECT_BINDING
                 isForceAuthn = false
                 setIsPassive(true)
@@ -242,6 +243,6 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
             val responseDom = idpResponse.responseDom
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, TestCommon.REQUESTER)
-        }
+        }.config(enabled = false)
     }
 }
