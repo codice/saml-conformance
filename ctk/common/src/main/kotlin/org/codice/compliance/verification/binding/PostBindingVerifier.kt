@@ -34,7 +34,7 @@ import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
-import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
+import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -212,7 +212,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         val relayState = response.relayState
         val isRelayStateGiven = response.isRelayStateGiven
 
-        if (relayState.toByteArray().size > MAX_RELAYSTATE_LEN)
+        if (relayState.toByteArray().size > MAX_RELAY_STATE_LEN)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_3_a,
                     property = RELAY_STATE,
                     actual = relayState)

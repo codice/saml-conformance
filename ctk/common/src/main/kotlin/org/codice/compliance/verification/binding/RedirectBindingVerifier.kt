@@ -40,7 +40,7 @@ import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
-import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAYSTATE_LEN
+import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
@@ -391,7 +391,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                     cause = e)
         }
 
-        if (decodedRelayState.toByteArray().size > MAX_RELAYSTATE_LEN) {
+        if (decodedRelayState.toByteArray().size > MAX_RELAY_STATE_LEN) {
             throw SAMLComplianceException.create(SAMLBindings_3_4_3_a,
                     message = "RelayState value of $decodedRelayState was longer than 80 bytes.")
         }

@@ -41,13 +41,14 @@ class TestCommon {
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
-        const val MAX_RELAYSTATE_LEN = 80
+        const val MAX_RELAY_STATE_LEN = 80
+        const val INCORRECT_ACS_URL = "https://incorrect.acs.url"
         const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
         const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
                 "with a SAML error response (See section 3.2.1 in the SAML Core specification)"
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
-        const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
+        private const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
         private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
         private const val RESPONDER = "urn:oasis:names:tc:SAML:2.0:status:Responder"
         val TOP_LEVEL_STATUS_CODES = setOf(SUCCESS, REQUESTER, RESPONDER, VERSION_MISMATCH)
@@ -112,7 +113,7 @@ class TestCommon {
          * processing.
          *
          * @param response The error response returned from the first interaction with the IdP under
-          * test.
+         * test.
          * @return An {@code IdpResponse} object created from the error response.
          */
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
