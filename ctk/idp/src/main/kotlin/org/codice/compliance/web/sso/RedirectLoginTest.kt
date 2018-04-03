@@ -23,11 +23,13 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLBindings_3_4_3_a1
+import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
@@ -158,7 +160,7 @@ class RedirectLoginTest : StringSpec() {
             val responseDom = idpResponse.responseDom
 
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_4_3_a1, TestCommon.REQUESTER)
-        }
+        }.config(enabled = false)
 
         "Redirect AuthnRequest Without ACS Url Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest Without ACS Url Test" }
@@ -202,5 +204,45 @@ class RedirectLoginTest : StringSpec() {
             ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_REDIRECT]).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_REDIRECT]).verify()
         }
+
+        "Redirect AuthnRequest With Non-Matching Destination" {
+            Log.debugWithSupplier { "Redirect AuthnRequest With Non-Matching Destination" }
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = TestCommon.SP_ISSUER
+                }
+                assertionConsumerServiceURL = acsUrl[HTTP_REDIRECT]
+                id = TestCommon.ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = INCORRECT_DESTINATION
+                protocolBinding = REDIRECT_BINDING
+                isForceAuthn = false
+                setIsPassive(true)
+            }
+
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+
+            val encodedRequest = Encoder.encodeRedirectMessage(authnRequestString)
+            val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
+
+            // Get response from AuthnRequest
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
+                    .param(SIG_ALG, queryParams[SIG_ALG])
+                    .param(SIGNATURE, queryParams[SIGNATURE])
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+            val idpResponse = TestCommon.parseErrorResponse(response)
+            idpResponse.bindingVerifier().verifyError()
+            val responseDom = idpResponse.responseDom
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, TestCommon.REQUESTER)
+        }.config(enabled = false)
     }
 }

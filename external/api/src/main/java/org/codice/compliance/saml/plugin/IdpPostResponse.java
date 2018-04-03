@@ -36,6 +36,8 @@ public class IdpPostResponse extends IdpResponse {
   protected static final String NAME = "name";
 
   public IdpPostResponse(Response response) {
+    httpStatusCode = response.statusCode();
+
     responseForm =
         response
             .then()

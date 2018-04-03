@@ -42,6 +42,7 @@ class TestCommon {
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAYSTATE_LEN = 80
+        const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
         const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
                 "with a correctly formatted SAML error response (See section 3.2.1 in the SAML " +
@@ -116,7 +117,7 @@ class TestCommon {
          * @return An {@code IdpResponse} object created from the error response.
          */
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
-            return if (response.header("LOCATION") != null) {
+            return if (response.header("Location") != null) {
                 /*
                  * TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
                  * Change this line to:
@@ -133,7 +134,7 @@ class TestCommon {
         private fun parseRedirectErrorResponse(response: Response): IdpRedirectResponse {
             return IdpRedirectResponse.Builder().apply {
                 httpStatusCode(response.statusCode)
-                url(response.header("LOCATION"))
+                url(response.header("Location"))
             }.build()
         }
     }
