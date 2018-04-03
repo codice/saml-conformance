@@ -183,7 +183,7 @@ class RedirectLoginTest : StringSpec() {
             val response = given()
                     .urlEncodingEnabled(false)
                     .param(SAML_REQUEST, queryParams[SAML_REQUEST]
-                            // using !! here because null is already checked with elvis operator
+                            // using !! here because null is already checked with safe call
                             ?.substring(0, queryParams[SAML_REQUEST]!!.length / 2))
                     .param(SIG_ALG, queryParams[SIG_ALG])
                     .param(SIGNATURE, queryParams[SIGNATURE])
