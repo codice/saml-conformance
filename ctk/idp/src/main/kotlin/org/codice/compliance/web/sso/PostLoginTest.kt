@@ -28,6 +28,7 @@ import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
@@ -133,32 +134,6 @@ class PostLoginTest : StringSpec() {
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
-        "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" {
-            Log.debugWithSupplier {
-                "POST AuthnRequest With Relay State Greater Than 80 Bytes Test"
-            }
-            val encodedRequest = Encoder.encodePostMessage(
-                    createValidAuthnRequest(), TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
-
-            val idpResponse = TestCommon.parseErrorResponse(response)
-
-            idpResponse.bindingVerifier().verifyError()
-
-            val responseDom = idpResponse.responseDom
-
-            CoreVerifier(responseDom).verifyErrorStatusCode(
-                    samlErrorCode = SAMLBindings_3_5_3_a,
-                    expectedStatusCode = TestCommon.REQUESTER)
-        }.config(enabled = false)
-
         "POST AuthnRequest Without ACS Url Test" {
             Log.debugWithSupplier { "POST AuthnRequest Without ACS Url Test" }
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
@@ -205,6 +180,30 @@ class PostLoginTest : StringSpec() {
         }
 
         // Negative Path Tests
+        "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" {
+            Log.debugWithSupplier {
+                "POST AuthnRequest With Relay State Greater Than 80 Bytes Test"
+            }
+            val encodedRequest = Encoder.encodePostMessage(
+                    createValidAuthnRequest(), TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+            idpResponse.bindingVerifier().verifyError()
+
+            val responseDom = idpResponse.responseDom
+            CoreVerifier(responseDom).verifyErrorStatusCode(
+                    samlErrorCode = SAMLBindings_3_5_3_a,
+                    expectedStatusCode = TestCommon.REQUESTER)
+        }.config(enabled = false)
+
         "Empty POST AuthnRequest Test" {
             Log.debugWithSupplier { "Empty POST AuthnRequest Test" }
             val authnRequest = AuthnRequestBuilder().buildObject().apply {
@@ -244,6 +243,7 @@ class PostLoginTest : StringSpec() {
                 destination = Common.getSingleSignOnLocation(POST_BINDING)
                 protocolBinding = POST_BINDING
                 subject = SubjectBuilder().buildObject()
+                SimpleSign().signSamlObject(this)
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
@@ -266,6 +266,40 @@ class PostLoginTest : StringSpec() {
             val responseDom = idpResponse.responseDom
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b, REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+        }.config(enabled = false)
+
+        "POST AuthnRequest With Incorrect ACS URL And Index Test" {
+            Log.debugWithSupplier { "POST AuthnRequest With Incorrect ACS URL And Index Test" }
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = TestCommon.SP_ISSUER
+                }
+                id = TestCommon.ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = Common.getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
+                assertionConsumerServiceURL = INCORRECT_ACS_URL
+                assertionConsumerServiceIndex = -1
+                SimpleSign().signSamlObject(this)
+            }
+
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+
+            val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+            idpResponse.bindingVerifier().verifyError()
         }.config(enabled = false)
 
         "POST AuthnRequest With Non-Matching Destination" {
