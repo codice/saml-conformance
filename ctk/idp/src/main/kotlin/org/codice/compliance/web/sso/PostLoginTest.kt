@@ -20,11 +20,14 @@ import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLBindings_3_5_3_a
+import org.codice.compliance.SAMLProfiles_4_1_4_1_a
+import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
@@ -32,6 +35,7 @@ import org.codice.compliance.utils.decorators.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
+import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.POST_BINDING
@@ -42,6 +46,7 @@ import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
+import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
 class PostLoginTest : StringSpec() {
     companion object {
@@ -188,5 +193,69 @@ class PostLoginTest : StringSpec() {
             ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
+
+        // Negative Path Tests
+        "Empty POST AuthnRequest Test" {
+            Log.debugWithSupplier { "Empty POST AuthnRequest Test" }
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+            }
+
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+
+            val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+            idpResponse.bindingVerifier().verifyError()
+
+            val responseDom = idpResponse.responseDom
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_a, REQUESTER)
+            ProfilesVerifier(responseDom).verifyErrorResponseAssertion()
+        }.config(enabled = false)
+
+        "POST AuthnRequest With Empty Subject Test" {
+            Log.debugWithSupplier { "POST AuthnRequest With Empty Subject Test" }
+            val authnRequest = AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply {
+                    value = TestCommon.SP_ISSUER
+                }
+                id = TestCommon.ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = Common.getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
+                subject = SubjectBuilder().buildObject()
+            }
+
+            val authnRequestString = authnRequestToString(authnRequest)
+            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+
+            val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+            idpResponse.bindingVerifier().verifyError()
+
+            val responseDom = idpResponse.responseDom
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b, REQUESTER)
+            ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+        }.config(enabled = false)
     }
 }
