@@ -26,7 +26,8 @@ import org.w3c.dom.Node
  * This class  can only be instantiated by using extension methods in IdpResponseDecorator.kt
  */
 class IdpRedirectResponseDecorator
-internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response), IdpResponseDecorator {
+internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response),
+        IdpResponseDecorator {
 
     private val paramMap: Map<String, String> by lazy {
         parameters.split("&")
