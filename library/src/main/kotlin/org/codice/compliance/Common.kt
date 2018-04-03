@@ -30,6 +30,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.stream.StreamSource
+import kotlin.test.currentStackTrace
 
 const val IMPLEMENTATION_PATH = "implementation.path"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
@@ -133,7 +134,8 @@ fun Node.prettyPrintXml(): String {
 
 fun Log.debugWithSupplier(message: () -> String) {
     if (this.logLevel == LogLevel.DEBUG) {
-        this.debug(message())
+        val callSite = currentStackTrace()[1]
+        this.debug("${message()} [(${callSite.fileName}:${callSite.lineNumber})]")
     }
 }
 
