@@ -64,7 +64,7 @@ class RedirectLoginTest : StringSpec() {
                 destination = Common.getSingleSignOnLocation(REDIRECT_BINDING)
                 protocolBinding = REDIRECT_BINDING
                 isForceAuthn = false
-                setIsPassive(true)
+                setIsPassive(false)
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
@@ -215,7 +215,7 @@ class RedirectLoginTest : StringSpec() {
                 destination = Common.getSingleSignOnLocation(REDIRECT_BINDING)
                 protocolBinding = REDIRECT_BINDING
                 isForceAuthn = false
-                setIsPassive(true)
+                setIsPassive(false)
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
@@ -262,7 +262,7 @@ class RedirectLoginTest : StringSpec() {
                 destination = INCORRECT_DESTINATION
                 protocolBinding = REDIRECT_BINDING
                 isForceAuthn = false
-                setIsPassive(true)
+                setIsPassive(false)
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
