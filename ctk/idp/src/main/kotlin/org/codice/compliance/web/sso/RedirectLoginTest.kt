@@ -78,8 +78,10 @@ class RedirectLoginTest : StringSpec() {
 
         "Redirect AuthnRequest Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest Test" }
-            val queryParams = SimpleSign()
-                    .signUriString(SAML_REQUEST, createValidAuthnRequest(), null)
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    createValidAuthnRequest(),
+                    null)
 
             // Get response from AuthnRequest
             val response = given()
@@ -105,8 +107,9 @@ class RedirectLoginTest : StringSpec() {
 
         "Redirect AuthnRequest With Relay State Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Relay State Test" }
-            val queryParams = SimpleSign()
-                    .signUriString(SAML_REQUEST, createValidAuthnRequest(), TestCommon.EXAMPLE_RELAY_STATE)
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST, createValidAuthnRequest(),
+                    TestCommon.EXAMPLE_RELAY_STATE)
 
             // Get response from AuthnRequest
             val response = given()
@@ -136,10 +139,13 @@ class RedirectLoginTest : StringSpec() {
         }
 
         "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" {
-            Log.debugWithSupplier { "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" }
-            val queryParams = SimpleSign()
-                    .signUriString(SAML_REQUEST, createValidAuthnRequest(),
-                            TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
+            Log.debugWithSupplier {
+                "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test"
+            }
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    createValidAuthnRequest(),
+                    TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
 
             // Get response from AuthnRequest
             val response = given()
@@ -159,7 +165,42 @@ class RedirectLoginTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
 
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLBindings_3_4_3_a1, TestCommon.REQUESTER)
+            CoreVerifier(responseDom).verifyErrorStatusCode(
+                    samlErrorCode = SAMLBindings_3_4_3_a1,
+                    expectedStatusCode = TestCommon.REQUESTER)
+        }.config(enabled = false)
+
+        "Redirect Incomplete AuthnRequest In URL Query Test" {
+            Log.debugWithSupplier {
+                "Redirect Incomplete AuthnRequest In URL Query Test"
+            }
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    createValidAuthnRequest(),
+                    null)
+
+            // Get response from AuthnRequest
+            val response = given()
+                    .urlEncodingEnabled(false)
+                    .param(SAML_REQUEST, queryParams[SAML_REQUEST]
+                            // using !! here because null is already checked with safe call
+                            ?.substring(0, queryParams[SAML_REQUEST]!!.length / 2))
+                    .param(SIG_ALG, queryParams[SIG_ALG])
+                    .param(SIGNATURE, queryParams[SIGNATURE])
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+
+            val idpResponse = TestCommon.parseErrorResponse(response)
+
+            idpResponse.bindingVerifier().verifyError()
+
+            val responseDom = idpResponse.responseDom
+
+            CoreVerifier(responseDom).verifyErrorStatusCode(
+                    SAMLBindings_3_4_3_a1,
+                    TestCommon.REQUESTER)
         }.config(enabled = false)
 
         "Redirect AuthnRequest Without ACS Url Test" {
@@ -181,7 +222,10 @@ class RedirectLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodeRedirectMessage(authnRequestString)
-            val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    encodedRequest,
+                    null)
 
             // Get response from AuthnRequest
             val response = given()

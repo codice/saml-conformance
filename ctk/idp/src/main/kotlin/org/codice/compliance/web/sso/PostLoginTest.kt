@@ -134,7 +134,9 @@ class PostLoginTest : StringSpec() {
         }
 
         "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" {
-            Log.debugWithSupplier { "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" }
+            Log.debugWithSupplier {
+                "POST AuthnRequest With Relay State Greater Than 80 Bytes Test"
+            }
             val encodedRequest = Encoder.encodePostMessage(
                     createValidAuthnRequest(), TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
             val response = given()
@@ -179,7 +181,10 @@ class PostLoginTest : StringSpec() {
             val authnRequestString = authnRequestToString(authnRequest)
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
-            val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
+            val encodedRequest = Encoder.encodePostMessage(
+                    authnRequestString,
+                    EXAMPLE_RELAY_STATE)
+
             val response = given()
                     .urlEncodingEnabled(false)
                     .body(encodedRequest)

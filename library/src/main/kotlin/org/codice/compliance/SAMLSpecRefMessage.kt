@@ -173,6 +173,7 @@ object SAMLBindings_3_4_5_2_a1 : SAMLBindingRefMessage()
 // todo object SAMLBindings_3_4_5_2_a2 : SAMLBindingRefMessage()
 
 object SAMLBindings_3_4_6_a : SAMLBindingRefMessage()
+object SAMLBindings_3_4_6_a1 : SAMLBindingRefMessage()
 object SAMLBindings_3_5_3_a : SAMLBindingRefMessage()
 object SAMLBindings_3_5_3_b : SAMLBindingRefMessage()
 object SAMLBindings_3_5_4_a : SAMLBindingRefMessage()

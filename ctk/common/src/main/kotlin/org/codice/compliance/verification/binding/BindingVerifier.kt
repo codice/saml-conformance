@@ -13,7 +13,7 @@
  */
 package org.codice.compliance.verification.binding
 
-import org.codice.compliance.SAMLBindings_3_5_6_a
+import org.codice.compliance.SAMLBindings_3_4_6_a1
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 
@@ -29,10 +29,10 @@ abstract class BindingVerifier {
         fun verifyHttpStatusCode(code: Int) {
             if (code >= HTTP_ERROR_THRESHOLD) {
                 throw SAMLComplianceException.createWithPropertyMessage(
-                        SAMLBindings_3_5_6_a,
+                        SAMLBindings_3_4_6_a1,
                         property = "HTTP Status Code",
                         actual = code.toString(),
-                        expected = "A non-error http status code, i.e. less than " +
+                        expected = "a non-error http status code; i.e. less than " +
                                 HTTP_ERROR_THRESHOLD)
             }
         }
@@ -45,10 +45,10 @@ abstract class BindingVerifier {
         fun verifyHttpStatusCodeErrorResponse(code: Int) {
             if (code >= HTTP_ERROR_THRESHOLD) {
                 throw SAMLComplianceException.createWithPropertyMessage(
-                        SAMLBindings_3_5_6_a,
+                        SAMLBindings_3_4_6_a1,
                         property = "HTTP Status Code",
                         actual = code.toString(),
-                        expected = "A non-error http status code, i.e. less than " +
+                        expected = "a non-error http status code; i.e. less than " +
                                 HTTP_ERROR_THRESHOLD +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
