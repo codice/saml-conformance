@@ -48,7 +48,7 @@ The `samlconf` script may take the following parameters:
 > NOTE
 > 
 > In order for the test kit to execute properly, you must configure both the test kit's and your IdP's/SP's metadata, as well as implement plugins
-for the user-handled portions of SAML profiles. See "Metadata" and "Plugins" for instructions.
+for the user-handled portions of SAML profiles. See [Metadata](#metadata) and [Implementations](#implementations) for instructions.
 
 ### Formatting
 If during development the build fails due to `format violations` run the following command to format:
