@@ -85,14 +85,17 @@ to a file and pass that file to the `samlconf` script using `-i` or `--implement
 ## Project Structure
 This section will briefly talk about the project structure.
 
-### test
+### ctk
 This module contains all the test related modules: `idp`, `sp`, and `common`.
 
 #### idp
 This module will contain all tests being written against a SAML IdP. The `src` directory of the module is organized by the SAML specification as follows:
+
 * Package: Based on Profile (i.e. WebSSO, Single Logout)
   * Class: Based on Binding (i.e. POST, REDIRECT, ARTIFACT)
 * Class: Based on Metadata
+
+This [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests:
 
 #### sp
 This module will contain all tests being written against a SAML SP. The src directory of the module is organized identically to the idp module.
