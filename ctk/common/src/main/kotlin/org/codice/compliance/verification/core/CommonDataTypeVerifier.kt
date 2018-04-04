@@ -35,11 +35,7 @@ const val FOUR_DIGIT_YEAR_LEN = 4
 
 var ids = mutableListOf<String>()
 
-/**
- * Verify common data types against the core specification
- *
- * 1.3 Common Data Types
- */
+/** 1.3 Common Data Types **/
 fun verifyCommonDataType(samlDom: Node) {
     ids = mutableListOf()
     var i = samlDom.childNodes.length - 1
@@ -62,11 +58,7 @@ fun verifyCommonDataType(samlDom: Node) {
     }
 }
 
-/**
- * Verify values of type string
- *
- * 1.3.1 String Values
- */
+/** 1.3.1 String Values **/
 fun verifyStringValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     if (StringUtils.isBlank(node.textContent)) {
         if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_1_a,
@@ -76,11 +68,7 @@ fun verifyStringValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     }
 }
 
-/**
- * Verify values of type anyURI
- *
- * 1.3.2 URI Values
- */
+/** 1.3.2 URI Values **/
 fun verifyUriValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     // todo - make sure uri absolute check is correct
     if (StringUtils.isBlank(node.textContent)
@@ -92,11 +80,7 @@ fun verifyUriValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     }
 }
 
-/**
- * Verify values of type ID
- *
- * 1.3.4 ID and ID Reference Values
- */
+/** 1.3.4 ID and ID Reference Values **/
 fun verifyIdValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     if (ids.contains(node.textContent)) {
         if (errorCode != null) throw SAMLComplianceException.create(errorCode, SAMLCore_1_3_4,
@@ -106,11 +90,7 @@ fun verifyIdValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     } else ids.add(node.textContent)
 }
 
-/**
- * Verify values of type dateTime
- *
- * 1.3.3 Time Values
- */
+/** 1.3.3 Time Values **/
 fun verifyTimeValues(node: Node, errorCode: SAMLSpecRefMessage?) {
     val dateTime = node.textContent
     val (year, restOfDateTime) = splitByYear(dateTime, errorCode)
@@ -150,6 +130,7 @@ private fun splitByYear(dateTime: String, errorCode: SAMLSpecRefMessage?): Split
     return SplitString(dateTime.substring(0, hyphenIndex), dateTime.substring(hyphenIndex + 1))
 }
 
+// https://www.w3.org/TR/xmlschema-2/#dateTime
 @Suppress("SpreadOperator" /* Judicious use of spread operator to reduce cognitive complexity */)
 private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
     // remove the negative sign to make verification easier
@@ -158,8 +139,7 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
     val codes = if (errorCode == null) emptyArray()
     else arrayOf(errorCode)
 
-    // check if year is an integer && https://www.w3.org/TR/xmlschema-2/#dateTime "a plus sign is
-    // not permitted"
+    // check if year is an integer && "a plus sign is not permitted"
     if (!strippedYear.matches("""\d+""".toRegex())) {
         throw SAMLComplianceException.create(*codes,
                 SAMLCore_1_3_3,
@@ -167,8 +147,7 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
                 message = "A '+' was found.")
     }
 
-    // https://www.w3.org/TR/xmlschema-2/#dateTime "if more than four digits, leading zeros are
-    // prohibited"
+    // "if more than four digits, leading zeros are prohibited"
     if (strippedYear.length > FOUR_DIGIT_YEAR_LEN && strippedYear.startsWith('0')) {
         throw SAMLComplianceException.create(*codes,
                 SAMLCore_1_3_3,
@@ -176,7 +155,7 @@ private fun verifyYear(year: String, errorCode: SAMLSpecRefMessage?) {
                 message = "The year value of $strippedYear is invalid.")
     }
 
-    // https://www.w3.org/TR/xmlschema-2/#dateTime "'0000' is prohibited"
+    // "'0000' is prohibited"
     if (strippedYear == "0000") {
         throw SAMLComplianceException.create(*codes,
                 SAMLCore_1_3_3,

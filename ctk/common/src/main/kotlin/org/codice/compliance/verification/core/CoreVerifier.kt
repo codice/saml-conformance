@@ -68,10 +68,7 @@ class CoreVerifier(val node: Node) {
      */
     fun verify() {
         verifyCommonDataType(node)
-
-        val samlAssertionsVerifier = SamlAssertionsVerifier(node)
-        samlAssertionsVerifier.verify()
-
+        SamlAssertionsVerifier(node).verify()
         verifySignatureSyntaxAndProcessing(node)
         verifyGeneralConsiderations(node)
     }
