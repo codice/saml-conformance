@@ -16,17 +16,19 @@ package org.codice.compliance.verification.core
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_8_1_2
 import org.codice.compliance.allChildren
+import org.codice.compliance.children
 import org.w3c.dom.Node
 
 internal class SamlIdentifiersVerifier(val node: Node) {
     companion object {
-        val actionNamespaces = listOf(
-                "Read",
-                "Write",
-                "Execute",
-                "Delete",
-                "Control"
-        )
+
+        private fun String.nonNegatedForm(): String {
+            return if (this.startsWith("~")) {
+                this.substring(1)
+            } else {
+                this
+            }
+        }
     }
 
     fun verify() {
@@ -35,22 +37,28 @@ internal class SamlIdentifiersVerifier(val node: Node) {
 
     // 8.1.2 Read/Write/Execute/Delete/Control with Negation
     private fun verifyActionNamespaceIdentifiers() {
-        node.allChildren("Action").forEach({ action ->
-            action.nodeValue?.let {
-                checkActionNamespaceValue(it)
-            }
-        })
+        // AuthzDecisionQuery is the only element where "Action" is found (Core 3.3.2.4)
+        node.allChildren("AuthzDecisionQuery").forEach({ checkActionValues(it) })
     }
 
-    private fun checkActionNamespaceValue(nodeValue: String) {
-        actionNamespaces.forEach({
-            if (nodeValue.contains(it) && nodeValue.contains("~$it")) {
-                throw SAMLComplianceException.create(
-                        codes = *arrayOf(SAMLCore_8_1_2),
-                        message = "An action contained both $it and ~$it",
-                        node = node
-                )
-            }
-        })
+    /*
+     * Each "Action" element contains only one action. In order to check if an "AuthzDecisionQuery"
+     * contains an action and its negated form, a non-negated set is created from the list of all
+     * the actions, and its size is compared to the original size of the list.
+     */
+    private fun checkActionValues(query: Node) {
+
+        val actionList = query.children("Action")
+        val actionSet = mutableSetOf<String>()
+        actionList.forEach({ actionSet.add(it.nodeValue.nonNegatedForm()) })
+
+        if (actionList.size != actionSet.size) {
+            throw SAMLComplianceException.create(
+                    codes = SAMLCore_8_1_2,
+                    message = """An "AuthzDecisionQuery" element contained an action and its """ +
+                        """negated form.""",
+                    node = query
+            )
+        }
     }
 }
