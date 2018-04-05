@@ -63,12 +63,16 @@ class CoreVerifier(val node: Node) {
             }
         }
     }
+
     /**
      * Verify response against the Core Spec document
      */
     fun verify() {
         verifyCommonDataType(node)
+
         SamlAssertionsVerifier(node).verify()
+        SamlIdentifiersVerifier(node).verify()
+
         verifySignatureSyntaxAndProcessing(node)
         verifyGeneralConsiderations(node)
     }
