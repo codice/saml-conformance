@@ -207,9 +207,8 @@ class RedirectLoginTest : StringSpec() {
                     SAML_REQUEST,
                     encodedRequest,
                     null)
-            // using !! here because null is already checked with safe call
-            queryParams.set(SAML_REQUEST, queryParams[SAML_REQUEST]
-                    ?.substring(0, queryParams[SAML_REQUEST]!!.length / 2))
+            val qpSamlReq = queryParams[SAML_REQUEST]
+            queryParams.set(SAML_REQUEST, qpSamlReq?.substring(0, qpSamlReq.length / 2))
 
             // Get response from AuthnRequest
             val response = sendAuthnRequest(queryParams)
@@ -227,8 +226,7 @@ class RedirectLoginTest : StringSpec() {
             Log.debugWithSupplier { "Empty Redirect AuthnRequest Test" }
             val authnRequest = AuthnRequestBuilder().buildObject()
             val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = mutableMapOf<String, String>()
-            queryParams.put(SAML_REQUEST, encodedRequest)
+            val queryParams = mapOf(SAML_REQUEST to encodedRequest)
 
             val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
