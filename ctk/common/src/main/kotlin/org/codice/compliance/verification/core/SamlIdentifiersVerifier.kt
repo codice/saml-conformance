@@ -21,8 +21,10 @@ import org.w3c.dom.Node
 
 internal class SamlIdentifiersVerifier(val node: Node) {
     companion object {
-        private const val RWEDC_NEGATION_URI = "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation"
-        private const val RWEDC_URI = "urn:oasis:names:tc:SAML:1.0:action:rwedc"
+        private val RWEDC_URI_SET = setOf(
+                "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
+                "urn:oasis:names:tc:SAML:1.0:action:rwedc"
+        )
 
         private val RWEDC_LIST = listOf(
                 "Read",
@@ -50,28 +52,23 @@ internal class SamlIdentifiersVerifier(val node: Node) {
     }
 
     private fun createActionList(query: Node): List<String> {
-        val actionList = mutableListOf<String>()
-
-        query.children("Action").forEach({
-            val namespaceValue = it.attributes.getNamedItem("Namespace").nodeValue
-            if (namespaceValue == RWEDC_URI || namespaceValue == RWEDC_NEGATION_URI) {
-                actionList.add(it.nodeValue)
-            }
-        })
-
-        return actionList
+        return query.children("Action")
+                .filter { it.attributes.getNamedItem("Namespace").nodeValue in RWEDC_URI_SET }
+                .map { it.nodeValue }
+                .toList()
     }
 
     private fun checkActionList(actionList: List<String>) {
-        RWEDC_LIST.forEach({
-            if (actionList.contains(it) && actionList.contains("~$it")) {
+        val (negated, notNegated) = actionList.partition { it.startsWith("~") }
+        notNegated.forEach {
+            if ("~$it" in negated) {
                 throw SAMLComplianceException.create(
-                        codes = SAMLCore_8_1_2,
+                        SAMLCore_8_1_2,
                         message = """An "AuthzDecisionQuery" element contained an action and """ +
                                 """its negated form.""",
                         node = node
                 )
             }
-        })
+        }
     }
 }
