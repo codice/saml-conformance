@@ -13,20 +13,49 @@
  */
 package org.codice.compliance.saml.plugin.keycloak
 
+import com.jayway.restassured.RestAssured
 import com.jayway.restassured.response.Response
 import org.codice.compliance.saml.plugin.IdpPostResponse
-import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.saml.plugin.IdpResponder
 import org.kohsuke.MetaInfServices
 
 @MetaInfServices
 class KeycloakIdpResponderProvider : IdpResponder {
 
-    override fun getIdpRedirectResponse(originalResponse: Response): IdpRedirectResponse {
-        throw NotImplementedError()
+    override fun getSSORedirectResponse(originalResponse: Response): IdpPostResponse {
+        return IdpPostResponse(postUserForm(originalResponse))
     }
 
-    override fun getIdpPostResponse(originalResponse: Response): IdpPostResponse {
-        throw NotImplementedError()
+    override fun getSSOPostResponse(originalResponse: Response): IdpPostResponse {
+        val loginPageResponse = RestAssured.given()
+                .urlEncodingEnabled(false)
+                .cookies(originalResponse.cookies)
+                .log()
+                .ifValidationFails()
+                .`when`()
+                .get(originalResponse.getHeader("Location"))
+
+        return IdpPostResponse(
+                postUserForm(loginPageResponse, originalResponse.cookies))
+    }
+
+    private fun postUserForm(responseWithForm: Response,
+                             cookies: Map<String, String> = responseWithForm.cookies): Response {
+        val uriString = responseWithForm
+                .then()
+                .extract()
+                .htmlPath()
+                .getNode("html.body.**.find { it.name() == 'form' }")
+                .getAttribute("action")
+
+        return RestAssured.given()
+                .urlEncodingEnabled(false)
+                .cookies(cookies)
+                .body("username=admin&password=admin")
+                .contentType("application/x-www-form-urlencoded")
+                .log()
+                .ifValidationFails()
+                .`when`()
+                .post(uriString)
     }
 }

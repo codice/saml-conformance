@@ -125,11 +125,15 @@ fun Node.allChildren(name: String): List<Node> {
     return nodes
 }
 
-fun Node.prettyPrintXml(): String {
-    val transformer = createTransformer()
-    val output = StringWriter()
-    transformer.transform(DOMSource(this), StreamResult(output))
-    return output.toString()
+fun Node.prettyPrintXmlOnDebug(): String? {
+    if (Log.logLevel == LogLevel.DEBUG) {
+        val transformer = createTransformer()
+        val output = StringWriter()
+        transformer.transform(DOMSource(this), StreamResult(output))
+        return output.toString()
+    } else {
+        return null
+    }
 }
 
 fun Log.debugWithSupplier(message: () -> String) {
@@ -139,12 +143,15 @@ fun Log.debugWithSupplier(message: () -> String) {
     }
 }
 
-fun String.prettyPrintXml(): String {
-    val input = StreamSource(StringReader(this))
-    val output = StreamResult(StringWriter())
-    val transformer = createTransformer()
-    transformer.transform(input, output)
-    return output.writer.toString()
+fun String.prettyPrintXmlOnDebug(header: String?) {
+    Log.debugWithSupplier {
+        val input = StreamSource(StringReader(this))
+        val output = StreamResult(StringWriter())
+        val transformer = createTransformer()
+        transformer.transform(input, output)
+        val headerVal = if (header == null) "$header:\n\n" else ""
+        "$headerVal ${output.writer}"
+    }
 }
 
 private fun createTransformer(): Transformer {

@@ -33,6 +33,7 @@ import kotlin.reflect.KClass
 
 class TestCommon {
     companion object {
+        const val AUTHN_REQUEST = "AuthnRequest"
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
         const val SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"

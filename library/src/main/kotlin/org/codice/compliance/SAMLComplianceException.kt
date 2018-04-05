@@ -18,7 +18,8 @@ import org.w3c.dom.Node
 class SAMLComplianceException : Exception {
 
     private constructor(message: String) : super(message)
-    private constructor(message: String, cause: Throwable) : super(message, cause)
+    private constructor(message: String,
+                        cause: Throwable) : super(message, cause)
 
     companion object {
         fun create(vararg codes: SAMLSpecRefMessage,
@@ -33,10 +34,10 @@ class SAMLComplianceException : Exception {
 
             return if (cause != null) {
                 SAMLComplianceException("$message\n\n$samlExceptions\n\n" +
-                        "${node?.prettyPrintXml() ?: ""}\n", cause)
+                        "${node?.prettyPrintXmlOnDebug() ?: ""}\n", cause)
             } else {
                 SAMLComplianceException("$message\n\n$samlExceptions\n\n" +
-                        "${node?.prettyPrintXml() ?: ""}\n")
+                        "${node?.prettyPrintXmlOnDebug() ?: ""}\n")
             }
         }
 
@@ -44,8 +45,9 @@ class SAMLComplianceException : Exception {
                                             property: String,
                                             parent: String,
                                             node: Node? = null): SAMLComplianceException {
+
             return SAMLComplianceException("$section: $property is required in $parent.\n\n" +
-                    (node?.prettyPrintXml() ?: ""))
+                    (node?.prettyPrintXmlOnDebug() ?: ""))
         }
 
         @Suppress("LongParameterList")
@@ -60,10 +62,10 @@ class SAMLComplianceException : Exception {
                     }
             return if (expected == null) {
                 SAMLComplianceException("The $property value of $actual is invalid.\n\n" +
-                        "$samlExceptions\n\n" + (node?.prettyPrintXml() ?: ""))
+                        "$samlExceptions\n\n" + (node?.prettyPrintXmlOnDebug() ?: ""))
             } else {
                 SAMLComplianceException("The $property value of $actual is not equal to " +
-                        "$expected.\n\n$samlExceptions\n\n${node?.prettyPrintXml() ?: ""}")
+                        "$expected.\n\n$samlExceptions\n\n${node?.prettyPrintXmlOnDebug() ?: ""}")
             }
         }
 
