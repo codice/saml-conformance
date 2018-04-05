@@ -26,7 +26,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.debugPrettyPrintXml
-import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_REQUEST
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -41,7 +41,6 @@ import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
-import org.codice.security.saml.SamlProtocol
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.REDIRECT_BINDING
 import org.codice.security.sign.Encoder
@@ -116,8 +115,8 @@ class RedirectLoginTest : StringSpec() {
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getSSORedirectResponse(response).decorate()
+            val idpResponse = getServiceProvider(IdpSSOResponder::class)
+                    .getRedirectResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
@@ -139,8 +138,8 @@ class RedirectLoginTest : StringSpec() {
             val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getSSORedirectResponse(response).decorate().apply {
+            val idpResponse = getServiceProvider(IdpSSOResponder::class)
+                    .getRedirectResponse(response).decorate().apply {
                         isRelayStateGiven = true
                     }
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
@@ -169,8 +168,8 @@ class RedirectLoginTest : StringSpec() {
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getSSORedirectResponse(response).decorate()
+            val idpResponse = getServiceProvider(IdpSSOResponder::class)
+                    .getRedirectResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()

@@ -16,17 +16,17 @@ package org.codice.compliance.saml.plugin.keycloak
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.response.Response
 import org.codice.compliance.saml.plugin.IdpPostResponse
-import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.kohsuke.MetaInfServices
 
 @MetaInfServices
-class KeycloakIdpResponderProvider : IdpResponder {
+class KeycloakIdpSSOResponderProvider : IdpSSOResponder {
 
-    override fun getSSORedirectResponse(originalResponse: Response): IdpPostResponse {
+    override fun getRedirectResponse(originalResponse: Response): IdpPostResponse {
         return IdpPostResponse(postUserForm(originalResponse))
     }
 
-    override fun getSSOPostResponse(originalResponse: Response): IdpPostResponse {
+    override fun getPostResponse(originalResponse: Response): IdpPostResponse {
         val loginPageResponse = RestAssured.given()
                 .urlEncodingEnabled(false)
                 .cookies(originalResponse.cookies)

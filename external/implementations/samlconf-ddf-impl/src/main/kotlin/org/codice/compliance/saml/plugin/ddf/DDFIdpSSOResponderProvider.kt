@@ -21,19 +21,19 @@ import com.jayway.restassured.response.Response
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
-import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
 
 @MetaInfServices
-class DDFIdpResponderProvider : IdpResponder {
+class DDFIdpSSOResponderProvider : IdpSSOResponder {
     companion object {
         val REDIR_REGEX = """var encoded\s*=\s*"(.*)";""".toRegex()
     }
 
     // TODO When DDF is fixed to return a POST SSO response, change the return type to
     // `IdpPostResponse` and modify this method implementation accordingly
-    override fun getSSORedirectResponse(originalResponse: Response): IdpRedirectResponse {
+    override fun getRedirectResponse(originalResponse: Response): IdpRedirectResponse {
 
         val response = parseResponseAndSendRequest(originalResponse)
 
@@ -69,7 +69,7 @@ class DDFIdpResponderProvider : IdpResponder {
         }.build()
     }
 
-    override fun getSSOPostResponse(originalResponse: Response): IdpPostResponse {
+    override fun getPostResponse(originalResponse: Response): IdpPostResponse {
         return IdpPostResponse(parseResponseAndSendRequest(originalResponse))
     }
 

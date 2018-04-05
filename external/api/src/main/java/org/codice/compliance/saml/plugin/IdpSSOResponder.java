@@ -20,7 +20,7 @@ import com.jayway.restassured.response.Response;
  * interactions that are not constrained by the SAML specification (and are therefore
  * implementation-dependent).
  */
-public interface IdpResponder {
+public interface IdpSSOResponder {
 
   /**
    * The tests will send an AuthnRequest to the IdP using Redirect binding. Then the tests will hand
@@ -45,7 +45,7 @@ public interface IdpResponder {
    */
   // TODO When DDF is fixed to return a POST SSO response, change the return type to
   // `IdpPostResponse`
-  IdpResponse getSSORedirectResponse(Response originalResponse);
+  IdpResponse getRedirectResponse(Response originalResponse);
 
   /**
    * The tests will send an AuthnRequest to the IdP using POST binding. Then the tests will hand the
@@ -69,5 +69,5 @@ public interface IdpResponder {
    * returned by the IdP
    * </pre>
    */
-  IdpResponse getSSOPostResponse(Response originalResponse);
+  IdpResponse getPostResponse(Response originalResponse);
 }

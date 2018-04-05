@@ -68,7 +68,7 @@ This test kit can already be run against [Keycloak](#samlconf-keycloak-impl) and
 If you're wanting to run the test kit against a different SAML IdP implementation, you will have to follow the below steps.
 
 * Implement a plugin jar for the implementation
-    * Write a Java or Kotlin class that implements `IdpResponder`. See that interface for details.
+    * Write a Java or Kotlin class that implements `IdpSSOResponder`. See that interface for details.
     * Package that file into a jar
 * Place the above jar and the IdP's metadata into a directory. Then that directory should be
 referred to by system property when running tests. (See [Running Test Script](#running_test_script]))

@@ -17,9 +17,9 @@ import com.google.common.base.Splitter;
 import java.util.List;
 
 /**
- * This class is the return type for methods of the {@code IdpResponder} interface on the REDIRECT
- * Binding. Once the user implemented portion finishes its interaction with the IdP under testing,
- * it should return an {@code IdpRedirectResponse}.
+ * This class is the return type for methods of the {@code IdpSSOResponder} interface on the
+ * REDIRECT Binding. Once the user implemented portion finishes its interaction with the IdP under
+ * testing, it should return an {@code IdpRedirectResponse}.
  *
  * <p>An {@code IdpRedirectResponse} is created by passing in the resultant RestAssured {@code
  * Response} to its constructor.
