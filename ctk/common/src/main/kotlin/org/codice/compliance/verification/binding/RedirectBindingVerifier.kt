@@ -14,7 +14,6 @@
 package org.codice.compliance.verification.binding
 
 import com.google.api.client.http.HttpStatusCodes
-import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLBindings_3_1_2_1
 import org.codice.compliance.SAMLBindings_3_4_3_a
@@ -36,8 +35,7 @@ import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.debugWithSupplier
-import org.codice.compliance.prettyPrintXml
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -255,7 +253,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE " +
                 "encoding currently.")
 
-        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 
@@ -312,7 +310,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE " +
                 "encoding currently.")
 
-        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 

@@ -25,12 +25,19 @@ applicationDistribution.from('src/main/resources/') {
     into 'conf'
 }
 
+// Copy implementation examples into the distribution
 project(':external:implementations').getSubprojects().each { subProject ->
-    applicationDistribution.from(subProject.file('build/libs')) {
-        into 'implementations/' + subProject.name
+    applicationDistribution.into('implementations/' + subProject.name.replace("samlconf-", "").replace("-impl", "")) {
+        from subProject.file('build/resources/main')
+        from subProject.file('build/libs')
     }
-    applicationDistribution.from(subProject.file('build/resources/main')) {
-        into 'implementations/' + subProject.name
+}
+
+// We don't want to include the implementation jars in the classpath
+// since they're loaded from a specific directory.
+task copyToLib(type: Copy) {
+    from configurations.runtime {
+        exclude group: 'org.codice.samlconf.implementations'
     }
 }
 

@@ -147,6 +147,13 @@ fun String.prettyPrintXml(): String {
     return output.writer.toString()
 }
 
+fun String.debugPrettyPrintXml(header: String?) {
+    Log.debugWithSupplier {
+        val headerVal = if (header == null) "$header:\n\n" else ""
+        "$headerVal ${this.prettyPrintXml()}"
+    }
+}
+
 private fun createTransformer(): Transformer {
     return TransformerFactory.newInstance().newTransformer().apply {
         setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name())

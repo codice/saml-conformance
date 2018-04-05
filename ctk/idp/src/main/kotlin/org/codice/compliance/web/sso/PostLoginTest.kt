@@ -25,9 +25,10 @@ import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugWithSupplier
-import org.codice.compliance.prettyPrintXml
-import org.codice.compliance.saml.plugin.IdpResponder
+import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.AUTHN_REQUEST
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
@@ -35,7 +36,7 @@ import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
-import org.codice.compliance.utils.decorators.decorate
+import org.codice.compliance.utils.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
@@ -80,7 +81,7 @@ class PostLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
             return authnRequestString
         }
 
@@ -105,8 +106,10 @@ class PostLoginTest : StringSpec() {
             val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getIdpPostResponse(response).decorate()
+            val idpResponse = getServiceProvider(IdpSSOResponder::class)
+                    .getPostResponse(response).decorate()
+            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
+            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -121,11 +124,12 @@ class PostLoginTest : StringSpec() {
             val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getIdpPostResponse(response).decorate().apply {
+            val idpResponse = getServiceProvider(IdpSSOResponder::class)
+                    .getPostResponse(response).decorate().apply {
                         isRelayStateGiven = true
                     }
-
+            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
+            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -153,7 +157,7 @@ class PostLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
 
             val encodedRequest = Encoder.encodePostMessage(
                     authnRequestString,
@@ -162,8 +166,10 @@ class PostLoginTest : StringSpec() {
             val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getIdpPostResponse(response).decorate()
+            val idpResponse = getServiceProvider(IdpSSOResponder::class)
+                    .getPostResponse(response).decorate()
+            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
+            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -195,7 +201,7 @@ class PostLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
             val response = sendAuthnRequest(encodedRequest)
@@ -225,7 +231,7 @@ class PostLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
             val response = sendAuthnRequest(encodedRequest)
@@ -256,7 +262,7 @@ class PostLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
             val response = sendAuthnRequest(encodedRequest)
@@ -287,7 +293,7 @@ class PostLoginTest : StringSpec() {
             }
 
             val authnRequestString = authnRequestToString(authnRequest)
-            Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString)
             val response = sendAuthnRequest(encodedRequest)

@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.verification.binding
 
-import de.jupf.staticlog.Log
 import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
@@ -30,8 +29,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.debugWithSupplier
-import org.codice.compliance.prettyPrintXml
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -162,7 +160,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         }
 
         decodedMessage shouldNotBe null
-        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 
@@ -181,12 +179,12 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_4_a1,
                     message = "The SAML response could not be base64 decoded." +
-                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
+                            "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                     cause = exception)
         }
 
         decodedMessage shouldNotBe null
-        Log.debugWithSupplier { decodedMessage.prettyPrintXml() }
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 

@@ -63,10 +63,15 @@ If during development the build fails due to `format violations` run the followi
   `deployment/distribution/build/install/samlconf/conf/samlconf-sp-metadata.xml`
   or `samlconf-1.0-SNAPSHOT/conf/samlconf-sp-metadata.xml` from the distribution.
    
-### Implementations
-**TODO** *describe how to create implementations*
+### How to Run Against a Specific Implementation
+This test kit can already be run against [Keycloak](#samlconf-keycloak-impl) and [DDF](#samlconf-ddf-impl) SAML IdP implementations.
+If you're wanting to run the test kit against a different SAML IdP implementation, you will have to follow the below steps.
 
-* Provide your implementations directory to the `samlconf` script using `-i` or `--implementations`.
+* Implement a plugin jar for the implementation
+    * Write a Java or Kotlin class that implements `IdpSSOResponder`. See that interface for details.
+    * Package that file into a jar
+* Place the above jar and the IdP's metadata into a directory. Then that directory should be
+referred to by system property when running tests. (See [Running Test Script](#running_test_script]))
 
 ### Docker
 To build a docker image, execute `gradlew build docker`. 
@@ -74,13 +79,6 @@ To build a docker image, execute `gradlew build docker`.
 > NOTE
 >
 > Docker is used exclusively for our Jenkins builds.
-
-## Steps to Test DDF's IDP
-* Start DDF
-* Copy the contents of `samlconf-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
-* If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
-to a file and pass that file to the `samlconf` script using `-i` or `--implementations`.
-* Run `samlconf`.
 
 ## Project Structure
 This section will briefly talk about the project structure.
@@ -107,26 +105,19 @@ This module contains all the classes relating to utility for and verification of
 This module contains an assortment of Java classes that have been copied over from DDF to support operations that shouldn't be handled by the test code; i.e. signature validation using x509 certificates.
 
 ### external
-This module contains the API for a plugin that needs to be implemented for each external SAML product before these tests
-can be run against it. There are also a few that are already implemented. The generated jar file from these modules
-needs to be installed to a deployment directory of the user's choosing along with the necessary metadata. Then that 
-directory should be referred to by system property when running tests. (See "Running Test Script")
-
-e.g. If the ServiceProvider plugin jar and necessary metadata is copied to `/home/saml-conform/deploy`
-then the test script should be invoked with `-i /home/saml-conform/deploy`.
+This module contains anything related to a specific SAML implementing product.
 
 #### api
-This module contains the API that must be implemented to run this test kit against a SAML product.
+This module contains the API that must be implemented for a SAML product in order to run this test kit against that product.
 
 #### implementations
-This module contains implementations of the API for specific SAML products.
+This module contains implementations of the API for specific SAML products. See [How to Run Against a Specific Implementation](#how-to-run-against-a-specific-implementation) for details.
 
 ##### samlconf-ddf-impl
-Plugin and idp-metadata.xml for the ddf implementation of IdP. It should also be used as the model for building plugins
-for connecting with other IdPs for compliance testing.
+Plugin and idp-metadata.xml for the ddf implementation of IdP. See the README in this directory for details.
 
 ##### samlconf-keycloak-impl
-Plugin and idp-metadata.xml for the Keycloak implementation of IdP.
+Plugin and idp-metadata.xml for the Keycloak implementation of IdP. See the README in this directory for details.
 
 ### deployment
 This module is the project's full package deployment.

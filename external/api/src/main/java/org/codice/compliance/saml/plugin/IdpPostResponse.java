@@ -21,7 +21,7 @@ import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.response.Response;
 
 /**
- * This class is the return type for methods of the {@code IdpResponder} interface for the POST
+ * This class is the return type for methods of the {@code IdpSSOResponder} interface for the POST
  * Binding. Once the user implemented portion finishes its interaction with the IdP under testing,
  * it should return an {@code IdpPostResponse}.
  *

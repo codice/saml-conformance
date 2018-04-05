@@ -15,6 +15,7 @@ package org.codice.compliance.verification.profile
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLProfiles_4_1_2
 import org.codice.compliance.SAMLProfiles_4_1_4_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
@@ -26,14 +27,24 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_i
 import org.codice.compliance.SAMLProfiles_4_1_4_2_j
 import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.children
+import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
+import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
 @Suppress("StringLiteralDuplication")
 class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl: String?) {
+    companion object {
+        fun verifyBinding(response: IdpResponseDecorator) {
+            if (response is IdpRedirectResponse) {
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_2,
+                        message = "The <Response> cannot be sent using Redirect Binding.")
+            }
+        }
+    }
     /**
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage

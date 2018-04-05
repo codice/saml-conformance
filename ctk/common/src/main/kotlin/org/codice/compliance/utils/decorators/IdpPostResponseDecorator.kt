@@ -87,19 +87,25 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
      * controls
      */
     val isSamlResponseHidden: Boolean by lazy {
-        checkNodeAttribute(samlResponseForm, TYPE, HIDDEN)
+        checkNodeAttributeIgnoreCase(samlResponseForm, TYPE, HIDDEN)
     }
     val isRelayStateNameCorrect: Boolean by lazy {
         checkNodeAttribute(relayStateForm, NAME, RELAY_STATE)
     }
     val isRelayStateHidden: Boolean by lazy {
-        checkNodeAttribute(relayStateForm, TYPE, HIDDEN)
+        checkNodeAttributeIgnoreCase(relayStateForm, TYPE, HIDDEN)
     }
 
     private fun checkNodeAttribute(node: raNode,
                                    attributeName: String,
                                    expectedValue: String): Boolean {
         return expectedValue == node.getAttribute(attributeName)
+    }
+
+    private fun checkNodeAttributeIgnoreCase(node: raNode,
+                                             attributeName: String,
+                                             expectedValue: String): Boolean {
+        return expectedValue.equals(node.getAttribute(attributeName), true)
     }
 
     override fun bindingVerifier(): BindingVerifier {
