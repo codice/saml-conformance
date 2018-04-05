@@ -92,7 +92,6 @@ build {
 
 detekt {
     version = "$detekt_version"
-    profile = 'main'
 
     profile('main') {
         input = rootProject.projectDir
