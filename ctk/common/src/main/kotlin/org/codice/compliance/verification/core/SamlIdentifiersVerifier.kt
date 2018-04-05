@@ -21,14 +21,16 @@ import org.w3c.dom.Node
 
 internal class SamlIdentifiersVerifier(val node: Node) {
     companion object {
+        private const val RWEDC_NEGATION_URI = "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation"
+        private const val RWEDC_URI = "urn:oasis:names:tc:SAML:1.0:action:rwedc"
 
-        private fun String.nonNegatedForm(): String {
-            return if (this.startsWith("~")) {
-                this.substring(1)
-            } else {
-                this
-            }
-        }
+        private val RWEDC_LIST = listOf(
+                "Read",
+                "Write",
+                "Execute",
+                "Delete",
+                "Control"
+        )
     }
 
     fun verify() {
@@ -38,27 +40,38 @@ internal class SamlIdentifiersVerifier(val node: Node) {
     // 8.1.2 Read/Write/Execute/Delete/Control with Negation
     private fun verifyActionNamespaceIdentifiers() {
         // AuthzDecisionQuery is the only element where "Action" is found (Core 3.3.2.4)
-        node.allChildren("AuthzDecisionQuery").forEach({ checkActionValues(it) })
+        node.allChildren("AuthzDecisionQuery").forEach({
+            val actionList = createActionList(it)
+
+            if (actionList.isNotEmpty()) {
+                checkActionList(actionList)
+            }
+        })
     }
 
-    /*
-     * Each "Action" element contains only one action. In order to check if an "AuthzDecisionQuery"
-     * contains an action and its negated form, a non-negated set is created from the list of all
-     * the actions, and its size is compared to the original size of the list.
-     */
-    private fun checkActionValues(query: Node) {
+    private fun createActionList(query: Node): List<String> {
+        val actionList = mutableListOf<String>()
 
-        val actionList = query.children("Action")
-        val actionSet = mutableSetOf<String>()
-        actionList.forEach({ actionSet.add(it.nodeValue.nonNegatedForm()) })
+        query.children("Action").forEach({
+            val namespaceValue = it.attributes.getNamedItem("Namespace").nodeValue
+            if (namespaceValue == RWEDC_URI || namespaceValue == RWEDC_NEGATION_URI) {
+                actionList.add(it.nodeValue)
+            }
+        })
 
-        if (actionList.size != actionSet.size) {
-            throw SAMLComplianceException.create(
-                    codes = SAMLCore_8_1_2,
-                    message = """An "AuthzDecisionQuery" element contained an action and its """ +
-                        """negated form.""",
-                    node = query
-            )
-        }
+        return actionList
+    }
+
+    private fun checkActionList(actionList: List<String>) {
+        RWEDC_LIST.forEach({
+            if (actionList.contains(it) && actionList.contains("~$it")) {
+                throw SAMLComplianceException.create(
+                        codes = SAMLCore_8_1_2,
+                        message = """An "AuthzDecisionQuery" element contained an action and """ +
+                                """its negated form.""",
+                        node = node
+                )
+            }
+        })
     }
 }
