@@ -15,12 +15,10 @@ package org.codice.compliance.web.sso
 
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
+import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLBindings_3_4_3_a1
 import org.codice.compliance.SAMLCore_3_2_1_e
@@ -77,6 +75,16 @@ class RedirectLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
             return Encoder.encodeRedirectMessage(authnRequestString)
         }
+
+        private fun sendAuthnRequest(queryParams: Map<String, String>): Response {
+            return given()
+                    .urlEncodingEnabled(false)
+                    .params(queryParams)
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+        }
     }
 
     init {
@@ -89,15 +97,7 @@ class RedirectLoginTest : StringSpec() {
                     createValidAuthnRequest(),
                     null)
 
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
@@ -117,16 +117,7 @@ class RedirectLoginTest : StringSpec() {
                     TestCommon.EXAMPLE_RELAY_STATE)
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .param(RELAY_STATE, queryParams[RELAY_STATE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -167,15 +158,7 @@ class RedirectLoginTest : StringSpec() {
                     null)
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
@@ -199,16 +182,7 @@ class RedirectLoginTest : StringSpec() {
                     TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .param(RELAY_STATE, queryParams[RELAY_STATE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
@@ -227,19 +201,12 @@ class RedirectLoginTest : StringSpec() {
                     SAML_REQUEST,
                     createValidAuthnRequest(),
                     null)
+            // using !! here because null is already checked with safe call
+            queryParams.set(SAML_REQUEST, queryParams[SAML_REQUEST]
+                    ?.substring(0, queryParams[SAML_REQUEST]!!.length / 2))
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST]
-                            // using !! here because null is already checked with safe call
-                            ?.substring(0, queryParams[SAML_REQUEST]!!.length / 2))
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
@@ -259,14 +226,10 @@ class RedirectLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodeRedirectMessage(authnRequestString)
+            val queryParams = mutableMapOf<String, String>()
+            queryParams.put(SAML_REQUEST, encodedRequest)
 
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, encodedRequest)
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
@@ -303,15 +266,7 @@ class RedirectLoginTest : StringSpec() {
                     null)
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
@@ -346,15 +301,7 @@ class RedirectLoginTest : StringSpec() {
             val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
@@ -384,15 +331,7 @@ class RedirectLoginTest : StringSpec() {
             val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
 
             // Get response from AuthnRequest
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .param(SAML_REQUEST, queryParams[SAML_REQUEST])
-                    .param(SIG_ALG, queryParams[SIG_ALG])
-                    .param(SIGNATURE, queryParams[SIGNATURE])
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+            val response = sendAuthnRequest(queryParams)
 
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
             val idpResponse = TestCommon.parseErrorResponse(response)
