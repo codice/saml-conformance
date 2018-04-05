@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
-            ?: "$samlDist/implementations/samlconf-ddf-impl"
+            ?: "$samlDist/implementations/ddf"
 
     System.setProperty(IMPLEMENTATION_PATH, implementationPath)
     System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")

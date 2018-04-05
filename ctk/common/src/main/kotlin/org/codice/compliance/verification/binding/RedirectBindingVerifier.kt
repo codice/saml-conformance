@@ -35,7 +35,7 @@ import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.prettyPrintXmlOnDebug
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -253,7 +253,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE " +
                 "encoding currently.")
 
-        decodedMessage.prettyPrintXmlOnDebug("Decoded SAML Response")
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 
@@ -310,7 +310,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         } else throw UnsupportedOperationException("This test suite only supports DEFLATE " +
                 "encoding currently.")
 
-        decodedMessage.prettyPrintXmlOnDebug("Decoded SAML Response")
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 

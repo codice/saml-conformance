@@ -25,11 +25,8 @@ import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugWithSupplier
-import org.codice.compliance.prettyPrintXmlOnDebug
-import org.codice.compliance.saml.plugin.IdpPostResponse
-import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.saml.plugin.IdpResponder
-import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_REQUEST
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -38,14 +35,14 @@ import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
-import org.codice.compliance.utils.decorators.IdpResponseDecorator
-import org.codice.compliance.utils.decorators.decorate
+import org.codice.compliance.utils.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.ResponseProtocolVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
-import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
+import org.codice.security.saml.SamlProtocol
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.REDIRECT_BINDING
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -67,7 +64,7 @@ class RedirectLoginTest : StringSpec() {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = TestCommon.SP_ISSUER
                 }
-                assertionConsumerServiceURL = acsUrl[HTTP_REDIRECT]
+                assertionConsumerServiceURL = acsUrl[HTTP_POST]
                 id = TestCommon.ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
@@ -84,7 +81,7 @@ class RedirectLoginTest : StringSpec() {
          */
         private fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
             val authnRequestString = authnRequestToString(authnRequest)
-            authnRequestString.prettyPrintXmlOnDebug(AUTHN_REQUEST)
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
             return Encoder.encodeRedirectMessage(authnRequestString)
         }
 
@@ -120,12 +117,14 @@ class RedirectLoginTest : StringSpec() {
 
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getSSORedirectResponse(response).polymorphicDecorate()
+                    .getSSORedirectResponse(response).decorate()
+            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
+            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-            ResponseProtocolVerifier(responseDom, ID, acsUrl[HTTP_REDIRECT]).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_REDIRECT]).verify()
+            ResponseProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -141,16 +140,16 @@ class RedirectLoginTest : StringSpec() {
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getSSORedirectResponse(response).polymorphicDecorate().apply {
+                    .getSSORedirectResponse(response).decorate().apply {
                         isRelayStateGiven = true
                     }
-
-            val bindingVerifier = idpResponse.bindingVerifier()
-            bindingVerifier.verify()
+            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
+            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_REDIRECT]).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_REDIRECT]).verify()
+            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         "Redirect AuthnRequest Without ACS Url Test" {
@@ -171,12 +170,14 @@ class RedirectLoginTest : StringSpec() {
 
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpResponder::class)
-                    .getSSORedirectResponse(response).polymorphicDecorate()
+                    .getSSORedirectResponse(response).decorate()
+            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
+            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_REDIRECT]).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_REDIRECT]).verify()
+            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         // Negative Path Tests
@@ -304,17 +305,5 @@ class RedirectLoginTest : StringSpec() {
             val responseDom = idpResponse.responseDom
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, TestCommon.REQUESTER)
         }.config(enabled = false)
-    }
-}
-
-// TODO When DDF is fixed to return a POST SSO response, remove this method and change its usages
-// to `decorate()` instead.
-private fun IdpResponse.polymorphicDecorate(): IdpResponseDecorator {
-    if (this is IdpPostResponse) {
-        return this.decorate()
-    } else if (this is IdpRedirectResponse) {
-        return this.decorate()
-    } else {
-        throw UnsupportedOperationException()
     }
 }

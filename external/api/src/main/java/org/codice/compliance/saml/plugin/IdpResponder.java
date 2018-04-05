@@ -61,13 +61,13 @@ public interface IdpResponder {
    *     <pre>{@code
    * return new IdpPostResponse.Builder()
    * .httpStatusCode(exampleStatusCode)
-   * .samlForm(exampleSampleForm)
+   * .samlForm(exampleSamlForm)
    * .build();
    * }
    * where {@code exampleStatusCode} is the http status code returned by the IdP
-   * where {@code exampleSamleForm} is the wrapping form containing the samlResponse form control
+   * where {@code exampleSamlForm} is the wrapping form containing the samlResponse form control
    * returned by the IdP
    * </pre>
    */
-  IdpPostResponse getSSOPostResponse(Response originalResponse);
+  IdpResponse getSSOPostResponse(Response originalResponse);
 }

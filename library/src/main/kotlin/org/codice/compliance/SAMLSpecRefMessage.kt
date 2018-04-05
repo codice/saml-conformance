@@ -54,6 +54,7 @@ object SAMLProfiles_3_1_a : SAMLProfileRefMessage()
 object SAMLProfiles_3_1_b : SAMLProfileRefMessage()
 object SAMLProfiles_3_1_c : SAMLProfileRefMessage()
 
+object SAMLProfiles_4_1_2 : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_1_a : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_1_b : SAMLProfileRefMessage()
 

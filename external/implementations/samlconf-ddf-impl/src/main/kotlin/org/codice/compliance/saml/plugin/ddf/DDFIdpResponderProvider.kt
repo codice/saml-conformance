@@ -22,7 +22,6 @@ import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.saml.plugin.IdpResponder
-import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
 
@@ -34,7 +33,7 @@ class DDFIdpResponderProvider : IdpResponder {
 
     // TODO When DDF is fixed to return a POST SSO response, change the return type to
     // `IdpPostResponse` and modify this method implementation accordingly
-    override fun getSSORedirectResponse(originalResponse: Response): IdpResponse {
+    override fun getSSORedirectResponse(originalResponse: Response): IdpRedirectResponse {
 
         val response = parseResponseAndSendRequest(originalResponse)
 

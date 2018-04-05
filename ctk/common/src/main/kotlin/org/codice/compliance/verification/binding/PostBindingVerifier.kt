@@ -29,7 +29,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_4_5
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
-import org.codice.compliance.prettyPrintXmlOnDebug
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -160,7 +160,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         }
 
         decodedMessage shouldNotBe null
-        decodedMessage.prettyPrintXmlOnDebug("Decoded SAML Response")
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 
@@ -184,7 +184,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         }
 
         decodedMessage shouldNotBe null
-        decodedMessage.prettyPrintXmlOnDebug("Decoded SAML Response")
+        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
 

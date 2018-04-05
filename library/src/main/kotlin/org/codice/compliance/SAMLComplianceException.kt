@@ -13,6 +13,8 @@
  */
 package org.codice.compliance
 
+import de.jupf.staticlog.Log
+import de.jupf.staticlog.core.LogLevel
 import org.w3c.dom.Node
 
 class SAMLComplianceException : Exception {
@@ -34,10 +36,10 @@ class SAMLComplianceException : Exception {
 
             return if (cause != null) {
                 SAMLComplianceException("$message\n\n$samlExceptions\n\n" +
-                        "${node?.prettyPrintXmlOnDebug() ?: ""}\n", cause)
+                        "${node?.debugPrettyPrintXml() ?: ""}\n", cause)
             } else {
                 SAMLComplianceException("$message\n\n$samlExceptions\n\n" +
-                        "${node?.prettyPrintXmlOnDebug() ?: ""}\n")
+                        "${node?.debugPrettyPrintXml() ?: ""}\n")
             }
         }
 
@@ -47,7 +49,7 @@ class SAMLComplianceException : Exception {
                                             node: Node? = null): SAMLComplianceException {
 
             return SAMLComplianceException("$section: $property is required in $parent.\n\n" +
-                    (node?.prettyPrintXmlOnDebug() ?: ""))
+                    (node?.debugPrettyPrintXml() ?: ""))
         }
 
         @Suppress("LongParameterList")
@@ -62,10 +64,10 @@ class SAMLComplianceException : Exception {
                     }
             return if (expected == null) {
                 SAMLComplianceException("The $property value of $actual is invalid.\n\n" +
-                        "$samlExceptions\n\n" + (node?.prettyPrintXmlOnDebug() ?: ""))
+                        "$samlExceptions\n\n" + (node?.debugPrettyPrintXml() ?: ""))
             } else {
                 SAMLComplianceException("The $property value of $actual is not equal to " +
-                        "$expected.\n\n$samlExceptions\n\n${node?.prettyPrintXmlOnDebug() ?: ""}")
+                        "$expected.\n\n$samlExceptions\n\n${node?.debugPrettyPrintXml() ?: ""}")
             }
         }
 
@@ -80,5 +82,13 @@ class SAMLComplianceException : Exception {
                     ?.groupValues
                     ?.get(1)
         }
+    }
+}
+
+private fun Node.debugPrettyPrintXml(): String? {
+    return if (Log.logLevel == LogLevel.DEBUG) {
+        this.prettyPrintXml()
+    } else {
+        null
     }
 }

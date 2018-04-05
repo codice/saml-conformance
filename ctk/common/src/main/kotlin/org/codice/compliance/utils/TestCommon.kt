@@ -22,6 +22,7 @@ import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.security.saml.SamlProtocol
@@ -138,5 +139,15 @@ class TestCommon {
                 url(response.header("Location"))
             }.build()
         }
+    }
+}
+
+fun IdpResponse.decorate(): IdpResponseDecorator {
+    if (this is IdpPostResponse) {
+        return this.decorate()
+    } else if (this is IdpRedirectResponse) {
+        return this.decorate()
+    } else {
+        throw UnsupportedOperationException()
     }
 }
