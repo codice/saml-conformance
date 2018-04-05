@@ -15,6 +15,7 @@ package org.codice.compliance.web.sso
 
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.RestAssured.given
+import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
@@ -82,6 +83,17 @@ class PostLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
             return authnRequestString
         }
+
+        private fun sendAuthnRequest(encodedRequest: String): Response {
+            return given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+        }
     }
 
     init {
@@ -90,14 +102,7 @@ class PostLoginTest : StringSpec() {
         "POST AuthnRequest Test" {
             Log.debugWithSupplier { "POST AuthnRequest Test" }
             val encodedRequest = Encoder.encodePostMessage(createValidAuthnRequest())
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -113,14 +118,7 @@ class PostLoginTest : StringSpec() {
             Log.debugWithSupplier { "POST AuthnRequest With Relay State Test" }
             val encodedRequest = Encoder.encodePostMessage(
                     createValidAuthnRequest(), EXAMPLE_RELAY_STATE)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -161,14 +159,7 @@ class PostLoginTest : StringSpec() {
                     authnRequestString,
                     EXAMPLE_RELAY_STATE)
 
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpResponder::class)
@@ -187,14 +178,7 @@ class PostLoginTest : StringSpec() {
             }
             val encodedRequest = Encoder.encodePostMessage(
                     createValidAuthnRequest(), TestCommon.RELAY_STATE_GREATER_THAN_80_BYTES)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
@@ -214,14 +198,7 @@ class PostLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
@@ -251,14 +228,7 @@ class PostLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
@@ -289,14 +259,7 @@ class PostLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString, EXAMPLE_RELAY_STATE)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = TestCommon.parseErrorResponse(response)
@@ -327,14 +290,7 @@ class PostLoginTest : StringSpec() {
             Log.debugWithSupplier { authnRequestString.prettyPrintXml() }
 
             val encodedRequest = Encoder.encodePostMessage(authnRequestString)
-            val response = given()
-                    .urlEncodingEnabled(false)
-                    .body(encodedRequest)
-                    .contentType("application/x-www-form-urlencoded")
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+            val response = sendAuthnRequest(encodedRequest)
 
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
             val idpResponse = TestCommon.parseErrorResponse(response)
