@@ -273,7 +273,8 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_a, TestCommon.REQUESTER)
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_a,
+                    TestCommon.REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion()
         }.config(enabled = false)
 
@@ -317,7 +318,8 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b, TestCommon.REQUESTER)
+            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b,
+                    TestCommon.REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
         }.config(enabled = false)
 
