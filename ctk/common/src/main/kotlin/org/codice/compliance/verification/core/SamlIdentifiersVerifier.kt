@@ -25,14 +25,6 @@ internal class SamlIdentifiersVerifier(val node: Node) {
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc"
         )
-
-        private val RWEDC_LIST = listOf(
-                "Read",
-                "Write",
-                "Execute",
-                "Delete",
-                "Control"
-        )
     }
 
     fun verify() {
@@ -64,8 +56,8 @@ internal class SamlIdentifiersVerifier(val node: Node) {
             if ("~$it" in negated) {
                 throw SAMLComplianceException.create(
                         SAMLCore_8_1_2,
-                        message = """An "AuthzDecisionQuery" element contained an action and """ +
-                                """its negated form.""",
+                        message = "An \"AuthzDecisionQuery\" element contained an action and its " +
+                                "negated form.",
                         node = node
                 )
             }
