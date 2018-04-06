@@ -49,7 +49,6 @@ sealed class SAMLBindingRefMessage : SAMLSpecRefMessage("SAMLBinding.doc", "SAML
 // PROFILES
 //-----------------
 object SAMLProfiles_3_1_a : SAMLProfileRefMessage()
-
 object SAMLProfiles_3_1_b : SAMLProfileRefMessage()
 object SAMLProfiles_3_1_c : SAMLProfileRefMessage()
 
@@ -61,6 +60,7 @@ object SAMLProfiles_4_1_4_2_a : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_b : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_c : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_d : SAMLProfileRefMessage()
+object SAMLProfiles_4_1_4_2_e : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_g : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_h : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_i : SAMLProfileRefMessage()
@@ -120,12 +120,16 @@ object SAMLCore_3_2_2_2 : SAMLCoreRefMessage()
 object SAMLCore_3_2_2_2_a : SAMLCoreRefMessage()
 
 object SAMLCore_3_4 : SAMLCoreRefMessage()
+object SAMLCore_3_3_4_a : SAMLCoreRefMessage()
+object SAMLCore_3_3_4_b : SAMLCoreRefMessage()
+object SAMLCore_3_3_4_c : SAMLCoreRefMessage()
 object SAMLCore_3_4_1_1a : SAMLCoreRefMessage()
 object SAMLCore_3_4_1_1b : SAMLCoreRefMessage()
 object SAMLCore_3_4_1_1c : SAMLCoreRefMessage()
 object SAMLCore_3_4_1_4a : SAMLCoreRefMessage()
-object SAMLCore_3_4_1_4b : SAMLCoreRefMessage()
-object SAMLCore_3_4_1_4c : SAMLCoreRefMessage()
+object SAMLCore_3_4_1_4_b : SAMLCoreRefMessage()
+object SAMLCore_3_4_1_4_c : SAMLCoreRefMessage()
+object SAMLCore_3_4_1_4_d : SAMLCoreRefMessage()
 
 object SAMLCore_3_7_1 : SAMLCoreRefMessage()
 

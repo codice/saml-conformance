@@ -37,10 +37,10 @@ class ProfilesVerifier(private val node: Node) {
     fun verifyErrorResponseAssertion(samlErrorCode: SAMLSpecRefMessage? = null) {
         if (node.recursiveChildren("Assertion").isNotEmpty()) {
             val exceptions: Array<SAMLSpecRefMessage> =
-            if (samlErrorCode != null)
-                arrayOf(samlErrorCode, SAMLProfiles_4_1_4_2_l)
-            else
-                arrayOf(SAMLProfiles_4_1_4_2_l)
+                    if (samlErrorCode != null)
+                        arrayOf(samlErrorCode, SAMLProfiles_4_1_4_2_l)
+                    else
+                        arrayOf(SAMLProfiles_4_1_4_2_l)
 
             @Suppress("SpreadOperator")
             throw SAMLComplianceException.create(*exceptions,
@@ -60,11 +60,21 @@ class ProfilesVerifier(private val node: Node) {
      * 3.1 Holder of Key
      */
     private fun verifyHolderOfKey() {
-        val subjectConfirmationDataList = node.recursiveChildren("SubjectConfirmation")
+        val holderOfKeyList = node.recursiveChildren("SubjectConfirmation")
                 .filter { it.attributeText("Method") == HOLDER_OF_KEY_URI }
+
+        if (holderOfKeyList.isEmpty()) return
+
+        val holderOfKeyDataList = holderOfKeyList
                 .flatMap { it.children("SubjectConfirmationData") }
 
-        subjectConfirmationDataList.forEach {
+        if (holderOfKeyDataList.isEmpty())
+            throw SAMLComplianceException.create(SAMLProfiles_3_1_a,
+                message = "<SubjectConfirmationData> not found within Holder of Key " +
+                        "<SubjectConfirmation>",
+                node = node)
+
+        holderOfKeyDataList.forEach {
             val type = it.attributeNodeNS(XSI, "type")
             if (type != null && !type.textContent.contains("KeyInfoConfirmationDataType"))
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,

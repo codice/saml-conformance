@@ -44,6 +44,9 @@ class TestCommon {
 
         const val ASSERTION = "Assertion"
         const val TYPE = "Type"
+        const val FORMAT = "Format"
+        const val SUBJECT = "Subject"
+        const val SUBJECT_CONFIRMATION = "SubjectConfirmation"
         const val AUTHN_REQUEST = "AuthnRequest"
         const val SAML_VERSION = "2.0"
         const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
@@ -122,7 +125,7 @@ class TestCommon {
                     SAMLComplianceException::class.java.classLoader)
         }
 
-        /*
+        /**
          * Since errors shouldn't be passed to user implementations, this acts as the "user
          * implementation" and parses the response into the correct idp object for further
          * processing.

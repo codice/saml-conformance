@@ -90,7 +90,7 @@ fun Node.siblings(name: String? = null): List<Node> {
  */
 fun Node.attributeList(): List<Node> {
     val attributesList = mutableListOf<Node>()
-    this.attributes.let {
+    this.attributes?.let {
         for (i in it.length - 1 downTo 0) {
             attributesList.add(it.item(i))
         }
