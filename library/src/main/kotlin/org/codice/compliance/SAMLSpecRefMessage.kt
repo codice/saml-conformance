@@ -50,7 +50,6 @@ sealed class XmlSigRefMessage : SAMLSpecRefMessage("XMLSig.doc", "XMLSig.uri")
 // PROFILES
 //-----------------
 object SAMLProfiles_3_1_a : SAMLProfileRefMessage()
-
 object SAMLProfiles_3_1_b : SAMLProfileRefMessage()
 object SAMLProfiles_3_1_c : SAMLProfileRefMessage()
 
@@ -62,6 +61,7 @@ object SAMLProfiles_4_1_4_2_a : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_b : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_c : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_d : SAMLProfileRefMessage()
+object SAMLProfiles_4_1_4_2_e : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_f : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_g : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_h : SAMLProfileRefMessage()
@@ -69,6 +69,7 @@ object SAMLProfiles_4_1_4_2_i : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_j : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_k : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_l : SAMLProfileRefMessage()
+
 object SAMLProfiles_4_1_4_5 : SAMLProfileRefMessage()
 
 //-----------------

@@ -50,7 +50,7 @@ class ResponseProtocolVerifier(private val response: Node,
         verifyStatusesType()
         verifyNameIdMappingResponse()
 
-        if (response.localName == "AuthnRequest") {
+        if (response.localName == "Response") {
             response.children("Assertion")
                     .forEach {
                         if (it.children("AuthnStatement").isEmpty())

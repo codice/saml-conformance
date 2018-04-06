@@ -114,7 +114,7 @@ class TestCommon {
                     SAMLComplianceException::class.java.classLoader)
         }
 
-        /*
+        /**
          * Since errors shouldn't be passed to user implementations, this acts as the "user
          * implementation" and parses the response into the correct idp object for further
          * processing.
