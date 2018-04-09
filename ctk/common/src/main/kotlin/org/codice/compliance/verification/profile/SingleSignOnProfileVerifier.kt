@@ -28,6 +28,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_j
 import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.children
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -35,10 +36,10 @@ import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
-@Suppress("StringLiteralDuplication")
 class SingleSignOnProfileVerifier(private val response: Node,
                                   private val acsUrl: String?) {
     companion object {
+        private const val SUBJECT = "Subject"
         fun verifyBinding(response: IdpResponseDecorator) {
             if (response is IdpRedirectResponse) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_2,
@@ -87,11 +88,11 @@ class SingleSignOnProfileVerifier(private val response: Node,
 
             val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
             if (issuerFormat != null &&
-                    issuerFormat != "urn:oasis:names:tc:SAML:2.0:nameid-format:entity")
+                    issuerFormat != ENTITY)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
                         property = "Format",
                         actual = issuerFormat,
-                        expected = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity",
+                        expected = ENTITY,
                         node = response)
         }
     }
@@ -169,7 +170,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
 
     @Suppress("ComplexCondition")
     private fun verifyBearerSubjectConfirmations(assertion: Node) {
-        val bearerSubjectConfirmations = assertion.children("Subject")[0]
+        val bearerSubjectConfirmations = assertion.children(SUBJECT)[0]
                 .children("SubjectConfirmation")
                 .filter {
                     it.attributes.getNamedItem("Method").textContent ==
@@ -202,9 +203,9 @@ class SingleSignOnProfileVerifier(private val response: Node,
     }
 
     private fun verifyHasSubject(assertion: Node) {
-        if (assertion.children("Subject").size != 1) {
+        if (assertion.children(SUBJECT).size != 1) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f,
-                    message = "${assertion.children("Subject").size} Subject elements were found.",
+                    message = "${assertion.children(SUBJECT).size} Subject elements were found.",
                     node = response)
         }
     }

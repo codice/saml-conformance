@@ -27,8 +27,10 @@ import org.codice.compliance.utils.TestCommon
 import org.w3c.dom.Node
 import java.time.Instant
 
-@Suppress("StringLiteralDuplication")
 internal class ConditionsVerifier(val node: Node) {
+    companion object {
+        private const val AUDIENCE = "Audience"
+    }
 
     fun verify() {
         node.allChildren("Conditions").forEach {
@@ -86,7 +88,7 @@ internal class ConditionsVerifier(val node: Node) {
                     node = node)
 
         val proxyRestrictionAudiences = proxyRestrictions
-                .flatMap { it.children("Audience") }
+                .flatMap { it.children(AUDIENCE) }
                 .map { it.textContent }
                 .toList()
 
@@ -99,13 +101,13 @@ internal class ConditionsVerifier(val node: Node) {
                 node = node)
 
         audienceRestrictions.forEach {
-            val audienceRestrictionAudiences = it.children("Audience")
+            val audienceRestrictionAudiences = it.children(AUDIENCE)
             if (audienceRestrictionAudiences.isEmpty())
                 throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
                         message = "The AudienceRestriction element must contain at least one " +
                                 "Audience element.",
                         node = node)
-            it.children("Audience").forEach {
+            it.children(AUDIENCE).forEach {
                 if (!proxyRestrictionAudiences.contains(it.textContent))
                     throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
                             message = "The AudienceRestriction can only have Audience elements " +

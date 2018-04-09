@@ -23,12 +23,18 @@ import org.codice.compliance.SAMLCore_2_3_4_a
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
-import org.codice.compliance.verification.core.verifyIdValues
-import org.codice.compliance.verification.core.verifyTimeValues
+import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
+import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
 
-@Suppress("StringLiteralDuplication")
 internal class AssertionsVerifier(val node: Node) {
+    companion object {
+        private const val ID = "ID"
+        private const val VERSION = "Version"
+        private const val ASSERTION = "Assertion"
+        private const val ISSUE_INSTANT = "IssueInstant"
+        private const val SAMLCore_2_3_3 = "SAMLCore.2.3.3"
+    }
 
     fun verify() {
         verifyCoreAssertion()
@@ -41,37 +47,38 @@ internal class AssertionsVerifier(val node: Node) {
      */
     @Suppress("ComplexCondition")
     private fun verifyCoreAssertion() {
-        node.allChildren("Assertion").forEach {
-            if (it.attributes.getNamedItem("Version")?.textContent == null)
-                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3",
-                        "Version",
-                        "Assertion",
+        node.allChildren(ASSERTION).forEach {
+            if (it.attributes.getNamedItem(VERSION)?.textContent == null)
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage(SAMLCore_2_3_3,
+                        property = VERSION,
+                        parent = ASSERTION,
                         node = node)
-            if (it.attributes.getNamedItem("Version").textContent != "2.0")
+            if (it.attributes.getNamedItem(VERSION).textContent != SAML_VERSION)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_3_3_a,
-                        property = "Version",
-                        actual = it.attributes.getNamedItem("Version").textContent,
-                        expected = "2.0",
+                        property = VERSION,
+                        actual = it.attributes.getNamedItem(VERSION).textContent,
+                        expected = SAML_VERSION,
                         node = node)
 
-            if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3",
-                        "ID",
-                        "Assertion",
+            if (it.attributes.getNamedItem(ID) == null)
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage(SAMLCore_2_3_3,
+                        property = ID,
+                        parent = ASSERTION,
                         node = node)
-            verifyIdValues(it.attributes.getNamedItem("ID"), SAMLCore_2_3_3_b)
+            CommonDataTypeVerifier.verifyIdValues(it.attributes.getNamedItem(ID), SAMLCore_2_3_3_b)
 
-            if (it.attributes.getNamedItem("IssueInstant") == null)
-                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3",
-                        "IssueInstant",
-                        "Assertion",
+            if (it.attributes.getNamedItem(ISSUE_INSTANT) == null)
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage(SAMLCore_2_3_3,
+                        property = ISSUE_INSTANT,
+                        parent = ASSERTION,
                         node = node)
-            verifyTimeValues(it.attributes.getNamedItem("IssueInstant"), SAMLCore_2_3_3_c)
+            CommonDataTypeVerifier.verifyTimeValues(it.attributes.getNamedItem(ISSUE_INSTANT),
+                    SAMLCore_2_3_3_c)
 
             if (it.children("Issuer").isEmpty())
-                throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.2.3.3",
-                        "Issuer",
-                        "Assertion",
+                throw SAMLComplianceException.createWithXmlPropertyReqMessage(SAMLCore_2_3_3,
+                        property = "Issuer",
+                        parent = ASSERTION,
                         node = node)
 
             val statements = it.children("Statement")
@@ -101,8 +108,8 @@ internal class AssertionsVerifier(val node: Node) {
             if (encryptedData.isEmpty())
                 throw SAMLComplianceException
                         .createWithXmlPropertyReqMessage("SAMLCore.2.3.4",
-                                "EncryptedData",
-                                "EncryptedAssertion",
+                                property = "EncryptedData",
+                                parent = "EncryptedAssertion",
                                 node = node)
 
             if (encryptedData.filter { it.attributes.getNamedItem("Type") != null }

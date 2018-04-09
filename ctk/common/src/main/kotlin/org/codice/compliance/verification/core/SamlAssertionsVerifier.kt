@@ -24,8 +24,10 @@ import org.codice.compliance.verification.core.internal.StatementVerifier
 import org.codice.compliance.verification.core.internal.SubjectVerifier
 import org.w3c.dom.Node
 
-@Suppress("StringLiteralDuplication")
 class SamlAssertionsVerifier(val node: Node) {
+    companion object {
+        private const val ENCRYPTED_ID = "EncryptedID"
+    }
     /**
      * Verify assertions against the Core Spec document
      * 2 SAML Assertions
@@ -45,12 +47,12 @@ class SamlAssertionsVerifier(val node: Node) {
      */
     private fun verifyNameIdentifiers() {
         // EncryptedID
-        node.allChildren("EncryptedID").forEach {
+        node.allChildren(ENCRYPTED_ID).forEach {
             val encryptedData = it.children("EncryptedData")
             if (encryptedData.isEmpty()) throw SAMLComplianceException
                     .createWithXmlPropertyReqMessage("SAMLCore.2.2.4",
-                            "EncryptedData",
-                            "EncryptedId")
+                            property = "EncryptedData",
+                            parent = ENCRYPTED_ID)
 
             if (encryptedData.filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
