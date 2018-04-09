@@ -13,9 +13,11 @@
  */
 package org.codice.compliance.utils.decorators
 
+import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
-import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.debugWithSupplier
+import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.verification.binding.BindingVerifier
@@ -39,7 +41,9 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
     }
 
     init {
-        responseBodyString?.debugPrettyPrintXml("HTTP Response Body")
+        Log.debugWithSupplier {
+            restAssuredResponse?.then()?.extract()?.body()?.asString()?.prettyPrintXml() ?: ""
+        }
     }
 
     override var isRelayStateGiven: Boolean = false

@@ -34,7 +34,7 @@ public class IdpPostResponse extends IdpResponse {
 
   private static final String VALUE = "value";
   protected static final String NAME = "name";
-  protected String responseBodyString;
+  protected Response restAssuredResponse;
 
   public IdpPostResponse(Response response) {
     httpStatusCode = response.statusCode();
@@ -54,14 +54,14 @@ public class IdpPostResponse extends IdpResponse {
       parseAndSetFormValues();
     } else {
       // Purely for debugging purposes
-      responseBodyString = response.then().extract().body().asString();
+      this.restAssuredResponse = response;
     }
   }
 
   // Copy constructor
   protected IdpPostResponse(IdpPostResponse response) {
     super(response);
-    responseBodyString = response.responseBodyString;
+    this.restAssuredResponse = response.restAssuredResponse;
     responseForm = response.responseForm;
     samlResponseFormControl = response.samlResponseFormControl;
     relayStateFormControl = response.relayStateFormControl;
