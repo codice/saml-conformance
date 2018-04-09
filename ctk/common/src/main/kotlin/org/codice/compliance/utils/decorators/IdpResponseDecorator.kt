@@ -13,11 +13,11 @@
  */
 package org.codice.compliance.utils.decorators
 
+import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.w3c.dom.Node
-import javax.xml.parsers.DocumentBuilderFactory
 
 interface IdpResponseDecorator {
     var isRelayStateGiven: Boolean
@@ -35,10 +35,6 @@ fun IdpPostResponse.decorate(): IdpPostResponseDecorator {
     return IdpPostResponseDecorator(this)
 }
 
-internal fun buildDom(decodedSamlResponse: String): Node {
-    return DocumentBuilderFactory.newInstance().apply {
-        isNamespaceAware = true
-    }.newDocumentBuilder()
-            .parse(decodedSamlResponse.byteInputStream())
-            .documentElement
+internal fun buildDom(inputXml: String): Node {
+    return Common.buildDom(inputXml)
 }

@@ -20,16 +20,18 @@ import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 import java.io.File
-import java.io.StringReader
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
+import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.stream.StreamSource
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 import kotlin.test.currentStackTrace
 
 const val IMPLEMENTATION_PATH = "implementation.path"
@@ -86,10 +88,27 @@ class Common {
                     ?.first { it.binding == binding }
                     ?.location
         }
+
+        /**
+         * Generates an xml document from an input string
+         */
+        fun buildDom(inputXml: String): Node {
+            return DocumentBuilderFactory.newInstance().apply {
+                isNamespaceAware = true
+            }.newDocumentBuilder()
+                    .parse(inputXml.byteInputStream())
+                    .documentElement
+        }
     }
 }
 
 /** Extensions functions **/
+fun Log.debugWithSupplier(message: () -> String) {
+    if (this.logLevel == LogLevel.DEBUG) {
+        val callSite = currentStackTrace()[1]
+        this.debug("${message()} [(${callSite.fileName}:${callSite.lineNumber})]")
+    }
+}
 
 /**
  * Finds a Node's child by its name.
@@ -126,25 +145,31 @@ fun Node.allChildren(name: String): List<Node> {
 }
 
 fun Node.prettyPrintXml(): String {
+    // Remove whitespaces outside tags
+    normalize()
+    val xPath = XPathFactory.newInstance().newXPath()
+    val nodeList = xPath.evaluate("//text()[normalize-space()='']",
+            this,
+            XPathConstants.NODESET) as NodeList
+    for (i in 0 until nodeList.length) {
+        val node = nodeList.item(i)
+        node.parentNode.removeChild(node)
+    }
+
     val transformer = createTransformer()
     val output = StringWriter()
     transformer.transform(DOMSource(this), StreamResult(output))
     return output.toString()
 }
 
-fun Log.debugWithSupplier(message: () -> String) {
-    if (this.logLevel == LogLevel.DEBUG) {
-        val callSite = currentStackTrace()[1]
-        this.debug("${message()} [(${callSite.fileName}:${callSite.lineNumber})]")
-    }
-}
-
+@Suppress("TooGenericExceptionCaught")
 fun String.prettyPrintXml(): String {
-    val input = StreamSource(StringReader(this))
-    val output = StreamResult(StringWriter())
-    val transformer = createTransformer()
-    transformer.transform(input, output)
-    return output.writer.toString()
+    return try {
+        Common.buildDom(this).prettyPrintXml()
+    } catch (e: Exception) {
+        Log.debugWithSupplier { "'$this' is not valid XML." }
+        this
+    }
 }
 
 fun String.debugPrettyPrintXml(header: String?) {
@@ -158,6 +183,7 @@ private fun createTransformer(): Transformer {
     return TransformerFactory.newInstance().newTransformer().apply {
         setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name())
         setOutputProperty(OutputKeys.INDENT, "yes")
+        setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
         setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
     }
 }
