@@ -72,7 +72,6 @@ class CommonDataTypeVerifier {
 
         /** 1.3.2 URI Values **/
         fun verifyUriValues(node: Node, errorCode: SAMLSpecRefMessage?) {
-            // todo - make sure uri absolute check is correct
             if (StringUtils.isBlank(node.textContent)
                     && !URI.create(node.textContent).isAbsolute) {
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
@@ -171,9 +170,9 @@ class CommonDataTypeVerifier {
             }
         }
 
-        // todo allow an unlimited amount of fractional seconds as stated in the XML Datatypes
+        // TODO allow an unlimited amount of fractional seconds as stated in the XML Datatypes
         // Schema 3.2.7
-        // todo "SAML system entities SHOULD NOT rely on time resolution finer than milliseconds"
+        // TODO "SAML system entities SHOULD NOT rely on time resolution finer than milliseconds"
         // Core.1.3.3 helper for verifyTimeValues
         private fun verifyRestOfDateTime(restOfDateTime: String, errorCode: SAMLSpecRefMessage?) {
             val format = DateTimeFormatter.ofPattern(

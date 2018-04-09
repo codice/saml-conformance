@@ -67,7 +67,6 @@ public class IdpPostResponse extends IdpResponse {
     relayStateFormControl = response.relayStateFormControl;
   }
 
-  // TODO remove responseForm field if not used in Binding Verification
   protected Node responseForm;
   protected Node samlResponseFormControl;
   protected Node relayStateFormControl;

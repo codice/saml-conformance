@@ -93,8 +93,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCode() {
-        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
-        // code for Redirect" is completed
+        // TODO remove the 200 check when we change HTTP status code to expect 302/303
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
@@ -114,8 +113,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCodeErrorResponse() {
-        // TODO remove the 200 check when "Manually change DDF IdP to respond with 302/303 status
-        // code for Redirect" is completed
+        // TODO remove the 200 check when we change HTTP status code to expect 302/303
         if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_OK
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
                 && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {

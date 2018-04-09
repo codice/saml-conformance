@@ -59,12 +59,6 @@ class SamlAssertionsVerifier(val node: Node) {
                 throw SAMLComplianceException.create(SAMLCore_2_2_4_a,
                         message = "Type attribute found with an incorrect value.",
                         node = node)
-            // todo - For The encrypted content MUST contain an element that has a type of
-            // NameIDType or AssertionType, or a type that is derived from BaseIDAbstractType,
-            // NameIDType, or AssertionType.
         }
-        // todo - Encrypted identifiers are intended as a privacy protection mechanism when the
-        // plain-text value passes through an intermediary. As such, the ciphertext MUST be unique
-        // to any given encryption operation. For more on such issues, see [XMLEnc] Section 6.3.
     }
 }

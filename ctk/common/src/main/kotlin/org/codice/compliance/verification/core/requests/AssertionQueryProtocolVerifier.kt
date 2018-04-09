@@ -61,9 +61,6 @@ class AssertionQueryProtocolVerifier (override val request: Node) :
             //RequestedAuthnContext
             it.children(REQUESTED_AUTHN_CONTEXT).forEach { verifyRequestedAuthnContext(it) }
 
-            // todo - verify correctness (brandan - I think this is correct but missing a last step:
-            // "<AuthnContext>
-            // element that satisfies the element in the query")
             if (it.children(REQUESTED_AUTHN_CONTEXT).isNotEmpty()
                     && request.children("Assertion")
                             .filter { it.children("AuthnStatement").isNotEmpty() }

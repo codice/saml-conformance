@@ -177,7 +177,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                             "urn:oasis:names:tc:SAML:2.0:cm:bearer"
                 }.toList()
 
-        //gtodo - We can't throw an exception here because the spec says there could be assertions
+        //todo - We can't throw an exception here because the spec says there could be assertions
         // without bearer SubjectConfirmation
         if (bearerSubjectConfirmations.isEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
