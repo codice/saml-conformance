@@ -34,6 +34,7 @@ public class IdpPostResponse extends IdpResponse {
 
   private static final String VALUE = "value";
   protected static final String NAME = "name";
+  protected String responseBodyString;
 
   public IdpPostResponse(Response response) {
     httpStatusCode = response.statusCode();
@@ -51,21 +52,25 @@ public class IdpPostResponse extends IdpResponse {
 
     if (responseForm != null) {
       parseAndSetFormValues();
+    } else {
+      // Purely for debugging purposes
+      responseBodyString = response.then().extract().body().asString();
     }
   }
 
   // Copy constructor
   protected IdpPostResponse(IdpPostResponse response) {
     super(response);
+    responseBodyString = response.responseBodyString;
     responseForm = response.responseForm;
-    samlResponseForm = response.samlResponseForm;
-    relayStateForm = response.relayStateForm;
+    samlResponseFormControl = response.samlResponseFormControl;
+    relayStateFormControl = response.relayStateFormControl;
   }
 
   // TODO remove responseForm field if not used in Binding Verification
   protected Node responseForm;
-  protected Node samlResponseForm;
-  protected Node relayStateForm;
+  protected Node samlResponseFormControl;
+  protected Node relayStateFormControl;
 
   private boolean hasSamlResponseFormControl(Node form) {
     return form.children()
@@ -78,7 +83,7 @@ public class IdpPostResponse extends IdpResponse {
   private void parseAndSetFormValues() {
     // Bindings 3.5.4 "If the message is a SAML response, then the form control MUST be named
     // SAMLResponse."
-    samlResponseForm =
+    samlResponseFormControl =
         responseForm
             .children()
             .list()
@@ -91,7 +96,7 @@ public class IdpPostResponse extends IdpResponse {
     // placed in an additional **hidden** form control named RelayState within the same form with
     // the SAML message"
 
-    relayStateForm =
+    relayStateFormControl =
         responseForm
             .children()
             .list()
@@ -100,8 +105,8 @@ public class IdpPostResponse extends IdpResponse {
             .findFirst()
             .orElse(null);
 
-    samlResponse = extractValue(samlResponseForm);
-    relayState = extractValue(relayStateForm);
+    samlResponse = extractValue(samlResponseFormControl);
+    relayState = extractValue(relayStateFormControl);
   }
 
   private String extractValue(Node node) {

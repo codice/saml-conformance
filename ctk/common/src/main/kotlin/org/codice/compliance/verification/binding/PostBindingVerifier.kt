@@ -270,15 +270,17 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                         SAMLBindings_3_5_4_a2,
                         message = "The SAMLResponse form control was not hidden.")
             }
-            if (!isRelayStateNameCorrect) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_c,
-                        message = "The RelayState form control was incorrectly named.")
-            }
-            if (!isRelayStateHidden) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_c,
-                        message = "The RelayState form control was not hidden.")
+            if (isRelayStateGiven) {
+                if (!isRelayStateNameCorrect) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_c,
+                            message = "The RelayState form control was incorrectly named.")
+                }
+                if (!isRelayStateHidden) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_c,
+                            message = "The RelayState form control was not hidden.")
+                }
             }
         }
     }

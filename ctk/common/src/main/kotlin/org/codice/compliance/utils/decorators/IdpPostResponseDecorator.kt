@@ -15,6 +15,7 @@ package org.codice.compliance.utils.decorators
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.verification.binding.BindingVerifier
@@ -37,6 +38,10 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         private const val POST = "POST"
     }
 
+    init {
+        responseBodyString?.debugPrettyPrintXml("HTTP Response Body")
+    }
+
     override var isRelayStateGiven: Boolean = false
     override lateinit var decodedSamlResponse: String
 
@@ -49,14 +54,14 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         responseForm == null
     }
     val isSamlResponseFormNull: Boolean by lazy {
-        samlResponseForm == null
+        samlResponseFormControl == null
     }
     val isRelayStateFormNull: Boolean by lazy {
-        relayStateForm == null
+        relayStateFormControl == null
     }
 
     val isSamlResponseNameCorrect: Boolean by lazy {
-        checkNodeAttribute(samlResponseForm, NAME, SAML_RESPONSE)
+        checkNodeAttribute(samlResponseFormControl, NAME, SAML_RESPONSE)
     }
 
     /*
@@ -87,13 +92,15 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
      * controls
      */
     val isSamlResponseHidden: Boolean by lazy {
-        checkNodeAttributeIgnoreCase(samlResponseForm, TYPE, HIDDEN)
+        checkNodeAttributeIgnoreCase(samlResponseFormControl, TYPE, HIDDEN)
     }
     val isRelayStateNameCorrect: Boolean by lazy {
-        checkNodeAttribute(relayStateForm, NAME, RELAY_STATE)
+        require(isRelayStateGiven)
+        checkNodeAttribute(relayStateFormControl, NAME, RELAY_STATE)
     }
     val isRelayStateHidden: Boolean by lazy {
-        checkNodeAttributeIgnoreCase(relayStateForm, TYPE, HIDDEN)
+        require(isRelayStateGiven)
+        checkNodeAttributeIgnoreCase(relayStateFormControl, TYPE, HIDDEN)
     }
 
     private fun checkNodeAttribute(node: raNode,

@@ -36,7 +36,8 @@ import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
 @Suppress("StringLiteralDuplication")
-class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl: String?) {
+class SingleSignOnProfileVerifier(private val response: Node,
+                                  private val acsUrl: String?) {
     companion object {
         fun verifyBinding(response: IdpResponseDecorator) {
             if (response is IdpRedirectResponse) {
@@ -45,6 +46,7 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
             }
         }
     }
+
     /**
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage
@@ -100,7 +102,9 @@ class SingleSignOnProfileVerifier(private val response: Node, private val acsUrl
      */
     private fun verifySsoAssertions() {
         val assertions = response.children("Assertion")
-        if (assertions.isEmpty()) {
+        val encryptedAssertions = response.children("EncryptedAssertion")
+
+        if (assertions.isEmpty() && encryptedAssertions.isEmpty()) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d,
                     message = "No Assertions found.",
                     node = response)

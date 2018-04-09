@@ -22,6 +22,7 @@ import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.io.File
+import java.io.StringReader
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
 import javax.xml.parsers.DocumentBuilderFactory
@@ -30,6 +31,7 @@ import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.stream.StreamSource
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 import kotlin.test.currentStackTrace
@@ -162,19 +164,30 @@ fun Node.prettyPrintXml(): String {
     return output.toString()
 }
 
-@Suppress("TooGenericExceptionCaught")
+//@Suppress("TooGenericExceptionCaught")
+//fun String.prettyPrintXml(): String {
+//    return try {
+//        Common.buildDom(this).prettyPrintXml()
+//    } catch (e: Exception) {
+//        Log.debugWithSupplier { "'$this' is not valid XML." }
+//        this
+//    }
+//}
 fun String.prettyPrintXml(): String {
-    return try {
-        Common.buildDom(this).prettyPrintXml()
-    } catch (e: Exception) {
-        Log.debugWithSupplier { "'$this' is not valid XML." }
-        this
-    }
+    // Escape all ampersands because Keycloak does not properly escape it in POST responses
+    // which causes the transform to fail.
+    val escapedString = this.replace(Regex("&([^;]+(?!(?:\\\\w|;)))"),
+            { match -> "&amp;${match.value.removePrefix("&")}" })
+    val input = StreamSource(StringReader(escapedString))
+    val output = StreamResult(StringWriter())
+    val transformer = createTransformer()
+    transformer.transform(input, output)
+    return output.writer.toString()
 }
 
 fun String.debugPrettyPrintXml(header: String?) {
     Log.debugWithSupplier {
-        val headerVal = if (header == null) "$header:\n\n" else ""
+        val headerVal = if (header != null) "$header:\n\n" else ""
         "$headerVal ${this.prettyPrintXml()}"
     }
 }
