@@ -65,7 +65,7 @@ class Common {
         }
 
         /**
-         * Parses and returns the idp metadata
+         * Parses and returns the sp metadata
          */
         fun parseSpMetadata(): Map<String, EntityInformation> {
             return SPMetadataParser.parse(TEST_SP_METADATA, SUPPORTED_BINDINGS)
@@ -113,10 +113,10 @@ fun Log.debugWithSupplier(message: () -> String) {
 }
 
 /**
- * Finds a Node's child by its name.
+ * Finds all of the first level children of a {@code Node} with the given element name
  *
- * @param name - Name of Assertions.children
- * @return list of Assertions.children matching the name provided
+ * @param name - Element name to match
+ * @return List of child {@code Nodes} matching the element name provided
  */
 fun Node.children(name: String = DEFAULT): List<Node> {
     val childNodes = mutableListOf<Node>()
@@ -129,10 +129,11 @@ fun Node.children(name: String = DEFAULT): List<Node> {
 }
 
 /**
- * Finds a Node's child by its name.
+ * Finds all of the children of a {@code Node} with the given element name, regardless of how deep
+ * the element is nested in its children
  *
- * @param name - Name of Assertions.children
- * @return list of Assertions.children matching the name provided
+ * @param name - Element name to match
+ * @return List of child {@code Nodes} matching the element name provided
  */
 fun Node.recursiveChildren(name: String = DEFAULT): List<Node> {
     val nodes = mutableListOf<Node>()
@@ -143,6 +144,34 @@ fun Node.recursiveChildren(name: String = DEFAULT): List<Node> {
         }
     }
     return nodes
+}
+
+/**
+ * Finds all of the siblings of a {@code Node} with the given element name
+ *
+ * @param name - Element name to match
+ * @return List of sibling {code Nodes} matching the element name provided
+ */
+fun Node.siblings(name: String): List<Node> {
+    val siblingNodes = mutableListOf<Node>()
+
+    // backwards portion
+    var tempNode = this
+    while (tempNode.previousSibling != null) {
+        tempNode = tempNode.previousSibling
+        if (tempNode.localName == name)
+            siblingNodes.add(tempNode)
+    }
+
+    // forwards portion
+    tempNode = this
+    while (tempNode.nextSibling != null) {
+        tempNode = tempNode.nextSibling
+        if (tempNode.localName == name)
+            siblingNodes.add(tempNode)
+    }
+
+    return siblingNodes
 }
 
 fun Node.attributeList(): List<Node> {

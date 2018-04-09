@@ -41,6 +41,7 @@ class TestCommon {
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
 
+        const val TYPE = "Type"
         const val AUTHN_REQUEST = "AuthnRequest"
         const val SAML_VERSION = "2.0"
         const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
