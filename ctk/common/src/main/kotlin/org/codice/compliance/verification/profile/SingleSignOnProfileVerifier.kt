@@ -20,7 +20,6 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
 import org.codice.compliance.SAMLProfiles_4_1_4_2_d
-import org.codice.compliance.SAMLProfiles_4_1_4_2_f
 import org.codice.compliance.SAMLProfiles_4_1_4_2_g
 import org.codice.compliance.SAMLProfiles_4_1_4_2_h
 import org.codice.compliance.SAMLProfiles_4_1_4_2_i
@@ -28,6 +27,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_j
 import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.children
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.utils.TestCommon.Companion.BEARER
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
@@ -40,6 +40,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                                   private val acsUrl: String?) {
     companion object {
         private const val SUBJECT = "Subject"
+        private const val AUTHN_STATEMENT = "AuthnStatement"
         fun verifyBinding(response: IdpResponseDecorator) {
             if (response is IdpRedirectResponse) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_2,
@@ -61,8 +62,6 @@ class SingleSignOnProfileVerifier(private val response: Node,
     /**
      * Checks the issuer element against the SSO profile spec
      * 4.1.4.2 <Response> Usage
-     *
-     * @param node - Node containing the issuer to verify.
      */
     private fun verifyIssuer() {
         if (response.localName == "Response" &&
@@ -111,90 +110,39 @@ class SingleSignOnProfileVerifier(private val response: Node,
                     node = response)
         }
 
-        assertions.forEach {
-            verifyIssuer()
-            verifyHasSubject(it)
-            verifyBearerSubjectConfirmations(it)
+        assertions.forEach { verifyIssuer() }
 
-            // todo - We can't throw an exception here because the spec says there could be
-            // assertions without bearer
-            verifyAssertionsHaveAuthnStmts(it)
-            verifySingleLogoutIncludesSessionIndex(it)
+        val (bearerSubjectConfirmations, bearerAssertions) =
+                assertions.filter { it.children(SUBJECT).isNotEmpty() }
+                        .flatMap { it.children(SUBJECT) }
+                        .filter { it.children("SubjectConfirmation").isNotEmpty() }
+                        .flatMap { it.children("SubjectConfirmation") }
+                        .filter { it.attributes.getNamedItem("Method").textContent == BEARER }
+                        .map { it to it.parentNode.parentNode }
+                        .unzip()
 
-            // Assuming the AudienceRestriction is under Conditions
-            verifyBearerAssertionsContainAudienceRestriction(it)
-        }
-    }
-
-    private fun verifyBearerAssertionsContainAudienceRestriction(assertion: Node) {
-        if (assertion.children("Conditions").isNotEmpty()) {
-            val audience = assertion.children("Conditions")
-                    .firstOrNull()
-                    ?.children("AudienceRestriction")
-                    ?.firstOrNull()
-                    ?.children("Audience")
-                    ?.firstOrNull()
-                    ?.textContent
-
-            if (audience != SP_ISSUER)
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_k,
-                        property = "Audience",
-                        actual = audience,
-                        expected = SP_ISSUER,
-                        node = response)
-        }
-    }
-
-    private fun verifySingleLogoutIncludesSessionIndex(assertion: Node) {
-        if (idpMetadata.descriptor == null) return
-
-        if (idpMetadata.descriptor?.singleLogoutServices?.isNotEmpty() == true) return
-
-        assertion.children("AuthnStatement").forEach {
-            if (it.attributes.getNamedItem("SessionIndex") == null) {
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
-                        message = "Single Logout support found in IdP metadata, but no " +
-                                "SessionIndex was found.",
-                        node = response)
-            }
-        }
-    }
-
-    private fun verifyAssertionsHaveAuthnStmts(assertion: Node) {
-        if (assertion.children("AuthnStatement").isEmpty()) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
-                    message = "A bearer Assertion was found without an AuthnStatement.",
-                    node = response)
-        }
-    }
-
-    @Suppress("ComplexCondition")
-    private fun verifyBearerSubjectConfirmations(assertion: Node) {
-        val bearerSubjectConfirmations = assertion.children(SUBJECT)[0]
-                .children("SubjectConfirmation")
-                .filter {
-                    it.attributes.getNamedItem("Method").textContent ==
-                            "urn:oasis:names:tc:SAML:2.0:cm:bearer"
-                }.toList()
-
-        //todo - We can't throw an exception here because the spec says there could be assertions
-        // without bearer SubjectConfirmation
-        if (bearerSubjectConfirmations.isEmpty())
+        if (bearerAssertions.isEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
                     message = "No bearer SubjectConfirmation elements were found.",
                     node = response)
 
-        // Check if there is one SubjectConfirmationData with a Recipient, InResponseTo and
-        // NotOnOrAfter
+        verifyBearerSubjectConfirmations(bearerSubjectConfirmations)
+        verifyAssertionsHaveAuthnStmts(bearerAssertions)
+        verifySingleLogoutIncludesSessionIndex(bearerAssertions)
+        verifyBearerAssertionsContainAudienceRestriction(bearerAssertions)
+    }
+
+    @Suppress("ComplexCondition")
+    private fun verifyBearerSubjectConfirmations(bearerSubjectConfirmations: List<Node>) {
         if (bearerSubjectConfirmations
                         .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                         .flatMap { it.children("SubjectConfirmationData") }
                         .none {
                             it.attributes.getNamedItem("Recipient").textContent == acsUrl &&
-                                    it.attributes.getNamedItem("InResponseTo").textContent == ID &&
                                     it.attributes.getNamedItem("NotOnOrAfter") != null &&
-                                    it.attributes.getNamedItem("NotBefore") == null
-                        }) {
+                                    it.attributes.getNamedItem("NotBefore") == null &&
+                                    it.attributes.getNamedItem("InResponseTo").textContent ==
+                                    ID }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "There were no bearer SubjectConfirmation elements that matched " +
                             "the criteria below.",
@@ -202,11 +150,52 @@ class SingleSignOnProfileVerifier(private val response: Node,
         }
     }
 
-    private fun verifyHasSubject(assertion: Node) {
-        if (assertion.children(SUBJECT).size != 1) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f,
-                    message = "${assertion.children(SUBJECT).size} Subject elements were found.",
+    private fun verifyAssertionsHaveAuthnStmts(bearerAssertions: List<Node>) {
+        if (bearerAssertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
+                    message = "A Bearer Assertion with an AuthnStatement was not found.",
+                    node = response)
+    }
+
+    private fun verifySingleLogoutIncludesSessionIndex(bearerAssertions: List<Node>) {
+        if (idpMetadata.descriptor == null) return
+
+        if (idpMetadata.descriptor?.singleLogoutServices?.isNotEmpty() == true) return
+
+        if (bearerAssertions.filter { it.children(AUTHN_STATEMENT).isNotEmpty() }
+                        .flatMap { it.children(AUTHN_STATEMENT) }
+                        .any { it.attributes.getNamedItem("SessionIndex") == null })
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
+                    message = "Single Logout support found in IdP metadata, but no " +
+                            "SessionIndex was found.",
+                    node = response)
+    }
+
+    private fun verifyBearerAssertionsContainAudienceRestriction(bearerAssertions: List<Node>) {
+        if (bearerAssertions
+                        .filter { it.children("Conditions").isNotEmpty() }
+                        .flatMap { it.children("Conditions") }
+                        .map { extractAudienceRestriction(it) }
+                        .filter { it.children("Audience").isNotEmpty() }
+                        .flatMap { it.children("Audience") }
+                        .none { it.textContent == SP_ISSUER }) {
+
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k,
+                    message = "An <Audience> containing the service provider's issuer was " +
+                            "not found",
                     node = response)
         }
+    }
+
+    private fun extractAudienceRestriction(condition: Node): Node {
+        val audienceRestriction = condition.children("AudienceRestriction")
+        if (audienceRestriction.size != 1) {
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_k,
+                    property = "AudienceRestriction",
+                    actual = audienceRestriction.toString(),
+                    expected = "One <AudienceRestriction>",
+                    node = condition)
+        }
+        return audienceRestriction.first()
     }
 }
