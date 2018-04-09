@@ -143,9 +143,9 @@ class TestCommon {
 }
 
 fun IdpResponse.decorate(): IdpResponseDecorator {
-    return when {
-        this is IdpPostResponse -> decorate()
-        this is IdpRedirectResponse -> decorate()
+    return when (this) {
+        is IdpPostResponse -> decorate()
+        is IdpRedirectResponse -> decorate()
         else -> throw UnsupportedOperationException()
     }
 }
