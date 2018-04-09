@@ -38,7 +38,6 @@ import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
 
-@Suppress("StringLiteralDuplication")
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) : BindingVerifier() {
 
     /**
@@ -76,8 +75,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
-                        message = "The form containing the SAMLResponse from control could " +
-                                "not be found.")
+                        message = "The form containing the SAMLResponse from control could not be" +
+                                "found.")
             }
             if (isRelayStateGiven && isRelayStateFormNull) {
                 throw SAMLComplianceException.create(
@@ -95,8 +94,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_3_b,
                         SAMLBindings_3_5_4_c,
-                        message = "The RelayState within the RelayState form control could " +
-                                "not be found.")
+                        message = "The RelayState within the RelayState form control could not" +
+                                "be found.")
             }
         }
     }
@@ -112,8 +111,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
-                        message = "The form containing the SAMLResponse from control could " +
-                                "not be found." +
+                        message = "The form containing the SAMLResponse from control could not be" +
+                                "found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
             if (isRelayStateGiven && isRelayStateFormNull) {
@@ -126,17 +125,15 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_a2,
                         SAMLBindings_3_5_4_b1,
-                        message = "The SAMLResponse within the SAMLResponse form control could " +
-                                "not be found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                        message = "The SAMLResponse within the SAMLResponse form control could" +
+                                "not be found.\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_3_b,
                         SAMLBindings_3_5_4_c,
-                        message = "The RelayState within the RelayState form control could " +
-                                "not be found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                        message = "The RelayState within the RelayState form control could not " +
+                                "be found.\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
         }
     }

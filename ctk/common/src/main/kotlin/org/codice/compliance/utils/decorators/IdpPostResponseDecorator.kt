@@ -26,9 +26,8 @@ import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
-@Suppress("StringLiteralDuplication")
 /**
- * This class  can only be instantiated by using extension methods in IdpResponseDecorator.kt
+ * This class can only be instantiated by using extension methods in IdpResponseDecorator.kt
  */
 class IdpPostResponseDecorator
 internal constructor(response: IdpPostResponse) : IdpPostResponse(response), IdpResponseDecorator {
