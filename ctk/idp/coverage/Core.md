@@ -147,10 +147,10 @@ Unmarked sections need attention
 		8.1.2 Read/Write/Execute/Delete/Control with Negation
 -		8.1.3 Get/Head/Put/Post
 -		8.1.4 UNIX File Permissions
--	8.2 Attribute Name Format Identifiers
--		8.2.1 Unspecified
--		8.2.2 URI Reference
-		8.2.3 Basic
++	8.2 Attribute Name Format Identifiers
++		8.2.1 Unspecified
++		8.2.2 URI Reference
++		8.2.3 Basic
 -	8.3 Name Identifier Format Identifiers
 -		8.3.1 Unspecified
 -		8.3.2 Email Address

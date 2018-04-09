@@ -14,13 +14,24 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_8_1_2
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.SAMLCore_8_1_2
+import org.codice.compliance.SAMLCore_8_2_2
+import org.codice.compliance.SAMLCore_8_2_3
+import org.w3c.dom.DOMException
 import org.w3c.dom.Node
+import java.net.URI
+import java.net.URISyntaxException
+import javax.xml.parsers.DocumentBuilderFactory
 
 internal class SamlIdentifiersVerifier(val node: Node) {
     companion object {
+        private const val ATTRIBUTE_NAME_FORMAT_URI =
+                "urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+        private const val ATTRIBUTE_NAME_FORMAT_BASIC =
+                "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+
         private val RWEDC_URI_SET = setOf(
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc"
@@ -29,6 +40,7 @@ internal class SamlIdentifiersVerifier(val node: Node) {
 
     fun verify() {
         verifyActionNamespaceIdentifiers()
+        verifyAttributeNameFormatIdentifiers()
     }
 
     // 8.1.2 Read/Write/Execute/Delete/Control with Negation
@@ -60,6 +72,45 @@ internal class SamlIdentifiersVerifier(val node: Node) {
                                 "negated form.",
                         node = node
                 )
+            }
+        }
+    }
+
+    // 8.2 URI/Basic name attribute formats
+    private fun verifyAttributeNameFormatIdentifiers() {
+        node.allChildren("Attribute").forEach {
+            val name = it.attributes.getNamedItem("Name")
+            val nameFormat = it.attributes.getNamedItem("NameFormat")
+            if (name == null || nameFormat == null || nameFormat.textContent == null) {
+                return
+            }
+
+            when (nameFormat.textContent) {
+                ATTRIBUTE_NAME_FORMAT_URI -> {
+                    try {
+                        URI(name.textContent)
+                    } catch (e: URISyntaxException) {
+                        throw SAMLComplianceException.create(
+                                SAMLCore_8_2_2,
+                                message = "Attribute name does not match its declared format",
+                                node = node
+                        )
+                    }
+                }
+                ATTRIBUTE_NAME_FORMAT_BASIC -> {
+                    try {
+                        DocumentBuilderFactory.newInstance()
+                                .newDocumentBuilder()
+                                .newDocument()
+                                .createElement(name.textContent)
+                    } catch (e: DOMException) {
+                        throw SAMLComplianceException.create(
+                                SAMLCore_8_2_3,
+                                message = "Attribute name does not match its declared format",
+                                node = node
+                        )
+                    }
+                }
             }
         }
     }
