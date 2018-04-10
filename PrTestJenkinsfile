@@ -1,0 +1,59 @@
+//"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
+//More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
+pipeline {
+    agent { label 'dind' }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'25'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    triggers {
+        /*
+          Restrict nightly builds to master branch
+          Note: The BRANCH_NAME will only work with a multi-branch job using the github-branch-source
+        */
+        cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
+    }
+    environment {
+        LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
+        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.6'}/bin:$PATH"
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+            }
+        }
+        stage('SAML Conformance Build') {
+            steps {
+                sh 'gradle clean build docker'
+            }
+        }
+        stage('Pull DDF') {
+            steps {
+                sh 'docker pull codice/ddf:edge-alpine'
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh 'docker-compose --file deployment/docker/docker-compose.yml up --abort-on-container-exit'
+            }
+            post {
+                always {
+                    sh 'docker-compose --file deployment/docker/docker-compose.yml down'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
+        }
+        failure {
+            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+        }
+        unstable {
+            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+        }
+    }
+}
