@@ -37,6 +37,7 @@ class TestCommon {
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
         const val SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
 
