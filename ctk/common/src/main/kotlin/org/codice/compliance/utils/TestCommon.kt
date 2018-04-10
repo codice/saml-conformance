@@ -122,15 +122,9 @@ class TestCommon {
          * test.
          * @return An {@code IdpResponse} object created from the error response.
          */
+        // TODO Change HTTP status code to expect 302/303
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
             return if (response.header("Location") != null) {
-                /*
-                 * TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
-                 * Change this line to:
-                 IdpRedirectResponse(response)
-                 *
-                 * And delete parseRedirectErrorResponse method when finished with ticket
-                 */
                 parseRedirectErrorResponse(response).decorate()
             } else {
                 IdpPostResponse(response).decorate()

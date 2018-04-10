@@ -50,15 +50,15 @@ class ResponseProtocolVerifier(private val response: Node,
         verifyStatusesType()
         verifyNameIdMappingResponse()
 
-        // 3.4 Authentication Request Protocol
-        // todo - verify if this common for everything
-        response.children("Assertion")
-                .forEach {
-                    if (it.children("AuthnStatement").isEmpty())
-                        throw SAMLComplianceException.create(SAMLCore_3_4,
-                                message = "AuthnStatement not found.",
-                                node = response)
-                }
+        if (response.localName == "AuthnRequest") {
+            response.children("Assertion")
+                    .forEach {
+                        if (it.children("AuthnStatement").isEmpty())
+                            throw SAMLComplianceException.create(SAMLCore_3_4,
+                                    message = "AuthnStatement not found.",
+                                    node = response)
+                    }
+        }
     }
 
     /**

@@ -91,8 +91,6 @@ internal class StatementVerifier(val node: Node) {
                         actual = it.attributes.getNamedItem(TYPE).textContent,
                         expected = TestCommon.ELEMENT,
                         node = node)
-            // todo - The encrypted content MUST contain an element that has a type of or derived
-            // from AssertionType.
         }
     }
 

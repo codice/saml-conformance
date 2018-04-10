@@ -118,10 +118,8 @@ class CoreVerifier(val node: Node) {
         }
     }
 
+    /** 6.1 - General Considerations **/
     private fun verifyGeneralConsiderations(node: Node) {
-        // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext
-        // information in the same location within the XML instance.
-
         val elements = mutableListOf<Node>()
         elements.addAll(node.children("Assertion"))
         elements.addAll(node.children("BaseID"))

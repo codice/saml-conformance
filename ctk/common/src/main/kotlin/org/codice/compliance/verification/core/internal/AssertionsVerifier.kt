@@ -118,8 +118,6 @@ internal class AssertionsVerifier(val node: Node) {
                 throw SAMLComplianceException.create(SAMLCore_2_3_4_a,
                         message = "Type attribute found with an incorrect value.",
                         node = node)
-            // todo - The encrypted content MUST contain an element that has a type of or derived
-            // from AssertionType.
         }
     }
 }
