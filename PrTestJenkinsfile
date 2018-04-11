@@ -24,24 +24,24 @@ pipeline {
                 slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
             }
         }
-        stage('Full Build') {
+        stage('SAML Conformance Build') {
             steps {
                 sh 'gradle clean build docker'
             }
         }
-        stage('Deploy') {
-            when {
-                allOf {
-                    expression { env.CHANGE_ID == null }
-                    expression { env.BRANCH_NAME == "master" }
-                }
-            }
-            environment {
-                DOCKER_LOGIN = credentials('dockerhub-codicebot')
-            }
+        stage('Pull DDF') {
             steps {
-                sh 'docker login -u $DOCKER_LOGIN_USR -p $DOCKER_LOGIN_PSW'
-                sh 'docker push codice/samlconf:latest'
+                sh 'docker pull codice/ddf:edge-alpine'
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh 'docker-compose --file deployment/docker/docker-compose.yml up --abort-on-container-exit'
+            }
+            post {
+                always {
+                    sh 'docker-compose --file deployment/docker/docker-compose.yml down'
+                }
             }
         }
     }
