@@ -9,7 +9,7 @@ _sut_port=${SUT_PORT:="8993"}
 # Override the context used to retrieve the idp-metadata from the system under test by passing in SUT_METADATA
 _sut_idp_metadata=${SUT_METADATA:="services/idp/login/metadata"}
 
-_sut_ddf_implementation="/samlconf/implementations/samlconf-ddf-impl"
+_sut_ddf_implementation="/samlconf/implementations/ddf"
 
 _target_feature="security-idp"
 
