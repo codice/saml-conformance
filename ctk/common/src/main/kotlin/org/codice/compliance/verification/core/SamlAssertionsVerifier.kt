@@ -24,8 +24,10 @@ import org.codice.compliance.verification.core.internal.StatementVerifier
 import org.codice.compliance.verification.core.internal.SubjectVerifier
 import org.w3c.dom.Node
 
-@Suppress("StringLiteralDuplication")
 class SamlAssertionsVerifier(val node: Node) {
+    companion object {
+        private const val ENCRYPTED_ID = "EncryptedID"
+    }
     /**
      * Verify assertions against the Core Spec document
      * 2 SAML Assertions
@@ -45,24 +47,18 @@ class SamlAssertionsVerifier(val node: Node) {
      */
     private fun verifyNameIdentifiers() {
         // EncryptedID
-        node.allChildren("EncryptedID").forEach {
+        node.allChildren(ENCRYPTED_ID).forEach {
             val encryptedData = it.children("EncryptedData")
             if (encryptedData.isEmpty()) throw SAMLComplianceException
                     .createWithXmlPropertyReqMessage("SAMLCore.2.2.4",
-                            "EncryptedData",
-                            "EncryptedId")
+                            property = "EncryptedData",
+                            parent = ENCRYPTED_ID)
 
             if (encryptedData.filter { it.attributes.getNamedItem("Type") != null }
                             .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
                 throw SAMLComplianceException.create(SAMLCore_2_2_4_a,
                         message = "Type attribute found with an incorrect value.",
                         node = node)
-            // todo - For The encrypted content MUST contain an element that has a type of
-            // NameIDType or AssertionType, or a type that is derived from BaseIDAbstractType,
-            // NameIDType, or AssertionType.
         }
-        // todo - Encrypted identifiers are intended as a privacy protection mechanism when the
-        // plain-text value passes through an intermediary. As such, the ciphertext MUST be unique
-        // to any given encryption operation. For more on such issues, see [XMLEnc] Section 6.3.
     }
 }

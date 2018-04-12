@@ -13,8 +13,11 @@
  */
 package org.codice.compliance.utils.decorators
 
+import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.debugWithSupplier
+import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.verification.binding.BindingVerifier
@@ -23,9 +26,8 @@ import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
-@Suppress("StringLiteralDuplication")
 /**
- * This class  can only be instantiated by using extension methods in IdpResponseDecorator.kt
+ * This class can only be instantiated by using extension methods in IdpResponseDecorator.kt
  */
 class IdpPostResponseDecorator
 internal constructor(response: IdpPostResponse) : IdpPostResponse(response), IdpResponseDecorator {
@@ -35,6 +37,12 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         private const val ACTION = "action"
         private const val METHOD = "method"
         private const val POST = "POST"
+    }
+
+    init {
+        Log.debugWithSupplier {
+            restAssuredResponse?.then()?.extract()?.body()?.asString()?.prettyPrintXml() ?: ""
+        }
     }
 
     override var isRelayStateGiven: Boolean = false
@@ -49,14 +57,14 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         responseForm == null
     }
     val isSamlResponseFormNull: Boolean by lazy {
-        samlResponseForm == null
+        samlResponseFormControl == null
     }
     val isRelayStateFormNull: Boolean by lazy {
-        relayStateForm == null
+        relayStateFormControl == null
     }
 
     val isSamlResponseNameCorrect: Boolean by lazy {
-        checkNodeAttribute(samlResponseForm, NAME, SAML_RESPONSE)
+        checkNodeAttribute(samlResponseFormControl, NAME, SAML_RESPONSE)
     }
 
     /*
@@ -87,13 +95,15 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
      * controls
      */
     val isSamlResponseHidden: Boolean by lazy {
-        checkNodeAttributeIgnoreCase(samlResponseForm, TYPE, HIDDEN)
+        checkNodeAttributeIgnoreCase(samlResponseFormControl, TYPE, HIDDEN)
     }
     val isRelayStateNameCorrect: Boolean by lazy {
-        checkNodeAttribute(relayStateForm, NAME, RELAY_STATE)
+        require(isRelayStateGiven)
+        checkNodeAttribute(relayStateFormControl, NAME, RELAY_STATE)
     }
     val isRelayStateHidden: Boolean by lazy {
-        checkNodeAttributeIgnoreCase(relayStateForm, TYPE, HIDDEN)
+        require(isRelayStateGiven)
+        checkNodeAttributeIgnoreCase(relayStateFormControl, TYPE, HIDDEN)
     }
 
     private fun checkNodeAttribute(node: raNode,

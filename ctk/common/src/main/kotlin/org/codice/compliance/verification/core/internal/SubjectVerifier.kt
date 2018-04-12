@@ -50,11 +50,6 @@ internal class SubjectVerifier(val node: Node) {
      */
     private fun verifySubjectConfirmationData() {
         node.allChildren("SubjectConfirmationData").forEach {
-            // todo - SAML extensions MUST NOT add local (non-namespace-qualified) XML attributes or
-            // XML attributes qualified by a SAML-defined namespace to the
-            // SubjectConfirmationDataType complex type or a derivation of it; such attributes are
-            // reserved for future maintenance and enhancement of SAML itself.
-
             val notBefore = it.attributes.getNamedItem("NotBefore")
             val notOnOrAfter = it.attributes.getNamedItem("NotOnOrAfter")
             if (notBefore != null

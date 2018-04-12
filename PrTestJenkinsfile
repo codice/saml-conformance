@@ -1,0 +1,69 @@
+//"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
+//More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
+library 'github-commenter-shared-library@master'
+
+pipeline {
+    agent { label 'dind' }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'25'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
+    triggers {
+        /*
+          Restrict nightly builds to master branch
+          Note: The BRANCH_NAME will only work with a multi-branch job using the github-branch-source
+        */
+        cron(BRANCH_NAME == "master" ? "H H(17-19) * * *" : "")
+    }
+    environment {
+        LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
+        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.6'}/bin:$PATH"
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
+                    postCommentIfPR("Internal build has been started. Your results will be available at completion. See build progress in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+                }
+            }
+        }
+        stage('SAML Conformance Build') {
+            steps {
+                sh 'gradle clean build docker'
+            }
+        }
+        stage('Pull DDF') {
+            steps {
+                sh 'docker pull codice/ddf:edge-alpine'
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh 'docker-compose --file deployment/docker/docker-compose.yml up --abort-on-container-exit'
+            }
+            post {
+                always {
+                    sh 'docker-compose --file deployment/docker/docker-compose.yml down'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
+                postCommentIfPR("Build success! See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+            }
+        }
+        failure {
+            withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
+                postCommentIfPR("Build failure. See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+            }
+        }
+        unstable {
+            withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
+                postCommentIfPR("Build unstable. See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+            }
+        }
+    }
+}

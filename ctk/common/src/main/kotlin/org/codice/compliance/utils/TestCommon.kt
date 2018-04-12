@@ -34,11 +34,15 @@ import kotlin.reflect.KClass
 
 class TestCommon {
     companion object {
-        const val AUTHN_REQUEST = "AuthnRequest"
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
         const val SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
+        const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
+
+        const val AUTHN_REQUEST = "AuthnRequest"
+        const val SAML_VERSION = "2.0"
         const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
@@ -49,6 +53,7 @@ class TestCommon {
 
         const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
                 "with a SAML error response (See section 3.2.1 in the SAML Core specification)"
+
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
         private const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
         private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
@@ -118,15 +123,9 @@ class TestCommon {
          * test.
          * @return An {@code IdpResponse} object created from the error response.
          */
+        // TODO Change HTTP status code to expect 302/303
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
             return if (response.header("Location") != null) {
-                /*
-                 * TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
-                 * Change this line to:
-                 IdpRedirectResponse(response)
-                 *
-                 * And delete parseRedirectErrorResponse method when finished with ticket
-                 */
                 parseRedirectErrorResponse(response).decorate()
             } else {
                 IdpPostResponse(response).decorate()

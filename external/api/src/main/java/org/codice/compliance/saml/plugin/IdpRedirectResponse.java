@@ -36,25 +36,11 @@ public class IdpRedirectResponse extends IdpResponse {
     parameters = response.parameters;
   }
 
-  // TODO remove url field if not used in Binding Verification
   protected String url;
   protected String path;
   protected String parameters;
 
-  /* TODO "Manually change DDF IdP to respond with 302/303 status code for Redirect"
-  * When ticket is finished, put in this constructor:
-  *
-  public IdpRedirectResponse(Response response) {
-    httpStatusCode = response.statusCode();
-    this.url = response.header("Location");
-    List<String> splitUrl = Splitter.on("?").splitToList(url);
-    path = splitUrl.get(0);
-    parameters = splitUrl.get(1);
-  }
-  *
-  * And delete everything below in this class
-  */
-
+  // TODO Change HTTP status code to expect 302/303
   public static class Builder {
 
     private IdpRedirectResponse idpRedirectResponse = new IdpRedirectResponse();

@@ -53,7 +53,7 @@ abstract class RequestProtocolVerifier (open val request: Node) {
                     property = ID,
                     parent = REQUEST,
                     node = request)
-        verifyIdValues(request.attributes.getNamedItem(ID), SAMLCore_3_2_1_a)
+        CommonDataTypeVerifier.verifyIdValues(request.attributes.getNamedItem(ID), SAMLCore_3_2_1_a)
 
         if (request.attributes.getNamedItem(VERSION) == null)
             throw SAMLComplianceException.createWithXmlPropertyReqMessage(SAMLCore_3_2_1,
@@ -73,6 +73,7 @@ abstract class RequestProtocolVerifier (open val request: Node) {
                     property = ISSUE_INSTANT,
                     parent = REQUEST,
                     node = request)
-        verifyTimeValues(request.attributes.getNamedItem(ISSUE_INSTANT), SAMLCore_3_2_1_c)
+        CommonDataTypeVerifier.verifyTimeValues(request.attributes.getNamedItem(ISSUE_INSTANT),
+                SAMLCore_3_2_1_c)
     }
 }

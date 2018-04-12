@@ -26,10 +26,13 @@ import org.codice.compliance.allChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
+import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Node
 
-@Suppress("StringLiteralDuplication")
 class CoreVerifier(val node: Node) {
+    companion object {
+        private const val ENCRYPTED_DATA = "EncryptedData"
+    }
 
     /**
      * Verifies that a response has the expected status code.
@@ -115,10 +118,8 @@ class CoreVerifier(val node: Node) {
         }
     }
 
+    /** 6.1 - General Considerations **/
     private fun verifyGeneralConsiderations(node: Node) {
-        // todo - Encrypted data and [E30]zero or more encrypted keys MUST replace the plaintext
-        // information in the same location within the XML instance.
-
         val elements = mutableListOf<Node>()
         elements.addAll(node.children("Assertion"))
         elements.addAll(node.children("BaseID"))
@@ -126,17 +127,16 @@ class CoreVerifier(val node: Node) {
         elements.addAll(node.children("Attribute"))
 
         elements.forEach {
-            val encryptedDataNode = it.allChildren("EncryptedData")
+            val encryptedDataNode = it.allChildren(ENCRYPTED_DATA)
 
             if (encryptedDataNode.isNotEmpty()) {
-                val encryptedData = encryptedDataNode
-                        .get(0)
+                val encryptedData = encryptedDataNode[0]
                         .attributes
-                        .getNamedItem("EncryptedData")
+                        .getNamedItem(ENCRYPTED_DATA)
                         .textContent
                 if (encryptedData != ELEMENT)
                     throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
-                            property = "EncryptedData",
+                            property = ENCRYPTED_DATA,
                             actual = encryptedData,
                             expected = ELEMENT,
                             node = node)

@@ -55,7 +55,6 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
-@Suppress("StringLiteralDuplication")
 class PostLoginTest : StringSpec() {
     companion object {
 

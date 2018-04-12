@@ -26,7 +26,7 @@ pipeline {
         }
         stage('Full Build') {
             steps {
-                sh 'gradle clean install docker'
+                sh 'gradle clean build docker'
             }
         }
         stage('Deploy') {

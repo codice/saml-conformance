@@ -19,8 +19,8 @@ import java.net.URI
 import java.util.ResourceBundle
 
 sealed class SAMLSpecRefMessage(docRefKey: String, docUriKey: String) {
-    val docRef: String
-    val docUri: URI
+    private val docRef: String
+    private val docUri: URI
 
     init {
         docRef = bundle.getString(docRefKey)
@@ -62,7 +62,6 @@ object SAMLProfiles_4_1_4_2_a : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_b : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_c : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_d : SAMLProfileRefMessage()
-// object SAMLProfiles_4_1_4_2e : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_f : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_g : SAMLProfileRefMessage()
 object SAMLProfiles_4_1_4_2_h : SAMLProfileRefMessage()
@@ -85,18 +84,12 @@ object SAMLCore_1_3_4 : SAMLCoreRefMessage()
 
 object SAMLCore_2_2_3_a : SAMLCoreRefMessage()
 object SAMLCore_2_2_3_b : SAMLCoreRefMessage()
-
 object SAMLCore_2_2_4_a : SAMLCoreRefMessage()
-// todo object SAMLCore_2_2_4_b : SAMLCoreRefMessage()
-// todo object SAMLCore_2_2_4_c : SAMLCoreRefMessage()
 
 object SAMLCore_2_3_3_a : SAMLCoreRefMessage()
 object SAMLCore_2_3_3_b : SAMLCoreRefMessage()
 object SAMLCore_2_3_3_c : SAMLCoreRefMessage()
 object SAMLCore_2_3_4_a : SAMLCoreRefMessage()
-// todo object SAMLCore_2_3_4_b : SAMLCoreRefMessage()
-
-// todo object SAMLCore_2_4_1_2_b : SAMLCoreRefMessage()
 
 object SAMLCore_2_4_1_2_b : SAMLCoreRefMessage()
 object SAMLCore_2_4_1_3 : SAMLCoreRefMessage()
@@ -113,9 +106,8 @@ object SAMLCore_2_7_2 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3_1_1 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3_2_a : SAMLCoreRefMessage()
-// todo object SAMLCore_2_7_3_2_b : SAMLCoreRefMessage()
 
-object SAMLCore_2_7_4 : SAMLCoreRefMessage()
+object SAMLCore_2_7_4_a : SAMLCoreRefMessage()
 
 object SAMLCore_3_2_1_a : SAMLCoreRefMessage()
 object SAMLCore_3_2_1_b : SAMLCoreRefMessage()
@@ -134,7 +126,6 @@ object SAMLCore_3_3_2_2_b : SAMLCoreRefMessage()
 object SAMLCore_3_3_2_3 : SAMLCoreRefMessage()
 
 object SAMLCore_3_4 : SAMLCoreRefMessage()
-// todo object SAMLCore_3_4_1_1_a : SAMLCoreRefMessage()
 
 object SAMLCore_3_7_1 : SAMLCoreRefMessage()
 
@@ -143,28 +134,28 @@ object SAMLCore_5_4_2_a : SAMLCoreRefMessage()
 object SAMLCore_5_4_2_b : SAMLCoreRefMessage()
 object SAMLCore_5_4_2_b1 : SAMLCoreRefMessage()
 
-// todo object SAMLCore_6_1_a : SAMLCoreRefMessage()
 object SAMLCore_6_1_b : SAMLCoreRefMessage()
 
 object SAMLCore_8_1_2 : SAMLCoreRefMessage()
 
+object SAMLCore_8_2_2 : SAMLCoreRefMessage()
+object SAMLCore_8_2_3 : SAMLCoreRefMessage()
+
 //-----------------
 // BINDINGS
 //-----------------
-// todo object SAMLBindings_3_1_1_b : SAMLSpecRefMessage()
 object SAMLBindings_3_1_2_1 : SAMLBindingRefMessage()
 
 object SAMLBindings_3_4_3_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_3_a1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_3_b1 : SAMLBindingRefMessage()
+
 object SAMLBindings_3_4_4_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_a1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_a2 : SAMLBindingRefMessage()
-// todo object SAMLBindings_3_4_4_1_b : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_b1 : SAMLBindingRefMessage()
-
 object SAMLBindings_3_4_4_1_b2 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_c1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_c2 : SAMLBindingRefMessage()
@@ -173,9 +164,8 @@ object SAMLBindings_3_4_4_1_d2 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_e : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_f1 : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_f2 : SAMLBindingRefMessage()
-// todo object SAMLBindings_3_4_4_1_g : SAMLBindingRefMessage()
+
 object SAMLBindings_3_4_5_2_a1 : SAMLBindingRefMessage()
-// todo object SAMLBindings_3_4_5_2_a2 : SAMLBindingRefMessage()
 
 object SAMLBindings_3_4_6_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_6_a1 : SAMLBindingRefMessage()
