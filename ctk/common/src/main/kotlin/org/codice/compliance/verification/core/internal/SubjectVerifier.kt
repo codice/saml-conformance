@@ -14,6 +14,7 @@
 package org.codice.compliance.verification.core.internal
 
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_2_4_1_2_c
 import org.codice.compliance.SAMLCore_2_4_1_3
 import org.codice.compliance.SAMLCore_2_5_1_2
 import org.codice.compliance.XMLSignature_4_5
@@ -71,6 +72,28 @@ internal class SubjectVerifier(val node: Node) {
                 throw SAMLComplianceException.create(SAMLCore_2_4_1_3, XMLSignature_4_5,
                         message = "Multiple Keys found within the KeyInfo element.",
                         node = node)
+
+            for (i in it.attributes.length - 1 downTo 0) {
+                val attribute = it.attributes.item(i)
+                if (isNullOrSamlNamespace(attribute) && isUnknownSamlAttribute(attribute)) {
+                    throw SAMLComplianceException.create(SAMLCore_2_4_1_2_c,
+                            message = "An unknown attribute element was found on the " +
+                                    "<SubjectConfirmationData> node element.",
+                            node = attribute)
+                }
+            }
         }
+    }
+
+    private fun isNullOrSamlNamespace(attribute: Node): Boolean {
+        return with(attribute) {
+            namespaceURI == null || namespaceURI == TestCommon.SAML_NAMESPACE
+        }
+    }
+
+    private fun isUnknownSamlAttribute(attribute: Node): Boolean {
+        return !listOf("NotBefore", "NotOnOrAfter", "Recipient", "InResponseTo",
+                "Address").contains(
+                attribute.localName)
     }
 }

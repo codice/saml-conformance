@@ -18,7 +18,8 @@ package org.codice.compliance
 import java.net.URI
 import java.util.ResourceBundle
 
-sealed class SAMLSpecRefMessage(docRefKey: String, docUriKey: String) {
+sealed class SAMLSpecRefMessage(docRefKey: String,
+                                docUriKey: String) {
     private val docRef: String
     private val docUri: URI
 
@@ -92,6 +93,8 @@ object SAMLCore_2_3_3_c : SAMLCoreRefMessage()
 object SAMLCore_2_3_4_a : SAMLCoreRefMessage()
 
 object SAMLCore_2_4_1_2_b : SAMLCoreRefMessage()
+object SAMLCore_2_4_1_2_c : SAMLCoreRefMessage()
+
 object SAMLCore_2_4_1_3 : SAMLCoreRefMessage()
 
 object SAMLCore_2_5_1_a : SAMLCoreRefMessage()
@@ -104,6 +107,7 @@ object SAMLCore_2_5_1_6_b : SAMLCoreRefMessage()
 
 object SAMLCore_2_7_2 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3 : SAMLCoreRefMessage()
+object SAMLCore_2_7_3_1 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3_1_1 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3_2_a : SAMLCoreRefMessage()
 
