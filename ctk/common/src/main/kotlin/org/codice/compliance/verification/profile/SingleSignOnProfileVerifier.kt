@@ -20,6 +20,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
 import org.codice.compliance.SAMLProfiles_4_1_4_2_d
+import org.codice.compliance.SAMLProfiles_4_1_4_2_e
 import org.codice.compliance.SAMLProfiles_4_1_4_2_g
 import org.codice.compliance.SAMLProfiles_4_1_4_2_h
 import org.codice.compliance.SAMLProfiles_4_1_4_2_i
@@ -27,6 +28,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_j
 import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.children
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.utils.SubjectsComparison
 import org.codice.compliance.utils.TestCommon.Companion.BEARER
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.ID
@@ -111,6 +113,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
         }
 
         assertions.forEach { verifyIssuer() }
+        verifySubjects(assertions)
 
         val (bearerSubjectConfirmations, bearerAssertions) =
                 assertions.filter { it.children(SUBJECT).isNotEmpty() }
@@ -132,6 +135,20 @@ class SingleSignOnProfileVerifier(private val response: Node,
         verifyBearerAssertionsContainAudienceRestriction(bearerAssertions)
     }
 
+    private fun verifySubjects(assertions: List<Node>) {
+        val allSubjects = assertions
+                .filter { it.children("Subject").isNotEmpty() }
+                .flatMap { it.children("Subject") }
+
+        val firstSubject = allSubjects.firstOrNull()
+
+        if (firstSubject != null
+                && allSubjects.any { !SubjectsComparison(it, firstSubject).subjectsMatch() })
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_e,
+                    message = "All the subjects don't match.",
+                    node = response)
+    }
+
     @Suppress("ComplexCondition")
     private fun verifyBearerSubjectConfirmations(bearerSubjectConfirmations: List<Node>) {
         if (bearerSubjectConfirmations
@@ -142,7 +159,8 @@ class SingleSignOnProfileVerifier(private val response: Node,
                                     it.attributes.getNamedItem("NotOnOrAfter") != null &&
                                     it.attributes.getNamedItem("NotBefore") == null &&
                                     it.attributes.getNamedItem("InResponseTo").textContent ==
-                                    ID }) {
+                                    ID
+                        }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "There were no bearer SubjectConfirmation elements that matched " +
                             "the criteria below.",
