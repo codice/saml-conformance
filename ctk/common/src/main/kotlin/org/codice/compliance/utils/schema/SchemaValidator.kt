@@ -59,7 +59,11 @@ class SchemaValidator {
             val schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
             schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "file")
             schemaFactory.setProperty(EXTERNAL_SCHEMA_LOCATION, schemaLocationOverrides
-                    .map { "${it.key} ${this::class.java.classLoader.getResource(it.value).toExternalForm()}" }
+                    .map {
+                        val namespace = it.key
+                        val localSchema = this::class.java.classLoader.getResource(it.value)
+                        return@map "$namespace ${localSchema.toExternalForm()}"
+                    }
                     .joinToString("\n")
             )
             val schema = schemaFactory.newSchema(this::class.java.classLoader.getResource(xsd))
@@ -76,8 +80,9 @@ class SchemaValidator {
             validator.validate(DOMSource(doc.documentElement))
 
             if (errorHandler.messages.isNotEmpty()) {
+                val compiledErrors = errorHandler.messages.joinToString("\n")
                 throw SAMLComplianceException.create(SAMLCore_Schema,
-                        message = "Invalid SAML message\n${errorHandler.messages.joinToString("\n")}"
+                        message = "Invalid SAML message\n$compiledErrors"
                 )
             }
         }
@@ -99,16 +104,22 @@ class SchemaValidator {
             return xsdValidator.getProperty(CURRENT_ELEMENT_NODE) as Element
         }
 
+        private fun generateErrorMessage(severity: String, spe: SAXParseException) {
+            val parseError = spe.localizedMessage
+            val nodeXmlString = getCurrentNode().prettyPrintXml()
+            messages.add("[$severity] $parseError\n$nodeXmlString")
+        }
+
         override fun warning(spe: SAXParseException) {
-            messages.add("Warning: ${spe.localizedMessage}\n${getCurrentNode().prettyPrintXml()}")
+            generateErrorMessage("Warning", spe)
         }
 
         override fun error(spe: SAXParseException) {
-            messages.add("Error: ${spe.localizedMessage}\n${getCurrentNode().prettyPrintXml()}")
+            generateErrorMessage("Error", spe)
         }
 
         override fun fatalError(spe: SAXParseException) {
-            messages.add("Fatal Error: ${spe.localizedMessage}\n${getCurrentNode().prettyPrintXml()}")
+            generateErrorMessage("Fatal Error", spe)
         }
     }
 }
