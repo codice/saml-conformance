@@ -119,10 +119,7 @@ object SAMLCore_3_2_2_c : SAMLCoreRefMessage()
 object SAMLCore_3_2_2_d : SAMLCoreRefMessage()
 object SAMLCore_3_2_2_e : SAMLCoreRefMessage()
 object SAMLCore_3_2_2_2 : SAMLCoreRefMessage()
-
-object SAMLCore_3_3_2_2_a : SAMLCoreRefMessage()
-object SAMLCore_3_3_2_2_b : SAMLCoreRefMessage()
-object SAMLCore_3_3_2_3 : SAMLCoreRefMessage()
+object SAMLCore_3_2_2_2_a : SAMLCoreRefMessage()
 
 object SAMLCore_3_4 : SAMLCoreRefMessage()
 

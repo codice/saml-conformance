@@ -24,8 +24,8 @@ import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
-import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_REQUEST
@@ -40,7 +40,7 @@ import org.codice.compliance.utils.decorate
 import org.codice.compliance.utils.schema.SchemaValidator
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
-import org.codice.compliance.verification.core.ResponseProtocolVerifier
+import org.codice.compliance.verification.core.responses.AuthnRequestProtocolResponseVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
@@ -115,7 +115,8 @@ class PostLoginTest : StringSpec() {
             val responseDom = idpResponse.responseDom
             SchemaValidator.validateSAMLMessage(responseDom)
 
-            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            AuthnRequestProtocolResponseVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST])
+                    .verifyCoreResponse()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
@@ -136,7 +137,8 @@ class PostLoginTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
             SchemaValidator.validateSAMLMessage(responseDom)
-            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            AuthnRequestProtocolResponseVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST])
+                    .verifyCoreResponse()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
@@ -177,7 +179,8 @@ class PostLoginTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
             SchemaValidator.validateSAMLMessage(responseDom)
-            ResponseProtocolVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST]).verify()
+            AuthnRequestProtocolResponseVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST])
+                    .verifyCoreResponse()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 

@@ -67,9 +67,9 @@ Unmarked sections need attention
 		3.2.2 Complex Type StatusResponseType
 +			3.2.2.1 Element <Status>
 +			3.2.2.2 Element <StatusCode>
--			3.2.2.3 Element <StatusMessage>
++			3.2.2.3 Element <StatusMessage>
 -			3.2.2.4 Element <StatusDetail>
-	3.3 Assertion Query and Request Protocol
+-	3.3 Assertion Query and Request Protocol
 -		3.3.1 Element <AssertionIDRequest>
 -		3.3.2 Queries
 -			3.3.2.1 Element <SubjectQuery>
@@ -78,7 +78,7 @@ Unmarked sections need attention
 -			3.3.2.3 Element <AttributeQuery>
 -			3.3.2.4 Element <AuthzDecisionQuery>
 -		3.3.3 Element <Response>
-		3.3.4 Processing Rules
+-		3.3.4 Processing Rules
 +	3.4 Authentication Request Protocol
 		3.4.1 Element <AuthnRequest>
 			3.4.1.1 Element <NameIDPolicy>
@@ -97,7 +97,7 @@ Unmarked sections need attention
 -		3.6.2 Element <ManageNameIDResponse>
 -		3.6.3 Processing Rules
 -	3.7 Single Logout Protocol
-+		3.7.1 Element <LogoutRequest>
+-		3.7.1 Element <LogoutRequest>
 -		3.7.2 Element <LogoutResponse>
 -		3.7.3 Processing Rules
 -			3.7.3.1 Session Participant Rules
