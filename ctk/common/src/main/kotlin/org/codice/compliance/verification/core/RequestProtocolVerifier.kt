@@ -17,9 +17,10 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_a
 import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
+import org.codice.compliance.children
 import org.w3c.dom.Node
 
-abstract class RequestProtocolVerifier (open val request: Node) {
+abstract class RequestProtocolVerifier(open val request: Node) {
     companion object {
         private const val ID = "ID"
         private const val VERSION = "Version"
@@ -75,5 +76,8 @@ abstract class RequestProtocolVerifier (open val request: Node) {
                     node = request)
         CommonDataTypeVerifier.verifyTimeValues(request.attributes.getNamedItem(ISSUE_INSTANT),
                 SAMLCore_3_2_1_c)
+
+        CoreVerifier.verifySamlExtensions(request.children(),
+                expectedSamlNames = listOf("Issuer", "Signature"))
     }
 }

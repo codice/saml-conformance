@@ -17,14 +17,14 @@ import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_2_7_2
 import org.codice.compliance.SAMLCore_2_7_3
-import org.codice.compliance.SAMLCore_2_7_3_1
 import org.codice.compliance.SAMLCore_2_7_3_1_1
 import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_2_7_4_a
 import org.codice.compliance.allChildren
+import org.codice.compliance.attributeList
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
-import org.codice.compliance.utils.TestCommon.Companion.SAML_NAMESPACE
+import org.codice.compliance.verification.core.CoreVerifier
 import org.w3c.dom.Node
 
 internal class StatementVerifier(val node: Node) {
@@ -86,10 +86,8 @@ internal class StatementVerifier(val node: Node) {
 
             if (encryptedData
                             .filter { it.attributes.getNamedItem(TYPE) != null }
-                            .any {
-                                it.attributes.getNamedItem(TYPE).textContent !=
-                                        TestCommon.ELEMENT
-                            })
+                            .any { it.attributes.getNamedItem(TYPE).textContent !=
+                                    TestCommon.ELEMENT })
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_7_3_2_a,
                         property = TYPE,
                         actual = it.attributes.getNamedItem(TYPE).textContent,
@@ -108,7 +106,6 @@ internal class StatementVerifier(val node: Node) {
                         parent = ATTRIBUTE,
                         node = node)
 
-            val remainingAttributes = mutableListOf<Node>()
             val nameAttribute = it.attributes.getNamedItem("Name")
             val nameFormatAttribute = it.attributes.getNamedItem("NameFormat")
             val friendlyNameAttr = it.attributes.getNamedItem("FriendlyName")
@@ -119,27 +116,9 @@ internal class StatementVerifier(val node: Node) {
                 verifyAttributeValue(it)
             }
 
-            for (i in it.attributes.length - 1 downTo 0) {
-                val attribute = it.attributes.item(i)
-                if (isNullOrSamlNamespace(attribute) && isUnknownSamlAttribute(attribute)) {
-                    throw SAMLComplianceException.create(SAMLCore_2_7_3_1,
-                            message = "An unknown attribute element was found on the <Attribute> " +
-                                    "node element.",
-                            node = attribute)
-                }
-            }
+            CoreVerifier.verifySamlExtensions(it.attributeList(),
+                    expectedSamlNames = listOf("Name", "NameFormat", "FriendlyName"))
         }
-    }
-
-    private fun isNullOrSamlNamespace(attribute: Node): Boolean {
-        return with(attribute) {
-            namespaceURI == null || namespaceURI == SAML_NAMESPACE
-        }
-    }
-
-    private fun isUnknownSamlAttribute(attribute: Node): Boolean {
-        return !listOf("Name", "NameFormat", "FriendlyName").contains(
-                attribute.localName)
     }
 
     private fun verifyAttributeValue(it: Node) {

@@ -76,6 +76,7 @@ object SAMLProfiles_4_1_4_5 : SAMLProfileRefMessage()
 // CORE
 //-----------------
 object SAMLCore_Schema : SAMLCoreRefMessage()
+object SAMLCore_SamlExtensions : SAMLCoreRefMessage()
 
 object SAMLCore_1_3_1_a : SAMLCoreRefMessage()
 
@@ -93,7 +94,6 @@ object SAMLCore_2_3_3_c : SAMLCoreRefMessage()
 object SAMLCore_2_3_4_a : SAMLCoreRefMessage()
 
 object SAMLCore_2_4_1_2_b : SAMLCoreRefMessage()
-object SAMLCore_2_4_1_2_c : SAMLCoreRefMessage()
 
 object SAMLCore_2_4_1_3 : SAMLCoreRefMessage()
 
@@ -107,7 +107,6 @@ object SAMLCore_2_5_1_6_b : SAMLCoreRefMessage()
 
 object SAMLCore_2_7_2 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3 : SAMLCoreRefMessage()
-object SAMLCore_2_7_3_1 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3_1_1 : SAMLCoreRefMessage()
 object SAMLCore_2_7_3_2_a : SAMLCoreRefMessage()
 
