@@ -41,7 +41,7 @@ class EncryptionVerifier {
     fun verifyAndDecryptResponse(response: Node) {
         sequenceOf(response.allChildren("EncryptedAssertion"),
                 response.allChildren("EncryptedAttribute"),
-                response.allChildren("EncryptedID")).toSet().forEach {
+                response.allChildren("EncryptedID")).forEach {
             it.forEach {
                 verifyAndDecryptElement(it, response)
             }
