@@ -15,7 +15,6 @@ dependencies {
     compile project(':external:api')
     compile project(':ctk:common')
     compile project(':ctk:idp')
-    compile project(':ctk:sp')
     compile project(':deployment:suites')
 
     compile 'us.jimschubert:kopper-typed:0.0.3'
