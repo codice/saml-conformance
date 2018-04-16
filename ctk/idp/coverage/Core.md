@@ -16,8 +16,8 @@ Unmarked sections need attention
 	1.3 Common Data Types
 		1.3.1 String Values
 +		1.3.2 URI Values
-		1.3.3 Time Values
-		1.3.4 ID and ID Reference Values
++		1.3.3 Time Values
++		1.3.4 ID and ID Reference Values
 2 SAML Assertions
 -	2.1 Schema Header and Namespace Declarations
 	2.2 Name Identifiers
@@ -29,7 +29,7 @@ Unmarked sections need attention
 	2.3 Assertions
 -		2.3.1 Element <AssertionIDRef>
 -		2.3.2 Element <AssertionURIRef>
-		2.3.3 Element <Assertion>
++		2.3.3 Element <Assertion>
 		2.3.4 Element <EncryptedAssertion>
 	2.4 Subjects
 		2.4.1 Element <Subject>
@@ -38,20 +38,20 @@ Unmarked sections need attention
 			2.4.1.3 Complex Type KeyInfoConfirmationDataType
 -			2.4.1.4 Example of a Key-Confirmed <Subject>
 	2.5 Conditions
-		2.5.1 Element <Conditions>
-			2.5.1.1 General Processing Rules
++		2.5.1 Element <Conditions>
+-			2.5.1.1 General Processing Rules
 +			2.5.1.2 Attributes NotBefore and NotOnOrAfter
 -			2.5.1.3 Element <Condition>
-			2.5.1.4 Elements <AudienceRestriction> and <Audience>
-			2.5.1.5 Element <OneTimeUse>
-			2.5.1.6 Element <ProxyRestriction>
+-			2.5.1.4 Elements <AudienceRestriction> and <Audience>
++			2.5.1.5 Element <OneTimeUse>
++			2.5.1.6 Element <ProxyRestriction>
 -	2.6 Advice
 -		2.6.1 Element <Advice>
 	2.7 Statements
 -		2.7.1 Element <Statement>
 +		2.7.2 Element <AuthnStatement>
--			2.7.2.1 Element <SubjectLocality>
--			2.7.2.2 Element <AuthnContext>
++			2.7.2.1 Element <SubjectLocality>
++			2.7.2.2 Element <AuthnContext>
 		2.7.3 Element <AttributeStatement>
 +			2.7.3.1 Element <Attribute>
 +				2.7.3.1.1 Element <AttributeValue>

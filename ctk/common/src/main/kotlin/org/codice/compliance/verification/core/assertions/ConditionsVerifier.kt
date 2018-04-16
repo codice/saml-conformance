@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.compliance.verification.core.internal
+package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_2_5_1_2
@@ -21,81 +21,71 @@ import org.codice.compliance.SAMLCore_2_5_1_6_b
 import org.codice.compliance.SAMLCore_2_5_1_a
 import org.codice.compliance.SAMLCore_2_5_1_b
 import org.codice.compliance.SAMLCore_2_5_1_c
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.verification.core.CommonDataTypeVerifier
+import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node
-import java.time.Instant
 
 internal class ConditionsVerifier(val node: Node) {
     companion object {
         private const val AUDIENCE = "Audience"
     }
 
+    /** 2.5 Conditions */
     fun verify() {
-        node.allChildren("Conditions").forEach {
-            verifyConditionAttributes(it)
-            verifyConditionType(it)
-            verifyOneTimeUse(it)
+        node.recursiveChildren("Conditions").forEach {
+            verifyConditions(it)
+            verifyAudience(it)
             verifyProxyRestrictions(it)
         }
     }
 
     /**
-     * Verify the <Conditions> element against the Core Spec
      * 2.5.1 Element <Conditions>
      * 2.5.1.2 Attributes NotBefore and NotOnOrAfter
      * 2.5.1.5 Element <OneTimeUse>
-     * 2.5.1.6 Element <ProxyRestriction>
      */
-    private fun verifyConditionAttributes(conditionsElement: Node) {
-        val notBefore = conditionsElement.attributes.getNamedItem("NotBefore")
-        val notOnOrAfter = conditionsElement.attributes.getNamedItem("NotOnOrAfter")
-        if (notBefore != null
-                && notOnOrAfter != null) {
-            val notBeforeValue = Instant.parse(notBefore.textContent)
-            val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
-            if (notBeforeValue.isAfter(notOnOrAfterValue))
-                throw SAMLComplianceException.create(SAMLCore_2_5_1_2,
-                        message = "NotBefore element with value $notBeforeValue is not less than " +
-                                "NotOnOrAfter element with value $notOnOrAfterValue.",
-                        node = node)
-        }
-    }
+    private fun verifyConditions(conditionsElement: Node) {
 
-    private fun verifyConditionType(conditionsElement: Node) {
+        validateTimeWindow(conditionsElement, SAMLCore_2_5_1_2)
+
         if (conditionsElement.children("Condition")
                         .any { it.attributes.getNamedItemNS(TestCommon.XSI, "type") == null })
             throw SAMLComplianceException.create(SAMLCore_2_5_1_a,
                     message = "Condition found without a type.",
                     node = node)
-    }
 
-    private fun verifyOneTimeUse(conditionsElement: Node) {
         if (conditionsElement.children("OneTimeUse").size > 1)
             throw SAMLComplianceException.create(SAMLCore_2_5_1_b, SAMLCore_2_5_1_5,
                     message = "Cannot have more than one OneTimeUse element.",
                     node = node)
-    }
 
-    private fun verifyProxyRestrictions(conditionsElement: Node) {
-        val proxyRestrictions = conditionsElement.children("ProxyRestriction")
-        if (!proxyRestrictions.isNotEmpty()) return
-
-        if (proxyRestrictions.size > 1)
+        if (conditionsElement.children("ProxyRestriction").size > 1)
             throw SAMLComplianceException.create(SAMLCore_2_5_1_c, SAMLCore_2_5_1_6_b,
                     message = "Cannot have more than one ProxyRestriction element.",
                     node = node)
+    }
 
-        val proxyRestrictionAudiences = proxyRestrictions
+    /** 2.5.1.4 Elements <AudienceRestriction> and <Audience> */
+    private fun verifyAudience(conditionsElement: Node) {
+        conditionsElement.children("AudienceRestriction")
+                .filter { it.children(AUDIENCE).isNotEmpty() }
+                .flatMap { it.children(AUDIENCE) }
+                .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
+    }
+
+    /** 2.5.1.6 Element <ProxyRestriction> */
+    private fun verifyProxyRestrictions(conditionsElement: Node) {
+        val proxyRestrictionAudiences = conditionsElement.children("ProxyRestriction")
+                .filter { it.children(AUDIENCE).isNotEmpty() }
                 .flatMap { it.children(AUDIENCE) }
                 .map { it.textContent }
                 .toList()
+        if (proxyRestrictionAudiences.isEmpty()) return
 
-        if (!proxyRestrictionAudiences.isNotEmpty()) return
-
-        val audienceRestrictions = conditionsElement.allChildren("AudienceRestriction")
-
+        val audienceRestrictions = conditionsElement.recursiveChildren("AudienceRestriction")
         if (audienceRestrictions.isEmpty()) throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
                 message = "There must be an AudienceRestriction element.",
                 node = node)
@@ -107,13 +97,12 @@ internal class ConditionsVerifier(val node: Node) {
                         message = "The AudienceRestriction element must contain at least one " +
                                 "Audience element.",
                         node = node)
-            it.children(AUDIENCE).forEach {
-                if (!proxyRestrictionAudiences.contains(it.textContent))
-                    throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
-                            message = "The AudienceRestriction can only have Audience elements " +
-                                    "that are also in the ProxyRestriction element.",
-                            node = node)
-            }
+
+            if (it.children(AUDIENCE).any { !proxyRestrictionAudiences.contains(it.textContent) })
+                throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
+                        message = "The AudienceRestriction can only have Audience elements " +
+                                "that are also in the ProxyRestriction element.",
+                        node = node)
         }
     }
 }

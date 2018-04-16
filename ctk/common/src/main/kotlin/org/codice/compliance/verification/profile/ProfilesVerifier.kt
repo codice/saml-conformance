@@ -19,7 +19,7 @@ import org.codice.compliance.SAMLProfiles_3_1_b
 import org.codice.compliance.SAMLProfiles_3_1_c
 import org.codice.compliance.SAMLProfiles_4_1_4_2_l
 import org.codice.compliance.SAMLSpecRefMessage
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
 import org.codice.compliance.utils.TestCommon.Companion.SAML_NAMESPACE
@@ -33,7 +33,7 @@ class ProfilesVerifier(private val node: Node) {
      * This should be called explicitly if an error is expected.
      */
     fun verifyErrorResponseAssertion(samlErrorCode: SAMLSpecRefMessage? = null) {
-        if (node.allChildren("Assertion").isNotEmpty()) {
+        if (node.recursiveChildren("Assertion").isNotEmpty()) {
             val exceptions: Array<SAMLSpecRefMessage> =
             if (samlErrorCode != null)
                 arrayOf(samlErrorCode, SAMLProfiles_4_1_4_2_l)
@@ -58,7 +58,7 @@ class ProfilesVerifier(private val node: Node) {
      * 3.1 Holder of Key
      */
     private fun verifyHolderOfKey() {
-        val subjectConfirmationDataList = node.allChildren("SubjectConfirmation")
+        val subjectConfirmationDataList = node.recursiveChildren("SubjectConfirmation")
                 .filter { it.attributes.getNamedItem("Method").textContent == HOLDER_OF_KEY_URI }
                 .flatMap { it.children("SubjectConfirmationData") }
 

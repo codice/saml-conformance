@@ -17,7 +17,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_3_2_2_a
 import org.codice.compliance.SAMLCore_3_3_2_2_b
 import org.codice.compliance.SAMLCore_3_3_2_3
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.verification.core.RequestProtocolVerifier
 import org.w3c.dom.Node
@@ -44,7 +44,7 @@ class AssertionQueryProtocolVerifier (override val request: Node) :
      */
     private fun verifyAuthnQueries() {
         // AuthnQuery
-        request.allChildren("AuthnQuery").forEach {
+        request.recursiveChildren("AuthnQuery").forEach {
             val querySessionIndex = it.attributes.getNamedItem("SessionIndex")?.textContent
             if (querySessionIndex != null
                     && request.children("Assertion")
@@ -103,7 +103,7 @@ class AssertionQueryProtocolVerifier (override val request: Node) :
      */
     private fun verifyAttributeQueries() {
         val uniqueAttributeQuery = mutableMapOf<String, String>()
-        request.allChildren("AuthnQuery").forEach {
+        request.recursiveChildren("AuthnQuery").forEach {
             val name = it.attributes.getNamedItem("Name")
             val nameFormat = it.attributes.getNamedItem("NameFormat")
             if (name != null && nameFormat != null) {
@@ -126,7 +126,7 @@ class AssertionQueryProtocolVerifier (override val request: Node) :
      * resource be allowed for this subject, given this evidence?”
      */
     private fun verifyAuthzDecisionQueries() {
-        request.allChildren("AuthzDecisionQuery").forEach {
+        request.recursiveChildren("AuthzDecisionQuery").forEach {
             if (it.attributes.getNamedItem("Resource") == null)
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.3.2.4",
                         property = "Resource",

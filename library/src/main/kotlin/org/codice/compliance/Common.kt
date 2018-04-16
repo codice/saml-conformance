@@ -37,6 +37,8 @@ import kotlin.test.currentStackTrace
 const val IMPLEMENTATION_PATH = "implementation.path"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 
+private const val DEFAULT = "default"
+
 class Common {
     companion object {
         private val SUPPORTED_BINDINGS = mutableSetOf(
@@ -116,11 +118,11 @@ fun Log.debugWithSupplier(message: () -> String) {
  * @param name - Name of Assertions.children
  * @return list of Assertions.children matching the name provided
  */
-fun Node.children(name: String = "default"): List<Node> {
+fun Node.children(name: String = DEFAULT): List<Node> {
     val childNodes = mutableListOf<Node>()
     for (i in (this.childNodes.length - 1) downTo 0) {
         this.childNodes.item(i).apply {
-            if (localName == name || name == "default") childNodes.add(this)
+            if (localName == name || name == DEFAULT) childNodes.add(this)
         }
     }
     return childNodes
@@ -132,14 +134,13 @@ fun Node.children(name: String = "default"): List<Node> {
  * @param name - Name of Assertions.children
  * @return list of Assertions.children matching the name provided
  */
-fun Node.allChildren(name: String): List<Node> {
+fun Node.recursiveChildren(name: String = DEFAULT): List<Node> {
     val nodes = mutableListOf<Node>()
-    var i = this.childNodes.length - 1
-    while (i >= 0) {
-        val child = this.childNodes.item(i)
-        if (child.localName == name)
-            nodes.add(child)
-        nodes.addAll(child.allChildren(name)); i -= 1
+    for (i in (this.childNodes.length - 1) downTo 0) {
+        this.childNodes.item(i).apply {
+            if (localName == name || name == DEFAULT) nodes.add(this)
+            nodes.addAll(this.recursiveChildren(name))
+        }
     }
     return nodes
 }

@@ -74,7 +74,7 @@ abstract class RequestProtocolVerifier(open val request: Node) {
                     property = ISSUE_INSTANT,
                     parent = REQUEST,
                     node = request)
-        CommonDataTypeVerifier.verifyTimeValues(request.attributes.getNamedItem(ISSUE_INSTANT),
+        CommonDataTypeVerifier.verifyDateTimeValues(request.attributes.getNamedItem(ISSUE_INSTANT),
                 SAMLCore_3_2_1_c)
 
         CoreVerifier.verifySamlExtensions(request.children(),

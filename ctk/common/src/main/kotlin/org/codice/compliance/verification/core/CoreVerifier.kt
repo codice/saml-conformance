@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
 import org.codice.compliance.SAMLCore_5_4_1
 import org.codice.compliance.SAMLCore_5_4_2_a
@@ -23,15 +24,15 @@ import org.codice.compliance.SAMLCore_5_4_2_b1
 import org.codice.compliance.SAMLCore_6_1_b
 import org.codice.compliance.SAMLCore_SamlExtensions
 import org.codice.compliance.SAMLSpecRefMessage
-import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Attr
 import org.w3c.dom.Element
 import org.w3c.dom.Node
+import java.time.Instant
 
 class CoreVerifier(val node: Node) {
     companion object {
@@ -79,6 +80,40 @@ class CoreVerifier(val node: Node) {
                 }
             }
         }
+
+        /**
+         * Checks the values of NotBefore and NotOnOrAfter attributes and verifies
+         * that the value of NotBefore is less than the value for NotOnOrAfter.
+         */
+        internal fun validateTimeWindow(node: Node, samlCode: SAMLCoreRefMessage) {
+            val notBefore = node.attributes.getNamedItem("NotBefore")
+            if (notBefore != null) CommonDataTypeVerifier.verifyDateTimeValues(notBefore)
+
+            val notOnOrAfter = node.attributes.getNamedItem("NotOnOrAfter")
+            if (notOnOrAfter != null) CommonDataTypeVerifier.verifyDateTimeValues(notOnOrAfter)
+
+            if (notBefore == null || notOnOrAfter == null) return
+
+            val notBeforeValue = Instant.parse(notBefore.textContent)
+            val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
+            if (notBeforeValue.isAfter(notOnOrAfterValue))
+                throw SAMLComplianceException.create(samlCode,
+                        message = "NotBefore element with value $notBeforeValue is not less " +
+                                "than NotOnOrAfter element with value $notOnOrAfterValue.",
+                        node = node)
+        }
+    }
+
+    /**
+     * Verify response against the Core Spec document
+     */
+    fun verify() {
+        CommonDataTypeVerifier.verifyCommonDataType(node)
+        SamlAssertionsVerifier(node).verify()
+        SamlIdentifiersVerifier(node).verify()
+
+        verifySignatureSyntaxAndProcessing(node)
+        verifyGeneralConsiderations(node)
     }
 
     /**
@@ -115,19 +150,6 @@ class CoreVerifier(val node: Node) {
     }
 
     /**
-     * Verify response against the Core Spec document
-     */
-    fun verify() {
-        verifyCommonDataType(node)
-
-        SamlAssertionsVerifier(node).verify()
-        SamlIdentifiersVerifier(node).verify()
-
-        verifySignatureSyntaxAndProcessing(node)
-        verifyGeneralConsiderations(node)
-    }
-
-    /**
      * Verify signatures against the Core Spec document
      *
      * 5 SAML and XML Signature Syntax and Processing
@@ -147,7 +169,7 @@ class CoreVerifier(val node: Node) {
                         node = node)
 
             signatures.forEach {
-                val references = it.allChildren("Reference")
+                val references = it.recursiveChildren("Reference")
                 if (references.size != 1)
                     throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
                             message = "${references.size} Reference elements were found.",
@@ -174,7 +196,7 @@ class CoreVerifier(val node: Node) {
         elements.addAll(node.children("Attribute"))
 
         elements.forEach {
-            val encryptedDataNode = it.allChildren(ENCRYPTED_DATA)
+            val encryptedDataNode = it.recursiveChildren(ENCRYPTED_DATA)
 
             if (encryptedDataNode.isNotEmpty()) {
                 val encryptedData = encryptedDataNode[0]
