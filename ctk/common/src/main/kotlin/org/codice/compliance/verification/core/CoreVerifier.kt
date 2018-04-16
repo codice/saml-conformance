@@ -48,7 +48,7 @@ class CoreVerifier(val node: Node) {
         internal fun verifySamlExtensions(nodes: List<Node>,
                                           expectedSamlNames: List<String>) {
             nodes.forEach {
-                if (isNullNamespace(it) || (it.namespaceURI == TestCommon.SAML_NAMESPACE
+                if (isNullNamespace(it) || (isSamlNamespace(it)
                                 && !expectedSamlNames.contains(it.localName))) {
                     throw SAMLComplianceException.create(SAMLCore_SamlExtensions,
                             message = "An invalid SAML extension was found.",
@@ -58,10 +58,23 @@ class CoreVerifier(val node: Node) {
         }
 
         private fun isNullNamespace(node: Node): Boolean {
-            return with (node) {
+            return with(node) {
                 when (this) {
                     is Attr -> namespaceURI == null && ownerElement.namespaceURI == null
                     is Element -> namespaceURI == null
+                    else -> throw UnknownError("Unknown Node type found")
+                }
+            }
+        }
+
+        private fun isSamlNamespace(node: Node): Boolean {
+            return with(node) {
+                when (this) {
+                    is Attr -> {
+                        namespaceURI == TestCommon.SAML_NAMESPACE
+                                || ownerElement.namespaceURI == TestCommon.SAML_NAMESPACE
+                    }
+                    is Element -> namespaceURI == TestCommon.SAML_NAMESPACE
                     else -> throw UnknownError("Unknown Node type found")
                 }
             }
