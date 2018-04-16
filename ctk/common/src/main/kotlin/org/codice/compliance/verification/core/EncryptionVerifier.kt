@@ -39,13 +39,13 @@ class EncryptionVerifier {
      * @param response The response node to verify and decrypt
      */
     fun verifyAndDecryptResponse(response: Node) {
-        val encryptedNodeList = response.allChildren("EncryptedAssertion")
-                .union(response.allChildren("EncryptedAttribute"))
-                .union(response.allChildren("EncryptedID"))
-
-        encryptedNodeList.forEach({
-            verifyAndDecryptElement(it, response)
-        })
+        sequenceOf(response.allChildren("EncryptedAssertion"),
+                response.allChildren("EncryptedAttribute"),
+                response.allChildren("EncryptedID")).toSet().forEach {
+            it.forEach {
+                verifyAndDecryptElement(it, response)
+            }
+        }
     }
 
     fun verifyAndDecryptElement(element: Node, response: Node) {
