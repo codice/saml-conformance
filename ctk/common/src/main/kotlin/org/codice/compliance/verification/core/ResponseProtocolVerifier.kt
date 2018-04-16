@@ -21,7 +21,7 @@ import org.codice.compliance.SAMLCore_3_2_2_c
 import org.codice.compliance.SAMLCore_3_2_2_d
 import org.codice.compliance.SAMLCore_3_2_2_e
 import org.codice.compliance.SAMLCore_3_4
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
@@ -105,7 +105,7 @@ class ResponseProtocolVerifier(private val response: Node,
                     property = ISSUE_INSTANT,
                     parent = RESPONSE,
                     node = response)
-        CommonDataTypeVerifier.verifyTimeValues(
+        CommonDataTypeVerifier.verifyDateTimeValues(
                 response.attributes.getNamedItem(ISSUE_INSTANT), SAMLCore_3_2_2_d)
 
         val destination = response.attributes?.getNamedItem("Destination")?.textContent
@@ -163,7 +163,7 @@ class ResponseProtocolVerifier(private val response: Node,
      * 3.8.2 Element <NameIDMappingResponse>
      */
     private fun verifyNameIdMappingResponse() {
-        response.allChildren("NameIDMappingResponse").forEach {
+        response.recursiveChildren("NameIDMappingResponse").forEach {
             if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.6.1",
                         property = "NameID or EncryptedID",

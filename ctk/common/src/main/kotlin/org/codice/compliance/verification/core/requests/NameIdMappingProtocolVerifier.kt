@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core.requests
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.verification.core.RequestProtocolVerifier
 import org.w3c.dom.Node
@@ -38,7 +38,7 @@ class NameIdMappingProtocolVerifier (override val request: Node) :
      * requester sends an <NameIDMappingRequest> message.
      */
     private fun verifyNameIdMappingRequest() {
-        request.allChildren(NAME_ID_MAPPING_REQUEST).forEach {
+        request.recursiveChildren(NAME_ID_MAPPING_REQUEST).forEach {
             if (it.children("BaseID").isEmpty()
                     && it.children("NameID").isEmpty()
                     && it.children("EncryptedID").isEmpty())

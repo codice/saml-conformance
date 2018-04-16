@@ -33,7 +33,7 @@ import org.codice.compliance.SAMLBindings_3_4_4_a
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
@@ -414,7 +414,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      */
     private fun verifyRedirectDestination() {
         val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
-        val signatures = response.responseDom.allChildren("Signature")
+        val signatures = response.responseDom.recursiveChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,

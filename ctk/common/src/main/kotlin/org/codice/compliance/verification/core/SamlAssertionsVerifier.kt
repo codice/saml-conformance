@@ -13,52 +13,21 @@
  */
 package org.codice.compliance.verification.core
 
-import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_2_2_4_a
-import org.codice.compliance.allChildren
-import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
-import org.codice.compliance.verification.core.internal.AssertionsVerifier
-import org.codice.compliance.verification.core.internal.ConditionsVerifier
-import org.codice.compliance.verification.core.internal.StatementVerifier
-import org.codice.compliance.verification.core.internal.SubjectVerifier
+import org.codice.compliance.verification.core.assertions.AssertionsVerifier
+import org.codice.compliance.verification.core.assertions.ConditionsVerifier
+import org.codice.compliance.verification.core.assertions.NameIdentifierVerifier
+import org.codice.compliance.verification.core.assertions.StatementVerifier
+import org.codice.compliance.verification.core.assertions.SubjectVerifier
 import org.w3c.dom.Node
 
 class SamlAssertionsVerifier(val node: Node) {
-    companion object {
-        private const val ENCRYPTED_ID = "EncryptedID"
-    }
-    /**
-     * Verify assertions against the Core Spec document
-     * 2 SAML Assertions
-     */
+
+    /** 2 SAML Assertions */
     fun verify() {
-        verifyNameIdentifiers()
+        NameIdentifierVerifier(node).verify()
         AssertionsVerifier(node).verify()
         SubjectVerifier(node).verify()
         ConditionsVerifier(node).verify()
         StatementVerifier(node).verify()
-    }
-
-    /**
-     * Verify the Name Identifiers against the Core Spec document
-     * 2.2 Name Identifiers
-     * 2.2.4 Element <EncryptedID>
-     */
-    private fun verifyNameIdentifiers() {
-        // EncryptedID
-        node.allChildren(ENCRYPTED_ID).forEach {
-            val encryptedData = it.children("EncryptedData")
-            if (encryptedData.isEmpty()) throw SAMLComplianceException
-                    .createWithXmlPropertyReqMessage("SAMLCore.2.2.4",
-                            property = "EncryptedData",
-                            parent = ENCRYPTED_ID)
-
-            if (encryptedData.filter { it.attributes.getNamedItem("Type") != null }
-                            .any { it.attributes.getNamedItem("Type").textContent != ELEMENT })
-                throw SAMLComplianceException.create(SAMLCore_2_2_4_a,
-                        message = "Type attribute found with an incorrect value.",
-                        node = node)
-        }
     }
 }

@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core.requests
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.verification.core.RequestProtocolVerifier
 import org.w3c.dom.Node
@@ -40,7 +40,7 @@ class AuthnRequestProtocolVerifier (override val request: Node) : RequestProtoco
      */
     private fun verifyIdpList() {
         // IDPList
-        request.allChildren(IDP_LIST).forEach {
+        request.recursiveChildren(IDP_LIST).forEach {
             if (it.children(IDP_ENTRY).isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.4.1.3",
                         property = IDP_ENTRY,

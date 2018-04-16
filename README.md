@@ -2,12 +2,6 @@
 This project is intended to be a set of blackbox tests that verify the conformance of an IdP/SP to the SAML Spec.
 It is currently a prototype being actively developed.
 
-FICAM: https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/SAML2_1.0.2_Functional_Reqs.pdf
-
-SAML: https://wiki.oasis-open.org/security/FrontPage
-
-ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.0.html
-
 ## Setup
 To build the project:
 
@@ -131,3 +125,10 @@ To build this module you must run the docker task by executing `gradlew build do
 
 #### suites
 This module contains the test suites.
+
+## References
+FICAM: https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/SAML2_1.0.2_Functional_Reqs.pdf
+
+SAML: https://wiki.oasis-open.org/security/FrontPage
+
+ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.0.html

@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core.requests
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.verification.core.RequestProtocolVerifier
 import org.w3c.dom.Node
@@ -38,7 +38,7 @@ class NameIdManagementProtocolVerifier (override val request: Node) :
      * and adds the following elements
      */
     private fun verifyManageNameIDRequest() {
-        request.allChildren(MANAGE_NAME_ID_REQUEST).forEach {
+        request.recursiveChildren(MANAGE_NAME_ID_REQUEST).forEach {
             if (it.children("NameID").isEmpty() && it.children("EncryptedID").isEmpty())
                 throw SAMLComplianceException.createWithXmlPropertyReqMessage("SAMLCore.3.6.1",
                         property = "NameID or EncryptedID",

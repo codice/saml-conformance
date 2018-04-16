@@ -14,11 +14,11 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.allChildren
-import org.codice.compliance.children
 import org.codice.compliance.SAMLCore_8_1_2
 import org.codice.compliance.SAMLCore_8_2_2
 import org.codice.compliance.SAMLCore_8_2_3
+import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -46,7 +46,7 @@ internal class SamlIdentifiersVerifier(val node: Node) {
     // 8.1.2 Read/Write/Execute/Delete/Control with Negation
     private fun verifyActionNamespaceIdentifiers() {
         // AuthzDecisionQuery is the only element where "Action" is found (Core 3.3.2.4)
-        node.allChildren("AuthzDecisionQuery").forEach({
+        node.recursiveChildren("AuthzDecisionQuery").forEach({
             val actionList = createActionList(it)
 
             if (actionList.isNotEmpty()) {
@@ -78,7 +78,7 @@ internal class SamlIdentifiersVerifier(val node: Node) {
 
     // 8.2 URI/Basic name attribute formats
     private fun verifyAttributeNameFormatIdentifiers() {
-        node.allChildren("Attribute").forEach {
+        node.recursiveChildren("Attribute").forEach {
             val name = it.attributes.getNamedItem("Name")
             val nameFormat = it.attributes.getNamedItem("NameFormat")
             if (name == null || nameFormat == null || nameFormat.textContent == null) {
