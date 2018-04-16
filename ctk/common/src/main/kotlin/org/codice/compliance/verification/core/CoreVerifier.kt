@@ -21,17 +21,64 @@ import org.codice.compliance.SAMLCore_5_4_2_a
 import org.codice.compliance.SAMLCore_5_4_2_b
 import org.codice.compliance.SAMLCore_5_4_2_b1
 import org.codice.compliance.SAMLCore_6_1_b
+import org.codice.compliance.SAMLCore_SamlExtensions
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
+import org.w3c.dom.Attr
+import org.w3c.dom.Element
 import org.w3c.dom.Node
 
 class CoreVerifier(val node: Node) {
     companion object {
         private const val ENCRYPTED_DATA = "EncryptedData"
+
+        /**
+         * Verify SAML extension attributes or elements against the Core Spec document
+         *
+         * 2.4.1.2 Element <SubjectConfirmationData>
+         * 2.7.3.1 Element <Attribute>
+         * 3.2.1 Complex Type RequestAbstractType
+         * 3.2.2 Complex Type StatusResponseType
+         */
+        internal fun verifySamlExtensions(nodes: List<Node>,
+                                          expectedSamlNames: List<String>) {
+            nodes.forEach {
+                if (isNullNamespace(it) || (isSamlNamespace(it)
+                                && !expectedSamlNames.contains(it.localName))) {
+                    throw SAMLComplianceException.create(SAMLCore_SamlExtensions,
+                            message = "An invalid SAML extension was found.",
+                            node = it)
+                }
+            }
+        }
+
+        private fun isNullNamespace(node: Node): Boolean {
+            return with(node) {
+                when (this) {
+                    is Attr -> namespaceURI == null && ownerElement.namespaceURI == null
+                    is Element -> namespaceURI == null
+                    else -> throw UnknownError("Unknown Node type found")
+                }
+            }
+        }
+
+        private fun isSamlNamespace(node: Node): Boolean {
+            return with(node) {
+                when (this) {
+                    is Attr -> {
+                        namespaceURI == TestCommon.SAML_NAMESPACE
+                                || ownerElement.namespaceURI == TestCommon.SAML_NAMESPACE
+                    }
+                    is Element -> namespaceURI == TestCommon.SAML_NAMESPACE
+                    else -> throw UnknownError("Unknown Node type found")
+                }
+            }
+        }
     }
 
     /**

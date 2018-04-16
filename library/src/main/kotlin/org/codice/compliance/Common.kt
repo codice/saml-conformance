@@ -116,11 +116,11 @@ fun Log.debugWithSupplier(message: () -> String) {
  * @param name - Name of Assertions.children
  * @return list of Assertions.children matching the name provided
  */
-fun Node.children(name: String): List<Node> {
+fun Node.children(name: String = "default"): List<Node> {
     val childNodes = mutableListOf<Node>()
     for (i in (this.childNodes.length - 1) downTo 0) {
         this.childNodes.item(i).apply {
-            if (localName == name) childNodes.add(this)
+            if (localName == name || name == "default") childNodes.add(this)
         }
     }
     return childNodes
@@ -142,6 +142,16 @@ fun Node.allChildren(name: String): List<Node> {
         nodes.addAll(child.allChildren(name)); i -= 1
     }
     return nodes
+}
+
+fun Node.attributeList(): List<Node> {
+    val attributesList = mutableListOf<Node>()
+    this.attributes.let {
+        for (i in it.length - 1 downTo 0) {
+            attributesList.add(it.item(i))
+        }
+    }
+    return attributesList
 }
 
 fun Node.prettyPrintXml(): String {

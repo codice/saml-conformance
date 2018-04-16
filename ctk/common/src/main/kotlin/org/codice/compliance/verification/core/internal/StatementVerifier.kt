@@ -21,8 +21,10 @@ import org.codice.compliance.SAMLCore_2_7_3_1_1
 import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_2_7_4_a
 import org.codice.compliance.allChildren
+import org.codice.compliance.attributeList
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.verification.core.CoreVerifier
 import org.w3c.dom.Node
 
 internal class StatementVerifier(val node: Node) {
@@ -113,6 +115,9 @@ internal class StatementVerifier(val node: Node) {
                     || (friendlyNameAttr != null && friendlyNameAttr.textContent == null)) {
                 verifyAttributeValue(it)
             }
+
+            CoreVerifier.verifySamlExtensions(it.attributeList(),
+                    expectedSamlNames = listOf("Name", "NameFormat", "FriendlyName"))
         }
     }
 

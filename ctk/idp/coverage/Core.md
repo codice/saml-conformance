@@ -34,7 +34,7 @@ Unmarked sections need attention
 	2.4 Subjects
 		2.4.1 Element <Subject>
 +			2.4.1.1 Element <SubjectConfirmation>
-			2.4.1.2 Element <SubjectConfirmationData>
++			2.4.1.2 Element <SubjectConfirmationData>
 			2.4.1.3 Complex Type KeyInfoConfirmationDataType
 -			2.4.1.4 Example of a Key-Confirmed <Subject>
 	2.5 Conditions
@@ -53,7 +53,7 @@ Unmarked sections need attention
 -			2.7.2.1 Element <SubjectLocality>
 -			2.7.2.2 Element <AuthnContext>
 		2.7.3 Element <AttributeStatement>
-			2.7.3.1 Element <Attribute>
++			2.7.3.1 Element <Attribute>
 +				2.7.3.1.1 Element <AttributeValue>
 			2.7.3.2 Element <EncryptedAttribute>
 		2.7.4 Element <AuthzDecisionStatement>

@@ -18,8 +18,10 @@ import org.codice.compliance.SAMLCore_2_4_1_3
 import org.codice.compliance.SAMLCore_2_5_1_2
 import org.codice.compliance.XMLSignature_4_5
 import org.codice.compliance.allChildren
+import org.codice.compliance.attributeList
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.verification.core.CoreVerifier
 import org.w3c.dom.Node
 import java.time.Instant
 
@@ -71,6 +73,10 @@ internal class SubjectVerifier(val node: Node) {
                 throw SAMLComplianceException.create(SAMLCore_2_4_1_3, XMLSignature_4_5,
                         message = "Multiple Keys found within the KeyInfo element.",
                         node = node)
+
+            CoreVerifier.verifySamlExtensions(it.attributeList(),
+                    expectedSamlNames = listOf("NotBefore", "NotOnOrAfter", "Recipient",
+                            "InResponseTo", "Address"))
         }
     }
 }

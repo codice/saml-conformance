@@ -40,6 +40,7 @@ class ResponseProtocolVerifier(private val response: Node,
         private const val ISSUE_INSTANT = "IssueInstant"
         private const val SAMLCore_3_2_2 = "SAMLCore.3.2.2"
     }
+
     /**
      * Verify protocols against the Core Spec document
      * 3.2.2 Complex Type StatusResponseType
@@ -120,6 +121,10 @@ class ResponseProtocolVerifier(private val response: Node,
                     property = STATUS,
                     parent = RESPONSE,
                     node = response)
+
+        CoreVerifier.verifySamlExtensions(response.children(),
+                expectedSamlNames = listOf("Issuer", "Signature", "Status", "Assertion",
+                        "EncryptedAssertion"))
     }
 
     /**
