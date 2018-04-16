@@ -36,24 +36,28 @@ class EncryptionVerifier {
      *
      * @param response The response node to verify and decrypt
      */
-    fun verifyAndDecrypt(response: Node) {
+    fun verifyAndDecryptResponse(response: Node) {
         val encryptedNodeList = response.allChildren("EncryptedAssertion")
                 .union(response.allChildren("EncryptedAttribute"))
-                .union(response.allChildren("EncryptedId"))
+                .union(response.allChildren("EncryptedID"))
 
         encryptedNodeList.forEach({
-            verifyEncryptedElement(it)
-
-            try {
-                XMLDecryptor.decryptAndReplaceNode(it)
-            } catch (e: XMLDecryptorException) {
-                throw SAMLComplianceException.create(
-                        SAMLCore_6_1_a,
-                        message = e.message,
-                        cause = e.cause,
-                        node = response)
-            }
+            verifyAndDecryptElement(it, response)
         })
+    }
+
+    fun verifyAndDecryptElement(element: Node, response: Node) {
+        verifyEncryptedElement(element)
+
+        try {
+            XMLDecryptor.decryptAndReplaceNode(element)
+        } catch (e: XMLDecryptorException) {
+            throw SAMLComplianceException.create(
+                    SAMLCore_6_1_a,
+                    message = e.message,
+                    cause = e.cause,
+                    node = response)
+        }
     }
 
     private fun verifyEncryptedElement(encryptedElement: Node) {

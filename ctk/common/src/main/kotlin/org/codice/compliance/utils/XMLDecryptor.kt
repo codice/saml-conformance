@@ -19,6 +19,9 @@ import org.apache.xml.security.encryption.XMLCipher
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.codice.compliance.allChildren
 import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon.Companion.KEYSTORE_PASSWORD
+import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_ALIAS
+import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_PASSWORD
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -49,12 +52,11 @@ class XMLDecryptor {
                 }
             }
 
-            val keystorePassword = encryptionProperties
-                    .getProperty("org.apache.ws.security.crypto.merlin.keystore.password")
-            val keystorePrivateKeyPassword = encryptionProperties
-                    .getProperty("org.apache.ws.security.crypto.merlin.keystore.private.password")
-            val keystorePrivateKeyAlias = encryptionProperties
-                    .getProperty("org.apache.ws.security.crypto.merlin.keystore.alias")
+            val keystorePassword = encryptionProperties.getProperty(KEYSTORE_PASSWORD)
+            val keystorePrivateKeyPassword =
+                    encryptionProperties.getProperty(PRIVATE_KEY_PASSWORD)
+            val keystorePrivateKeyAlias =
+                    encryptionProperties.getProperty(PRIVATE_KEY_ALIAS)
 
             // Using Apache Merlin to read the keystore
             val merlin = Merlin(encryptionProperties,
@@ -78,7 +80,7 @@ class XMLDecryptor {
          */
         @Suppress("TooGenericExceptionCaught"
                 /* Decryption error handling is independent of Exception type */)
-        fun decryptAndReplaceNode(node: Node): Node {
+        internal fun decryptAndReplaceNode(node: Node): Node {
             // message to build up and pass at the end of the method
             val messageBuilder = StringBuilder()
 
@@ -106,11 +108,11 @@ class XMLDecryptor {
                 return if (encData.previousSibling != null) {
                     val referenceNode = encData.previousSibling
                     encryptionCipher.doFinal(ownerDocument, encData)
-                    replaceNode(referenceNode.nextSibling, node)
+                    node.parentNode.replaceChild(referenceNode.nextSibling, node)
                 } else {
                     val referenceNode = encData.parentNode
                     encryptionCipher.doFinal(ownerDocument, encData)
-                    replaceNode(referenceNode.firstChild, node)
+                    node.parentNode.replaceChild(referenceNode.firstChild, node)
                 }
             } catch (e: Exception) {
                 messageBuilder.append("The data could not be decrypted.")
@@ -142,11 +144,6 @@ class XMLDecryptor {
                 }
             }
             return null // Give up.
-        }
-
-        private fun replaceNode(newNode: Node, oldNode: Node): Node {
-            oldNode.parentNode.replaceChild(newNode, oldNode)
-            return newNode
         }
 
         /**

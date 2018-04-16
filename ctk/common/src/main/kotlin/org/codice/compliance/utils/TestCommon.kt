@@ -61,6 +61,11 @@ class TestCommon {
         private const val RESPONDER = "urn:oasis:names:tc:SAML:2.0:status:Responder"
         val TOP_LEVEL_STATUS_CODES = setOf(SUCCESS, REQUESTER, RESPONDER, VERSION_MISMATCH)
 
+        const val KEYSTORE_PASSWORD = "org.apache.ws.security.crypto.merlin.keystore.password"
+        const val PRIVATE_KEY_ALIAS = "org.apache.ws.security.crypto.merlin.keystore.alias"
+        const val PRIVATE_KEY_PASSWORD =
+                "org.apache.ws.security.crypto.merlin.keystore.private.password"
+
         private val DEPLOY_CL = getDeployDirClassloader()
         private val spMetadata = Common.parseSpMetadata()
 
