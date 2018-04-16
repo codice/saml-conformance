@@ -121,7 +121,7 @@ Unmarked sections need attention
 -	5.2 Request/Response Signing
 -	5.3 Signature Inheritance
 	5.4 XML Signature Profile
-+		5.4.1 Signing Formats and Algorithms
+		5.4.1 Signing Formats and Algorithms
 +		5.4.2 References
 -		5.4.3 Canonicalization Method
 		5.4.4 Transforms
@@ -129,7 +129,7 @@ Unmarked sections need attention
 -		5.4.6 KeyInfo
 -		5.4.7 Example
 6 SAML and XML Encryption Syntax and Processing
-+	6.1 General Considerations
+	6.1 General Considerations
 -	6.2 [E93] Encryption and Integrity Protection
 -	6.3 [E43] Key and Data Referencing Guidelines
 -	6.4 Examples

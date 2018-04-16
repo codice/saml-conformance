@@ -44,8 +44,6 @@ sealed class SAMLSpecRefMessage(docRefKey: String,
 sealed class SAMLProfileRefMessage : SAMLSpecRefMessage("SAMLProfile.doc", "SAMLProfile.uri")
 sealed class SAMLCoreRefMessage : SAMLSpecRefMessage("SAMLCore.doc", "SAMLCore.uri")
 sealed class SAMLBindingRefMessage : SAMLSpecRefMessage("SAMLBinding.doc", "SAMLBinding.uri")
-sealed class XmlDatatypeRefMessage : SAMLSpecRefMessage("XMLDatatype.doc", "XMLDatatype.uri")
-sealed class XmlSigRefMessage : SAMLSpecRefMessage("XMLSig.doc", "XMLSig.uri")
 
 //-----------------
 // PROFILES
@@ -128,8 +126,6 @@ object SAMLCore_3_4 : SAMLCoreRefMessage()
 
 object SAMLCore_3_7_1 : SAMLCoreRefMessage()
 
-object SAMLCore_5_4_1 : SAMLCoreRefMessage()
-object SAMLCore_5_4_2_a : SAMLCoreRefMessage()
 object SAMLCore_5_4_2_b : SAMLCoreRefMessage()
 object SAMLCore_5_4_2_b1 : SAMLCoreRefMessage()
 
@@ -174,18 +170,3 @@ object SAMLBindings_3_5_4_c : SAMLBindingRefMessage()
 object SAMLBindings_3_5_4_d1 : SAMLBindingRefMessage()
 object SAMLBindings_3_5_4_d2 : SAMLBindingRefMessage()
 object SAMLBindings_3_5_5_2_a : SAMLBindingRefMessage()
-
-//-----------------
-// XML Datatype Schema
-//-----------------
-
-object XMLDatatypesSchema_3_2_7 : XmlDatatypeRefMessage()
-object XMLDatatypesSchema_3_2_7_1_a : XmlDatatypeRefMessage()
-object XMLDatatypesSchema_3_2_7_1_b : XmlDatatypeRefMessage()
-object XMLDatatypesSchema_3_2_7_1_c : XmlDatatypeRefMessage()
-
-//-----------------
-// XML Signature Syntax and Processing
-//-----------------
-
-object XMLSignature_4_5 : XmlSigRefMessage()
