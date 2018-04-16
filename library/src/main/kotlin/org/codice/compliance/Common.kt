@@ -37,8 +37,6 @@ import kotlin.test.currentStackTrace
 const val IMPLEMENTATION_PATH = "implementation.path"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 
-private const val DEFAULT = "default"
-
 class Common {
     companion object {
         private val SUPPORTED_BINDINGS = mutableSetOf(
@@ -113,53 +111,55 @@ fun Log.debugWithSupplier(message: () -> String) {
 }
 
 /**
- * Finds all of the first level children of a {@code Node} with the given element name
+ * Finds all of the first level children of a {@code Node}.
  *
- * @param name - Element name to match
- * @return List of child {@code Nodes} matching the element name provided
+ * @param name - Optional element name to match.
+ * @return List of child {@code Nodes}.
  */
-fun Node.children(name: String = DEFAULT): List<Node> {
-    val childNodes = mutableListOf<Node>()
-    for (i in (this.childNodes.length - 1) downTo 0) {
-        this.childNodes.item(i).apply {
-            if (localName == name || name == DEFAULT) childNodes.add(this)
-        }
-    }
-    return childNodes
+fun Node.children(name: String? = null): List<Node> {
+    val predicate: (Node) -> Boolean =
+            if (name == null) {
+                { true }
+            } else {
+                { it.localName == name }
+            }
+
+    return ((this.childNodes.length - 1) downTo 0)
+            .map { this.childNodes.item(it) }
+            .filter(predicate)
+            .toList()
 }
 
 /**
- * Finds all of the children of a {@code Node} with the given element name, regardless of how deep
- * the element is nested in its children
+ * Finds all of the children of a {@code Node}, regardless of how deep an element is nested in its
+ * children.
  *
- * @param name - Element name to match
- * @return List of child {@code Nodes} matching the element name provided
+ * @param name - Optional element name to match.
+ * @return List of child {@code Nodes}.
  */
-fun Node.recursiveChildren(name: String = DEFAULT): List<Node> {
+fun Node.recursiveChildren(name: String? = null): List<Node> {
     val nodes = mutableListOf<Node>()
-    for (i in (this.childNodes.length - 1) downTo 0) {
-        this.childNodes.item(i).apply {
-            if (localName == name || name == DEFAULT) nodes.add(this)
-            nodes.addAll(this.recursiveChildren(name))
-        }
+    this.children(name).forEach {
+        nodes.add(it)
+        nodes.addAll(it.recursiveChildren(name))
     }
     return nodes
 }
 
 /**
- * Finds all of the siblings of a {@code Node} with the given element name
+ * Finds all of the siblings of a {@code Node}.
  *
- * @param name - Element name to match
- * @return List of sibling {code Nodes} matching the element name provided
+ * @param name - Optional element name to match.
+ * @return List of sibling {code Nodes}.
  */
-fun Node.siblings(name: String): List<Node> {
+fun Node.siblings(name: String? = null): List<Node> {
     val siblingNodes = mutableListOf<Node>()
 
     // backwards portion
     var tempNode = this
     while (tempNode.previousSibling != null) {
         tempNode = tempNode.previousSibling
-        if (tempNode.localName == name)
+        if (name == null || tempNode.localName == name)
             siblingNodes.add(tempNode)
     }
 
@@ -167,13 +167,16 @@ fun Node.siblings(name: String): List<Node> {
     tempNode = this
     while (tempNode.nextSibling != null) {
         tempNode = tempNode.nextSibling
-        if (tempNode.localName == name)
+        if (name == null || tempNode.localName == name)
             siblingNodes.add(tempNode)
     }
 
     return siblingNodes
 }
 
+/**
+ * Returns all of the attributes of a {@code Node} as a {@code List} of {@code Nodes}.
+ */
 fun Node.attributeList(): List<Node> {
     val attributesList = mutableListOf<Node>()
     this.attributes.let {
