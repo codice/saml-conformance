@@ -413,7 +413,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.5.2 Security Considerations
      */
     private fun verifyRedirectDestination() {
-        val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
+        val destination = response.responseDom.attributes?.getNamedItem("Destination")?.nodeValue
         val signatures = response.responseDom.recursiveChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {

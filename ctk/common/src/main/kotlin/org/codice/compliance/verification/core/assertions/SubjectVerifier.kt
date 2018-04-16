@@ -43,11 +43,11 @@ internal class SubjectVerifier(val node: Node) {
         node.recursiveChildren("SubjectConfirmationData").forEach {
             validateTimeWindow(it, SAMLCore_2_4_1_2_a)
 
-            it.attributes.getNamedItem("Recipient")?.let {
+            it.attributes?.getNamedItem("Recipient")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
-            it.attributes.getNamedItem("Address")?.let {
+            it.attributes?.getNamedItem("Address")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 

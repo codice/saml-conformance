@@ -227,7 +227,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * 3.5.5.2 Security Considerations
      */
     private fun verifyPostDestination() {
-        val destination = response.responseDom.attributes.getNamedItem("Destination")?.nodeValue
+        val destination = response.responseDom.attributes?.getNamedItem("Destination")?.nodeValue
         val signatures = response.responseDom.recursiveChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {

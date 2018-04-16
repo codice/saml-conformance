@@ -63,7 +63,7 @@ internal class AssertionsVerifier(val node: Node) {
                     SAMLCore_2_3_3_c)
 
             val statements = it.children("Statement")
-            if (statements.any { it.attributes.getNamedItemNS(TestCommon.XSI, "type") == null })
+            if (statements.any { it.attributes?.getNamedItemNS(TestCommon.XSI, "type") == null })
                 throw SAMLComplianceException.create(SAMLCore_2_2_3_a,
                         message = "Statement element found without a type.",
                         node = node)

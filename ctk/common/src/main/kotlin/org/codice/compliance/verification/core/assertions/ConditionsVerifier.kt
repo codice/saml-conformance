@@ -52,7 +52,7 @@ internal class ConditionsVerifier(val node: Node) {
         validateTimeWindow(conditionsElement, SAMLCore_2_5_1_2)
 
         if (conditionsElement.children("Condition")
-                        .any { it.attributes.getNamedItemNS(TestCommon.XSI, "type") == null })
+                        .any { it.attributes?.getNamedItemNS(TestCommon.XSI, "type") == null })
             throw SAMLComplianceException.create(SAMLCore_2_5_1_a,
                     message = "Condition found without a type.",
                     node = node)

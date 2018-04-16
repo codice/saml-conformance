@@ -85,7 +85,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                                 "issuing IdP.",
                         node = response)
 
-            val issuerFormat = issuer.attributes.getNamedItem("Format")?.textContent
+            val issuerFormat = issuer.attributes?.getNamedItem("Format")?.textContent
             if (issuerFormat != null &&
                     issuerFormat != ENTITY)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
@@ -138,10 +138,10 @@ class SingleSignOnProfileVerifier(private val response: Node,
                         .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                         .flatMap { it.children("SubjectConfirmationData") }
                         .none {
-                            it.attributes.getNamedItem("Recipient").textContent == acsUrl &&
-                                    it.attributes.getNamedItem("NotOnOrAfter") != null &&
-                                    it.attributes.getNamedItem("NotBefore") == null &&
-                                    it.attributes.getNamedItem("InResponseTo").textContent ==
+                            it.attributes?.getNamedItem("Recipient")?.textContent == acsUrl &&
+                                    it.attributes?.getNamedItem("NotOnOrAfter") != null &&
+                                    it.attributes?.getNamedItem("NotBefore") == null &&
+                                    it.attributes?.getNamedItem("InResponseTo")?.textContent ==
                                     ID }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "There were no bearer SubjectConfirmation elements that matched " +
@@ -164,7 +164,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
 
         if (bearerAssertions.filter { it.children(AUTHN_STATEMENT).isNotEmpty() }
                         .flatMap { it.children(AUTHN_STATEMENT) }
-                        .any { it.attributes.getNamedItem("SessionIndex") == null })
+                        .any { it.attributes?.getNamedItem("SessionIndex") == null })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
                     message = "Single Logout support found in IdP metadata, but no " +
                             "SessionIndex was found.",

@@ -25,7 +25,7 @@ class LogoutRequestProtocolVerifier(val request: Node) {
      */
     fun verifyLogoutRequestProtocol() {
         request.children("LogoutRequest").forEach {
-            if (it.attributes.getNamedItem("Reason") != null)
+            if (it.attributes?.getNamedItem("Reason") != null)
                 CommonDataTypeVerifier.verifyUriValues(it.attributes.getNamedItem("Reason"),
                         SAMLCore_3_7_1)
 

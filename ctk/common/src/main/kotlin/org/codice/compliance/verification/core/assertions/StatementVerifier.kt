@@ -46,11 +46,11 @@ internal class StatementVerifier(val node: Node) {
         node.recursiveChildren("AuthnStatement").forEach {
             CommonDataTypeVerifier.verifyDateTimeValues(it.attributes.getNamedItem("AuthnInstant"))
 
-            it.attributes.getNamedItem("SessionIndex")?.let {
+            it.attributes?.getNamedItem("SessionIndex")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
-            it.attributes.getNamedItem("SessionNotOnOrAfter")?.let {
+            it.attributes?.getNamedItem("SessionNotOnOrAfter")?.let {
                 CommonDataTypeVerifier.verifyDateTimeValues(it)
             }
         }
@@ -66,11 +66,11 @@ internal class StatementVerifier(val node: Node) {
     /** 2.7.2.1 Element <SubjectLocality> **/
     private fun verifySubjectLocality() {
         node.recursiveChildren("SubjectLocality").forEach {
-            it.attributes.getNamedItem("Address")?.let {
+            it.attributes?.getNamedItem("Address")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
-            it.attributes.getNamedItem("DNSName")?.let {
+            it.attributes?.getNamedItem("DNSName")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
         }
@@ -79,16 +79,16 @@ internal class StatementVerifier(val node: Node) {
     /** 2.7.2.2 Element <AuthnContext> **/
     private fun verifyAuthnContext() {
         node.recursiveChildren("AuthnContext").forEach {
-            it.attributes.getNamedItem("AuthnContextClassRef")?.let {
+            it.attributes?.getNamedItem("AuthnContextClassRef")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
-            it.attributes.getNamedItem("AuthnContextDeclRef")?.let {
+            it.attributes?.getNamedItem("AuthnContextDeclRef")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
-            it.attributes.getNamedItem("AuthnContextDecl")?.let {
+            it.attributes?.getNamedItem("AuthnContextDecl")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
-            it.attributes.getNamedItem("AuthenticatingAuthority")?.let {
+            it.attributes?.getNamedItem("AuthenticatingAuthority")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
         }
@@ -111,11 +111,11 @@ internal class StatementVerifier(val node: Node) {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
-            it.attributes.getNamedItem("NameFormat")?.let {
+            it.attributes?.getNamedItem("NameFormat")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
-            it.attributes.getNamedItem("FriendlyName")?.let {
+            it.attributes?.getNamedItem("FriendlyName")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
