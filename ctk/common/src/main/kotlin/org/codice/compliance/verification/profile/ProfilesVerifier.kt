@@ -63,7 +63,7 @@ class ProfilesVerifier(private val node: Node) {
                 .flatMap { it.children("SubjectConfirmationData") }
 
         subjectConfirmationDataList.forEach {
-            val type = it.attributes.getNamedItemNS(XSI, "type")
+            val type = it.attributes?.getNamedItemNS(XSI, "type")
             if (type != null && !type.textContent.contains("KeyInfoConfirmationDataType"))
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
                         property = "type",
@@ -71,10 +71,10 @@ class ProfilesVerifier(private val node: Node) {
                         expected = "KeyInfoConfirmationDataType",
                         node = node)
 
-            if (type.firstChild.namespaceURI != SAML_NAMESPACE)
+            if (type?.firstChild?.namespaceURI != SAML_NAMESPACE)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
                         property = "the namespace prefix",
-                        actual = type.firstChild.namespaceURI,
+                        actual = type?.firstChild?.namespaceURI,
                         expected = SAML_NAMESPACE,
                         node = node)
 

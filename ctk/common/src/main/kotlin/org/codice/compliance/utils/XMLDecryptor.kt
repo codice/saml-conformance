@@ -17,7 +17,7 @@ import org.apache.wss4j.common.crypto.JasyptPasswordEncryptor
 import org.apache.wss4j.common.crypto.Merlin
 import org.apache.xml.security.encryption.XMLCipher
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.KEYSTORE_PASSWORD
 import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_ALIAS
@@ -88,7 +88,7 @@ class XMLDecryptor {
             val ownerDocument = node.ownerDocument
             val encData = encElement.children("EncryptedData").first() as Element
 
-            val encKeyElements = encElement.allChildren("EncryptedKey")
+            val encKeyElements = encElement.recursiveChildren("EncryptedKey")
                     .map { it as Element }
             if (encKeyElements.isEmpty()) messageBuilder.append("No Keys could be found.\n")
 

@@ -86,10 +86,10 @@ class CoreVerifier(val node: Node) {
          * that the value of NotBefore is less than the value for NotOnOrAfter.
          */
         internal fun validateTimeWindow(node: Node, samlCode: SAMLCoreRefMessage) {
-            val notBefore = node.attributes.getNamedItem("NotBefore")
+            val notBefore = node.attributes?.getNamedItem("NotBefore")
             if (notBefore != null) CommonDataTypeVerifier.verifyDateTimeValues(notBefore)
 
-            val notOnOrAfter = node.attributes.getNamedItem("NotOnOrAfter")
+            val notOnOrAfter = node.attributes?.getNamedItem("NotOnOrAfter")
             if (notOnOrAfter != null) CommonDataTypeVerifier.verifyDateTimeValues(notOnOrAfter)
 
             if (notBefore == null || notOnOrAfter == null) return

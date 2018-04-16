@@ -139,8 +139,8 @@ fun Node.children(name: String? = null): List<Node> {
  */
 fun Node.recursiveChildren(name: String? = null): List<Node> {
     val nodes = mutableListOf<Node>()
-    this.children(name).forEach {
-        nodes.add(it)
+    this.children().forEach {
+        if (name == null || name == it.localName) nodes.add(it)
         nodes.addAll(it.recursiveChildren(name))
     }
     return nodes

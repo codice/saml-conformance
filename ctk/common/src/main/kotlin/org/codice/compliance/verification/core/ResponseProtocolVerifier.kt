@@ -149,7 +149,7 @@ class ResponseProtocolVerifier(private val response: Node,
                         parent = STATUS_CODE,
                         node = response)
 
-            val statusCode = statusCodes[0].attributes?.getNamedItem(VALUE)?.textContent
+            val statusCode = statusCodes[0].attributes.getNamedItem(VALUE).textContent
             if (!TOP_LEVEL_STATUS_CODES.contains(statusCode))
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_2,
                         property = STATUS_CODE,

@@ -80,8 +80,8 @@ internal class SamlIdentifiersVerifier(val node: Node) {
     private fun verifyAttributeNameFormatIdentifiers() {
         node.recursiveChildren("Attribute").forEach {
             val name = it.attributes.getNamedItem("Name")
-            val nameFormat = it.attributes.getNamedItem("NameFormat")
-            if (name == null || nameFormat == null || nameFormat.textContent == null) {
+            val nameFormat = it.attributes?.getNamedItem("NameFormat")
+            if (name == null || nameFormat?.textContent == null) {
                 return
             }
 

@@ -23,11 +23,11 @@ internal class NameIdentifierVerifier(val node: Node) {
         /** 2.2.1 Element <BaseID> */
         private fun verifyIdNameQualifiers(node: Node) {
             node.recursiveChildren("BaseID").forEach {
-                it.attributes.getNamedItem("NameQualifier")?.let {
+                it.attributes?.getNamedItem("NameQualifier")?.let {
                     CommonDataTypeVerifier.verifyStringValues(it)
                 }
 
-                it.attributes.getNamedItem("SPNameQualifier")?.let {
+                it.attributes?.getNamedItem("SPNameQualifier")?.let {
                     CommonDataTypeVerifier.verifyStringValues(it)
                 }
             }
@@ -36,11 +36,11 @@ internal class NameIdentifierVerifier(val node: Node) {
         /** 2.2.2 Complex Type NameIDType */
         fun verifyNameIDType(node: Node) {
             verifyIdNameQualifiers(node)
-            node.attributes.getNamedItem("Format")?.let {
+            node.attributes?.getNamedItem("Format")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
-            node.attributes.getNamedItem("SPProvidedID")?.let {
+            node.attributes?.getNamedItem("SPProvidedID")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
         }

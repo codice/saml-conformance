@@ -18,7 +18,7 @@ import org.codice.compliance.SAMLCore_2_2_4_a
 import org.codice.compliance.SAMLCore_2_3_4_a
 import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_6_1_a
-import org.codice.compliance.allChildren
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.XMLDecryptor
@@ -39,9 +39,9 @@ class EncryptionVerifier {
      * @param response The response node to verify and decrypt
      */
     fun verifyAndDecryptResponse(response: Node) {
-        sequenceOf(response.allChildren("EncryptedAssertion"),
-                response.allChildren("EncryptedAttribute"),
-                response.allChildren("EncryptedID")).forEach {
+        sequenceOf(response.recursiveChildren("EncryptedAssertion"),
+                response.recursiveChildren("EncryptedAttribute"),
+                response.recursiveChildren("EncryptedID")).forEach {
             it.forEach {
                 verifyAndDecryptElement(it, response)
             }
@@ -65,8 +65,8 @@ class EncryptionVerifier {
     private fun verifyEncryptedElement(encryptedElement: Node) {
         if (encryptedElement.children("EncryptedData")
                         .first() // guaranteed to have an EncryptedData child by schema validation
-                        .attributes.getNamedItem("Type")
-                        .textContent != TestCommon.ELEMENT)
+                        .attributes?.getNamedItem("Type")
+                        ?.textContent != TestCommon.ELEMENT)
             throw SAMLComplianceException.createWithPropertyMessage(
                     when (encryptedElement.localName) {
                         "EncryptedID" -> SAMLCore_2_2_4_a
@@ -75,7 +75,8 @@ class EncryptionVerifier {
                         else -> throw UnknownError("Unknown ${encryptedElement.localName} type.")
                     },
                     property = TestCommon.TYPE,
-                    actual = encryptedElement.attributes.getNamedItem(TestCommon.TYPE).textContent,
+                    actual = encryptedElement.attributes
+                            ?.getNamedItem(TestCommon.TYPE)?.textContent,
                     expected = TestCommon.ELEMENT,
                     node = encryptedElement)
     }
