@@ -14,6 +14,8 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_2_2_4_a
+import org.codice.compliance.SAMLCore_2_3_4_a
 import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_6_1_a
 import org.codice.compliance.allChildren
@@ -66,7 +68,12 @@ class EncryptionVerifier {
                         .attributes.getNamedItem("Type")
                         .textContent != TestCommon.ELEMENT)
             throw SAMLComplianceException.createWithPropertyMessage(
-                    SAMLCore_2_7_3_2_a,
+                    when (encryptedElement.localName) {
+                        "EncryptedID" -> SAMLCore_2_2_4_a
+                        "EncryptedAssertion" -> SAMLCore_2_3_4_a
+                        "EncryptedAttribute" -> SAMLCore_2_7_3_2_a
+                        else -> throw UnknownError("Unknown ${encryptedElement.localName} type.")
+                    },
                     property = TestCommon.TYPE,
                     actual = encryptedElement.attributes.getNamedItem(TestCommon.TYPE).textContent,
                     expected = TestCommon.ELEMENT,
