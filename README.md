@@ -38,6 +38,9 @@ The `samlconf` script may take the following parameters:
            -d | --debug
                Sets the log level to debug.
 
+           -e | --error
+               Run tests that expect errors.
+
 
 > NOTE
 > 
