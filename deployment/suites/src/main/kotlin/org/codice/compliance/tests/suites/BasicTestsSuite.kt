@@ -13,12 +13,16 @@
  */
 package org.codice.compliance.tests.suites
 
-import org.codice.compliance.web.sso.PostLoginTest
-import org.codice.compliance.web.sso.RedirectLoginTest
+import org.codice.compliance.web.sso.PostSSOTest
+import org.codice.compliance.web.sso.RedirectSSOTest
+import org.codice.compliance.web.sso.error.PostSSOErrorTest
+import org.codice.compliance.web.sso.error.RedirectSSOErrorTest
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 
 @RunWith(Suite::class)
-@Suite.SuiteClasses(PostLoginTest::class,
-        RedirectLoginTest::class)
+@Suite.SuiteClasses(PostSSOTest::class,
+        RedirectSSOTest::class,
+        RedirectSSOErrorTest::class,
+        PostSSOErrorTest::class)
 class BasicTestsSuite
