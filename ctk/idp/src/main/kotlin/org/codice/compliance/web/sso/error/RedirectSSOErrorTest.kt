@@ -19,7 +19,7 @@ import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
-import org.codice.compliance.Common
+import org.codice.compliance.Common.Companion.getSingleSignOnLocation
 import org.codice.compliance.SAMLBindings_3_4_3_a1
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
@@ -65,7 +65,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(REDIRECT_BINDING)
+                destination = getSingleSignOnLocation(REDIRECT_BINDING)
                 protocolBinding = REDIRECT_BINDING
                 isForceAuthn = false
                 setIsPassive(false)
@@ -93,7 +93,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .get(Common.getSingleSignOnLocation(REDIRECT_BINDING))
+                    .get(getSingleSignOnLocation(REDIRECT_BINDING))
         }
     }
 

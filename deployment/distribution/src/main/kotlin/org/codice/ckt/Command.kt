@@ -19,6 +19,9 @@ import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import us.jimschubert.kopper.Parser
 
+private const val BASIC_SUITE = "org.codice.compliance.tests.suites.BasicTestsSuite"
+private const val ERROR_SUITE = "org.codice.compliance.tests.suites.ErrorTestsSuite"
+
 fun main(args: Array<String>) {
     val samlDist = System.getProperty("app.home")
     requireNotNull(samlDist) { "app.home System property must be set" }
@@ -35,6 +38,10 @@ fun main(args: Array<String>) {
             listOf("debug"),
             description = "Turn on debug logs.")
 
+    parser.flag("e",
+            listOf("error"),
+            description = "Run tests that expect errors.")
+
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
@@ -48,5 +55,8 @@ fun main(args: Array<String>) {
     } else {
         Log.logLevel = LogLevel.INFO
     }
-    org.junit.runner.JUnitCore.main("org.codice.compliance.tests.suites.BasicTestsSuite")
+
+    @Suppress("SpreadOperator")
+    org.junit.runner.JUnitCore.main(BASIC_SUITE,
+            *(if (arguments.flag("e")) arrayOf(ERROR_SUITE) else arrayOf()))
 }

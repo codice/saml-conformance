@@ -19,7 +19,7 @@ import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
-import org.codice.compliance.Common
+import org.codice.compliance.Common.Companion.getSingleSignOnLocation
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
@@ -59,7 +59,7 @@ class PostSSOTest : StringSpec() {
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(POST_BINDING)
+                destination = getSingleSignOnLocation(POST_BINDING)
                 protocolBinding = POST_BINDING
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     allowCreate = true
@@ -82,7 +82,7 @@ class PostSSOTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(Common.getSingleSignOnLocation(POST_BINDING))
+                    .post(getSingleSignOnLocation(POST_BINDING))
         }
     }
 
@@ -137,7 +137,7 @@ class PostSSOTest : StringSpec() {
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(POST_BINDING)
+                destination = getSingleSignOnLocation(POST_BINDING)
                 protocolBinding = POST_BINDING
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     allowCreate = true

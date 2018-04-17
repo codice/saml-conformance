@@ -18,7 +18,7 @@ import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
-import org.codice.compliance.Common
+import org.codice.compliance.Common.Companion.getSingleSignOnLocation
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
@@ -39,7 +39,8 @@ import org.codice.compliance.utils.TestCommon.Companion.parseErrorResponse
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
-import org.codice.security.saml.SamlProtocol
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.codice.security.saml.SamlProtocol.POST_BINDING
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
@@ -60,12 +61,12 @@ class PostSSOErrorTest : StringSpec() {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = SP_ISSUER
                 }
-                assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
+                assertionConsumerServiceURL = acsUrl[HTTP_POST]
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING)
-                protocolBinding = SamlProtocol.POST_BINDING
+                destination = getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     allowCreate = true
                     format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
@@ -87,7 +88,7 @@ class PostSSOErrorTest : StringSpec() {
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+                    .post(getSingleSignOnLocation(POST_BINDING))
         }
     }
 
@@ -143,8 +144,8 @@ class PostSSOErrorTest : StringSpec() {
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING)
-                protocolBinding = SamlProtocol.POST_BINDING
+                destination = getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
                 subject = SubjectBuilder().buildObject()
                 SimpleSign().signSamlObject(this)
             }
@@ -175,8 +176,8 @@ class PostSSOErrorTest : StringSpec() {
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING)
-                protocolBinding = SamlProtocol.POST_BINDING
+                destination = getSingleSignOnLocation(POST_BINDING)
+                protocolBinding = POST_BINDING
                 assertionConsumerServiceURL = INCORRECT_ACS_URL
                 assertionConsumerServiceIndex = -1
                 SimpleSign().signSamlObject(this)
@@ -203,12 +204,12 @@ class PostSSOErrorTest : StringSpec() {
                 issuer = IssuerBuilder().buildObject().apply {
                     value = SP_ISSUER
                 }
-                assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
+                assertionConsumerServiceURL = acsUrl[HTTP_POST]
                 id = ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
                 destination = INCORRECT_DESTINATION
-                protocolBinding = SamlProtocol.POST_BINDING
+                protocolBinding = POST_BINDING
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     allowCreate = true
                     format = SAML2Constants.NAMEID_FORMAT_PERSISTENT
