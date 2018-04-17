@@ -6,7 +6,7 @@ group = 'org.codice.samlconf.deployment'
 
 applicationName = 'samlconf'
 
-mainClassName = 'org.codice.ckt.CommandKt'
+mainClassName = 'org.codice.ctk.CommandKt'
 
 dependencies {
     compile project(':external:implementations:samlconf-ddf-impl')

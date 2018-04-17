@@ -1,6 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
-description = 'Dockerized SAML CKT.'
+description = 'Dockerized SAML CTK.'
 
 dependencies {
     compile project(':deployment:distribution')
