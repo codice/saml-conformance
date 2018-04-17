@@ -17,6 +17,8 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_8_1_2
 import org.codice.compliance.SAMLCore_8_2_2
 import org.codice.compliance.SAMLCore_8_2_3
+import org.codice.compliance.attributeNode
+import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.w3c.dom.DOMException
@@ -58,7 +60,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
 
     private fun createActionList(query: Node): List<String> {
         return query.children("Action")
-                .filter { it.attributes.getNamedItem("Namespace").nodeValue in RWEDC_URI_SET }
+                .filter { it.attributeNode("Namespace")?.nodeValue in RWEDC_URI_SET }
                 .map { it.nodeValue }
                 .toList()
     }
@@ -80,13 +82,13 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     /** 8.2 URI/Basic name attribute formats */
     private fun verifyAttributeNameFormatIdentifiers() {
         node.recursiveChildren("Attribute").forEach {
-            val name = it.attributes.getNamedItem("Name")
-            val nameFormat = it.attributes?.getNamedItem("NameFormat")
-            if (name == null || nameFormat?.textContent == null) {
+            val name = it.attributeNode("Name")
+            val nameFormatText = it.attributeText("NameFormat")
+            if (name == null || nameFormatText == null) {
                 return
             }
 
-            when (nameFormat.textContent) {
+            when (nameFormatText) {
                 ATTRIBUTE_NAME_FORMAT_URI -> {
                     try {
                         URI(name.textContent)

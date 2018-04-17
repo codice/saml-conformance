@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.SAMLCore_2_4_1_2_a
 import org.codice.compliance.attributeList
+import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.CoreVerifier
@@ -34,7 +35,7 @@ internal class SubjectVerifier(val node: Node) {
         node.recursiveChildren("SubjectConfirmation")
                 .forEach {
                     CommonDataTypeVerifier
-                            .verifyUriValues(it.attributes.getNamedItem("Method"))
+                            .verifyUriValues(it.attributeNode("Method"))
                 }
     }
 
@@ -43,11 +44,11 @@ internal class SubjectVerifier(val node: Node) {
         node.recursiveChildren("SubjectConfirmationData").forEach {
             validateTimeWindow(it, SAMLCore_2_4_1_2_a)
 
-            it.attributes?.getNamedItem("Recipient")?.let {
+            it.attributeNode("Recipient")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
-            it.attributes?.getNamedItem("Address")?.let {
+            it.attributeNode("Address")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 

@@ -21,6 +21,8 @@ import org.codice.compliance.SAMLCore_3_2_2_b
 import org.codice.compliance.SAMLCore_3_2_2_c
 import org.codice.compliance.SAMLCore_3_2_2_d
 import org.codice.compliance.SAMLCore_3_2_2_e
+import org.codice.compliance.attributeNode
+import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
@@ -49,11 +51,11 @@ abstract class ResponseVerifier(open val response: Node,
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
     private fun verifyStatusResponseType() {
-        CommonDataTypeVerifier.verifyIdValues(response.attributes.getNamedItem("ID"),
+        CommonDataTypeVerifier.verifyIdValues(response.attributeNode("ID"),
                 SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
-        val inResponseTo = response.attributes?.getNamedItem("InResponseTo")?.textContent
+        val inResponseTo = response.attributeText("InResponseTo")
         if (inResponseTo != null && inResponseTo != id)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_b,
                     property = "InResponseTo",
@@ -61,19 +63,19 @@ abstract class ResponseVerifier(open val response: Node,
                     expected = id,
                     node = response)
 
-        val version = response.attributes.getNamedItem(VERSION)
-        if (version.textContent != SAML_VERSION)
+        val version = response.attributeNode(VERSION)
+        if (version?.textContent != SAML_VERSION)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_c,
                     property = VERSION,
-                    actual = version.textContent,
+                    actual = version?.textContent,
                     expected = SAML_VERSION,
                     node = response)
 
         CommonDataTypeVerifier.verifyStringValues(version)
         CommonDataTypeVerifier.verifyDateTimeValues(
-                response.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_2_d)
+                response.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
-        response.attributes?.getNamedItem(DESTINATION)?.apply {
+        response.attributeNode(DESTINATION)?.apply {
             if (textContent != acsUrl)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
@@ -88,7 +90,7 @@ abstract class ResponseVerifier(open val response: Node,
                 expectedSamlNames = listOf("Issuer", "Signature", "Status", "Assertion",
                         "EncryptedAssertion"))
 
-        response.attributes?.getNamedItem("Content")?.let {
+        response.attributeNode("Content")?.let {
             CommonDataTypeVerifier.verifyUriValues(it)
         }
     }
@@ -99,7 +101,7 @@ abstract class ResponseVerifier(open val response: Node,
                         .any {
                             !TOP_LEVEL_STATUS_CODES
                                     .contains(it.children(STATUS_CODE).first()
-                                            .attributes.getNamedItem("Value").textContent)
+                                            .attributeText("Value"))
                         })
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     SAMLCore_3_2_2_2,
@@ -107,7 +109,8 @@ abstract class ResponseVerifier(open val response: Node,
                     node = response)
 
         response.recursiveChildren(STATUS_CODE)
-                .map { it.attributes.getNamedItem("Value") }
+                .map { it.attributeNode("Value") }
+                .filterNotNull()
                 .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
     }
 

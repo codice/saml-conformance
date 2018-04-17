@@ -20,6 +20,7 @@ import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.SAMLCore_1_3_3
 import org.codice.compliance.SAMLCore_1_3_4
 import org.codice.compliance.SAMLSpecRefMessage
+import org.codice.compliance.attributeTextNS
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
@@ -32,7 +33,7 @@ class CommonDataTypeVerifier {
         /** 1.3 Common Data Types **/
         fun verifyCommonDataType(samlDom: Node) {
             samlDom.recursiveChildren().forEach {
-                it.attributes?.getNamedItemNS(XSI, "type")?.textContent?.let { type ->
+                it.attributeTextNS(XSI, "type")?.let { type ->
                     when {
                         type.contains("string") -> verifyStringValues(it)
                         type.contains("anyURI") -> verifyUriValues(it)
@@ -59,10 +60,10 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.2 URI Values **/
-        fun verifyUriValues(node: Node, errorCode: SAMLSpecRefMessage? = null) {
-            if (StringUtils.isBlank(node.textContent)
+        fun verifyUriValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+            if (node == null || StringUtils.isBlank(node.textContent)
                     || !URI.create(node.textContent).isAbsolute) {
-                val errorMessage = "The URI value of ${node.textContent} is invalid."
+                val errorMessage = "The URI value of [${node?.textContent}] is invalid."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_2_a,
                         message = errorMessage)
@@ -72,9 +73,9 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.3 Time Values **/
-        fun verifyDateTimeValues(node: Node, errorCode: SAMLSpecRefMessage? = null) {
-            if (!node.textContent.endsWith("Z")) {
-                val errorMessage = "The time date value of ${node.textContent} is not in UTC."
+        fun verifyDateTimeValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+            if (node == null || !node.textContent.endsWith("Z")) {
+                val errorMessage = "The time date value of [${node?.textContent}] is not in UTC."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_3,
                         message = errorMessage)
@@ -84,9 +85,9 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.4 ID and ID Reference Values **/
-        fun verifyIdValues(node: Node, errorCode: SAMLSpecRefMessage? = null) {
-            if (ids.contains(node.textContent)) {
-                val errorMessage = "The ID value of ${node.textContent} is not unique."
+        fun verifyIdValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+            if (node == null || ids.contains(node.textContent)) {
+                val errorMessage = "The ID value of [${node?.textContent}] is not unique."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_4,
                         message = errorMessage)

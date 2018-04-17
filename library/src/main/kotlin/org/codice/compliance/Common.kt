@@ -20,18 +20,12 @@ import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
-import org.w3c.dom.NodeList
 import java.io.File
-import java.io.StringWriter
 import java.nio.charset.StandardCharsets
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 import kotlin.test.currentStackTrace
 
 const val IMPLEMENTATION_PATH = "implementation.path"
@@ -110,101 +104,6 @@ fun Log.debugWithSupplier(message: () -> String) {
     }
 }
 
-/**
- * Finds all of the first level children of a {@code Node}.
- *
- * @param name - Optional element name to match.
- * @return List of child {@code Nodes}.
- */
-fun Node.children(name: String? = null): List<Node> {
-    val predicate: (Node) -> Boolean =
-            if (name == null) {
-                { true }
-            } else {
-                { it.localName == name }
-            }
-
-    return ((this.childNodes.length - 1) downTo 0)
-            .map { this.childNodes.item(it) }
-            .filter(predicate)
-            .toList()
-}
-
-/**
- * Finds all of the children of a {@code Node}, regardless of how deep an element is nested in its
- * children.
- *
- * @param name - Optional element name to match.
- * @return List of child {@code Nodes}.
- */
-fun Node.recursiveChildren(name: String? = null): List<Node> {
-    val nodes = mutableListOf<Node>()
-    this.children().forEach {
-        if (name == null || name == it.localName) nodes.add(it)
-        nodes.addAll(it.recursiveChildren(name))
-    }
-    return nodes
-}
-
-/**
- * Finds all of the siblings of a {@code Node}.
- *
- * @param name - Optional element name to match.
- * @return List of sibling {code Nodes}.
- */
-fun Node.siblings(name: String? = null): List<Node> {
-    val siblingNodes = mutableListOf<Node>()
-
-    // backwards portion
-    var tempNode = this
-    while (tempNode.previousSibling != null) {
-        tempNode = tempNode.previousSibling
-        if (name == null || tempNode.localName == name)
-            siblingNodes.add(tempNode)
-    }
-
-    // forwards portion
-    tempNode = this
-    while (tempNode.nextSibling != null) {
-        tempNode = tempNode.nextSibling
-        if (name == null || tempNode.localName == name)
-            siblingNodes.add(tempNode)
-    }
-
-    return siblingNodes
-}
-
-/**
- * Returns all of the attributes of a {@code Node} as a {@code List} of {@code Nodes}.
- */
-fun Node.attributeList(): List<Node> {
-    val attributesList = mutableListOf<Node>()
-    this.attributes.let {
-        for (i in it.length - 1 downTo 0) {
-            attributesList.add(it.item(i))
-        }
-    }
-    return attributesList
-}
-
-fun Node.prettyPrintXml(): String {
-    // Remove whitespaces outside tags
-    normalize()
-    val xPath = XPathFactory.newInstance().newXPath()
-    val nodeList = xPath.evaluate("//text()[normalize-space()='']",
-            this,
-            XPathConstants.NODESET) as NodeList
-    for (i in 0 until nodeList.length) {
-        val node = nodeList.item(i)
-        node.parentNode.removeChild(node)
-    }
-
-    val transformer = createTransformer()
-    val output = StringWriter()
-    transformer.transform(DOMSource(this), StreamResult(output))
-    return output.toString()
-}
-
 @Suppress("TooGenericExceptionCaught")
 fun String.prettyPrintXml(): String {
     return try {
@@ -227,7 +126,7 @@ fun String.debugPrettyPrintXml(header: String?) {
     }
 }
 
-private fun createTransformer(): Transformer {
+internal fun createTransformer(): Transformer {
     return TransformerFactory.newInstance().newTransformer().apply {
         setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name())
         setOutputProperty(OutputKeys.INDENT, "yes")
