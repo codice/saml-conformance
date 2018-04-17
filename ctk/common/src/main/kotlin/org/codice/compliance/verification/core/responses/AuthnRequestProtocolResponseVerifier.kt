@@ -25,7 +25,7 @@ class AuthnRequestProtocolResponseVerifier(override val response: Node,
         ResponseVerifier(response, id, acsUrl) {
 
     /** 3.4 Authentication Request Protocol **/
-    override fun verify() {
+    override fun verifyProtocolResponse() {
         verifyAuthnRequestProtocolResponse()
     }
 
