@@ -18,6 +18,7 @@ import org.codice.compliance.SAMLCore_2_7_2
 import org.codice.compliance.SAMLCore_2_7_3
 import org.codice.compliance.SAMLCore_2_7_4_a
 import org.codice.compliance.attributeList
+import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
@@ -44,13 +45,13 @@ internal class StatementVerifier(val node: Node) {
     /** 2.7.2 Element <AuthnStatement> **/
     private fun verifyAuthnStatement() {
         node.recursiveChildren("AuthnStatement").forEach {
-            CommonDataTypeVerifier.verifyDateTimeValues(it.attributes.getNamedItem("AuthnInstant"))
+            CommonDataTypeVerifier.verifyDateTimeValues(it.attributeNode("AuthnInstant"))
 
-            it.attributes?.getNamedItem("SessionIndex")?.let {
+            it.attributeNode("SessionIndex")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
-            it.attributes?.getNamedItem("SessionNotOnOrAfter")?.let {
+            it.attributeNode("SessionNotOnOrAfter")?.let {
                 CommonDataTypeVerifier.verifyDateTimeValues(it)
             }
         }
@@ -66,11 +67,11 @@ internal class StatementVerifier(val node: Node) {
     /** 2.7.2.1 Element <SubjectLocality> **/
     private fun verifySubjectLocality() {
         node.recursiveChildren("SubjectLocality").forEach {
-            it.attributes?.getNamedItem("Address")?.let {
+            it.attributeNode("Address")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
-            it.attributes?.getNamedItem("DNSName")?.let {
+            it.attributeNode("DNSName")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
         }
@@ -79,16 +80,16 @@ internal class StatementVerifier(val node: Node) {
     /** 2.7.2.2 Element <AuthnContext> **/
     private fun verifyAuthnContext() {
         node.recursiveChildren("AuthnContext").forEach {
-            it.attributes?.getNamedItem("AuthnContextClassRef")?.let {
+            it.attributeNode("AuthnContextClassRef")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
-            it.attributes?.getNamedItem("AuthnContextDeclRef")?.let {
+            it.attributeNode("AuthnContextDeclRef")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
-            it.attributes?.getNamedItem("AuthnContextDecl")?.let {
+            it.attributeNode("AuthnContextDecl")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
-            it.attributes?.getNamedItem("AuthenticatingAuthority")?.let {
+            it.attributeNode("AuthenticatingAuthority")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
         }
@@ -109,11 +110,11 @@ internal class StatementVerifier(val node: Node) {
         node.recursiveChildren("Attribute").forEach {
             CommonDataTypeVerifier.verifyStringValues(it.attributes.getNamedItem("Name"))
 
-            it.attributes?.getNamedItem("NameFormat")?.let {
+            it.attributeNode("NameFormat")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
-            it.attributes?.getNamedItem("FriendlyName")?.let {
+            it.attributeNode("FriendlyName")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
 
@@ -134,14 +135,14 @@ internal class StatementVerifier(val node: Node) {
                     node = node)
 
         node.recursiveChildren("AuthzDecisionStatement").forEach {
-            CommonDataTypeVerifier.verifyUriValues(it.attributes.getNamedItem("Resource"))
+            CommonDataTypeVerifier.verifyUriValues(it.attributeNode("Resource"))
         }
     }
 
     /** 2.7.4.2 Element <Action> **/
     private fun verifyAction() {
         node.recursiveChildren("Action").forEach {
-            CommonDataTypeVerifier.verifyUriValues(it.attributes.getNamedItem("Namespace"))
+            CommonDataTypeVerifier.verifyUriValues(it.attributeNode("Namespace"))
         }
     }
 }

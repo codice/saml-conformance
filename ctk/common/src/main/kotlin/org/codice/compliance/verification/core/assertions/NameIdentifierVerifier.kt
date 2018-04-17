@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.core.assertions
 
+import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
@@ -23,11 +24,11 @@ internal class NameIdentifierVerifier(val node: Node) {
         /** 2.2.1 Element <BaseID> */
         private fun verifyIdNameQualifiers(node: Node) {
             node.recursiveChildren("BaseID").forEach {
-                it.attributes?.getNamedItem("NameQualifier")?.let {
+                it.attributeNode("NameQualifier")?.let {
                     CommonDataTypeVerifier.verifyStringValues(it)
                 }
 
-                it.attributes?.getNamedItem("SPNameQualifier")?.let {
+                it.attributeNode("SPNameQualifier")?.let {
                     CommonDataTypeVerifier.verifyStringValues(it)
                 }
             }
@@ -36,11 +37,11 @@ internal class NameIdentifierVerifier(val node: Node) {
         /** 2.2.2 Complex Type NameIDType */
         fun verifyNameIDType(node: Node) {
             verifyIdNameQualifiers(node)
-            node.attributes?.getNamedItem("Format")?.let {
+            node.attributeNode("Format")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
-            node.attributes?.getNamedItem("SPProvidedID")?.let {
+            node.attributeNode("SPProvidedID")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
         }

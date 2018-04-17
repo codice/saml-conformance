@@ -17,6 +17,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_5_4_2_b
 import org.codice.compliance.SAMLCore_5_4_2_b1
+import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.w3c.dom.Node
@@ -38,12 +39,12 @@ class SignatureSyntaxAndProcessingVerifier(private val node: Node) {
                                 "${references.size} found.",
                         node = node)
 
-            val uriValue = references[0].attributes.getNamedItem("URI")?.textContent
+            val uriValue = references[0].attributeText("URI")
                     ?: throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
                             message = "URI attribute not found.",
                             node = node)
 
-            val formattedId = "#${it.parentNode.attributes?.getNamedItem("ID")?.textContent}"
+            val formattedId = "#${it.parentNode.attributeText("ID")}"
             if (uriValue != formattedId)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_5_4_2_b,
                         property = "URI",

@@ -18,6 +18,8 @@ import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
 import org.codice.compliance.SAMLCore_SamlExtensions
 import org.codice.compliance.SAMLSpecRefMessage
+import org.codice.compliance.attributeNode
+import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
@@ -80,11 +82,11 @@ class CoreVerifier(val node: Node) {
          * that the value of NotBefore is less than the value for NotOnOrAfter.
          */
         internal fun validateTimeWindow(node: Node, samlCode: SAMLCoreRefMessage) {
-            val notBefore = node.attributes?.getNamedItem("NotBefore")?.apply {
+            val notBefore = node.attributeNode("NotBefore")?.apply {
                 CommonDataTypeVerifier.verifyDateTimeValues(this)
             }
 
-            val notOnOrAfter = node.attributes?.getNamedItem("NotOnOrAfter")?.apply {
+            val notOnOrAfter = node.attributeNode("NotOnOrAfter")?.apply {
                 CommonDataTypeVerifier.verifyDateTimeValues(this)
             }
 
@@ -129,7 +131,8 @@ class CoreVerifier(val node: Node) {
                     expected = "<Status>",
                     node = node)
         status[0].children("StatusCode").forEach {
-            val code = it.attributes.getNamedItem("Value").textContent
+            val code = it.attributeText("Value")
+
             if (code != expectedStatusCode) {
                 var exceptions = arrayOf(samlErrorCode)
                 if (expectedStatusCode == REQUESTER)

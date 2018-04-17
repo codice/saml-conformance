@@ -19,6 +19,8 @@ import org.codice.compliance.SAMLProfiles_3_1_b
 import org.codice.compliance.SAMLProfiles_3_1_c
 import org.codice.compliance.SAMLProfiles_4_1_4_2_l
 import org.codice.compliance.SAMLSpecRefMessage
+import org.codice.compliance.attributeNodeNS
+import org.codice.compliance.attributeText
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
@@ -59,11 +61,11 @@ class ProfilesVerifier(private val node: Node) {
      */
     private fun verifyHolderOfKey() {
         val subjectConfirmationDataList = node.recursiveChildren("SubjectConfirmation")
-                .filter { it.attributes.getNamedItem("Method").textContent == HOLDER_OF_KEY_URI }
+                .filter { it.attributeText("Method") == HOLDER_OF_KEY_URI }
                 .flatMap { it.children("SubjectConfirmationData") }
 
         subjectConfirmationDataList.forEach {
-            val type = it.attributes?.getNamedItemNS(XSI, "type")
+            val type = it.attributeNodeNS(XSI, "type")
             if (type != null && !type.textContent.contains("KeyInfoConfirmationDataType"))
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
                         property = "type",
