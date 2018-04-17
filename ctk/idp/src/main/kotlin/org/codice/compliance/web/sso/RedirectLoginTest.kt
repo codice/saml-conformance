@@ -36,7 +36,6 @@ import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorate
-import org.codice.compliance.utils.schema.SchemaValidator
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.responses.AuthnRequestProtocolResponseVerifier
@@ -123,9 +122,7 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
-            AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST])
-                    .verifyCoreResponse()
+            AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST]).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
@@ -150,9 +147,8 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             AuthnRequestProtocolResponseVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST])
-                    .verifyCoreResponse()
+                    .verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
@@ -180,9 +176,8 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             AuthnRequestProtocolResponseVerifier(responseDom, TestCommon.ID, acsUrl[HTTP_POST])
-                    .verifyCoreResponse()
+                    .verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
 
@@ -205,7 +200,6 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             CoreVerifier(responseDom).verifyErrorStatusCode(
                     samlErrorCode = SAMLBindings_3_4_3_a1,
                     expectedStatusCode = TestCommon.REQUESTER)
@@ -231,7 +225,6 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             CoreVerifier(responseDom).verifyErrorStatusCode(
                     SAMLBindings_3_4_3_a1,
                     TestCommon.REQUESTER)
@@ -250,7 +243,6 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_a,
                     TestCommon.REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion()
@@ -275,7 +267,6 @@ class RedirectLoginTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b,
                     TestCommon.REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
@@ -296,8 +287,9 @@ class RedirectLoginTest : StringSpec() {
 
             val idpResponse = TestCommon.parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
+
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
+            // DDF returns a valid response to the incorrect url
         }.config(enabled = false)
 
         "Redirect AuthnRequest With Non-Matching Destination" {
@@ -310,12 +302,12 @@ class RedirectLoginTest : StringSpec() {
 
             // Get response from AuthnRequest
             val response = sendAuthnRequest(queryParams)
-
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
             val idpResponse = TestCommon.parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
+
             val responseDom = idpResponse.responseDom
-            SchemaValidator.validateSAMLMessage(responseDom)
             CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, TestCommon.REQUESTER)
         }.config(enabled = false)
     }

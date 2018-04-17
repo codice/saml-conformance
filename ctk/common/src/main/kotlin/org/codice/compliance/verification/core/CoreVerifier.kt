@@ -22,6 +22,7 @@ import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
+import org.codice.compliance.utils.schema.SchemaValidator
 import org.w3c.dom.Attr
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -103,6 +104,7 @@ class CoreVerifier(val node: Node) {
      * Verify response against the Core Spec document
      */
     fun verify() {
+        SchemaValidator.validateSAMLMessage(node)
         verifyCommonDataType(node)
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
@@ -118,6 +120,7 @@ class CoreVerifier(val node: Node) {
      * For example, urn:oasis:names:tc:SAML:2.0:status:Requester.
      */
     fun verifyErrorStatusCode(samlErrorCode: SAMLSpecRefMessage, expectedStatusCode: String) {
+        SchemaValidator.validateSAMLMessage(node)
         val status = node.children("Status")
         if (status.size != 1)
             throw SAMLComplianceException.createWithPropertyMessage(samlErrorCode,

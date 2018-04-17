@@ -78,7 +78,7 @@ To build a docker image, execute `gradlew build docker`.
 This section will briefly talk about the project structure.
 
 ### ctk
-This module contains all the test related modules: `idp`, `sp`, and `common`.
+This module contains all the test related modules: `idp` and `common`.
 
 #### idp
 This module will contain all tests being written against a SAML IdP. The `src` directory of the module is organized by the SAML specification as follows:
@@ -89,11 +89,12 @@ This module will contain all tests being written against a SAML IdP. The `src` d
 
 This [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests:
 
-#### sp
-This module will contain all tests being written against a SAML SP. The src directory of the module is organized identically to the idp module.
-
 #### common
 This module contains all the classes relating to utility for and verification of the test classes.
+
+> NOTE 
+>
+> Schema verification is run before other tests and verifications.
 
 ### library
 This module contains an assortment of Java classes that have been copied over from DDF to support operations that shouldn't be handled by the test code; i.e. signature validation using x509 certificates.
