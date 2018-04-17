@@ -43,15 +43,6 @@ class SAMLComplianceException : Exception {
             }
         }
 
-        fun createWithXmlPropertyReqMessage(section: String,
-                                            property: String,
-                                            parent: String,
-                                            node: Node? = null): SAMLComplianceException {
-
-            return SAMLComplianceException("$section: $property is required in $parent.\n\n" +
-                    (node?.debugPrettyPrintXml() ?: ""))
-        }
-
         @Suppress("LongParameterList")
         fun createWithPropertyMessage(vararg codes: SAMLSpecRefMessage,
                                       property: String,

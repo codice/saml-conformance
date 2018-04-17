@@ -107,9 +107,7 @@ internal class StatementVerifier(val node: Node) {
     /** 2.7.3.1 Element <Attribute> **/
     private fun verifyAttribute() {
         node.recursiveChildren("Attribute").forEach {
-            it.attributes.getNamedItem("Name")?.let {
-                CommonDataTypeVerifier.verifyStringValues(it)
-            }
+            CommonDataTypeVerifier.verifyStringValues(it.attributes.getNamedItem("Name"))
 
             it.attributes?.getNamedItem("NameFormat")?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
@@ -136,18 +134,14 @@ internal class StatementVerifier(val node: Node) {
                     node = node)
 
         node.recursiveChildren("AuthzDecisionStatement").forEach {
-            it.attributes.getNamedItem("Resource").let {
-                CommonDataTypeVerifier.verifyUriValues(it)
-            }
+            CommonDataTypeVerifier.verifyUriValues(it.attributes.getNamedItem("Resource"))
         }
     }
 
     /** 2.7.4.2 Element <Action> **/
     private fun verifyAction() {
         node.recursiveChildren("Action").forEach {
-            it.attributes.getNamedItem("Namespace")?.let {
-                CommonDataTypeVerifier.verifyUriValues(it)
-            }
+            CommonDataTypeVerifier.verifyUriValues(it.attributes.getNamedItem("Namespace"))
         }
     }
 }
