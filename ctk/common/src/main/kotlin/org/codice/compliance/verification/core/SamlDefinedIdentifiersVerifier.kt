@@ -25,7 +25,7 @@ import java.net.URI
 import java.net.URISyntaxException
 import javax.xml.parsers.DocumentBuilderFactory
 
-internal class SamlIdentifiersVerifier(val node: Node) {
+internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     companion object {
         private const val ATTRIBUTE_NAME_FORMAT_URI =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
@@ -38,12 +38,13 @@ internal class SamlIdentifiersVerifier(val node: Node) {
         )
     }
 
+    /** 8 SAML-Defined Identifiers */
     fun verify() {
         verifyActionNamespaceIdentifiers()
         verifyAttributeNameFormatIdentifiers()
     }
 
-    // 8.1.2 Read/Write/Execute/Delete/Control with Negation
+    /** 8.1.2 Read/Write/Execute/Delete/Control with Negation **/
     private fun verifyActionNamespaceIdentifiers() {
         // AuthzDecisionQuery is the only element where "Action" is found (Core 3.3.2.4)
         node.recursiveChildren("AuthzDecisionQuery").forEach({
@@ -76,7 +77,7 @@ internal class SamlIdentifiersVerifier(val node: Node) {
         }
     }
 
-    // 8.2 URI/Basic name attribute formats
+    /** 8.2 URI/Basic name attribute formats */
     private fun verifyAttributeNameFormatIdentifiers() {
         node.recursiveChildren("Attribute").forEach {
             val name = it.attributes.getNamedItem("Name")

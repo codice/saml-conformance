@@ -13,22 +13,15 @@
  */
 package org.codice.compliance.verification.core
 
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
-import org.codice.compliance.SAMLCore_5_4_1
-import org.codice.compliance.SAMLCore_5_4_2_a
-import org.codice.compliance.SAMLCore_5_4_2_b
-import org.codice.compliance.SAMLCore_5_4_2_b1
-import org.codice.compliance.SAMLCore_6_1_b
 import org.codice.compliance.SAMLCore_SamlExtensions
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.children
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
-import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
+import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Attr
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -110,12 +103,10 @@ class CoreVerifier(val node: Node) {
      * Verify response against the Core Spec document
      */
     fun verify() {
-        CommonDataTypeVerifier.verifyCommonDataType(node)
+        verifyCommonDataType(node)
         SamlAssertionsVerifier(node).verify()
-        SamlIdentifiersVerifier(node).verify()
-
-        verifySignatureSyntaxAndProcessing(node)
-        verifyGeneralConsiderations(node)
+        SignatureSyntaxAndProcessingVerifier(node).verify()
+        SamlDefinedIdentifiersVerifier(node).verify()
     }
 
     /**
@@ -147,70 +138,6 @@ class CoreVerifier(val node: Node) {
                         actual = code,
                         expected = expectedStatusCode,
                         node = status[0])
-            }
-        }
-    }
-
-    /**
-     * Verify signatures against the Core Spec document
-     *
-     * 5 SAML and XML Signature Syntax and Processing
-     * 5.4.1 Signing Formats and Algorithms
-     */
-    private fun verifySignatureSyntaxAndProcessing(node: Node) {
-        node.children("Assertion").forEach {
-            val signatures = it.children(SIGNATURE)
-            if (signatures.isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_5_4_1,
-                        message = "Signature not found.",
-                        node = node)
-
-            if (it.attributes.getNamedItem("ID") == null)
-                throw SAMLComplianceException.create(SAMLCore_5_4_2_a,
-                        message = "ID not found.",
-                        node = node)
-
-            signatures.forEach {
-                val references = it.recursiveChildren("Reference")
-                if (references.size != 1)
-                    throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
-                            message = "${references.size} Reference elements were found.",
-                            node = node)
-
-                val uriValue = references[0].attributes?.getNamedItem("URI")?.textContent
-                val formattedId = "#" + it.parentNode?.attributes?.getNamedItem("ID")?.textContent
-                if (uriValue != formattedId)
-                    throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_5_4_2_b,
-                            property = "URI",
-                            actual = uriValue,
-                            expected = formattedId,
-                            node = node)
-            }
-        }
-    }
-
-    /** 6.1 - General Considerations **/
-    private fun verifyGeneralConsiderations(node: Node) {
-        val elements = mutableListOf<Node>()
-        elements.addAll(node.children("Assertion"))
-        elements.addAll(node.children("BaseID"))
-        elements.addAll(node.children("NameID"))
-        elements.addAll(node.children("Attribute"))
-
-        elements.forEach {
-            val encryptedDataNode = it.recursiveChildren(ENCRYPTED_DATA)
-
-            if (encryptedDataNode.isNotEmpty()) {
-                val encryptedData = encryptedDataNode[0]
-                        .attributes
-                        .getNamedItem(ENCRYPTED_DATA)
-                        .textContent
-                if (encryptedData != ELEMENT)
-                    throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
-                            property = ENCRYPTED_DATA,
-                            actual = encryptedData,
-                            expected = ELEMENT,
-                            node = node)
             }
         }
     }

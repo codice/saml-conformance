@@ -18,6 +18,7 @@ import org.codice.compliance.SAMLCore_2_2_4_a
 import org.codice.compliance.SAMLCore_2_3_4_a
 import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_6_1_a
+import org.codice.compliance.SAMLCore_6_1_b
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.utils.TestCommon
@@ -67,7 +68,7 @@ class EncryptionVerifier {
                         .first() // guaranteed to have an EncryptedData child by schema validation
                         .attributes?.getNamedItem("Type")
                         ?.textContent != TestCommon.ELEMENT)
-            throw SAMLComplianceException.createWithPropertyMessage(
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
                     when (encryptedElement.localName) {
                         "EncryptedID" -> SAMLCore_2_2_4_a
                         "EncryptedAssertion" -> SAMLCore_2_3_4_a
