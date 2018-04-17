@@ -38,15 +38,15 @@ abstract class ResponseVerifier(open val response: Node,
         private const val STATUS_CODE = "StatusCode"
     }
 
-    abstract fun verify()
+    abstract fun verifyProtocolResponse()
 
     /** 3.2.2 Complex Type StatusResponseType */
-    fun verifyCoreResponse() {
+    fun verify() {
         CoreVerifier(response).verify()
         verifyStatusResponseType()
         verifyStatusType()
         verifyStatusMessage()
-        verify()
+        verifyProtocolResponse()
     }
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
