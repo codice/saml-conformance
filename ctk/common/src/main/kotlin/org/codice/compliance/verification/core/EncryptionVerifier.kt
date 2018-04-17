@@ -20,8 +20,8 @@ import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_6_1_a
 import org.codice.compliance.SAMLCore_6_1_b
 import org.codice.compliance.attributeText
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.XMLDecryptor
 import org.codice.compliance.utils.XMLDecryptor.Companion.XMLDecryptorException
@@ -40,12 +40,19 @@ class EncryptionVerifier {
      *
      * @param response The response node to verify and decrypt
      */
-    fun verifyAndDecryptResponse(response: Node) {
-        sequenceOf(response.recursiveChildren("EncryptedAssertion"),
-                response.recursiveChildren("EncryptedAttribute"),
-                response.recursiveChildren("EncryptedID")).forEach {
-            it.forEach {
-                verifyAndDecryptElement(it, response)
+    fun verifyAndDecryptResponse(response: Node): Boolean {
+        val encElements = response.recursiveChildren("EncryptedAssertion") +
+                response.recursiveChildren("EncryptedAttribute") +
+                response.recursiveChildren("EncryptedID")
+
+        with(encElements) {
+            if (isEmpty()) {
+                return false
+            } else {
+                forEach {
+                    verifyAndDecryptElement(it, response)
+                }
+                return true
             }
         }
     }

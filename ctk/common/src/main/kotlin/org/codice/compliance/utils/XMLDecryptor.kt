@@ -17,15 +17,14 @@ import org.apache.wss4j.common.crypto.JasyptPasswordEncryptor
 import org.apache.wss4j.common.crypto.Merlin
 import org.apache.xml.security.encryption.XMLCipher
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.KEYSTORE_PASSWORD
 import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_ALIAS
 import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_PASSWORD
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-import java.io.File
 import java.security.Key
 import java.security.Security
 import java.util.Properties
@@ -43,10 +42,12 @@ class XMLDecryptor {
 
         private val serverPrivateKey by lazy {
 
-            val encryptionFile = File(ClassLoader.getSystemResource(ENCRYPTION_FILE_NAME).toURI())
+            val encryptionFile =
+                    XMLDecryptor::class.java.classLoader.getResource(ENCRYPTION_FILE_NAME)
+
             checkNotNull(encryptionFile)
 
-            val encryptionProperties = encryptionFile.inputStream().use {
+            val encryptionProperties = encryptionFile.openStream().use {
                 Properties().apply {
                     load(it)
                 }

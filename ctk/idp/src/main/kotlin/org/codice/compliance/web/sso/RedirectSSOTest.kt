@@ -32,6 +32,7 @@ import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.core.CoreVerifier.Companion.decryptAndValidateSchema
 import org.codice.compliance.verification.core.responses.AuthnRequestProtocolResponseVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -114,6 +115,9 @@ class RedirectSSOTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+
+            decryptAndValidateSchema(responseDom)
+
             AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST]).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
@@ -139,6 +143,9 @@ class RedirectSSOTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+
+            decryptAndValidateSchema(responseDom)
+
             AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST])
                     .verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
@@ -168,6 +175,9 @@ class RedirectSSOTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+
+            decryptAndValidateSchema(responseDom)
+
             AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST])
                     .verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
