@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ckt
+package org.codice.ctk
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
     requireNotNull(samlDist) { "app.home System property must be set" }
 
     val parser = Parser()
-    parser.setName("SAML CKT")
+    parser.setName("SAML CTK")
     parser.setApplicationDescription("SAML Conformance Test Kit")
 
     parser.option("i",
