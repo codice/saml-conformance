@@ -38,4 +38,4 @@ sleep 1m
 curl -LsSk "https://${_sut_host}:${_sut_port}/${_sut_idp_metadata}" -o "${_sut_ddf_implementation}/ddf-idp-metadata.xml"
 
 >&2 echo "DDF is up - executing command"
-exec ./samlconf/bin/samlconf -i ${_sut_ddf_implementation}
+exec ./samlconf/bin/samlconf -i ${_sut_ddf_implementation} -e
