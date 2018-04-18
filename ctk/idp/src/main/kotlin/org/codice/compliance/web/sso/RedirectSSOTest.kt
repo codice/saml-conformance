@@ -114,6 +114,7 @@ class RedirectSSOTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+
             AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST]).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
@@ -139,6 +140,7 @@ class RedirectSSOTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+
             AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST])
                     .verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
@@ -168,6 +170,7 @@ class RedirectSSOTest : StringSpec() {
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
+
             AuthnRequestProtocolResponseVerifier(responseDom, ID, acsUrl[HTTP_POST])
                     .verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()

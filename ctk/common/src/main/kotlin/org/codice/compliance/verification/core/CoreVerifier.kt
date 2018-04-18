@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.core
 
+import de.jupf.staticlog.Log
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
@@ -21,10 +22,13 @@ import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
+import org.codice.compliance.debugWithSupplier
+import org.codice.compliance.prettyPrintXml
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.codice.compliance.utils.schema.SchemaValidator
+import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Attr
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -100,13 +104,39 @@ class CoreVerifier(val node: Node) {
                                 "than NotOnOrAfter element with value $notOnOrAfterValue.",
                         node = node)
         }
+
+        private fun preProcess(responseDom: Node,
+                               encVerifier: EncryptionVerifier = EncryptionVerifier()) {
+            val encElements = retrieveCurrentEncryptedElements(responseDom)
+            if (encElements.isEmpty()) {
+                Log.debugWithSupplier {
+                    "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}"
+                }
+                return
+            }
+
+            Log.debugWithSupplier {
+                "Starting a pass of decryption and schema validation" +
+                        " on the SAML Response."
+            }
+
+            SchemaValidator.validateSAMLMessage(responseDom)
+            encVerifier.verifyAndDecryptResponse(encElements)
+            preProcess(responseDom, encVerifier)
+        }
+
+        private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
+            return responseDom.recursiveChildren("EncryptedAssertion") +
+                    responseDom.recursiveChildren("EncryptedAttribute") +
+                    responseDom.recursiveChildren("EncryptedID")
+        }
     }
 
     /**
      * Verify response against the Core Spec document
      */
     fun verify() {
-        SchemaValidator.validateSAMLMessage(node)
+        preProcess(node)
         verifyCommonDataType(node)
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
