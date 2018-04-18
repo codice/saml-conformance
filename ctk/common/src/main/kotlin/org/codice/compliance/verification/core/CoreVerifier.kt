@@ -24,6 +24,7 @@ import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.schema.SchemaValidator
@@ -104,18 +105,29 @@ class CoreVerifier(val node: Node) {
                         node = node)
         }
 
-        fun decryptAndValidateSchema(responseDom: Node) {
+        private fun preProcess(responseDom: Node) {
             val encVerifier = EncryptionVerifier()
+            var encElements = retrieveCurrentEncryptedElements(responseDom)
 
-            do {
+            SchemaValidator.validateSAMLMessage(responseDom)
+
+            while (encElements.isNotEmpty()) {
                 Log.debugWithSupplier {
                     "Starting a pass of decryption and schema validation" +
                             " on the SAML Response."
                 }
+                encVerifier.verifyAndDecryptResponse(encElements)
                 SchemaValidator.validateSAMLMessage(responseDom)
-            } while (encVerifier.verifyAndDecryptResponse(responseDom))
+                encElements = retrieveCurrentEncryptedElements(responseDom)
+            }
 
             Log.debugWithSupplier { "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}" }
+        }
+
+        private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
+            return responseDom.recursiveChildren("EncryptedAssertion") +
+                    responseDom.recursiveChildren("EncryptedAttribute") +
+                    responseDom.recursiveChildren("EncryptedID")
         }
     }
 
@@ -123,6 +135,7 @@ class CoreVerifier(val node: Node) {
      * Verify response against the Core Spec document
      */
     fun verify() {
+        preProcess(node)
         verifyCommonDataType(node)
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
