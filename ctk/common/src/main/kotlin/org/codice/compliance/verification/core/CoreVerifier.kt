@@ -105,23 +105,24 @@ class CoreVerifier(val node: Node) {
                         node = node)
         }
 
-        private fun preProcess(responseDom: Node) {
-            val encVerifier = EncryptionVerifier()
-            var encElements = retrieveCurrentEncryptedElements(responseDom)
-
-            SchemaValidator.validateSAMLMessage(responseDom)
-
-            while (encElements.isNotEmpty()) {
+        private fun preProcess(responseDom: Node,
+                               encVerifier: EncryptionVerifier = EncryptionVerifier()) {
+            val encElements = retrieveCurrentEncryptedElements(responseDom)
+            if (encElements.isEmpty()) {
                 Log.debugWithSupplier {
-                    "Starting a pass of decryption and schema validation" +
-                            " on the SAML Response."
+                    "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}"
                 }
-                encVerifier.verifyAndDecryptResponse(encElements)
-                SchemaValidator.validateSAMLMessage(responseDom)
-                encElements = retrieveCurrentEncryptedElements(responseDom)
+                return
             }
 
-            Log.debugWithSupplier { "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}" }
+            Log.debugWithSupplier {
+                "Starting a pass of decryption and schema validation" +
+                        " on the SAML Response."
+            }
+
+            SchemaValidator.validateSAMLMessage(responseDom)
+            encVerifier.verifyAndDecryptResponse(encElements)
+            preProcess(responseDom, encVerifier)
         }
 
         private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
