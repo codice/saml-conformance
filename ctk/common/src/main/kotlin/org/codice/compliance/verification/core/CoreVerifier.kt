@@ -17,6 +17,8 @@ import de.jupf.staticlog.Log
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
+import org.codice.compliance.SAMLCore_8_3_6_a
+import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.SAMLCore_SamlExtensions
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNode
@@ -26,6 +28,7 @@ import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.schema.SchemaValidator
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
@@ -37,6 +40,7 @@ import java.time.Instant
 class CoreVerifier(val node: Node) {
     companion object {
         private const val ENCRYPTED_DATA = "EncryptedData"
+        private const val ENTITY_ID_MAX_LEN = 1024
 
         /**
          * Verify SAML extension attributes or elements against the Core Spec document
@@ -130,6 +134,29 @@ class CoreVerifier(val node: Node) {
                     responseDom.recursiveChildren("EncryptedAttribute") +
                     responseDom.recursiveChildren("EncryptedID")
         }
+
+        private fun validateEntityIdentifiers(responseDom: Node) {
+            responseDom.recursiveChildren().filter { it.attributeText("Format") == ENTITY }
+                    .forEach { checkEntityIdentifier(it) }
+        }
+
+        private fun checkEntityIdentifier(node: Node) {
+            if (node.attributeNode("NameQualifier") != null ||
+                    node.attributeNode("SPNameQualifier") != null ||
+                    node.attributeNode("SPProvidedID") != null) {
+                throw SAMLComplianceException.create(SAMLCore_8_3_6_a,
+                        message = "No Subject element found.",
+                        node = node)
+            }
+            val nodeValue = node.nodeValue
+            if (nodeValue != null) {
+                if (nodeValue.length > ENTITY_ID_MAX_LEN) {
+                    throw SAMLComplianceException.create(SAMLCore_8_3_6_b,
+                            message = "Length of URI [$nodeValue] is [${nodeValue.length}]",
+                            node = node)
+                }
+            }
+        }
     }
 
     /**
@@ -137,6 +164,7 @@ class CoreVerifier(val node: Node) {
      */
     fun verify() {
         preProcess(node)
+        validateEntityIdentifiers(node)
         verifyCommonDataType(node)
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
