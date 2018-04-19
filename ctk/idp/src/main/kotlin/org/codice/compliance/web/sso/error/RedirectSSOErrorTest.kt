@@ -119,8 +119,7 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(
-                    samlErrorCode = SAMLBindings_3_4_3_a1,
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a1,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 
@@ -144,9 +143,8 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(
-                    SAMLBindings_3_4_3_a1,
-                    REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a1,
+                    expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 
         "Empty Redirect AuthnRequest Test" {
@@ -162,8 +160,8 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_a,
-                    REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLProfiles_4_1_4_1_a,
+                    expectedStatusCode = REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion()
         }.config(enabled = false)
 
@@ -186,8 +184,8 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b,
-                    REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLProfiles_4_1_4_1_b,
+                    expectedStatusCode = REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
         }.config(enabled = false)
 
@@ -227,7 +225,8 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLCore_3_2_1_e,
+                    expectedStatusCode = REQUESTER)
         }.config(enabled = false)
     }
 }

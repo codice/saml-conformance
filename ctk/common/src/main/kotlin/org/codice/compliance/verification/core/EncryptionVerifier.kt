@@ -39,7 +39,7 @@ class EncryptionVerifier {
      *
      * @param response The response node to verify and decrypt
      */
-    fun verifyAndDecryptResponse(encElements: List<Node>) {
+    fun verifyAndDecryptElements(encElements: List<Node>) {
         encElements.forEach {
             verifyAndDecryptElement(it)
         }

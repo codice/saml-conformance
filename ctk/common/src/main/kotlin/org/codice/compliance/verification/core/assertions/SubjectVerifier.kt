@@ -14,11 +14,9 @@
 package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.SAMLCore_2_4_1_2_a
-import org.codice.compliance.attributeList
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
-import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node
 
@@ -51,10 +49,6 @@ internal class SubjectVerifier(val node: Node) {
             it.attributeNode("Address")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
-
-            CoreVerifier.verifySamlExtensions(it.attributeList(),
-                    expectedSamlNames = listOf("NotBefore", "NotOnOrAfter", "Recipient",
-                            "InResponseTo", "Address"))
         }
     }
 }

@@ -17,12 +17,10 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_2_7_2
 import org.codice.compliance.SAMLCore_2_7_3
 import org.codice.compliance.SAMLCore_2_7_4_a
-import org.codice.compliance.attributeList
 import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
-import org.codice.compliance.verification.core.CoreVerifier
 import org.w3c.dom.Node
 
 internal class StatementVerifier(val node: Node) {
@@ -117,9 +115,6 @@ internal class StatementVerifier(val node: Node) {
             it.attributeNode("FriendlyName")?.let {
                 CommonDataTypeVerifier.verifyStringValues(it)
             }
-
-            CoreVerifier.verifySamlExtensions(it.attributeList(),
-                    expectedSamlNames = listOf("Name", "NameFormat", "FriendlyName"))
         }
     }
 

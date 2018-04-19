@@ -108,8 +108,7 @@ class PostSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(
-                    samlErrorCode = SAMLBindings_3_5_3_a,
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_5_3_a,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 
@@ -130,8 +129,8 @@ class PostSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_a,
-                    REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLProfiles_4_1_4_1_a,
+                    expectedStatusCode = REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion()
         }.config(enabled = false)
 
@@ -162,8 +161,8 @@ class PostSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLProfiles_4_1_4_1_b,
-                    REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLProfiles_4_1_4_1_b,
+                    expectedStatusCode = REQUESTER)
             ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
         }.config(enabled = false)
 
@@ -194,7 +193,6 @@ class PostSSOErrorTest : StringSpec() {
             val idpResponse = parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
 
-            val responseDom = idpResponse.responseDom
             // DDF returns a valid response to the incorrect url
         }.config(enabled = false)
 
@@ -229,7 +227,8 @@ class PostSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier(responseDom).verifyErrorStatusCode(SAMLCore_3_2_1_e, REQUESTER)
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLCore_3_2_1_e,
+                    expectedStatusCode = REQUESTER)
         }.config(enabled = false)
     }
 }

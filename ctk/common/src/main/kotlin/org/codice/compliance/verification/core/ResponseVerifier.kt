@@ -31,22 +31,19 @@ import org.w3c.dom.Node
 
 abstract class ResponseVerifier(open val response: Node,
                                 open val id: String,
-                                open val acsUrl: String?) {
+                                open val acsUrl: String?) : CoreVerifier(response) {
     companion object {
         private const val VERSION = "Version"
         private const val DESTINATION = "Destination"
         private const val STATUS_CODE = "StatusCode"
     }
 
-    abstract fun verifyProtocolResponse()
-
     /** 3.2.2 Complex Type StatusResponseType */
-    fun verify() {
-        CoreVerifier(response).verify()
+    override fun verify() {
+        super.verify()
         verifyStatusResponseType()
         verifyStatusType()
         verifyStatusMessage()
-        verifyProtocolResponse()
     }
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
@@ -85,10 +82,6 @@ abstract class ResponseVerifier(open val response: Node,
 
             CommonDataTypeVerifier.verifyUriValues(this)
         }
-
-        CoreVerifier.verifySamlExtensions(response.children(),
-                expectedSamlNames = listOf("Issuer", "Signature", "Status", "Assertion",
-                        "EncryptedAssertion"))
 
         response.attributeNode("Content")?.let {
             CommonDataTypeVerifier.verifyUriValues(it)
