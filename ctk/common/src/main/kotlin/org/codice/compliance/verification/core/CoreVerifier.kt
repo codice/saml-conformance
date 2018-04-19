@@ -19,7 +19,6 @@ import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
 import org.codice.compliance.SAMLCore_8_3_6_a
 import org.codice.compliance.SAMLCore_8_3_6_b
-import org.codice.compliance.SAMLCore_SamlExtensions
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
@@ -29,66 +28,49 @@ import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
-import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.schema.SchemaValidator
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
-import org.w3c.dom.Attr
-import org.w3c.dom.Element
 import org.w3c.dom.Node
 import java.time.Instant
 
-class CoreVerifier(val node: Node) {
+abstract class CoreVerifier(val node: Node) {
     companion object {
-        private const val ENCRYPTED_DATA = "EncryptedData"
         private const val ENTITY_ID_MAX_LEN = 1024
 
-        private fun isNullNamespace(node: Node): Boolean {
-            return with(node) {
-                when (this) {
-                    is Attr -> namespaceURI == null && ownerElement.namespaceURI == null
-                    is Element -> namespaceURI == null
-                    else -> throw UnknownError("Unknown Node type found")
+        /**
+         * Verifies that a response has the expected status code.
+         * This should be called explicitly if an error is expected.
+         *
+         * @param samlErrorCode - The error code you wish to use for the SAMLComplianceException
+         * @param expectedStatusCode - the uri of the expected status code.
+         * For example, urn:oasis:names:tc:SAML:2.0:status:Requester.
+         */
+        fun verifyErrorStatusCode(node: Node, samlErrorCode: SAMLSpecRefMessage,
+                                  expectedStatusCode: String) {
+            SchemaValidator.validateSAMLMessage(node)
+            val status = node.children("Status")
+            if (status.size != 1)
+                throw SAMLComplianceException.createWithPropertyMessage(samlErrorCode,
+                        property = "Status",
+                        actual = "[]",
+                        expected = "<Status>",
+                        node = node)
+            status[0].children("StatusCode").forEach {
+                val code = it.attributeText("Value")
+
+                if (code != expectedStatusCode) {
+                    var exceptions = arrayOf(samlErrorCode)
+                    if (expectedStatusCode == TestCommon.REQUESTER)
+                        exceptions = arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
+
+                    @Suppress("SpreadOperator")
+                    throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
+                            property = "Status Code",
+                            actual = code,
+                            expected = expectedStatusCode,
+                            node = status[0])
                 }
             }
-        }
-
-        private fun isSamlNamespace(node: Node): Boolean {
-            return with(node) {
-                when (this) {
-                    is Attr -> {
-                        namespaceURI == TestCommon.SAML_NAMESPACE
-                                || ownerElement.namespaceURI == TestCommon.SAML_NAMESPACE
-                    }
-                    is Element -> namespaceURI == TestCommon.SAML_NAMESPACE
-                    else -> throw UnknownError("Unknown Node type found")
-                }
-            }
-        }
-
-        private fun preProcess(responseDom: Node,
-                               encVerifier: EncryptionVerifier = EncryptionVerifier()) {
-            val encElements = retrieveCurrentEncryptedElements(responseDom)
-            if (encElements.isEmpty()) {
-                Log.debugWithSupplier {
-                    "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}"
-                }
-                return
-            }
-
-            Log.debugWithSupplier {
-                "Starting a pass of decryption and schema validation" +
-                        " on the SAML Response."
-            }
-
-            SchemaValidator.validateSAMLMessage(responseDom)
-            encVerifier.verifyAndDecryptResponse(encElements)
-            preProcess(responseDom, encVerifier)
-        }
-
-        private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
-            return responseDom.recursiveChildren("EncryptedAssertion") +
-                    responseDom.recursiveChildren("EncryptedAttribute") +
-                    responseDom.recursiveChildren("EncryptedID")
         }
 
         /**
@@ -114,26 +96,6 @@ class CoreVerifier(val node: Node) {
                     throw SAMLComplianceException.create(SAMLCore_8_3_6_b,
                             message = "Length of URI [$it] is [${it.length}]",
                             node = node)
-                }
-            }
-        }
-
-        /**
-         * Verify SAML extension attributes or elements against the Core Spec document
-         *
-         * 2.4.1.2 Element <SubjectConfirmationData>
-         * 2.7.3.1 Element <Attribute>
-         * 3.2.1 Complex Type RequestAbstractType
-         * 3.2.2 Complex Type StatusResponseType
-         */
-        internal fun verifySamlExtensions(nodes: List<Node>,
-                                          expectedSamlNames: List<String>) {
-            nodes.forEach {
-                if (isNullNamespace(it) || (isSamlNamespace(it)
-                                && !expectedSamlNames.contains(it.localName))) {
-                    throw SAMLComplianceException.create(SAMLCore_SamlExtensions,
-                            message = "An invalid SAML extension was found.",
-                            node = it)
                 }
             }
         }
@@ -166,47 +128,43 @@ class CoreVerifier(val node: Node) {
     /**
      * Verify response against the Core Spec document
      */
-    fun verify() {
+    open fun verify() {
         preProcess(node)
         verifyCommonDataType(node)
         verifyEntityIdentifiers(node)
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
         SamlDefinedIdentifiersVerifier(node).verify()
+        SamlExtensionsVerifier(node).verify()
     }
 
-    /**
-     * Verifies that a response has the expected status code.
-     * This should be called explicitly if an error is expected.
-     *
-     * @param samlErrorCode - The error code you wish to use for the SAMLComplianceException
-     * @param expectedStatusCode - the uri of the expected status code.
-     * For example, urn:oasis:names:tc:SAML:2.0:status:Requester.
-     */
-    fun verifyErrorStatusCode(samlErrorCode: SAMLSpecRefMessage, expectedStatusCode: String) {
-        SchemaValidator.validateSAMLMessage(node)
-        val status = node.children("Status")
-        if (status.size != 1)
-            throw SAMLComplianceException.createWithPropertyMessage(samlErrorCode,
-                    property = "Status",
-                    actual = "[]",
-                    expected = "<Status>",
-                    node = node)
-        status[0].children("StatusCode").forEach {
-            val code = it.attributeText("Value")
+    open fun verifyEncryptedElements() {
+    }
 
-            if (code != expectedStatusCode) {
-                var exceptions = arrayOf(samlErrorCode)
-                if (expectedStatusCode == REQUESTER)
-                    exceptions = arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
-
-                @Suppress("SpreadOperator")
-                throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
-                        property = "Status Code",
-                        actual = code,
-                        expected = expectedStatusCode,
-                        node = status[0])
+    private fun preProcess(responseDom: Node,
+                           encVerifier: EncryptionVerifier = EncryptionVerifier()) {
+        val encElements = retrieveCurrentEncryptedElements(responseDom)
+        if (encElements.isEmpty()) {
+            Log.debugWithSupplier {
+                "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}"
             }
+            return
         }
+
+        Log.debugWithSupplier {
+            "Starting a pass of decryption and schema validation" +
+                    " on the SAML Response."
+        }
+
+        SchemaValidator.validateSAMLMessage(responseDom)
+        verifyEncryptedElements()
+        encVerifier.verifyAndDecryptElements(encElements)
+        preProcess(responseDom, encVerifier)
+    }
+
+    private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
+        return responseDom.recursiveChildren("EncryptedAssertion") +
+                responseDom.recursiveChildren("EncryptedAttribute") +
+                responseDom.recursiveChildren("EncryptedID")
     }
 }

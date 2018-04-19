@@ -81,7 +81,7 @@ Unmarked sections need attention
 -		3.3.4 Processing Rules
 +	3.4 Authentication Request Protocol
 		3.4.1 Element <AuthnRequest>
-			3.4.1.1 Element <NameIDPolicy>
++			3.4.1.1 Element <NameIDPolicy>
 -			3.4.1.2 Element <Scoping>
 -			3.4.1.3 Element <IDPList>
 -				3.4.1.3.1 Element <IDPEntry>

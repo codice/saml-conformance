@@ -16,17 +16,25 @@ package org.codice.compliance.verification.core.responses
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4
 import org.codice.compliance.children
+import org.codice.compliance.verification.core.NameIDPolicyVerifier
 import org.codice.compliance.verification.core.ResponseVerifier
+import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.w3c.dom.Node
 
-class AuthnRequestProtocolResponseVerifier(override val response: Node,
-                                           override val id: String,
-                                           override val acsUrl: String?) :
+class CoreAuthnRequestProtocolVerifier(override val response: Node,
+                                       override val id: String,
+                                       override val acsUrl: String?,
+                                       val nameIdPolicy: NameIDPolicy? = null) :
         ResponseVerifier(response, id, acsUrl) {
 
+    val nameIdPolicyVerifier = nameIdPolicy?.let { NameIDPolicyVerifier(response, it) }
+
     /** 3.4 Authentication Request Protocol **/
-    override fun verifyProtocolResponse() {
+    override fun verify() {
+        super.verify()
         verifyAuthnRequestProtocolResponse()
+        // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
+        // nameIdPolicyVerifier?.apply { verify() }
     }
 
     private fun verifyAuthnRequestProtocolResponse() {
@@ -35,5 +43,9 @@ class AuthnRequestProtocolResponseVerifier(override val response: Node,
             throw SAMLComplianceException.create(SAMLCore_3_4,
                     message = "AuthnStatement not found in any of the Assertions.",
                     node = response)
+    }
+
+    override fun verifyEncryptedElements() {
+        nameIdPolicyVerifier?.apply { verifyEncryptedIds() }
     }
 }

@@ -40,7 +40,9 @@ class TestCommon {
         const val BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
+        const val NAMEID_ENCRYPTED = "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted"
 
+        const val ASSERTION = "Assertion"
         const val TYPE = "Type"
         const val AUTHN_REQUEST = "AuthnRequest"
         const val SAML_VERSION = "2.0"
