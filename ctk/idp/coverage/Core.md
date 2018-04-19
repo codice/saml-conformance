@@ -157,7 +157,7 @@ Unmarked sections need attention
 -			8.3.3 X.509 Subject Name
 -		8.3.4 Windows Domain Qualified Name
 -		8.3.5 Kerberos Principal Name
-		8.3.6 Entity Identifier
++		8.3.6 Entity Identifier
 		8.3.7 Persistent Identifier
 		8.3.8 Transient Identifier
 -	8.4 Consent Identifiers
