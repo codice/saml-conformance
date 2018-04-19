@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.core
 
+import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_1a
 import org.codice.compliance.SAMLCore_3_4_1_1b
@@ -22,10 +23,11 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
+import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
 import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.w3c.dom.Node
 
-class NameIDPolicyVerifier(val response: Node, val policy: NameIDPolicy) {
+class NameIDPolicyVerifier(private val response: Node, private val policy: NameIDPolicy) {
 
     /** 3.4.1.1 Element <NameIDPolicy> **/
     internal fun verify() {
@@ -34,29 +36,44 @@ class NameIDPolicyVerifier(val response: Node, val policy: NameIDPolicy) {
                 .flatMap { it.children("Subject") }
                 .flatMap { it.children("NameID") }
                 .forEach {
-                    val idFormat = it.attributeText("Format")
-                    if (!idFormat.equals(policy.format)) {
-                        throw SAMLComplianceException.create(SAMLCore_3_4_1_1b,
-                                message = "A NameID element was found with a Format attribute " +
-                                        "value of $idFormat instead of ${policy.format}.",
-                                node = it)
+                    when (policy.format) {
+                        SAML2Constants.ATTRNAME_FORMAT_UNSPECIFIED, NAMEID_ENCRYPTED -> {
+                        }
+                        else -> {
+                            verifyFormatsMatch(it)
+                        }
                     }
 
-                    val spnq = it.attributeText("SPNameQualifier")
-                    if (policy.spNameQualifier != null && !policy.spNameQualifier.equals(
-                                    spnq)) {
-                        throw SAMLComplianceException.create(SAMLCore_3_4_1_1c,
-                                message = "A NameID element was found with a SPNameQualifier " +
-                                        "attribute value of $spnq instead of " +
-                                        "${policy.spNameQualifier}.",
-                                node = it)
-                    }
+                    verifySPNameQualifiersMatch(it)
                 }
     }
 
+    private fun verifySPNameQualifiersMatch(nameId: Node) {
+        nameId.attributeText("SPNameQualifier")?.let { spnq ->
+            if (spnq != policy.spNameQualifier) {
+                throw SAMLComplianceException.create(SAMLCore_3_4_1_1c,
+                        message = "A NameID element was found with a SPNameQualifier " +
+                                "attribute value of $spnq instead of " +
+                                "${policy.spNameQualifier}.",
+                        node = nameId)
+            }
+        }
+    }
+
+    private fun verifyFormatsMatch(nameId: Node) {
+        nameId.attributeText("Format").let { idFormat ->
+            if (!idFormat.equals(policy.format)) {
+                throw SAMLComplianceException.create(SAMLCore_3_4_1_1b,
+                        message = "A NameID element was found with a Format attribute " +
+                                "value of $idFormat instead of ${policy.format}.",
+                        node = nameId)
+            }
+        }
+    }
+
     internal fun verifyEncryptedIds() {
-        if (policy?.format == TestCommon.NAMEID_ENCRYPTED) {
-            val subjects = response.recursiveChildren(TestCommon.ASSERTION)
+        if (policy.format == TestCommon.NAMEID_ENCRYPTED) {
+            val subjects = response.recursiveChildren(ASSERTION)
                     .flatMap { it.children("Subject") }
 
             if (subjects.any { it.children("EncryptedID").isEmpty() }) {

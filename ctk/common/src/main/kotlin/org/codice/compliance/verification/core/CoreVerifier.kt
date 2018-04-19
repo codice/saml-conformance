@@ -59,9 +59,11 @@ abstract class CoreVerifier(val node: Node) {
                 val code = it.attributeText("Value")
 
                 if (code != expectedStatusCode) {
-                    var exceptions = arrayOf(samlErrorCode)
-                    if (expectedStatusCode == TestCommon.REQUESTER)
-                        exceptions = arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
+                    val exceptions =
+                            if (expectedStatusCode == TestCommon.REQUESTER)
+                                arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
+                            else
+                                arrayOf(samlErrorCode)
 
                     @Suppress("SpreadOperator")
                     throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
@@ -135,7 +137,6 @@ abstract class CoreVerifier(val node: Node) {
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
         SamlDefinedIdentifiersVerifier(node).verify()
-        SamlExtensionsVerifier(node).verify()
     }
 
     open fun verifyEncryptedElements() {
