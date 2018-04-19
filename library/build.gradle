@@ -15,4 +15,5 @@ dependencies {
     compile 'com.google.http-client:google-http-client:1.22.0'
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     compile 'org.keyczar:keyczar:0.66'
+    compile 'net.sf.jtidy:jtidy:r938'
 }
