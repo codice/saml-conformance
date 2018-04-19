@@ -23,18 +23,19 @@ import com.jayway.restassured.response.Response;
 public interface IdpSSOResponder {
 
   /**
-   * The tests will send an AuthnRequest to the IdP using Redirect binding. Then the tests will hand
-   * the HTTP response to this method. Then this method is responsible for handling the
-   * implementation-dependent interactions that need to occur before successfully authenticating a
-   * user and getting the SAML response. Once the SAML response is received, this method should then
-   * build up the appropriate object and return it to the tests.
+   * After the tests send an AuthnRequest to the IdP using the Redirect binding, they will hand the
+   * HTTP response they get to this method.
+   *
+   * <p>This method is responsible for handling the implementation-specific interactions that need
+   * to occur before successfully authenticating a user and getting the SAML response. Once the SAML
+   * response is received, this method should build and return the appropriate object.
    *
    * @param originalResponse - the original {@code RestAssured} response from the initial REDIRECT
    *     authn request
-   * @return The response as an {@code IdpRedirectResponse}. The internal builder should be called
-   *     to build the response object:
+   * @return The response as an {@code IdpPostResponse}. The internal builder should be called to
+   *     build the response object:
    *     <pre>{@code
-   * return new IdpRedirectResponse.Builder()
+   * return new IdpPostResponse.Builder()
    * .httpStatusCode(exampleStatusCode)
    * .url(exampleUrl)
    * .build();
@@ -43,16 +44,15 @@ public interface IdpSSOResponder {
    * where {@code exampleUrl} is the url in the "Location" header returned by the IdP
    * </pre>
    */
-  // TODO When DDF is fixed to return a POST SSO response, change the return type to
-  // `IdpPostResponse`
   IdpResponse getRedirectResponse(Response originalResponse);
 
   /**
-   * The tests will send an AuthnRequest to the IdP using POST binding. Then the tests will hand the
-   * HTTP response to this method. Then this method is responsible for handling the
-   * implementation-dependent interactions that need to occur before successfully authenticating a
-   * user and getting the SAML response. Once the SAML response is received, this method should then
-   * build up the appropriate object and return it to the tests.
+   * After the tests send an AuthnRequest to the IdP using the POST binding, they will hand the HTTP
+   * response they get to this method.
+   *
+   * <p>This method is responsible for handling the implementation-specific interactions that need
+   * to occur before successfully authenticating a user and getting the SAML response. Once the SAML
+   * response is received, this method should build and return the appropriate object.
    *
    * @param originalResponse - the original {@code RestAssured} response from the initial POST authn
    *     request

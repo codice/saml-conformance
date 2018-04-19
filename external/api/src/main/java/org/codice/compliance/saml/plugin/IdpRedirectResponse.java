@@ -40,7 +40,6 @@ public class IdpRedirectResponse extends IdpResponse {
   protected String path;
   protected String parameters;
 
-  // TODO Change HTTP status code to expect 302/303
   public static class Builder {
 
     private IdpRedirectResponse idpRedirectResponse = new IdpRedirectResponse();

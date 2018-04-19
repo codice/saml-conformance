@@ -57,8 +57,7 @@ class RedirectSSOTest : StringSpec() {
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getRedirectResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -84,8 +83,7 @@ class RedirectSSOTest : StringSpec() {
                     .getRedirectResponse(response).decorate().apply {
                         isRelayStateGiven = true
                     }
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -114,8 +112,7 @@ class RedirectSSOTest : StringSpec() {
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getRedirectResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -147,8 +144,7 @@ class RedirectSSOTest : StringSpec() {
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getRedirectResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -183,8 +179,7 @@ class RedirectSSOTest : StringSpec() {
             // Get response from plugin portion
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getRedirectResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
