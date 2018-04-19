@@ -42,26 +42,6 @@ class CoreVerifier(val node: Node) {
         private const val ENCRYPTED_DATA = "EncryptedData"
         private const val ENTITY_ID_MAX_LEN = 1024
 
-        /**
-         * Verify SAML extension attributes or elements against the Core Spec document
-         *
-         * 2.4.1.2 Element <SubjectConfirmationData>
-         * 2.7.3.1 Element <Attribute>
-         * 3.2.1 Complex Type RequestAbstractType
-         * 3.2.2 Complex Type StatusResponseType
-         */
-        internal fun verifySamlExtensions(nodes: List<Node>,
-                                          expectedSamlNames: List<String>) {
-            nodes.forEach {
-                if (isNullNamespace(it) || (isSamlNamespace(it)
-                                && !expectedSamlNames.contains(it.localName))) {
-                    throw SAMLComplianceException.create(SAMLCore_SamlExtensions,
-                            message = "An invalid SAML extension was found.",
-                            node = it)
-                }
-            }
-        }
-
         private fun isNullNamespace(node: Node): Boolean {
             return with(node) {
                 when (this) {
@@ -83,30 +63,6 @@ class CoreVerifier(val node: Node) {
                     else -> throw UnknownError("Unknown Node type found")
                 }
             }
-        }
-
-        /**
-         * Checks the values of NotBefore and NotOnOrAfter attributes and verifies
-         * that the value of NotBefore is less than the value for NotOnOrAfter.
-         */
-        internal fun validateTimeWindow(node: Node, samlCode: SAMLCoreRefMessage) {
-            val notBefore = node.attributeNode("NotBefore")?.apply {
-                CommonDataTypeVerifier.verifyDateTimeValues(this)
-            }
-
-            val notOnOrAfter = node.attributeNode("NotOnOrAfter")?.apply {
-                CommonDataTypeVerifier.verifyDateTimeValues(this)
-            }
-
-            if (notBefore == null || notOnOrAfter == null) return
-
-            val notBeforeValue = Instant.parse(notBefore.textContent)
-            val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
-            if (notBeforeValue.isAfter(notOnOrAfterValue))
-                throw SAMLComplianceException.create(samlCode,
-                        message = "NotBefore element with value $notBeforeValue is not less " +
-                                "than NotOnOrAfter element with value $notOnOrAfterValue.",
-                        node = node)
         }
 
         private fun preProcess(responseDom: Node,
@@ -135,7 +91,12 @@ class CoreVerifier(val node: Node) {
                     responseDom.recursiveChildren("EncryptedID")
         }
 
-        private fun validateEntityIdentifiers(responseDom: Node) {
+        /**
+         * Verifies Name Identifiers formatted as type Entity, according to the Core Spec document.
+         *
+         * 8.3.6 Entity Identifier
+         */
+        private fun verifyEntityIdentifiers(responseDom: Node) {
             responseDom.recursiveChildren().filter { it.attributeText("Format") == ENTITY }
                     .forEach { checkEntityIdentifier(it) }
         }
@@ -148,14 +109,57 @@ class CoreVerifier(val node: Node) {
                         message = "No Subject element found.",
                         node = node)
             }
-            val nodeValue = node.nodeValue
-            if (nodeValue != null) {
-                if (nodeValue.length > ENTITY_ID_MAX_LEN) {
+            node.nodeValue?.let {
+                if (it.length > ENTITY_ID_MAX_LEN) {
                     throw SAMLComplianceException.create(SAMLCore_8_3_6_b,
-                            message = "Length of URI [$nodeValue] is [${nodeValue.length}]",
+                            message = "Length of URI [$it] is [${it.length}]",
                             node = node)
                 }
             }
+        }
+
+        /**
+         * Verify SAML extension attributes or elements against the Core Spec document
+         *
+         * 2.4.1.2 Element <SubjectConfirmationData>
+         * 2.7.3.1 Element <Attribute>
+         * 3.2.1 Complex Type RequestAbstractType
+         * 3.2.2 Complex Type StatusResponseType
+         */
+        internal fun verifySamlExtensions(nodes: List<Node>,
+                                          expectedSamlNames: List<String>) {
+            nodes.forEach {
+                if (isNullNamespace(it) || (isSamlNamespace(it)
+                                && !expectedSamlNames.contains(it.localName))) {
+                    throw SAMLComplianceException.create(SAMLCore_SamlExtensions,
+                            message = "An invalid SAML extension was found.",
+                            node = it)
+                }
+            }
+        }
+
+        /**
+         * Checks the values of NotBefore and NotOnOrAfter attributes and verifies
+         * that the value of NotBefore is less than the value for NotOnOrAfter.
+         */
+        internal fun validateTimeWindow(node: Node, samlCode: SAMLCoreRefMessage) {
+            val notBefore = node.attributeNode("NotBefore")?.apply {
+                CommonDataTypeVerifier.verifyDateTimeValues(this)
+            }
+
+            val notOnOrAfter = node.attributeNode("NotOnOrAfter")?.apply {
+                CommonDataTypeVerifier.verifyDateTimeValues(this)
+            }
+
+            if (notBefore == null || notOnOrAfter == null) return
+
+            val notBeforeValue = Instant.parse(notBefore.textContent)
+            val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
+            if (notBeforeValue.isAfter(notOnOrAfterValue))
+                throw SAMLComplianceException.create(samlCode,
+                        message = "NotBefore element with value $notBeforeValue is not less " +
+                                "than NotOnOrAfter element with value $notOnOrAfterValue.",
+                        node = node)
         }
     }
 
@@ -164,8 +168,8 @@ class CoreVerifier(val node: Node) {
      */
     fun verify() {
         preProcess(node)
-        validateEntityIdentifiers(node)
         verifyCommonDataType(node)
+        verifyEntityIdentifiers(node)
         SamlAssertionsVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
         SamlDefinedIdentifiersVerifier(node).verify()
