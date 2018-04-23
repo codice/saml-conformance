@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.utils
 
+import com.jayway.restassured.RestAssured
 import com.jayway.restassured.response.Response
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
@@ -20,13 +21,20 @@ import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.saml.plugin.IdpResponse
 import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.codice.compliance.utils.decorators.decorate
 import org.codice.security.saml.SamlProtocol
+import org.codice.security.sign.Encoder
+import org.codice.security.sign.SimpleSign
+import org.joda.time.DateTime
+import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.AuthnRequest
+import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
+import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import java.io.File
 import java.net.URLClassLoader
 import java.util.ServiceLoader
@@ -145,6 +153,75 @@ class TestCommon {
                 httpStatusCode(response.statusCode)
                 url(response.header("Location"))
             }.build()
+        }
+
+        /**
+         * Provides a default request for testing
+         * @return A valid Redirect AuthnRequest.
+         */
+        fun createDefaultAuthnRequest(binding: SamlProtocol.Binding): AuthnRequest {
+            return AuthnRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply { value = SP_ISSUER }
+                assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
+                id = ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = Common.getSingleSignOnLocation(binding.uri)
+                protocolBinding = binding.uri
+                isForceAuthn = false
+                setIsPassive(false)
+            }
+        }
+
+        /**
+         * Submits a request to the IdP with the given parameters.
+         * @return The IdP response
+         */
+        fun sendRedirectAuthnRequest(queryParams: Map<String, String>): Response {
+            return RestAssured.given()
+                    .urlEncodingEnabled(false)
+                    .params(queryParams)
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
+        }
+
+        /**
+         * Submits a request to the IdP with the given encoded request.
+         * @return The IdP response
+         */
+        fun sendPostAuthnRequest(encodedRequest: String): Response {
+            return RestAssured.given()
+                    .urlEncodingEnabled(false)
+                    .body(encodedRequest)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+        }
+
+        /**
+         * Encodes an AuthnRequest
+         * @return A string representation of the encoded input request
+         */
+        fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
+            val authnRequestString = authnRequestToString(authnRequest)
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
+            return Encoder.encodeRedirectMessage(authnRequestString)
+        }
+
+        /**
+         * Signs a given AuthnRequest and converts the object to a String for a POST request.
+         * @return The signed AuthnRequest as a String
+         */
+        fun signAndEncodeToString(authnRequest: AuthnRequest, relayState: String? = null): String {
+            SimpleSign().signSamlObject(authnRequest)
+            val authnRequestString = authnRequestToString(authnRequest)
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
+            return if (relayState == null) Encoder.encodePostMessage(authnRequestString)
+            else Encoder.encodePostMessage(authnRequestString, relayState)
         }
     }
 }

@@ -14,89 +14,31 @@
 package org.codice.compliance.web.sso.error
 
 import com.jayway.restassured.RestAssured
-import com.jayway.restassured.RestAssured.given
-import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
-import org.codice.compliance.Common.Companion.getSingleSignOnLocation
 import org.codice.compliance.SAMLBindings_3_4_3_a1
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
-import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.debugWithSupplier
-import org.codice.compliance.utils.TestCommon.Companion.AUTHN_REQUEST
-import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
-import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
+import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
+import org.codice.compliance.utils.TestCommon.Companion.encodeAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.parseErrorResponse
+import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
-import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
-import org.codice.security.saml.SamlProtocol.REDIRECT_BINDING
-import org.codice.security.sign.Encoder
+import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
-import org.joda.time.DateTime
-import org.opensaml.saml.common.SAMLVersion
-import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
-import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
 class RedirectSSOErrorTest : StringSpec() {
-    companion object {
-        /**
-         * Provides a default request for testing
-         * @return A valid Redirect AuthnRequest.
-         */
-        private fun createDefaultAuthnRequest(): AuthnRequest {
-            return AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply {
-                    value = SP_ISSUER
-                }
-                assertionConsumerServiceURL = acsUrl[HTTP_POST]
-                id = ID
-                version = SAMLVersion.VERSION_20
-                issueInstant = DateTime()
-                destination = getSingleSignOnLocation(REDIRECT_BINDING)
-                protocolBinding = REDIRECT_BINDING
-                isForceAuthn = false
-                setIsPassive(false)
-            }
-        }
-
-        /**
-         * Encodes an AuthnRequest
-         * @return A string representation of the encoded input request
-         */
-        private fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
-            val authnRequestString = authnRequestToString(authnRequest)
-            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
-            return Encoder.encodeRedirectMessage(authnRequestString)
-        }
-
-        /**
-         * Submits a request to the IdP with the given parameters.
-         * @return The IdP response
-         */
-        private fun sendAuthnRequest(queryParams: Map<String, String>): Response {
-            return given()
-                    .urlEncodingEnabled(false)
-                    .params(queryParams)
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(getSingleSignOnLocation(REDIRECT_BINDING))
-        }
-    }
-
     init {
         RestAssured.useRelaxedHTTPSValidation()
 
@@ -105,7 +47,7 @@ class RedirectSSOErrorTest : StringSpec() {
             Log.debugWithSupplier {
                 "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test"
             }
-            val authnRequest = createDefaultAuthnRequest()
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
@@ -113,7 +55,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     RELAY_STATE_GREATER_THAN_80_BYTES)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
 
             val idpResponse = parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
@@ -127,7 +69,7 @@ class RedirectSSOErrorTest : StringSpec() {
             Log.debugWithSupplier {
                 "Redirect Incomplete AuthnRequest In URL Query Test"
             }
-            val authnRequest = createDefaultAuthnRequest()
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
@@ -137,7 +79,7 @@ class RedirectSSOErrorTest : StringSpec() {
             queryParams.set(SAML_REQUEST, qpSamlReq?.substring(0, qpSamlReq.length / 2))
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
 
             val idpResponse = parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
@@ -153,7 +95,7 @@ class RedirectSSOErrorTest : StringSpec() {
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = mapOf(SAML_REQUEST to encodedRequest)
 
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = parseErrorResponse(response)
@@ -167,7 +109,7 @@ class RedirectSSOErrorTest : StringSpec() {
 
         "Redirect AuthnRequest With Empty Subject Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Empty Subject Test" }
-            val authnRequest = createDefaultAuthnRequest().apply {
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 subject = SubjectBuilder().buildObject()
             }
             val encodedRequest = encodeAuthnRequest(authnRequest)
@@ -177,7 +119,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     null)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = parseErrorResponse(response)
@@ -191,7 +133,7 @@ class RedirectSSOErrorTest : StringSpec() {
 
         "Redirect AuthnRequest With Incorrect ACS URL And Index Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Incorrect ACS URL And Index Test" }
-            val authnRequest = createDefaultAuthnRequest().apply {
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 assertionConsumerServiceURL = INCORRECT_ACS_URL
                 assertionConsumerServiceIndex = -1
             }
@@ -199,7 +141,7 @@ class RedirectSSOErrorTest : StringSpec() {
             val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = parseErrorResponse(response)
@@ -211,14 +153,14 @@ class RedirectSSOErrorTest : StringSpec() {
 
         "Redirect AuthnRequest With Non-Matching Destination" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Non-Matching Destination" }
-            val authnRequest = createDefaultAuthnRequest().apply {
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 destination = INCORRECT_DESTINATION
             }
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = parseErrorResponse(response)
