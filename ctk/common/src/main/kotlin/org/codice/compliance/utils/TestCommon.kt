@@ -190,16 +190,6 @@ class TestCommon {
         }
 
         /**
-         * Encodes an AuthnRequest
-         * @return A string representation of the encoded input request
-         */
-        fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
-            val authnRequestString = authnRequestToString(authnRequest)
-            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
-            return Encoder.encodeRedirectMessage(authnRequestString)
-        }
-
-        /**
          * Submits a request to the IdP with the given encoded request.
          * @return The IdP response
          */
@@ -212,6 +202,16 @@ class TestCommon {
                     .ifValidationFails()
                     .`when`()
                     .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+        }
+
+        /**
+         * Encodes an AuthnRequest
+         * @return A string representation of the encoded input request
+         */
+        fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
+            val authnRequestString = authnRequestToString(authnRequest)
+            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
+            return Encoder.encodeRedirectMessage(authnRequestString)
         }
 
         /**
