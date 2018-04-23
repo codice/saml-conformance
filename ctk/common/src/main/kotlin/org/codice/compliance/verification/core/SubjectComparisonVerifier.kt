@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.core
 
+import com.google.common.collect.Sets
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_3_4_b
 import org.codice.compliance.SAMLCore_3_3_4_c
@@ -54,14 +55,11 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
      * order to fully test this function we need to resolve the Subjects to a principal.
      */
     fun verifySubjectsMatchSSO() {
-        val subjectList = response.children("Assertion")
+        val subjectSet = response.children("Assertion")
                 .flatMap { it.children(SUBJECT) }
-                .toList()
-
-        subjectList.forEachIndexed { index, outerSubject ->
-            subjectList.subList(index + 1, subjectList.size).forEach { innerSubject ->
-                verifyIdContentsMatchSSO(outerSubject, innerSubject)
-            }
+                .toSet()
+        Sets.combinations(subjectSet, 2).forEach {
+            verifyIdContentsMatchSSO(it.first(), it.last())
         }
     }
 
@@ -69,8 +67,8 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
      * Compares the text content of the identifiers. Special checking due to nameIdPolicyFormat.
      */
     private fun verifyIdContentsMatchSSO(id1: Node, id2: Node) {
-        val format1 = id1.filteredFormatValue()
-        val format2 = id2.filteredFormatValue()
+        val format1 = id1.filteredFormatValue
+        val format2 = id2.filteredFormatValue
 
         // If they share a format value that isn't "unspecified", but have different contents
         if (format1 == format2
@@ -101,13 +99,13 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
     fun verifySubjectsMatchAuthnRequest() {
 
         val requestSubject = request?.children("Subject")?.firstOrNull() ?: return
-        val requestId = requestSubject.getId()
+        val requestId = requestSubject.id
         val requestConfirmations = requestSubject.children(SUBJECT_CONFIRMATION)
 
         if (requestId == null && requestConfirmations.isEmpty()) return
 
         val nameIdPolicyFormat =
-                request.children("NameIDPolicy").firstOrNull()?.filteredFormatValue()
+                request.children("NameIDPolicy").firstOrNull()?.filteredFormatValue
 
         response.recursiveChildren("Assertion")
                 .flatMap { it.children(SUBJECT) }
@@ -115,7 +113,7 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
 
                     // Verify ids match
                     requestId?.let { reqId ->
-                        resSubject.getId()?.let { resId ->
+                        resSubject.id?.let { resId ->
                             verifyIdAttributesMatchAuthnRequest(reqId, resId, nameIdPolicyFormat)
                             verifyIdContentsMatchAuthnRequest(reqId, resId)
                         } ?: throw SAMLComplianceException.create(
@@ -154,8 +152,8 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
          * different, and the formats are not unspecified
          */
         if (nameIdPolicyFormat == null) {
-            val reqFormat = reqId.filteredFormatValue()
-            val resFormat = resId.filteredFormatValue()
+            val reqFormat = reqId.filteredFormatValue
+            val resFormat = resId.filteredFormatValue
             if (reqFormat != null && reqFormat != resFormat)
                 throw SAMLComplianceException.create(SAMLCore_3_3_4_b,
                         message = "One of the Response's Subject identifier's Format attribute " +
@@ -181,8 +179,8 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
      * Compares the text content of the identifiers. Special checking due to nameIdPolicyFormat.
      */
     private fun verifyIdContentsMatchAuthnRequest(reqId: Node, resId: Node) {
-        val reqFormat = reqId.filteredFormatValue()
-        val resFormat = resId.filteredFormatValue()
+        val reqFormat = reqId.filteredFormatValue
+        val resFormat = resId.filteredFormatValue
 
         // If they share a format value that isn't "unspecified", but have different contents
         if (reqFormat == resFormat
@@ -231,22 +229,20 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
      * @param node The {@code Node} attribute to check the format value on
      * @return The filtered Format attribute value
      */
-    private fun Node.filteredFormatValue(): String? {
-        return this.attributeText(FORMAT)?.let {
+    private val Node.filteredFormatValue: String?
+        get() = this.attributeText(FORMAT)?.let {
             when (it) {
                 EMPTY_STRING -> null
                 UNSPECIFIED_URI -> null
                 else -> it
             }
         }
-    }
 
     /**
      * Since the identifier is an extensible element and the xml schema defines that there can
      * only be one identifier plus any number of SubjectConfirmations, we pull off the first thing
      * that isn't a SubjectConfirmation element.
      */
-    private fun Node.getId(): Node? {
-        return this.children().firstOrNull { it.localName != SUBJECT_CONFIRMATION }
-    }
+    private val Node.id: Node?
+        get() = this.children().firstOrNull { it.localName != SUBJECT_CONFIRMATION }
 }
