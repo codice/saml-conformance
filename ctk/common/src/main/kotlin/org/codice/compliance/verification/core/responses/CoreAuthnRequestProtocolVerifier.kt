@@ -16,8 +16,8 @@ package org.codice.compliance.verification.core.responses
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4
 import org.codice.compliance.SAMLCore_3_4_1_4a
-import org.codice.compliance.SAMLCore_3_4_1_4b
-import org.codice.compliance.SAMLCore_3_4_1_4c
+import org.codice.compliance.SAMLCore_3_4_1_4_c
+import org.codice.compliance.SAMLCore_3_4_1_4_d
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
@@ -51,7 +51,7 @@ class CoreAuthnRequestProtocolVerifier(override val response: Node,
                     node = response)
 
         if (assertions.all { it.children("AuthnStatement").isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_3_4, SAMLCore_3_4_1_4b,
+            throw SAMLComplianceException.create(SAMLCore_3_4, SAMLCore_3_4_1_4_c,
                     message = "AuthnStatement not found in any of the Assertions.",
                     node = response)
 
@@ -59,7 +59,7 @@ class CoreAuthnRequestProtocolVerifier(override val response: Node,
                     it.recursiveChildren("AudienceRestriction").flatMap { it.children("Audience") }
                             .none { it.textContent == SP_ISSUER }
                 })
-            throw SAMLComplianceException.create(SAMLCore_3_4_1_4c,
+            throw SAMLComplianceException.create(SAMLCore_3_4_1_4_d,
                     message = "Assertion found without an AudienceRestriction referencing the " +
                             "requester.",
                     node = response)
