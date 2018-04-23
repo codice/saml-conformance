@@ -15,7 +15,12 @@ package org.codice.compliance.verification.core.responses
 
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4
+import org.codice.compliance.SAMLCore_3_4_1_4a
+import org.codice.compliance.SAMLCore_3_4_1_4b
+import org.codice.compliance.SAMLCore_3_4_1_4c
 import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.verification.core.NameIDPolicyVerifier
 import org.codice.compliance.verification.core.ResponseVerifier
 import org.opensaml.saml.saml2.core.NameIDPolicy
@@ -38,10 +43,25 @@ class CoreAuthnRequestProtocolVerifier(override val response: Node,
     }
 
     private fun verifyAuthnRequestProtocolResponse() {
-        if (response.children("Assertion")
-                        .all { it.children("AuthnStatement").isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_3_4,
+        val assertions = response.children("Assertion")
+
+        if (response.localName != "Response" || assertions.isEmpty())
+            throw SAMLComplianceException.create(SAMLCore_3_4_1_4a,
+                    message = "Did not find Response elements with one or more Assertion elements.",
+                    node = response)
+
+        if (assertions.all { it.children("AuthnStatement").isEmpty() })
+            throw SAMLComplianceException.create(SAMLCore_3_4, SAMLCore_3_4_1_4b,
                     message = "AuthnStatement not found in any of the Assertions.",
+                    node = response)
+
+        if (assertions.any {
+                    it.recursiveChildren("AudienceRestriction").flatMap { it.children("Audience") }
+                            .none { it.textContent == SP_ISSUER }
+                })
+            throw SAMLComplianceException.create(SAMLCore_3_4_1_4c,
+                    message = "Assertion found without an AudienceRestriction referencing the " +
+                            "requester.",
                     node = response)
     }
 
