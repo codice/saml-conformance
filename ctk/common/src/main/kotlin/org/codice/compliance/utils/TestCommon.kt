@@ -161,9 +161,7 @@ class TestCommon {
          */
         fun createDefaultAuthnRequest(binding: SamlProtocol.Binding): AuthnRequest {
             return AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply {
-                    value = SP_ISSUER
-                }
+                issuer = IssuerBuilder().buildObject().apply { value = SP_ISSUER }
                 assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
                 id = ID
                 version = SAMLVersion.VERSION_20
