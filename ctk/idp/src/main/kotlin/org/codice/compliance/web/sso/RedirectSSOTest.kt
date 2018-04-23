@@ -14,99 +14,44 @@
 package org.codice.compliance.web.sso
 
 import com.jayway.restassured.RestAssured
-import com.jayway.restassured.RestAssured.given
-import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
-import org.codice.compliance.Common.Companion.getSingleSignOnLocation
-import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
-import org.codice.compliance.utils.TestCommon.Companion.AUTHN_REQUEST
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
-import org.codice.compliance.utils.TestCommon.Companion.authnRequestToString
+import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
+import org.codice.compliance.utils.TestCommon.Companion.encodeAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
+import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.decorate
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
+import org.codice.security.saml.SamlProtocol
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
-import org.codice.security.saml.SamlProtocol.REDIRECT_BINDING
-import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
-import org.joda.time.DateTime
-import org.opensaml.saml.common.SAMLVersion
-import org.opensaml.saml.saml2.core.AuthnRequest
-import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
-import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class RedirectSSOTest : StringSpec() {
-    companion object {
-        /**
-         * Provides a default request for testing
-         * @return A valid Redirect AuthnRequest.
-         */
-        private fun createDefaultAuthnRequest(): AuthnRequest {
-            return AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply {
-                    value = SP_ISSUER
-                }
-                assertionConsumerServiceURL = acsUrl[HTTP_POST]
-                id = ID
-                version = SAMLVersion.VERSION_20
-                issueInstant = DateTime()
-                destination = getSingleSignOnLocation(REDIRECT_BINDING)
-                protocolBinding = REDIRECT_BINDING
-                isForceAuthn = false
-                setIsPassive(false)
-            }
-        }
-
-        /**
-         * Encodes an AuthnRequest
-         * @return A string representation of the encoded input request
-         */
-        private fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
-            val authnRequestString = authnRequestToString(authnRequest)
-            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
-            return Encoder.encodeRedirectMessage(authnRequestString)
-        }
-
-        /**
-         * Submits a request to the IdP with the given parameters.
-         * @return The IdP response
-         */
-        private fun sendAuthnRequest(queryParams: Map<String, String>): Response {
-            return given()
-                    .urlEncodingEnabled(false)
-                    .params(queryParams)
-                    .log()
-                    .ifValidationFails()
-                    .`when`()
-                    .get(getSingleSignOnLocation(REDIRECT_BINDING))
-        }
-    }
-
     init {
         RestAssured.useRelaxedHTTPSValidation()
 
         "Redirect AuthnRequest Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest Test" }
-            val authnRequest = createDefaultAuthnRequest()
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)
 
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
@@ -125,14 +70,14 @@ class RedirectSSOTest : StringSpec() {
 
         "Redirect AuthnRequest With Relay State Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Relay State Test" }
-            val authnRequest = createDefaultAuthnRequest()
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST, encodedRequest,
                     EXAMPLE_RELAY_STATE)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
@@ -152,7 +97,7 @@ class RedirectSSOTest : StringSpec() {
 
         "Redirect AuthnRequest Without ACS Url Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest Without ACS Url Test" }
-            val authnRequest = createDefaultAuthnRequest().apply {
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 assertionConsumerServiceURL = null
             }
 
@@ -163,7 +108,7 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
@@ -182,7 +127,7 @@ class RedirectSSOTest : StringSpec() {
 
         "Redirect AuthnRequest With Email NameID Format Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Email NameID Format Test" }
-            val authnRequest = createDefaultAuthnRequest().apply {
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
                     spNameQualifier = SP_ISSUER
@@ -196,7 +141,7 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
@@ -218,7 +163,7 @@ class RedirectSSOTest : StringSpec() {
 
         "Redirect AuthnRequest With Encrypted NameID Format Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Encrypted NameID Format Test" }
-            val authnRequest = createDefaultAuthnRequest().apply {
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = NAMEID_ENCRYPTED
                     spNameQualifier = SP_ISSUER
@@ -232,7 +177,7 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             // Get response from AuthnRequest
-            val response = sendAuthnRequest(queryParams)
+            val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             // Get response from plugin portion
