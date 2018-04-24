@@ -59,7 +59,7 @@ class RedirectSSOTest : StringSpec() {
                     .getRedirectResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
 
@@ -86,7 +86,7 @@ class RedirectSSOTest : StringSpec() {
                     }
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
 
@@ -116,7 +116,7 @@ class RedirectSSOTest : StringSpec() {
                     .getRedirectResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
 
@@ -149,7 +149,7 @@ class RedirectSSOTest : StringSpec() {
                     .getRedirectResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameIDPolicy verification in
@@ -185,7 +185,7 @@ class RedirectSSOTest : StringSpec() {
                     .getRedirectResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameIDPolicy verification in

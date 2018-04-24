@@ -43,6 +43,7 @@ class PostSSOTest : StringSpec() {
         "POST AuthnRequest Test" {
             Log.debugWithSupplier { "POST AuthnRequest Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST)
+
             val encodedRequest = signAndEncodeToString(authnRequest)
             val response = sendPostAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
@@ -51,7 +52,7 @@ class PostSSOTest : StringSpec() {
                     .getPostResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
 
@@ -63,6 +64,7 @@ class PostSSOTest : StringSpec() {
         "POST AuthnRequest With Relay State Test" {
             Log.debugWithSupplier { "POST AuthnRequest With Relay State Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST)
+
             val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
             val response = sendPostAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
@@ -73,7 +75,7 @@ class PostSSOTest : StringSpec() {
                     }
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
 
@@ -89,7 +91,6 @@ class PostSSOTest : StringSpec() {
             }
 
             val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
-
             val response = sendPostAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
@@ -97,7 +98,7 @@ class PostSSOTest : StringSpec() {
                     .getPostResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
 
@@ -116,7 +117,6 @@ class PostSSOTest : StringSpec() {
             }
 
             val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
-
             val response = sendPostAuthnRequest(encodedRequest)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
@@ -124,7 +124,7 @@ class PostSSOTest : StringSpec() {
                     .getPostResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameIDPolicy verification in
@@ -153,7 +153,7 @@ class PostSSOTest : StringSpec() {
                     .getPostResponse(response).decorate()
             // TODO When DDF is fixed to return a POST SSO response, uncomment this line
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
-            idpResponse.bindingVerifier().verify()
+            idpResponse.bindingVerifier(acsUrl[HTTP_POST]).verify()
 
             val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameID verification

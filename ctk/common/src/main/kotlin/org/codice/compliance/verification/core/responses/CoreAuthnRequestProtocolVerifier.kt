@@ -28,9 +28,9 @@ import org.w3c.dom.Node
 
 class CoreAuthnRequestProtocolVerifier(override val response: Node,
                                        override val id: String,
-                                       override val acsUrl: String?,
-                                       private val nameIdPolicy: NameIDPolicy? = null) :
-        ResponseVerifier(response, id, acsUrl) {
+                                       override val expectedRecipientUrl: String?,
+                                       nameIdPolicy: NameIDPolicy? = null) :
+        ResponseVerifier(response, id, expectedRecipientUrl) {
 
     val nameIdPolicyVerifier = nameIdPolicy?.let { NameIDPolicyVerifier(response, it) }
 

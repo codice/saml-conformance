@@ -28,18 +28,17 @@ import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_4_5
 import org.codice.compliance.attributeNode
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
-import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
 
-class PostBindingVerifier(private val response: IdpPostResponseDecorator) : BindingVerifier() {
+class PostBindingVerifier(private val response: IdpPostResponseDecorator,
+                          private val expectedRecipientEndpoint: String?) : BindingVerifier() {
 
     /**
      * Verify the response for a post binding
@@ -231,11 +230,11 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         val destination = response.responseDom.attributeNode("Destination")?.nodeValue
         val signatures = response.responseDom.recursiveChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
+        if (signatures.isNotEmpty() && destination != expectedRecipientEndpoint) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = "Destination",
                     actual = destination,
-                    expected = acsUrl[HTTP_POST],
+                    expected = expectedRecipientEndpoint,
                     node = response.responseDom)
         }
     }
@@ -248,7 +247,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
     // TODO refactor this method and response objects so we can show values in the errors
     private fun verifyPostForm() {
         with(response) {
-            if (!isFormActionCorrect) {
+            if (!isFormActionCorrect(expectedRecipientEndpoint)) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_d1,
                         message = """The form "action" is incorrect.""")

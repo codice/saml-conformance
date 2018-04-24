@@ -31,7 +31,7 @@ import org.w3c.dom.Node
 
 abstract class ResponseVerifier(open val response: Node,
                                 open val id: String,
-                                open val acsUrl: String?) : CoreVerifier(response) {
+                                open val expectedRecipientUrl: String?) : CoreVerifier(response) {
     companion object {
         private const val VERSION = "Version"
         private const val DESTINATION = "Destination"
@@ -73,11 +73,11 @@ abstract class ResponseVerifier(open val response: Node,
                 response.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
         response.attributeNode(DESTINATION)?.apply {
-            if (textContent != acsUrl)
+            if (textContent != expectedRecipientUrl)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
-                        expected = acsUrl ?: "No ACS URL Found",
+                        expected = expectedRecipientUrl ?: "No ACS URL Found",
                         node = response)
 
             CommonDataTypeVerifier.verifyUriValues(this)
