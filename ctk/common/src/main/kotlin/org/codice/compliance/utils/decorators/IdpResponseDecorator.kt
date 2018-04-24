@@ -24,7 +24,7 @@ interface IdpResponseDecorator {
     var decodedSamlResponse: String
     val responseDom: Node
 
-    fun bindingVerifier(): BindingVerifier
+    fun bindingVerifier(expectedRecipientEndpoint: String?): BindingVerifier
 }
 
 fun IdpRedirectResponse.decorate(): IdpRedirectResponseDecorator {

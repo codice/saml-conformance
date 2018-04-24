@@ -19,10 +19,8 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.saml.plugin.IdpPostResponse
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.PostBindingVerifier
-import org.codice.security.saml.SamlProtocol
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
@@ -72,10 +70,8 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
      * the protocol or profile using this binding to which the SAML message is to be delivered.
      * The method attribute MUST be "POST"."
      */
-    val isFormActionCorrect: Boolean by lazy {
-        checkNodeAttribute(responseForm,
-                ACTION,
-                checkNotNull(acsUrl[SamlProtocol.Binding.HTTP_POST]))
+    fun isFormActionCorrect(expectedAction: String?): Boolean {
+        return checkNodeAttribute(responseForm, ACTION, checkNotNull(expectedAction))
     }
 
     val isFormMethodCorrect: Boolean by lazy {
@@ -118,7 +114,7 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
         return expectedValue.equals(node.getAttribute(attributeName), true)
     }
 
-    override fun bindingVerifier(): BindingVerifier {
-        return PostBindingVerifier(this)
+    override fun bindingVerifier(expectedRecipientEndpoint: String?): BindingVerifier {
+        return PostBindingVerifier(this, expectedRecipientEndpoint)
     }
 }

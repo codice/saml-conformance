@@ -34,16 +34,14 @@ import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.attributeNode
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
-import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BASE64_DECODING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_INFLATING
@@ -59,8 +57,8 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 @Suppress("TooManyFunctions" /* At least at present, there is no value in refactoring */)
-class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator)
-    : BindingVerifier() {
+class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator,
+                              private val expectedRecipientEndpoint: String?) : BindingVerifier() {
 
     /**
      * Verify the response for a redirect binding
@@ -417,11 +415,11 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         val destination = response.responseDom.attributeNode("Destination")?.nodeValue
         val signatures = response.responseDom.recursiveChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
+        if (signatures.isNotEmpty() && destination != expectedRecipientEndpoint) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = "Destination",
                     actual = destination,
-                    expected = acsUrl[HTTP_REDIRECT],
+                    expected = expectedRecipientEndpoint,
                     node = response.responseDom)
         }
     }

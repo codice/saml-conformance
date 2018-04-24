@@ -26,7 +26,8 @@ import org.w3c.dom.Node
  * This class can only be instantiated by using extension methods in IdpResponseDecorator.kt
  */
 class IdpRedirectResponseDecorator
-internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(response),
+internal constructor(response: IdpRedirectResponse) :
+        IdpRedirectResponse(response),
         IdpResponseDecorator {
 
     private val paramMap: Map<String, String> by lazy {
@@ -67,7 +68,7 @@ internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(respon
         parameters == null
     }
 
-    override fun bindingVerifier(): BindingVerifier {
-        return RedirectBindingVerifier(this)
+    override fun bindingVerifier(expectedRecipientEndpoint: String?): BindingVerifier {
+        return RedirectBindingVerifier(this, expectedRecipientEndpoint)
     }
 }
