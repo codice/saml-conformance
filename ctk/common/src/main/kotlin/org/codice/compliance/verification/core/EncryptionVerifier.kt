@@ -21,7 +21,8 @@ import org.codice.compliance.SAMLCore_6_1_a
 import org.codice.compliance.SAMLCore_6_1_b
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
+import org.codice.compliance.utils.TestCommon.Companion.TYPE
 import org.codice.compliance.utils.XMLDecryptor
 import org.codice.compliance.utils.XMLDecryptor.Companion.XMLDecryptorException
 import org.w3c.dom.Node
@@ -37,7 +38,7 @@ class EncryptionVerifier {
      * <li>Replacing the encrypted elements with their unencrypted values</li>
      * </ol>
      *
-     * @param response The response node to verify and decrypt
+     * @param encElements A list of encrypted nodes to verify and decrypt
      */
     fun verifyAndDecryptElements(encElements: List<Node>) {
         encElements.forEach {
@@ -45,7 +46,7 @@ class EncryptionVerifier {
         }
     }
 
-    fun verifyAndDecryptElement(element: Node) {
+    private fun verifyAndDecryptElement(element: Node) {
         verifyEncryptedElement(element)
 
         try {
@@ -62,7 +63,7 @@ class EncryptionVerifier {
     private fun verifyEncryptedElement(encryptedElement: Node) {
         if (encryptedElement.children("EncryptedData")
                         .first() // guaranteed to have an EncryptedData child by schema validation
-                        .attributeText("Type") != TestCommon.ELEMENT)
+                        .attributeText(TYPE) != ELEMENT)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
                     when (encryptedElement.localName) {
                         "EncryptedID" -> SAMLCore_2_2_4_a
@@ -70,9 +71,9 @@ class EncryptionVerifier {
                         "EncryptedAttribute" -> SAMLCore_2_7_3_2_a
                         else -> throw UnknownError("Unknown ${encryptedElement.localName} type.")
                     },
-                    property = TestCommon.TYPE,
-                    actual = encryptedElement.attributeText(TestCommon.TYPE),
-                    expected = TestCommon.ELEMENT,
+                    property = TYPE,
+                    actual = encryptedElement.attributeText(TYPE),
+                    expected = ELEMENT,
                     node = encryptedElement)
     }
 }

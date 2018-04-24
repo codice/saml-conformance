@@ -20,7 +20,7 @@ import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
@@ -55,7 +55,7 @@ class PostSSOTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
 
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
@@ -77,7 +77,7 @@ class PostSSOTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
 
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
@@ -101,7 +101,7 @@ class PostSSOTest : StringSpec() {
 
             val responseDom = idpResponse.responseDom
 
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
         }
@@ -129,7 +129,7 @@ class PostSSOTest : StringSpec() {
             val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
@@ -158,7 +158,7 @@ class PostSSOTest : StringSpec() {
             val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameID verification
             // in CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
             SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,

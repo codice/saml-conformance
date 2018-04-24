@@ -21,9 +21,10 @@ import org.codice.compliance.SAMLCore_3_4_1_1c
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
+import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
+import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.w3c.dom.Node
 
@@ -33,7 +34,7 @@ class NameIDPolicyVerifier(private val response: Node, private val policy: NameI
     internal fun verify() {
         response
                 .recursiveChildren(ASSERTION)
-                .flatMap { it.children("Subject") }
+                .flatMap { it.children(SUBJECT) }
                 .flatMap { it.children("NameID") }
                 .forEach {
                     when (policy.format) {
@@ -61,7 +62,7 @@ class NameIDPolicyVerifier(private val response: Node, private val policy: NameI
     }
 
     private fun verifyFormatsMatch(nameId: Node) {
-        nameId.attributeText("Format").let { idFormat ->
+        nameId.attributeText(FORMAT).let { idFormat ->
             if (!idFormat.equals(policy.format)) {
                 throw SAMLComplianceException.create(SAMLCore_3_4_1_1b,
                         message = "A NameID element was found with a Format attribute " +
@@ -72,9 +73,9 @@ class NameIDPolicyVerifier(private val response: Node, private val policy: NameI
     }
 
     internal fun verifyEncryptedIds() {
-        if (policy.format == TestCommon.NAMEID_ENCRYPTED) {
+        if (policy.format == NAMEID_ENCRYPTED) {
             val subjects = response.recursiveChildren(ASSERTION)
-                    .flatMap { it.children("Subject") }
+                    .flatMap { it.children(SUBJECT) }
 
             if (subjects.any { it.children("EncryptedID").isEmpty() }) {
                 throw SAMLComplianceException.create(SAMLCore_3_4_1_1a,

@@ -28,6 +28,7 @@ import java.net.URISyntaxException
 import javax.xml.parsers.DocumentBuilderFactory
 
 internal class SamlDefinedIdentifiersVerifier(val node: Node) {
+
     companion object {
         private const val ATTRIBUTE_NAME_FORMAT_URI =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:uri"

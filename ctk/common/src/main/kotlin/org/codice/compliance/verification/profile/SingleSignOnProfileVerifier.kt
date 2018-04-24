@@ -29,10 +29,16 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
+import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
+import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
+import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
 import org.codice.compliance.utils.TestCommon.Companion.BEARER
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
-import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.FORMAT
+import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
+import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
@@ -41,8 +47,6 @@ import org.w3c.dom.Node
 class SingleSignOnProfileVerifier(private val response: Node,
                                   private val acsUrl: String?) {
     companion object {
-        private const val SUBJECT = "Subject"
-        private const val AUTHN_STATEMENT = "AuthnStatement"
         fun verifyBinding(response: IdpResponseDecorator) {
             if (response is IdpRedirectResponse) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_2,
@@ -68,7 +72,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
     private fun verifyIssuer() {
         if (response.localName == "Response" &&
                 (response.children(SIGNATURE).isNotEmpty() ||
-                        response.children("Assertion")
+                        response.children(ASSERTION)
                                 .any {
                                     it.children(SIGNATURE).isNotEmpty()
                                 })) {
@@ -87,11 +91,11 @@ class SingleSignOnProfileVerifier(private val response: Node,
                                 "issuing IdP.",
                         node = response)
 
-            val issuerFormat = issuer.attributeText("Format")
+            val issuerFormat = issuer.attributeText(FORMAT)
             if (issuerFormat != null &&
                     issuerFormat != ENTITY)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
-                        property = "Format",
+                        property = FORMAT,
                         actual = issuerFormat,
                         expected = ENTITY,
                         node = response)
@@ -103,7 +107,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
      * 4.1.4.2 <Response> Usage
      */
     private fun verifySsoAssertions() {
-        val assertions = response.children("Assertion")
+        val assertions = response.children(ASSERTION)
         val encryptedAssertions = response.children("EncryptedAssertion")
 
         if (assertions.isEmpty() && encryptedAssertions.isEmpty()) {
@@ -117,8 +121,8 @@ class SingleSignOnProfileVerifier(private val response: Node,
         val (bearerSubjectConfirmations, bearerAssertions) =
                 assertions.filter { it.children(SUBJECT).isNotEmpty() }
                         .flatMap { it.children(SUBJECT) }
-                        .filter { it.children("SubjectConfirmation").isNotEmpty() }
-                        .flatMap { it.children("SubjectConfirmation") }
+                        .filter { it.children(SUBJECT_CONFIRMATION).isNotEmpty() }
+                        .flatMap { it.children(SUBJECT_CONFIRMATION) }
                         .filter { it.attributeText("Method") == BEARER }
                         .map { it to it.parentNode.parentNode }
                         .unzip()
@@ -143,7 +147,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                             it.attributeText("Recipient") == acsUrl &&
                                     it.attributeNode("NotOnOrAfter") != null &&
                                     it.attributeNode("NotBefore") == null &&
-                                    it.attributeText("InResponseTo") == ID
+                                    it.attributeText("InResponseTo") == REQUEST_ID
                         }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "There were no bearer SubjectConfirmation elements that matched " +
@@ -178,8 +182,8 @@ class SingleSignOnProfileVerifier(private val response: Node,
                         .filter { it.children("Conditions").isNotEmpty() }
                         .flatMap { it.children("Conditions") }
                         .map { extractAudienceRestriction(it) }
-                        .filter { it.children("Audience").isNotEmpty() }
-                        .flatMap { it.children("Audience") }
+                        .filter { it.children(AUDIENCE).isNotEmpty() }
+                        .flatMap { it.children(AUDIENCE) }
                         .none { it.textContent == SP_ISSUER }) {
 
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k,

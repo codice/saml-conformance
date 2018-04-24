@@ -23,6 +23,7 @@ import org.codice.compliance.attributeList
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
@@ -55,7 +56,7 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
      * order to fully test this function we need to resolve the Subjects to a principal.
      */
     fun verifySubjectsMatchSSO() {
-        val subjectSet = response.children("Assertion")
+        val subjectSet = response.children(ASSERTION)
                 .flatMap { it.children(SUBJECT) }
                 .toSet()
         Sets.combinations(subjectSet, 2).forEach {
@@ -98,7 +99,7 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
     @Suppress("NestedBlockDepth" /* Simple `let` nesting */)
     fun verifySubjectsMatchAuthnRequest() {
 
-        val requestSubject = request?.children("Subject")?.firstOrNull() ?: return
+        val requestSubject = request?.children(SUBJECT)?.firstOrNull() ?: return
         val requestId = requestSubject.id
         val requestConfirmations = requestSubject.children(SUBJECT_CONFIRMATION)
 
@@ -107,7 +108,7 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
         val nameIdPolicyFormat =
                 request.children("NameIDPolicy").firstOrNull()?.filteredFormatValue
 
-        response.recursiveChildren("Assertion")
+        response.recursiveChildren(ASSERTION)
                 .flatMap { it.children(SUBJECT) }
                 .forEach { resSubject ->
 

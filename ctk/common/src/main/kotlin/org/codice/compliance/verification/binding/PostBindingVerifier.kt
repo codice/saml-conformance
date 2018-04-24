@@ -30,6 +30,8 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
+import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -41,9 +43,7 @@ import kotlin.test.assertNotNull
 
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) : BindingVerifier() {
 
-    /**
-     * Verify the response for a post binding
-     */
+    /** Verify the response for a post binding */
     override fun verify() {
         verifyHttpStatusCode(response.httpStatusCode)
         verifyNoNulls()
@@ -56,9 +56,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         verifyPostForm()
     }
 
-    /**
-     * Verify an error response (Negative path)
-     */
+    /** Verify an error response (Negative path) */
     override fun verifyError() {
         verifyHttpStatusCodeErrorResponse(response.httpStatusCode)
         verifyNoNullsErrorResponse()
@@ -192,7 +190,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      */
     private fun verifyPostSSO() {
         if (response.responseDom.children(SIGNATURE).isEmpty()
-                || response.responseDom.children("Assertion").any {
+                || response.responseDom.children(ASSERTION).any {
                     it.children(SIGNATURE).isEmpty()
                 })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5,
@@ -228,12 +226,12 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
      * 3.5.5.2 Security Considerations
      */
     private fun verifyPostDestination() {
-        val destination = response.responseDom.attributeNode("Destination")?.nodeValue
+        val destination = response.responseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = response.responseDom.recursiveChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
-                    property = "Destination",
+                    property = DESTINATION,
                     actual = destination,
                     expected = acsUrl[HTTP_POST],
                     node = response.responseDom)

@@ -22,6 +22,7 @@ import org.codice.compliance.SAMLCore_1_3_4
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeTextNS
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 import java.net.URI
@@ -38,7 +39,7 @@ class CommonDataTypeVerifier {
                         type.contains("string") -> verifyStringValues(it)
                         type.contains("anyURI") -> verifyUriValues(it)
                         type.contains("dateTime") -> verifyDateTimeValues(it)
-                        type.contains("ID") -> verifyIdValues(it)
+                        type.contains(ID) -> verifyIdValues(it)
                     }
                 }
 

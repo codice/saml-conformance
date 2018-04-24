@@ -21,10 +21,12 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_l
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.attributeText
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
 import org.codice.compliance.utils.TestCommon.Companion.SAML_NAMESPACE
+import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
 
@@ -35,7 +37,7 @@ class ProfilesVerifier(private val node: Node) {
      * This should be called explicitly if an error is expected.
      */
     fun verifyErrorResponseAssertion(samlErrorCode: SAMLSpecRefMessage? = null) {
-        if (node.recursiveChildren("Assertion").isNotEmpty()) {
+        if (node.recursiveChildren(ASSERTION).isNotEmpty()) {
             val exceptions: Array<SAMLSpecRefMessage> =
                     if (samlErrorCode != null)
                         arrayOf(samlErrorCode, SAMLProfiles_4_1_4_2_l)
@@ -60,7 +62,7 @@ class ProfilesVerifier(private val node: Node) {
      * 3.1 Holder of Key
      */
     private fun verifyHolderOfKey() {
-        val holderOfKeyList = node.recursiveChildren("SubjectConfirmation")
+        val holderOfKeyList = node.recursiveChildren(SUBJECT_CONFIRMATION)
                 .filter { it.attributeText("Method") == HOLDER_OF_KEY_URI }
 
         if (holderOfKeyList.isEmpty()) return

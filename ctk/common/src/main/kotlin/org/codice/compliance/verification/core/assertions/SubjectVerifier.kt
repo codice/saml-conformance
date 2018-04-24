@@ -16,6 +16,7 @@ package org.codice.compliance.verification.core.assertions
 import org.codice.compliance.SAMLCore_2_4_1_2_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node
@@ -30,7 +31,7 @@ internal class SubjectVerifier(val node: Node) {
 
     /** 2.4.1.1 Element <SubjectConfirmation> */
     private fun verifySubjectConfirmation() {
-        node.recursiveChildren("SubjectConfirmation")
+        node.recursiveChildren(SUBJECT_CONFIRMATION)
                 .forEach {
                     CommonDataTypeVerifier
                             .verifyUriValues(it.attributeNode("Method"))
