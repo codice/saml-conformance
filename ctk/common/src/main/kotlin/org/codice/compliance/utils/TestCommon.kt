@@ -50,14 +50,21 @@ class TestCommon {
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
         const val NAMEID_ENCRYPTED = "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted"
 
+        const val ID = "ID"
         const val ASSERTION = "Assertion"
         const val TYPE = "Type"
         const val FORMAT = "Format"
         const val SUBJECT = "Subject"
+        const val VERSION = "Version"
+        const val DESTINATION = "Destination"
+        const val STATUS_CODE = "StatusCode"
+        const val AUDIENCE = "Audience"
         const val SUBJECT_CONFIRMATION = "SubjectConfirmation"
         const val AUTHN_REQUEST = "AuthnRequest"
+        const val AUTHN_STATEMENT = "AuthnStatement"
+
         const val SAML_VERSION = "2.0"
-        const val ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
+        const val REQUEST_ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
@@ -166,7 +173,7 @@ class TestCommon {
             return AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply { value = SP_ISSUER }
                 assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
-                id = ID
+                id = REQUEST_ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
                 destination = Common.getSingleSignOnLocation(binding.uri)

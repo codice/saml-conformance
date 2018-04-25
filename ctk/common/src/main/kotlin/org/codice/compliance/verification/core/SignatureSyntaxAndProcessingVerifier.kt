@@ -20,6 +20,7 @@ import org.codice.compliance.SAMLCore_5_4_2_b1
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.w3c.dom.Node
 
 class SignatureSyntaxAndProcessingVerifier(private val node: Node) {
@@ -44,7 +45,7 @@ class SignatureSyntaxAndProcessingVerifier(private val node: Node) {
                             message = "URI attribute not found.",
                             node = node)
 
-            val formattedId = "#${it.parentNode.attributeText("ID")}"
+            val formattedId = "#${it.parentNode.attributeText(ID)}"
             if (uriValue != formattedId)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_5_4_2_b,
                         property = "URI",

@@ -22,17 +22,15 @@ import org.codice.compliance.SAMLCore_2_5_1_a
 import org.codice.compliance.SAMLCore_2_5_1_b
 import org.codice.compliance.SAMLCore_2_5_1_c
 import org.codice.compliance.attributeNodeNS
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
+import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node
 
 internal class ConditionsVerifier(val node: Node) {
-    companion object {
-        private const val AUDIENCE = "Audience"
-    }
 
     /** 2.5 Conditions */
     fun verify() {
@@ -53,7 +51,7 @@ internal class ConditionsVerifier(val node: Node) {
         validateTimeWindow(conditionsElement, SAMLCore_2_5_1_2)
 
         if (conditionsElement.children("Condition")
-                        .any { it.attributeNodeNS(TestCommon.XSI, "type") == null })
+                        .any { it.attributeNodeNS(XSI, "type") == null })
             throw SAMLComplianceException.create(SAMLCore_2_5_1_a,
                     message = "Condition found without a type.",
                     node = node)

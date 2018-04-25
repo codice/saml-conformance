@@ -26,8 +26,10 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
+import org.codice.compliance.utils.TestCommon.Companion.FORMAT
+import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
+import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.schema.SchemaValidator
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Node
@@ -55,12 +57,12 @@ abstract class CoreVerifier(val node: Node) {
                         actual = "[]",
                         expected = "<Status>",
                         node = node)
-            status[0].children("StatusCode").forEach {
+            status[0].children(STATUS_CODE).forEach {
                 val code = it.attributeText("Value")
 
                 if (code != expectedStatusCode) {
                     val exceptions =
-                            if (expectedStatusCode == TestCommon.REQUESTER)
+                            if (expectedStatusCode == REQUESTER)
                                 arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
                             else
                                 arrayOf(samlErrorCode)
@@ -81,7 +83,7 @@ abstract class CoreVerifier(val node: Node) {
          * 8.3.6 Entity Identifier
          */
         private fun verifyEntityIdentifiers(responseDom: Node) {
-            responseDom.recursiveChildren().filter { it.attributeText("Format") == ENTITY }
+            responseDom.recursiveChildren().filter { it.attributeText(FORMAT) == ENTITY }
                     .forEach { checkEntityIdentifier(it) }
         }
 

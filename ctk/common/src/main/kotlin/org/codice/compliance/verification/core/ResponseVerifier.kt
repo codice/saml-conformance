@@ -25,18 +25,17 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
+import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
+import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
+import org.codice.compliance.utils.TestCommon.Companion.VERSION
 import org.w3c.dom.Node
 
 abstract class ResponseVerifier(open val response: Node,
                                 open val id: String,
                                 open val acsUrl: String?) : CoreVerifier(response) {
-    companion object {
-        private const val VERSION = "Version"
-        private const val DESTINATION = "Destination"
-        private const val STATUS_CODE = "StatusCode"
-    }
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
@@ -48,7 +47,7 @@ abstract class ResponseVerifier(open val response: Node,
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
     private fun verifyStatusResponseType() {
-        CommonDataTypeVerifier.verifyIdValues(response.attributeNode("ID"),
+        CommonDataTypeVerifier.verifyIdValues(response.attributeNode(ID),
                 SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request

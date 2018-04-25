@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
 
@@ -37,7 +38,7 @@ internal class NameIdentifierVerifier(val node: Node) {
         /** 2.2.2 Complex Type NameIDType */
         fun verifyNameIDType(node: Node) {
             verifyIdNameQualifiers(node)
-            node.attributeNode("Format")?.let {
+            node.attributeNode(FORMAT)?.let {
                 CommonDataTypeVerifier.verifyUriValues(it)
             }
 
