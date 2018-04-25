@@ -30,7 +30,7 @@ pipeline {
         }
         stage('SAML Conformance Build') {
             steps {
-                sh 'gradle clean build docker'
+                sh './gradlew clean build docker'
             }
         }
         stage('Pull DDF') {
