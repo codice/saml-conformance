@@ -127,9 +127,6 @@ This module contains all the runtime elements including scripts, jars, and confi
 This module contains the logic for building a docker image.
 To build this module you must run the docker task by executing `gradlew build docker`.
 
-#### suites
-This module contains the test suites.
-
 ## References
 FICAM: https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/SAML2_1.0.2_Functional_Reqs.pdf
 

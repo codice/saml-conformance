@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.verification.binding
 
-import io.kotlintest.matchers.shouldNotBe
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLBindings_3_5_3_a
@@ -28,9 +27,9 @@ import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_4_5
 import org.codice.compliance.attributeNode
-import org.codice.compliance.recursiveChildren
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -38,6 +37,7 @@ import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.decorators.IdpPostResponseDecorator
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
+import kotlin.test.assertNotNull
 
 class PostBindingVerifier(private val response: IdpPostResponseDecorator) : BindingVerifier() {
 
@@ -157,7 +157,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                     cause = exception)
         }
 
-        decodedMessage shouldNotBe null
+        assertNotNull(decodedMessage)
         decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }
@@ -181,7 +181,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                     cause = exception)
         }
 
-        decodedMessage shouldNotBe null
+        assertNotNull(decodedMessage)
         decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
         response.decodedSamlResponse = decodedMessage
     }

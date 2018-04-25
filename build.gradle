@@ -18,20 +18,23 @@ plugins {
     id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC6-4'
     id 'com.diffplug.gradle.spotless' version '3.10.0'
     id 'net.ltgt.errorprone' version '0.0.13'
+    id "com.adarshr.test-logger" version "1.2.0"
 }
 
 description = 'SAML Conformance Test Kit'
 
 project.ext {
     project_version = '1.0-SNAPSHOT'
-    kotlin_test_version = '2.0.7'
+    kotlin_test_version = '3.1.0-RC2'
     rest_assured_version = '2.9.0'
     org_slf4j_version = '1.7.1'
-    junit_version = '4.12'
     guava_version = '24.0-jre'
     detekt_version = '1.0.0.RC6-4'
     java_encoding = 'UTF-8'
     static_log_version = '2.2.0'
+    mockk_version = '1.7.15'
+    junit_jupiter_version = '5.1.0'
+    junit_platform_version = '1.1.1'
 }
 
 allprojects {
@@ -47,6 +50,7 @@ subprojects {
     apply plugin: 'com.bmuschko.docker-remote-api'
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: 'net.ltgt.errorprone'
+    apply plugin: 'com.adarshr.test-logger'
 
     compileJava.options.encoding = "$java_encoding"
     sourceCompatibility = 1.8
@@ -62,13 +66,22 @@ subprojects {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-reflect"
-        compile "junit:junit:$junit_version"
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         compile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
         compile "com.jayway.restassured:rest-assured:$rest_assured_version"
         compile "org.slf4j:slf4j-api:$org_slf4j_version"
         compile "io.github.jupf.staticlog:staticlog:$static_log_version"
         compile "com.google.guava:guava:$guava_version"
+        compile "io.kotlintest:kotlintest-runner-junit5:$kotlin_test_version"
+        compile "org.junit.platform:junit-platform-suite-api:$junit_platform_version"
+        compile "org.junit.platform:junit-platform-runner:$junit_platform_version"
+
+        testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     spotless {
