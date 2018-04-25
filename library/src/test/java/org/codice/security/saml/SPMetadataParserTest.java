@@ -15,7 +15,7 @@ package org.codice.security.saml;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
@@ -23,7 +23,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.codice.security.saml.SamlProtocol.Binding;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SPMetadataParserTest {
 

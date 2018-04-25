@@ -6,6 +6,5 @@ include ':external:implementations:samlconf-keycloak-impl'
 include ':ctk:common'
 include ':ctk:idp'
 include ':deployment:distribution'
-include ':deployment:suites'
 include ':deployment:docker'
 

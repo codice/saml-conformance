@@ -17,10 +17,28 @@ import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.web.sso.PostSSOTest
+import org.codice.compliance.web.sso.RedirectSSOTest
+import org.codice.compliance.web.sso.error.PostSSOErrorTest
+import org.codice.compliance.web.sso.error.RedirectSSOErrorTest
+import org.codice.ctk.Runner.Companion.BASIC_TESTS
+import org.codice.ctk.Runner.Companion.ERROR_TESTS
+import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
+import org.junit.platform.launcher.core.LauncherFactory
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener
+import us.jimschubert.kopper.ArgumentCollection
 import us.jimschubert.kopper.Parser
+import java.io.PrintWriter
 
-private const val BASIC_SUITE = "org.codice.compliance.tests.suites.BasicTestsSuite"
-private const val ERROR_SUITE = "org.codice.compliance.tests.suites.ErrorTestsSuite"
+private class Runner {
+    companion object {
+        val BASIC_TESTS = arrayOf(selectClass(PostSSOTest::class.java),
+                selectClass(RedirectSSOTest::class.java))
+        val ERROR_TESTS = arrayOf(selectClass(RedirectSSOErrorTest::class.java),
+                selectClass(PostSSOErrorTest::class.java))
+    }
+}
 
 fun main(args: Array<String>) {
     val samlDist = System.getProperty("app.home")
@@ -56,7 +74,24 @@ fun main(args: Array<String>) {
         Log.logLevel = LogLevel.INFO
     }
 
-    @Suppress("SpreadOperator")
-    org.junit.runner.JUnitCore.main(BASIC_SUITE,
-            *(if (arguments.flag("e")) arrayOf(ERROR_SUITE) else arrayOf()))
+    launchTests(arguments)
+}
+
+@Suppress("SpreadOperator")
+private fun launchTests(arguments: ArgumentCollection) {
+    val request = LauncherDiscoveryRequestBuilder.request().selectors(*BASIC_TESTS).apply {
+        if (arguments.flag("e")) {
+            selectors(*ERROR_TESTS)
+        }
+    }.build()
+
+    val summaryGeneratingListener = SummaryGeneratingListener()
+    LauncherFactory.create().apply {
+        registerTestExecutionListeners(summaryGeneratingListener)
+    }.execute(request)
+
+    PrintWriter(System.out).use {
+        summaryGeneratingListener.summary.printFailuresTo(it)
+        summaryGeneratingListener.summary.printTo(it)
+    }
 }
