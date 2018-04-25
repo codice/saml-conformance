@@ -14,7 +14,6 @@
 package org.codice.compilance.verification.binding
 
 import io.kotlintest.forAll
-import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
 import org.codice.compliance.SAMLComplianceException
@@ -36,7 +35,7 @@ class BindingVerifierSpec : StringSpec() {
                         BindingVerifier.verifyHttpStatusCode(code)
                     }
                 } else {
-                    code shouldBe code
+                    BindingVerifier.verifyHttpStatusCode(code)
                 }
             }
         }
@@ -48,7 +47,7 @@ class BindingVerifierSpec : StringSpec() {
                         BindingVerifier.verifyHttpStatusCodeErrorResponse(code)
                     }
                 } else {
-                    code shouldBe code
+                    BindingVerifier.verifyHttpStatusCodeErrorResponse(code)
                 }
             }
         }
