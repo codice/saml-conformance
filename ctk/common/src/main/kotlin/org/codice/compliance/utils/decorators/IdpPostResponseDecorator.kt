@@ -23,6 +23,7 @@ import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.security.saml.SamlProtocol
+import org.opensaml.saml.saml2.core.Response
 import com.jayway.restassured.path.xml.element.Node as raNode
 import org.w3c.dom.Node as w3Node
 
@@ -51,6 +52,11 @@ internal constructor(response: IdpPostResponse) : IdpPostResponse(response), Idp
     override val responseDom: w3Node by lazy {
         checkNotNull(decodedSamlResponse)
         buildDom(decodedSamlResponse)
+    }
+
+    override val responseObject: Response by lazy {
+        checkNotNull(decodedSamlResponse)
+        buildSamlResponse(decodedSamlResponse)
     }
 
     val isResponseFormNull: Boolean by lazy {

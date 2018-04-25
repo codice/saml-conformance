@@ -15,12 +15,16 @@ package org.codice.compliance
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
+import org.apache.cxf.staxutils.StaxUtils
+import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
 import org.codice.security.saml.SamlProtocol
+import org.opensaml.saml.saml2.core.Response
 import org.w3c.dom.Node
 import org.w3c.tidy.Tidy
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
@@ -95,6 +99,12 @@ class Common {
             }.newDocumentBuilder()
                     .parse(tidy(inputXml).byteInputStream())
                     .documentElement
+        }
+
+        fun extractSamlResponse(samlResponse: String): Response {
+            val responseDoc = StaxUtils.read(
+                    ByteArrayInputStream(samlResponse.toByteArray(StandardCharsets.UTF_8)))
+            return OpenSAMLUtil.fromDom(responseDoc.documentElement) as Response
         }
 
         private fun tidy(input: String): String {
