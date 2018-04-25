@@ -14,8 +14,8 @@
 package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_2_5_1_2
-import org.codice.compliance.SAMLCore_2_5_1_5
+import org.codice.compliance.SAMLCore_2_5_1_2_a
+import org.codice.compliance.SAMLCore_2_5_1_5_a
 import org.codice.compliance.SAMLCore_2_5_1_6_a
 import org.codice.compliance.SAMLCore_2_5_1_6_b
 import org.codice.compliance.SAMLCore_2_5_1_a
@@ -48,7 +48,7 @@ internal class ConditionsVerifier(val node: Node) {
      */
     private fun verifyConditions(conditionsElement: Node) {
 
-        validateTimeWindow(conditionsElement, SAMLCore_2_5_1_2)
+        validateTimeWindow(conditionsElement, SAMLCore_2_5_1_2_a)
 
         if (conditionsElement.children("Condition")
                         .any { it.attributeNodeNS(XSI, "type") == null })
@@ -57,7 +57,7 @@ internal class ConditionsVerifier(val node: Node) {
                     node = node)
 
         if (conditionsElement.children("OneTimeUse").size > 1)
-            throw SAMLComplianceException.create(SAMLCore_2_5_1_b, SAMLCore_2_5_1_5,
+            throw SAMLComplianceException.create(SAMLCore_2_5_1_b, SAMLCore_2_5_1_5_a,
                     message = "Cannot have more than one OneTimeUse element.",
                     node = node)
 

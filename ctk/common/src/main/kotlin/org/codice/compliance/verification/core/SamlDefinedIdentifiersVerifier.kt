@@ -14,9 +14,9 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_8_1_2
-import org.codice.compliance.SAMLCore_8_2_2
-import org.codice.compliance.SAMLCore_8_2_3
+import org.codice.compliance.SAMLCore_8_1_2_a
+import org.codice.compliance.SAMLCore_8_2_2_a
+import org.codice.compliance.SAMLCore_8_2_3_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
@@ -71,7 +71,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
         notNegated.forEach {
             if ("~$it" in negated) {
                 throw SAMLComplianceException.create(
-                        SAMLCore_8_1_2,
+                        SAMLCore_8_1_2_a,
                         message = "An \"AuthzDecisionQuery\" element contained an action and its " +
                                 "negated form.",
                         node = node
@@ -95,7 +95,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                         URI(name.textContent)
                     } catch (e: URISyntaxException) {
                         throw SAMLComplianceException.create(
-                                SAMLCore_8_2_2,
+                                SAMLCore_8_2_2_a,
                                 message = "Attribute name does not match its declared format",
                                 node = node
                         )
@@ -109,7 +109,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                                 .createElement(name.textContent)
                     } catch (e: DOMException) {
                         throw SAMLComplianceException.create(
-                                SAMLCore_8_2_3,
+                                SAMLCore_8_2_3_a,
                                 message = "Attribute name does not match its declared format",
                                 node = node
                         )

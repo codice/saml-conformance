@@ -17,15 +17,13 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLBindings_3_5_3_b
-import org.codice.compliance.SAMLBindings_3_5_4_a1
-import org.codice.compliance.SAMLBindings_3_5_4_a2
-import org.codice.compliance.SAMLBindings_3_5_4_b1
+import org.codice.compliance.SAMLBindings_3_5_4_a
+import org.codice.compliance.SAMLBindings_3_5_4_b
 import org.codice.compliance.SAMLBindings_3_5_4_c
-import org.codice.compliance.SAMLBindings_3_5_4_d1
-import org.codice.compliance.SAMLBindings_3_5_4_d2
+import org.codice.compliance.SAMLBindings_3_5_4_d
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLProfiles_4_1_4_5
+import org.codice.compliance.SAMLProfiles_4_1_4_5_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
@@ -72,8 +70,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         with(response) {
             if (isResponseFormNull || isSamlResponseFormNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a2,
-                        SAMLBindings_3_5_4_b1,
+                        SAMLBindings_3_5_4_a,
+                        SAMLBindings_3_5_4_b,
                         message = "The form containing the SAMLResponse from control could not be" +
                                 "found.")
             }
@@ -84,8 +82,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a2,
-                        SAMLBindings_3_5_4_b1,
+                        SAMLBindings_3_5_4_a,
+                        SAMLBindings_3_5_4_b,
                         message = "The SAMLResponse within the SAMLResponse form control could " +
                                 "not be found.")
             }
@@ -108,8 +106,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         with(response) {
             if (isResponseFormNull || isSamlResponseFormNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a2,
-                        SAMLBindings_3_5_4_b1,
+                        SAMLBindings_3_5_4_a,
+                        SAMLBindings_3_5_4_b,
                         message = "The form containing the SAMLResponse from control could not be" +
                                 "found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
@@ -122,8 +120,8 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a2,
-                        SAMLBindings_3_5_4_b1,
+                        SAMLBindings_3_5_4_a,
+                        SAMLBindings_3_5_4_b,
                         message = "The SAMLResponse within the SAMLResponse form control could" +
                                 "not be found.\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
@@ -150,7 +148,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
             decodedMessage = Decoder.decodePostMessage(samlResponse)
         } catch (exception: Decoder.DecoderException) {
             throw SAMLComplianceException.create(
-                    SAMLBindings_3_5_4_a1,
+                    SAMLBindings_3_5_4_a,
                     message = "The SAML response could not be base64 decoded.",
                     cause = exception)
         }
@@ -173,7 +171,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
             decodedMessage = Decoder.decodePostMessage(samlResponse)
         } catch (exception: Decoder.DecoderException) {
             throw SAMLComplianceException.create(
-                    SAMLBindings_3_5_4_a1,
+                    SAMLBindings_3_5_4_a,
                     message = "The SAML response could not be base64 decoded." +
                             "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                     cause = exception)
@@ -193,7 +191,7 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
                 || response.responseDom.children(ASSERTION).any {
                     it.children(SIGNATURE).isEmpty()
                 })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5_a,
                     message = "No digital signature found on the Response or Assertions.",
                     node = response.responseDom)
     }
@@ -248,22 +246,22 @@ class PostBindingVerifier(private val response: IdpPostResponseDecorator) : Bind
         with(response) {
             if (!isFormActionCorrect) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_d1,
+                        SAMLBindings_3_5_4_d,
                         message = """The form "action" is incorrect.""")
             }
             if (!isFormMethodCorrect) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_d2,
+                        SAMLBindings_3_5_4_d,
                         message = """The form "method" is incorrect.""")
             }
             if (!isSamlResponseNameCorrect) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_b1,
+                        SAMLBindings_3_5_4_b,
                         message = "The SAMLResponse form control was incorrectly named.")
             }
             if (!isSamlResponseHidden) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a2,
+                        SAMLBindings_3_5_4_a,
                         message = "The SAMLResponse form control was not hidden.")
             }
             if (isRelayStateGiven) {

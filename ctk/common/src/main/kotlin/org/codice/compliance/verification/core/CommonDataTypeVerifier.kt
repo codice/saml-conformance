@@ -17,8 +17,8 @@ import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_1_3_1_a
 import org.codice.compliance.SAMLCore_1_3_2_a
-import org.codice.compliance.SAMLCore_1_3_3
-import org.codice.compliance.SAMLCore_1_3_4
+import org.codice.compliance.SAMLCore_1_3_3_a
+import org.codice.compliance.SAMLCore_1_3_4_a
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeTextNS
 import org.codice.compliance.recursiveChildren
@@ -78,9 +78,9 @@ class CommonDataTypeVerifier {
             if (node == null || !node.textContent.endsWith("Z")) {
                 val errorMessage = "The time date value of [${node?.textContent}] is not in UTC."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
-                        SAMLCore_1_3_3,
+                        SAMLCore_1_3_3_a,
                         message = errorMessage)
-                else throw SAMLComplianceException.create(SAMLCore_1_3_4,
+                else throw SAMLComplianceException.create(SAMLCore_1_3_4_a,
                         message = errorMessage)
             }
         }
@@ -90,9 +90,9 @@ class CommonDataTypeVerifier {
             if (node == null || ids.contains(node.textContent)) {
                 val errorMessage = "The ID value of [${node?.textContent}] is not unique."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
-                        SAMLCore_1_3_4,
+                        SAMLCore_1_3_4_a,
                         message = errorMessage)
-                else throw SAMLComplianceException.create(SAMLCore_1_3_4,
+                else throw SAMLComplianceException.create(SAMLCore_1_3_4_a,
                         message = errorMessage)
             } else ids.add(node.textContent)
         }
