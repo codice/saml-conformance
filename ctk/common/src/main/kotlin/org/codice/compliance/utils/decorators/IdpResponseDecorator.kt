@@ -17,12 +17,14 @@ import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.verification.binding.BindingVerifier
+import org.opensaml.saml.saml2.core.Response
 import org.w3c.dom.Node
 
 interface IdpResponseDecorator {
     var isRelayStateGiven: Boolean
     var decodedSamlResponse: String
     val responseDom: Node
+    val responseObject: Response
 
     fun bindingVerifier(): BindingVerifier
 }
@@ -37,4 +39,8 @@ fun IdpPostResponse.decorate(): IdpPostResponseDecorator {
 
 internal fun buildDom(inputXml: String): Node {
     return Common.buildDom(inputXml)
+}
+
+internal fun buildSamlResponse(inputXml: String): Response {
+    return Common.extractSamlResponse(inputXml)
 }

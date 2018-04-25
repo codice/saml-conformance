@@ -20,6 +20,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
 import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.RedirectBindingVerifier
+import org.opensaml.saml.saml2.core.Response
 import org.w3c.dom.Node
 
 /**
@@ -55,6 +56,10 @@ internal constructor(response: IdpRedirectResponse) : IdpRedirectResponse(respon
     override val responseDom: Node by lazy {
         checkNotNull(decodedSamlResponse)
         buildDom(decodedSamlResponse)
+    }
+    override val responseObject: Response by lazy {
+        checkNotNull(decodedSamlResponse)
+        buildSamlResponse(decodedSamlResponse)
     }
 
     val isUrlNull: Boolean by lazy {

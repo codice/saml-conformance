@@ -61,11 +61,9 @@ class RedirectSSOTest : StringSpec() {
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
-            val responseDom = idpResponse.responseDom
-
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(idpResponse, ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(idpResponse.responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -88,11 +86,9 @@ class RedirectSSOTest : StringSpec() {
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
-            val responseDom = idpResponse.responseDom
-
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(idpResponse, ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(idpResponse.responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         "Redirect AuthnRequest Without ACS Url Test" {
@@ -118,11 +114,9 @@ class RedirectSSOTest : StringSpec() {
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
-            val responseDom = idpResponse.responseDom
-
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(idpResponse, ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(idpResponse.responseDom, acsUrl[HTTP_POST]).verify()
         }
 
         "Redirect AuthnRequest With Email NameID Format Test" {
@@ -151,12 +145,11 @@ class RedirectSSOTest : StringSpec() {
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
-            val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(idpResponse, ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(idpResponse.responseDom, acsUrl[HTTP_POST]).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
             // re-enable this test
         }.config(enabled = false)
@@ -187,12 +180,11 @@ class RedirectSSOTest : StringSpec() {
             // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
-            val responseDom = idpResponse.responseDom
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
-            CoreAuthnRequestProtocolVerifier(responseDom, ID, acsUrl[HTTP_POST],
+            CoreAuthnRequestProtocolVerifier(idpResponse, ID, acsUrl[HTTP_POST],
                     authnRequest.nameIDPolicy).verify()
-            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            SingleSignOnProfileVerifier(idpResponse.responseDom, acsUrl[HTTP_POST]).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
             // re-enable this test
         }.config(enabled = false)

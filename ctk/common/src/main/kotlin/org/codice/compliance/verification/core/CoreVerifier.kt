@@ -28,12 +28,13 @@ import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
+import org.codice.compliance.utils.decorators.IdpResponseDecorator
 import org.codice.compliance.utils.schema.SchemaValidator
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Node
 import java.time.Instant
 
-abstract class CoreVerifier(val node: Node) {
+abstract class CoreVerifier(private val samlResponse: IdpResponseDecorator) {
     companion object {
         private const val ENTITY_ID_MAX_LEN = 1024
 
@@ -127,16 +128,20 @@ abstract class CoreVerifier(val node: Node) {
         }
     }
 
+    private val responseDom by lazy {
+        samlResponse.responseDom
+    }
+
     /**
      * Verify response against the Core Spec document
      */
     open fun verify() {
-        preProcess(node)
-        verifyCommonDataType(node)
-        verifyEntityIdentifiers(node)
-        SamlAssertionsVerifier(node).verify()
-        SignatureSyntaxAndProcessingVerifier(node).verify()
-        SamlDefinedIdentifiersVerifier(node).verify()
+        preProcess(responseDom)
+        verifyCommonDataType(responseDom)
+        verifyEntityIdentifiers(responseDom)
+        SamlAssertionsVerifier(responseDom).verify()
+        SignatureSyntaxAndProcessingVerifier(responseDom).verify()
+        SamlDefinedIdentifiersVerifier(responseDom).verify()
     }
 
     open fun verifyEncryptedElements() {
