@@ -218,7 +218,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
          * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
          */
         decodedMessage = if (samlEncoding == null ||
-                samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+                samlEncoding == "urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE") {
             try {
                 Decoder.decodeAndInflateRedirectMessage(samlResponse)
             } catch (e: Decoder.DecoderException) {
