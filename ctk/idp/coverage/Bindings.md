@@ -16,7 +16,7 @@ Unmarked sections need attention
 - 2 Guidelines for Specifying Additional Protocol Bindings
 3 Protocol Bindings
 -	3.1 General Considerations
-		3.1.1 Use of RelayState
++		3.1.1 Use of RelayState
 -		3.1.2 Security
 			3.1.2.1 Use of SSL 3.0 or TLS 1.0
 -			3.1.2.2 Data Origin Authentication
@@ -47,23 +47,23 @@ Unmarked sections need attention
 -	3.4 HTTP Redirect Binding
 -		3.4.1 Required Information
 -		3.4.2 Overview
-		3.4.3 RelayState
++		3.4.3 RelayState
 		3.4.4 Message Encoding
 			3.4.4.1 DEFLATE Encoding
-		3.4.5 Message Exchange
++		3.4.5 Message Exchange
 -			3.4.5.1 HTTP and Caching Considerations
-			3.4.5.2 Security Considerations
++			3.4.5.2 Security Considerations
 +		3.4.6 Error Reporting
 -		3.4.7 Metadata Considerations
 -		3.4.8 Example SAML Message Exchange Using HTTP Redirect
 -	3.5 HTTP POST Binding
 -		3.5.1 Required Information
 -		3.5.2 Overview
-		3.5.3 RelayState
++		3.5.3 RelayState
 +		3.5.4 Message Encoding
 -		3.5.5 Message Exchange
 -			3.5.5.1 HTTP and Caching Considerations
-			3.5.5.2 Security Considerations
++			3.5.5.2 Security Considerations
 +		3.5.6 Error Reporting
 -		3.5.7 Metadata Considerations
 -		3.5.8 Example SAML Message Exchange Using HTTP POST
