@@ -34,9 +34,9 @@ import java.io.PrintWriter
 private class Runner {
     companion object {
         val BASIC_TESTS = arrayOf(selectClass(PostSSOTest::class.java),
-                selectClass(RedirectSSOTest::class.java))
+            selectClass(RedirectSSOTest::class.java))
         val ERROR_TESTS = arrayOf(selectClass(RedirectSSOErrorTest::class.java),
-                selectClass(PostSSOErrorTest::class.java))
+            selectClass(PostSSOErrorTest::class.java))
     }
 }
 
@@ -49,21 +49,21 @@ fun main(args: Array<String>) {
     parser.setApplicationDescription("SAML Conformance Test Kit")
 
     parser.option("i",
-            listOf("implementation"),
-            description = "Path to the implementation to be tested")
+        listOf("implementation"),
+        description = "Path to the implementation to be tested")
 
     parser.flag("d",
-            listOf("debug"),
-            description = "Turn on debug logs.")
+        listOf("debug"),
+        description = "Turn on debug logs.")
 
     parser.flag("e",
-            listOf("error"),
-            description = "Run tests that expect errors.")
+        listOf("error"),
+        description = "Run tests that expect errors.")
 
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
-            ?: "$samlDist/implementations/ddf"
+        ?: "$samlDist/implementations/ddf"
 
     System.setProperty(IMPLEMENTATION_PATH, implementationPath)
     System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")
@@ -90,8 +90,15 @@ private fun launchTests(arguments: ArgumentCollection) {
         registerTestExecutionListeners(summaryGeneratingListener)
     }.execute(request)
 
-    PrintWriter(System.out).use {
-        summaryGeneratingListener.summary.printFailuresTo(it)
-        summaryGeneratingListener.summary.printTo(it)
+    PrintWriter(System.out).use { printer ->
+        summaryGeneratingListener.summary.printFailuresTo(printer)
+        summaryGeneratingListener.summary.printTo(printer)
+
+        if (summaryGeneratingListener.summary.totalFailureCount > 0) {
+            System.out.println("TESTS FAILED")
+            System.exit(1)
+        }
+
+        printer.println("TESTS PASSED")
     }
 }
