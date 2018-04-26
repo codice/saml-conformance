@@ -14,10 +14,10 @@
 package org.codice.compliance.verification.core.responses
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_3_4
+import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_d
-import org.codice.compliance.SAMLCore_3_4_1_4a
+import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
@@ -49,12 +49,12 @@ class CoreAuthnRequestProtocolVerifier(override val response: Node,
         val assertions = response.children(ASSERTION)
 
         if (response.localName != "Response" || assertions.isEmpty())
-            throw SAMLComplianceException.create(SAMLCore_3_4_1_4a,
+            throw SAMLComplianceException.create(SAMLCore_3_4_1_4_a,
                     message = "Did not find Response elements with one or more Assertion elements.",
                     node = response)
 
         if (assertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_3_4, SAMLCore_3_4_1_4_c,
+            throw SAMLComplianceException.create(SAMLCore_3_4_a, SAMLCore_3_4_1_4_c,
                     message = "AuthnStatement not found in any of the Assertions.",
                     node = response)
 

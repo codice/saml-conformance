@@ -17,7 +17,7 @@ import com.jayway.restassured.RestAssured
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
-import org.codice.compliance.SAMLBindings_3_4_3_a1
+import org.codice.compliance.SAMLBindings_3_4_3_a
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
@@ -61,7 +61,7 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a1,
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 
@@ -85,7 +85,7 @@ class RedirectSSOErrorTest : StringSpec() {
             idpResponse.bindingVerifier().verifyError()
 
             val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a1,
+            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 

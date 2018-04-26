@@ -14,7 +14,6 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_3_2_2_2
 import org.codice.compliance.SAMLCore_3_2_2_2_a
 import org.codice.compliance.SAMLCore_3_2_2_a
 import org.codice.compliance.SAMLCore_3_2_2_b
@@ -96,7 +95,7 @@ abstract class ResponseVerifier(open val response: Node,
                                             .attributeText("Value"))
                         })
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
-                    SAMLCore_3_2_2_2,
+                    SAMLCore_3_2_2_2_a,
                     message = "The first <StatusCode> is not a top level SAML status code.",
                     node = response)
 

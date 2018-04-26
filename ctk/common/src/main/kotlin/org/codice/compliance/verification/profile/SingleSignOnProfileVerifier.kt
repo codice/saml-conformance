@@ -15,7 +15,7 @@ package org.codice.compliance.verification.profile
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLProfiles_4_1_2
+import org.codice.compliance.SAMLProfiles_4_1_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
@@ -49,7 +49,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
     companion object {
         fun verifyBinding(response: IdpResponseDecorator) {
             if (response is IdpRedirectResponse) {
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_2,
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_2_a,
                         message = "The <Response> cannot be sent using Redirect Binding.")
             }
         }

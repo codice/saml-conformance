@@ -15,8 +15,7 @@ package org.codice.compliance.verification.core
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_5_4_2_b
-import org.codice.compliance.SAMLCore_5_4_2_b1
+import org.codice.compliance.SAMLCore_5_4_2_a
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
@@ -35,19 +34,20 @@ class SignatureSyntaxAndProcessingVerifier(private val node: Node) {
         node.children(SSOConstants.SIGNATURE).forEach {
             val references = it.recursiveChildren("Reference")
             if (references.size != 1)
-                throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
+                throw SAMLComplianceException.create(SAMLCore_5_4_2_a,
                         message = "A signature needs to have exactly one Reference, " +
                                 "${references.size} found.",
                         node = node)
 
             val uriValue = references[0].attributeText("URI")
-                    ?: throw SAMLComplianceException.create(SAMLCore_5_4_2_b1,
+                    ?: throw SAMLComplianceException.create(SAMLCore_5_4_2_a,
                             message = "URI attribute not found.",
                             node = node)
 
             val formattedId = "#${it.parentNode.attributeText(ID)}"
             if (uriValue != formattedId)
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_5_4_2_b,
+                throw SAMLComplianceException.createWithPropertyMessage(
+                        SAMLCore_5_4_2_a,
                         property = "URI",
                         actual = uriValue,
                         expected = formattedId,

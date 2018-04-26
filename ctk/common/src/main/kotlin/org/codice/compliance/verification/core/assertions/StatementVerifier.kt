@@ -14,8 +14,8 @@
 package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_2_7_2
-import org.codice.compliance.SAMLCore_2_7_3
+import org.codice.compliance.SAMLCore_2_7_2_a
+import org.codice.compliance.SAMLCore_2_7_3_a
 import org.codice.compliance.SAMLCore_2_7_4_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.children
@@ -56,7 +56,7 @@ internal class StatementVerifier(val node: Node) {
         if (node.recursiveChildren(ASSERTION)
                         .filter { it.children(AUTHN_STATEMENT).isNotEmpty() }
                         .any { it.children(SUBJECT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_2_7_2,
+            throw SAMLComplianceException.create(SAMLCore_2_7_2_a,
                     message = "An AuthnStatement was found without a Subject element.",
                     node = node)
     }
@@ -97,7 +97,7 @@ internal class StatementVerifier(val node: Node) {
         if (node.recursiveChildren(ASSERTION)
                         .filter { it.children("AttributeStatement").isNotEmpty() }
                         .any { it.children(SUBJECT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_2_7_3,
+            throw SAMLComplianceException.create(SAMLCore_2_7_3_a,
                     message = "An AttributeStatement was found without a Subject element.",
                     node = node)
     }
