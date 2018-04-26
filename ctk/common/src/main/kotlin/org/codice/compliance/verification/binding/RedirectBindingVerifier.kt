@@ -17,7 +17,7 @@ import com.google.api.client.http.HttpStatusCodes
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLBindings_3_1_2_1_a
 import org.codice.compliance.SAMLBindings_3_4_3_a
-import org.codice.compliance.SAMLBindings_3_4_3_c
+import org.codice.compliance.SAMLBindings_3_4_3_b
 import org.codice.compliance.SAMLBindings_3_4_4_1_a
 import org.codice.compliance.SAMLBindings_3_4_4_1_b
 import org.codice.compliance.SAMLBindings_3_4_4_1_c
@@ -25,7 +25,6 @@ import org.codice.compliance.SAMLBindings_3_4_4_1_d
 import org.codice.compliance.SAMLBindings_3_4_4_1_e
 import org.codice.compliance.SAMLBindings_3_4_4_1_f
 import org.codice.compliance.SAMLBindings_3_4_4_1_g
-import org.codice.compliance.SAMLBindings_3_4_4_1_h
 import org.codice.compliance.SAMLBindings_3_4_4_a
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
@@ -152,7 +151,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_3_c,
+                        SAMLBindings_3_4_3_b,
                         message = "RelayState not found.")
             }
         }
@@ -191,7 +190,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             }
             if (isRelayStateGiven && relayState == null) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_3_c,
+                        SAMLBindings_3_4_3_b,
                         message = "RelayState not found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
@@ -221,25 +220,26 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             } catch (e: Decoder.DecoderException) {
                 when (e.inflErrorCode) {
                     ERROR_URL_DECODING ->
-                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c,
                                 message = "Could not url decode the SAML response.",
                                 cause = e)
                     ERROR_BASE64_DECODING ->
-                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c,
                                 message = "Could not base64 decode the SAML response.",
                                 cause = e)
                     ERROR_INFLATING -> throw SAMLComplianceException.create(
-                            SAMLBindings_3_4_4_1_c,
+                            SAMLBindings_3_4_4_1_b,
                             SAMLBindings_3_4_4_1_a,
                             message = "Could not inflate the SAML response.",
                             cause = e)
                     LINEFEED_OR_WHITESPACE ->
                         throw SAMLComplianceException.create(
-                                SAMLBindings_3_4_4_1_c,
+                                SAMLBindings_3_4_4_1_b,
                                 message = "There were linefeeds or whitespace in the SAML " +
                                         "response.",
                                 cause = e)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b,
+                    else -> throw SAMLComplianceException.create(
+                            SAMLBindings_3_4_4_1_b,
                             SAMLBindings_3_4_4_1_a,
                             message = "Something went wrong with the SAML response.",
                             cause = e)
@@ -275,29 +275,30 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
             } catch (e: Decoder.DecoderException) {
                 when (e.inflErrorCode) {
                     ERROR_URL_DECODING ->
-                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c,
                                 message = "Could not url decode the SAML response." +
                                         "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                                 cause = e)
                     ERROR_BASE64_DECODING ->
-                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
+                        throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c,
                                 message = "Could not base64 decode the SAML response." +
                                         "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                                 cause = e)
                     ERROR_INFLATING -> throw SAMLComplianceException.create(
-                            SAMLBindings_3_4_4_1_c,
+                            SAMLBindings_3_4_4_1_b,
                             SAMLBindings_3_4_4_1_a,
                             message = "Could not inflate the SAML response." +
                                     "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                             cause = e)
                     LINEFEED_OR_WHITESPACE ->
                         throw SAMLComplianceException.create(
-                                SAMLBindings_3_4_4_1_c,
+                                SAMLBindings_3_4_4_1_b,
                                 message = "There were linefeeds or whitespace in the SAML " +
                                         "response." +
                                         "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                                 cause = e)
-                    else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_b,
+                    else -> throw SAMLComplianceException.create(
+                            SAMLBindings_3_4_4_1_b,
                             SAMLBindings_3_4_4_1_a,
                             message = "Something went wrong with the SAML response." +
                                     "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
@@ -338,7 +339,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                             response.signature,
                             response.sigAlg,
                             idpMetadata.signingCertificate)) {
-                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_g,
+                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f,
                         message = "Signature does not match payload.")
             }
         } catch (e: SimpleSign.SignatureException) {
@@ -348,24 +349,24 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                         cause = e)
                 SIG_ALG_NOT_PROVIDED ->
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_4_4_1_f,
+                            SAMLBindings_3_4_4_1_e,
                             message = "Signature Algorithm not found.",
                             cause = e)
                 SIGNATURE_NOT_PROVIDED ->
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_4_4_1_h,
+                            SAMLBindings_3_4_4_1_g,
                             message = "Signature not found.",
                             cause = e)
                 INVALID_URI -> throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_1_f,
+                        SAMLBindings_3_4_4_1_e,
                         message = "The Signature algorithm named ${response.sigAlg} is unknown.",
                         cause = e)
                 LINEFEED_OR_WHITESPACE ->
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_4_4_1_h,
+                            SAMLBindings_3_4_4_1_g,
                             message = "Whitespace was found in the Signature.",
                             cause = e)
-                else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_g,
+                else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f,
                         message = "Signature does not match payload.",
                         cause = e)
             }
@@ -385,7 +386,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         try {
             decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
         } catch (e: UnsupportedEncodingException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_e,
+            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
                     message = "RelayState could not be URL decoded.",
                     cause = e)
         }
@@ -398,11 +399,11 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         if (isRelayStateGiven) {
             if (decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
-                    throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_4_4_1_e,
+                    throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_4_4_1_d,
                             property = "RelayState",
                             actual = encodedRelayState)
                 }
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_4_3_c,
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_4_3_b,
                         property = "RelayState",
                         actual = decodedRelayState,
                         expected = EXAMPLE_RELAY_STATE)

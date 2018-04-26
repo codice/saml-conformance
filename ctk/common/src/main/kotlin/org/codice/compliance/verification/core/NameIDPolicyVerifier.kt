@@ -17,7 +17,6 @@ import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_1_a
 import org.codice.compliance.SAMLCore_3_4_1_1_b
-import org.codice.compliance.SAMLCore_3_4_1_1_c
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
@@ -52,7 +51,7 @@ class NameIDPolicyVerifier(private val response: Node, private val policy: NameI
     private fun verifySPNameQualifiersMatch(nameId: Node) {
         nameId.attributeText("SPNameQualifier")?.let { spnq ->
             if (spnq != policy.spNameQualifier) {
-                throw SAMLComplianceException.create(SAMLCore_3_4_1_1_c,
+                throw SAMLComplianceException.create(SAMLCore_3_4_1_1_b,
                         message = "A NameID element was found with a SPNameQualifier " +
                                 "attribute value of $spnq instead of " +
                                 "${policy.spNameQualifier}.",
