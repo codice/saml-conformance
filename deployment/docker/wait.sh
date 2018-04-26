@@ -18,7 +18,6 @@ set -e
 _target_feature_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/infoFeature(java.lang.String)/profile-${_target_feature}" | grep -i '"Installed":true' | wc -l)
 _idp_metadata_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/${_sut_idp_metadata}" | grep -i EntityDescriptor | wc -l)
 
-# Sleeping for 30 seconds to give DDF time to start up before hitting jolokia endpoint
 >&2 echo "SAML Conformance is waiting for DDF to start"
 >&2 echo "DDF is NOT up - sleeping for a minute initially"
 sleep 1m
@@ -30,9 +29,6 @@ do
     _target_feature_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/infoFeature(java.lang.String)/profile-${_target_feature}" | grep -i '"Installed":true' | wc -l)
     _idp_metadata_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/${_sut_idp_metadata}" | grep -i EntityDescriptor | wc -l)
 done
-
->&2 echo "DDF is up - sleeping for a minute to insure successful startup"
-sleep 1m
 
 >&2 echo "Getting idp-metadata from DDF"
 curl -LsSk "https://${_sut_host}:${_sut_port}/${_sut_idp_metadata}" -o "${_sut_ddf_implementation}/ddf-idp-metadata.xml"
