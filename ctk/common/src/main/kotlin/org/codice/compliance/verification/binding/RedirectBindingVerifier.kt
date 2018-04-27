@@ -26,6 +26,7 @@ import org.codice.compliance.SAMLBindings_3_4_4_1_e
 import org.codice.compliance.SAMLBindings_3_4_4_1_f
 import org.codice.compliance.SAMLBindings_3_4_4_1_g
 import org.codice.compliance.SAMLBindings_3_4_4_a
+import org.codice.compliance.SAMLBindings_3_4_4_b
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
@@ -40,6 +41,7 @@ import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
+import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyUriValues
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BASE64_DECODING
@@ -131,22 +133,22 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         with(response) {
             if (isUrlNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "Url not found.")
             }
             if (isPathNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "Path not found.")
             }
             if (isParametersNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "Parameters not found.")
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "SAMLResponse not found.")
             }
             if (isRelayStateGiven && relayState == null) {
@@ -166,25 +168,25 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         with(response) {
             if (isUrlNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "Url not found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
             if (isPathNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "Path not found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
             if (isParametersNull) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "Parameters not found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
             if (samlResponse == null) {
                 throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_a,
+                        SAMLBindings_3_4_4_b,
                         message = "SAMLResponse not found." +
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
@@ -205,15 +207,25 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
     private fun decodeAndVerify() {
         val samlResponse = response.samlResponse
-        val samlEncoding = response.samlEncoding
-        val decodedMessage: String
+
+        // Need to url decode SAMLEncoding first to check the encoding method uri
+        val samlEncoding = response.samlEncoding?.let {
+            try {
+                URLDecoder.decode(it, StandardCharsets.UTF_8.name())
+            } catch (e: UnsupportedEncodingException) {
+                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c,
+                        message = "Could not url decode the SAMLEncoding parameter.",
+                        cause = e)
+            }
+        }
+        samlEncoding?.let { verifyUriValues(it, SAMLBindings_3_4_4_a) }
 
         /**
          * A query string parameter named SAMLEncoding is reserved to identify the encoding
          * mechanism used. If this parameter is omitted, then the value is assumed to be
          * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
          */
-        decodedMessage = if (samlEncoding == null ||
+        val decodedMessage = if (samlEncoding == null ||
                 samlEncoding == "urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE") {
             try {
                 Decoder.decodeAndInflateRedirectMessage(samlResponse)
@@ -260,16 +272,26 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
     private fun decodeAndVerifyErrorResponse() {
         val samlResponse = response.samlResponse
-        val samlEncoding = response.samlEncoding
-        val decodedMessage: String
+
+        // Need to url decode SAMLEncoding first to check the encoding method uri
+        val samlEncoding = response.samlEncoding?.let {
+            try {
+                URLDecoder.decode(it, StandardCharsets.UTF_8.name())
+            } catch (e: UnsupportedEncodingException) {
+                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_c,
+                        message = "Could not url decode the SAMLEncoding parameter.",
+                        cause = e)
+            }
+        }
+        samlEncoding?.let { verifyUriValues(it, SAMLBindings_3_4_4_a) }
 
         /**
          * A query string parameter named SAMLEncoding is reserved to identify the encoding
          * mechanism used. If this parameter is omitted, then the value is assumed to be
          * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
          */
-        decodedMessage = if (samlEncoding == null ||
-                samlEncoding.equals("urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE")) {
+        val decodedMessage = if (samlEncoding == null ||
+                samlEncoding == "urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE") {
             try {
                 Decoder.decodeAndInflateRedirectMessage(samlResponse)
             } catch (e: Decoder.DecoderException) {
@@ -331,6 +353,13 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      */
     @Suppress("ComplexMethod" /* complexity in exception mapping to error is acceptable */)
     private fun verifyRedirectSignature() {
+        // Need to url decode SigAlg first to check the signature algorithm uri
+        // It is guaranteed SigAlg can be url decoded because it already has been in decodeAndVerify
+        val sigAlg = response.sigAlg?.let {
+            URLDecoder.decode(it, StandardCharsets.UTF_8.name())
+        }
+        verifyUriValues(sigAlg, SAMLBindings_3_4_4_1_e)
+
         try {
             if (!SimpleSign().validateSignature(
                             SAML_RESPONSE,

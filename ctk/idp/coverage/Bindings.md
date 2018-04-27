@@ -48,8 +48,8 @@ Unmarked sections need attention
 -		3.4.1 Required Information
 -		3.4.2 Overview
 +		3.4.3 RelayState
-		3.4.4 Message Encoding
-			3.4.4.1 DEFLATE Encoding
++		3.4.4 Message Encoding
++			3.4.4.1 DEFLATE Encoding
 +		3.4.5 Message Exchange
 -			3.4.5.1 HTTP and Caching Considerations
 +			3.4.5.2 Security Considerations
@@ -67,7 +67,7 @@ Unmarked sections need attention
 +		3.5.6 Error Reporting
 -		3.5.7 Metadata Considerations
 -		3.5.8 Example SAML Message Exchange Using HTTP POST
--	3.6 HTTP Artifact Binding
+	3.6 HTTP Artifact Binding
 		3.6.1 Required Information
 		3.6.2 Overview
 		3.6.3 Message Encoding

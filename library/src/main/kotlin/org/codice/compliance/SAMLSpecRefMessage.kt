@@ -154,6 +154,7 @@ object SAMLBindings_3_4_3_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_3_b : SAMLBindingRefMessage()
 
 object SAMLBindings_3_4_4_a : SAMLBindingRefMessage()
+object SAMLBindings_3_4_4_b : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_a : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_b : SAMLBindingRefMessage()
 object SAMLBindings_3_4_4_1_c : SAMLBindingRefMessage()
