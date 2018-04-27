@@ -14,7 +14,6 @@
 package org.codice.compliance.verification.binding
 
 import com.google.api.client.http.HttpStatusCodes
-import org.apache.commons.lang3.StringUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLBindings_3_1_2_1_a
 import org.codice.compliance.SAMLBindings_3_4_3_a
@@ -26,11 +25,11 @@ import org.codice.compliance.SAMLBindings_3_4_4_1_d
 import org.codice.compliance.SAMLBindings_3_4_4_1_e
 import org.codice.compliance.SAMLBindings_3_4_4_1_f
 import org.codice.compliance.SAMLBindings_3_4_4_1_g
+import org.codice.compliance.SAMLBindings_3_4_4_a
 import org.codice.compliance.SAMLBindings_3_4_4_b
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
@@ -42,6 +41,7 @@ import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
+import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyUriValues
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BASE64_DECODING
@@ -54,7 +54,6 @@ import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVAL
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
 import java.io.UnsupportedEncodingException
-import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -219,13 +218,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                         cause = e)
             }
         }
-
-        samlEncoding?.let {
-            if (StringUtils.isBlank(it) || !URI.create(it).isAbsolute)
-                throw SAMLComplianceException.create(SAMLCore_1_3_2_a,
-                        SAMLBindings_3_4_4_1_e,
-                        message = "The URI value of SAMLEncoding [$it] is invalid.")
-        }
+        samlEncoding?.let { verifyUriValues(it, SAMLBindings_3_4_4_a) }
 
         /**
          * A query string parameter named SAMLEncoding is reserved to identify the encoding
@@ -290,14 +283,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                         cause = e)
             }
         }
-
-        samlEncoding?.let {
-            if (StringUtils.isBlank(it) || !URI.create(it).isAbsolute)
-                throw SAMLComplianceException.create(SAMLCore_1_3_2_a,
-                        SAMLBindings_3_4_4_1_e,
-                        message = "The URI value of SAMLEncoding [$it] is " +
-                                "invalid.")
-        }
+        samlEncoding?.let { verifyUriValues(it, SAMLBindings_3_4_4_a) }
 
         /**
          * A query string parameter named SAMLEncoding is reserved to identify the encoding
@@ -372,13 +358,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         val sigAlg = response.sigAlg?.let {
             URLDecoder.decode(it, StandardCharsets.UTF_8.name())
         }
-
-        sigAlg?.let {
-            if (StringUtils.isBlank(it) || !URI.create(it).isAbsolute)
-                throw SAMLComplianceException.create(SAMLCore_1_3_2_a,
-                        SAMLBindings_3_4_4_1_e,
-                        message = "The URI value of SigAlg [$it] is invalid.")
-        }
+        verifyUriValues(sigAlg, SAMLBindings_3_4_4_1_e)
 
         try {
             if (!SimpleSign().validateSignature(

@@ -13,7 +13,6 @@
  */
 package org.codice.compliance.verification.core
 
-import org.apache.commons.lang3.StringUtils
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_1_3_1_a
 import org.codice.compliance.SAMLCore_1_3_2_a
@@ -50,7 +49,7 @@ class CommonDataTypeVerifier {
 
         /** 1.3.1 String Values **/
         fun verifyStringValues(node: Node, errorCode: SAMLSpecRefMessage? = null) {
-            if (StringUtils.isBlank(node.textContent)) {
+            if (node.textContent.isNullOrBlank()) {
                 val errorMessage = "The String value of ${node.textContent} is invalid."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_1_a,
@@ -62,9 +61,19 @@ class CommonDataTypeVerifier {
 
         /** 1.3.2 URI Values **/
         fun verifyUriValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
-            if (node == null || StringUtils.isBlank(node.textContent)
-                    || !URI.create(node.textContent).isAbsolute) {
-                val errorMessage = "The URI value of [${node?.textContent}] is invalid."
+            verifyUriValues(node?.textContent, errorCode)
+        }
+        fun verifyUriValues(uri: String?, errorCode: SAMLSpecRefMessage? = null) {
+            val errorMessage = "The URI value of [$uri] is invalid."
+            try {
+                if (uri.isNullOrBlank() || !URI.create(uri).isAbsolute) {
+                    if (errorCode != null) throw SAMLComplianceException.create(errorCode,
+                            SAMLCore_1_3_2_a,
+                            message = errorMessage)
+                    else throw SAMLComplianceException.create(SAMLCore_1_3_2_a,
+                            message = errorMessage)
+                }
+            } catch (e: IllegalArgumentException) {
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_2_a,
                         message = errorMessage)
