@@ -29,10 +29,12 @@ import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.getBindingVerifier
+import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
+import org.w3c.dom.Node
 
 class RedirectSSOTest : StringSpec() {
     init {
@@ -57,9 +59,8 @@ class RedirectSSOTest : StringSpec() {
             val samlResponseDom = getBindingVerifier(finalHttpResponse).decodeAndVerify()
             val samlRequestDom = authnRequest.dom
 
-//            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
-//                    authnRequest.nameIDPolicy).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
         }
 
         "Redirect AuthnRequest With Relay State Test" {
@@ -81,13 +82,11 @@ class RedirectSSOTest : StringSpec() {
             val samlResponseDom =
                     getBindingVerifier(finalHttpResponse).apply {
                         isRelayStateGiven = true
-                        decodeAndVerify()
-                    }
+                    }.decodeAndVerify()
             val samlRequestDom = authnRequest.dom
 
-//            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
-//                    authnRequest.nameIDPolicy).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
         }
 
         "Redirect AuthnRequest Without ACS Url Test" {
@@ -113,9 +112,8 @@ class RedirectSSOTest : StringSpec() {
             val samlResponseDom = getBindingVerifier(finalHttpResponse).decodeAndVerify()
             val samlRequestDom = authnRequest.dom
 
-//            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
-//                    authnRequest.nameIDPolicy).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
         }
 
         "Redirect AuthnRequest With Email NameID Format Test" {
@@ -146,9 +144,8 @@ class RedirectSSOTest : StringSpec() {
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
-//            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
-//                    authnRequest.nameIDPolicy).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
             // re-enable this test
         }.config(enabled = false)
@@ -181,9 +178,8 @@ class RedirectSSOTest : StringSpec() {
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
-//            CoreAuthnRequestProtocolVerifier(responseDom, REQUEST_ID, acsUrl[HTTP_POST],
-//                    authnRequest.nameIDPolicy).verify()
-//            SingleSignOnProfileVerifier(responseDom, acsUrl[HTTP_POST]).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
             // re-enable this test
         }.config(enabled = false)

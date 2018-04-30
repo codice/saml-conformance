@@ -26,15 +26,17 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
+import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.w3c.dom.Node
 
-abstract class ResponseVerifier(open val response: Node,
-                                open val id: String,
-                                open val acsUrl: String?) : CoreVerifier(response) {
+abstract class ResponseVerifier(private val samlRequestDom: Node,
+                                private val samlResponseDom: Node) : CoreVerifier(samlResponseDom) {
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
@@ -46,49 +48,50 @@ abstract class ResponseVerifier(open val response: Node,
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
     private fun verifyStatusResponseType() {
-        CommonDataTypeVerifier.verifyIdValues(response.attributeNode(ID),
+        CommonDataTypeVerifier.verifyIdValues(samlResponseDom.attributeNode(ID),
                 SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
-        val inResponseTo = response.attributeText("InResponseTo")
-        if (inResponseTo != null && inResponseTo != id)
+        val inResponseTo = samlResponseDom.attributeText("InResponseTo")
+        val requestId = samlRequestDom.attributeText(ID)
+        if (inResponseTo != null && inResponseTo != requestId)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_b,
                     property = "InResponseTo",
                     actual = inResponseTo,
-                    expected = id,
-                    node = response)
+                    expected = requestId,
+                    node = samlResponseDom)
 
-        val version = response.attributeNode(VERSION)
+        val version = samlResponseDom.attributeNode(VERSION)
         if (version?.textContent != SAML_VERSION)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_c,
                     property = VERSION,
                     actual = version?.textContent,
                     expected = SAML_VERSION,
-                    node = response)
+                    node = samlResponseDom)
 
         CommonDataTypeVerifier.verifyStringValues(version)
         CommonDataTypeVerifier.verifyDateTimeValues(
-                response.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
+                samlResponseDom.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
-        response.attributeNode(DESTINATION)?.apply {
-            if (textContent != acsUrl)
+        samlResponseDom.attributeNode(DESTINATION)?.apply {
+            if (textContent != acsUrl[HTTP_POST])
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
-                        expected = acsUrl ?: "No ACS URL Found",
-                        node = response)
+                        expected = REQUEST_ID ?: "No ACS URL Found",
+                        node = samlResponseDom)
 
             CommonDataTypeVerifier.verifyUriValues(this)
         }
 
-        response.attributeNode("Content")?.let {
+        samlResponseDom.attributeNode("Content")?.let {
             CommonDataTypeVerifier.verifyUriValues(it)
         }
     }
 
     /** 3.2.2.2 Element <StatusCode> */
     private fun verifyStatusType() {
-        if (response.recursiveChildren("Status")
+        if (samlResponseDom.recursiveChildren("Status")
                         .any {
                             !TOP_LEVEL_STATUS_CODES
                                     .contains(it.children(STATUS_CODE).first()
@@ -97,9 +100,9 @@ abstract class ResponseVerifier(open val response: Node,
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     SAMLCore_3_2_2_2_a,
                     message = "The first <StatusCode> is not a top level SAML status code.",
-                    node = response)
+                    node = samlResponseDom)
 
-        response.recursiveChildren(STATUS_CODE)
+        samlResponseDom.recursiveChildren(STATUS_CODE)
                 .map { it.attributeNode("Value") }
                 .filterNotNull()
                 .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
@@ -107,7 +110,7 @@ abstract class ResponseVerifier(open val response: Node,
 
     /** 3.2.2.3 Element <StatusMessage> */
     private fun verifyStatusMessage() {
-        response.recursiveChildren("StatusMessage")
+        samlResponseDom.recursiveChildren("StatusMessage")
                 .forEach { CommonDataTypeVerifier.verifyStringValues(it) }
     }
 }
