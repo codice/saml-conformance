@@ -42,7 +42,7 @@ class CoreAuthnRequestProtocolVerifier(override val response: Node,
         super.verify()
         verifyAuthnRequestProtocolResponse()
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
-        // nameIdPolicyVerifier?.apply { verify() }
+        // nameIdPolicyVerifier?.apply { decodeAndVerify() }
     }
 
     private fun verifyAuthnRequestProtocolResponse() {

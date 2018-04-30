@@ -38,7 +38,7 @@ class EncryptionVerifier {
      * <li>Replacing the encrypted elements with their unencrypted values</li>
      * </ol>
      *
-     * @param encElements A list of encrypted nodes to verify and decrypt
+     * @param encElements A list of encrypted nodes to decodeAndVerify and decrypt
      */
     fun verifyAndDecryptElements(encElements: List<Node>) {
         encElements.forEach {

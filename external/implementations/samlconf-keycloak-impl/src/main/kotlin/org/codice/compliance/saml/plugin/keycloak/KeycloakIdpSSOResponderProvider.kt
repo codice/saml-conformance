@@ -15,18 +15,17 @@ package org.codice.compliance.saml.plugin.keycloak
 
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.response.Response
-import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.kohsuke.MetaInfServices
 
 @MetaInfServices
 class KeycloakIdpSSOResponderProvider : IdpSSOResponder {
 
-    override fun getRedirectResponse(originalResponse: Response): IdpPostResponse {
-        return IdpPostResponse(postUserForm(originalResponse))
+    override fun getResponseForRedirectRequest(originalResponse: Response): Response {
+        return postUserForm(originalResponse)
     }
 
-    override fun getPostResponse(originalResponse: Response): IdpPostResponse {
+    override fun getResponseForPostRequest(originalResponse: Response): Response {
         val loginPageResponse = RestAssured.given()
                 .urlEncodingEnabled(false)
                 .cookies(originalResponse.cookies)
@@ -35,8 +34,7 @@ class KeycloakIdpSSOResponderProvider : IdpSSOResponder {
                 .`when`()
                 .get(originalResponse.getHeader("Location"))
 
-        return IdpPostResponse(
-                postUserForm(loginPageResponse, originalResponse.cookies))
+        return postUserForm(loginPageResponse, originalResponse.cookies)
     }
 
     private fun postUserForm(responseWithForm: Response,

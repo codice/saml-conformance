@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.profile
 
+import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_2_a
@@ -28,7 +29,6 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
-import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
@@ -40,15 +40,16 @@ import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
-import org.codice.compliance.utils.decorators.IdpResponseDecorator
+import org.codice.compliance.utils.determineBinding
+import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
 class SingleSignOnProfileVerifier(private val response: Node,
                                   private val acsUrl: String?) {
     companion object {
-        fun verifyBinding(response: IdpResponseDecorator) {
-            if (response is IdpRedirectResponse) {
+        fun verifyBinding(response: Response) {
+            if (response.determineBinding() == SamlProtocol.Binding.HTTP_REDIRECT) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_2_a,
                         message = "The <Response> cannot be sent using Redirect Binding.")
             }
