@@ -46,6 +46,12 @@ class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
         private const val ACTION = "action"
         private const val METHOD = "method"
         private const val POST = "POST"
+        private val isNamedRelayState = { formControl: Node ->
+            RELAY_STATE.equals(formControl.attributes().get(TestCommon.NAME), ignoreCase = true)
+        }
+        private val isNamedSamlResponse = { formControl: Node ->
+            SAML_RESPONSE.equals(formControl.attributes().get(TestCommon.NAME), ignoreCase = true)
+        }
     }
 
     private val responseForm: Node?
@@ -60,20 +66,14 @@ class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
                 responseForm
                         ?.children()
                         ?.list()
-                        ?.filter {
-                            SAML_RESPONSE.equals(it.attributes().get(
-                                    NAME), ignoreCase = true)
-                        }?.firstOrNull()
-        samlResponse = extractValue(samlResponseFormControl)
+                        ?.firstOrNull(isNamedSamlResponse)
+        samlResponse = samlResponseFormControl?.extractValue()
         relayStateFormControl =
                 responseForm
                         ?.children()
                         ?.list()
-                        ?.filter {
-                            RELAY_STATE.equals(it.attributes().get(TestCommon.NAME),
-                                    ignoreCase = true)
-                        }?.firstOrNull()
-        relayState = extractValue(relayStateFormControl)
+                        ?.firstOrNull(isNamedRelayState)
+        relayState = relayStateFormControl?.extractValue()
     }
 
     /** Verify the response for a post binding */
@@ -160,13 +160,6 @@ class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
                     message = "The RelayState form control could not be found." +
                             "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
         }
-        if (samlResponse == null) {
-            throw SAMLComplianceException.create(
-                    SAMLBindings_3_5_4_a,
-                    SAMLBindings_3_5_4_b,
-                    message = "The SAMLResponse within the SAMLResponse form control could" +
-                            "not be found.\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-        }
         if (isRelayStateGiven && relayState == null) {
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_3_b,
@@ -182,83 +175,97 @@ class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
      * 3.5.4 Message Encoding
      */
 // TODO refactor this method and response objects so we can show values in the errors
+    @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostForm() {
         with(response) {
-            if (!checkNodeAttribute(responseForm, ACTION,
-                            checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_d,
-                        message = """The form "action" is incorrect.""")
+            responseForm?.let {
+                if (it.hasNoAttributeWithNameAndValue(ACTION,
+                                checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_d,
+                            message = """The form "action" is incorrect.""")
+                }
+                if (it.hasNoAttributeWithNameAndValue(METHOD, POST)) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_d,
+                            message = """The form "method" is incorrect.""")
+                }
             }
-            if (!checkNodeAttribute(responseForm, METHOD, POST)) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_d,
-                        message = """The form "method" is incorrect.""")
-            }
-            if (!checkNodeAttribute(samlResponseFormControl, NAME, SAML_RESPONSE)) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_b,
-                        message = "The SAMLResponse form control was incorrectly named.")
-            }
-            if (!checkNodeAttributeIgnoreCase(samlResponseFormControl, TYPE, HIDDEN)) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a,
-                        message = "The SAMLResponse form control was not hidden.")
+            samlResponseFormControl?.let {
+                if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_b,
+                            message = "The SAMLResponse form control was incorrectly named.")
+                }
+                if (it.isNotHidden()) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_a,
+                            message = "The SAMLResponse form control was not hidden.")
+                }
             }
             if (isRelayStateGiven) {
-                if (!checkNodeAttribute(relayStateFormControl, NAME, RELAY_STATE)) {
-                    throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_c,
-                            message = "The RelayState form control was incorrectly named.")
-                }
-                if (!checkNodeAttributeIgnoreCase(relayStateFormControl, TYPE, HIDDEN)) {
-                    throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_c,
-                            message = "The RelayState form control was not hidden.")
+                relayStateFormControl?.let {
+                    if (it.hasNoAttributeWithNameAndValue(NAME, RELAY_STATE)) {
+                        throw SAMLComplianceException.create(
+                                SAMLBindings_3_5_4_c,
+                                message = "The RelayState form control was incorrectly named.")
+                    }
+                    if (it.isNotHidden()) {
+                        throw SAMLComplianceException.create(
+                                SAMLBindings_3_5_4_c,
+                                message = "The RelayState form control was not hidden.")
+                    }
                 }
             }
         }
     }
 
+    @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostFormError() {
         with(response) {
-            if (!checkNodeAttribute(responseForm, ACTION,
-                            checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_d,
-                        message = """The form "action" is incorrect.""" +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (!checkNodeAttribute(responseForm, METHOD, POST)) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_d,
-                        message = """The form "method" is incorrect.""" +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (!checkNodeAttribute(samlResponseFormControl, NAME, SAML_RESPONSE)) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_b,
-                        message = "The SAMLResponse form control was incorrectly named." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (!checkNodeAttributeIgnoreCase(samlResponseFormControl, TYPE, HIDDEN)) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_5_4_a,
-                        message = "The SAMLResponse form control was not hidden." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (isRelayStateGiven) {
-                if (!checkNodeAttribute(relayStateFormControl, NAME, RELAY_STATE)) {
+            responseForm?.let {
+                if (it.hasNoAttributeWithNameAndValue(ACTION,
+                                checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_c,
-                            message = "The RelayState form control was incorrectly named." +
+                            SAMLBindings_3_5_4_d,
+                            message = """The form "action" is incorrect.""" +
                                     "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
                 }
-                if (!checkNodeAttributeIgnoreCase(relayStateFormControl, TYPE, HIDDEN)) {
+                if (it.hasNoAttributeWithNameAndValue(METHOD, POST)) {
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_c,
-                            message = "The RelayState form control was not hidden." +
+                            SAMLBindings_3_5_4_d,
+                            message = """The form "method" is incorrect.""" +
                                     "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                }
+            }
+            samlResponseFormControl?.let {
+                if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_b,
+                            message = "The SAMLResponse form control was incorrectly named." +
+                                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                }
+                if (it.isNotHidden()) {
+                    throw SAMLComplianceException.create(
+                            SAMLBindings_3_5_4_a,
+                            message = "The SAMLResponse form control was not hidden." +
+                                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                }
+            }
+            if (isRelayStateGiven) {
+                relayStateFormControl?.let {
+                    if (isRelayStateGiven && it.hasNoAttributeWithNameAndValue(NAME, RELAY_STATE)) {
+                        throw SAMLComplianceException.create(
+                                SAMLBindings_3_5_4_c,
+                                message = "The RelayState form control was incorrectly named." +
+                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                    }
+                    if (it.isNotHidden()) {
+                        throw SAMLComplianceException.create(
+                                SAMLBindings_3_5_4_c,
+                                message = "The RelayState form control was not hidden." +
+                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+                    }
                 }
             }
         }
@@ -284,25 +291,22 @@ class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
         }
     }
 
-    private fun extractValue(node: Node?): String? {
-        if (isNotEmpty(node?.value())) {
-            return node?.value()
+    private fun Node.extractValue(): String? {
+        if (isNotEmpty(this.value())) {
+            return this.value()
         }
 
-        return if (isNotEmpty(node?.attributes()?.get(VALUE))) {
-            node?.attributes()?.get(VALUE)
+        return if (isNotEmpty(this.attributes()?.get(VALUE))) {
+            this.attributes()?.get(VALUE)
         } else null
     }
 
-    private fun checkNodeAttribute(node: Node?,
-                                   attributeName: String,
-                                   expectedValue: String): Boolean {
-        return expectedValue == node?.getAttribute(attributeName)
+    private fun Node.isNotHidden(): Boolean {
+        return !HIDDEN.equals(this.getAttribute(TYPE), ignoreCase = true)
     }
 
-    private fun checkNodeAttributeIgnoreCase(node: Node?,
-                                             attributeName: String,
-                                             expectedValue: String): Boolean {
-        return expectedValue.equals(node?.getAttribute(attributeName), true)
+    private fun Node.hasNoAttributeWithNameAndValue(attributeName: String,
+                                                    expectedValue: String): Boolean {
+        return expectedValue != this.getAttribute(attributeName)
     }
 }

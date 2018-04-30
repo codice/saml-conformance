@@ -60,15 +60,16 @@ import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVAL
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
+import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 @Suppress("TooManyFunctions" /* At least at present, there is no value in refactoring */)
-class RedirectBindingVerifier(override val response: Response) : BindingVerifier(response) {
+class RedirectBindingVerifier(override val httpResponse: Response) : BindingVerifier(httpResponse) {
 
     /** Verify the response for a redirect binding */
-    override fun decodeAndVerify(): org.w3c.dom.Node {
+    override fun decodeAndVerify(): Node {
         verifyHttpRedirectStatusCode()
         val paramMap = verifyNoNullsAndParse()
         verifyRedirectRelayState(paramMap[RELAY_STATE])
@@ -83,7 +84,7 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
     }
 
     /** Verify an error response (Negative path) */
-    override fun decodeAndVerifyError(): org.w3c.dom.Node {
+    override fun decodeAndVerifyError(): Node {
         verifyHttpRedirectStatusCodeErrorResponse()
         val paramMap = verifyNoNullsErrorAndParse()
         return decodeAndVerifyErrorResponse(paramMap)
@@ -95,12 +96,12 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCode() {
-        if (response.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
-                && response.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+        if (httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             throw SAMLComplianceException.createWithPropertyMessage(
                     SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
-                    actual = response.statusCode.toString(),
+                    actual = httpResponse.statusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
                             HttpStatusCodes.STATUS_CODE_SEE_OTHER
             )
@@ -113,12 +114,12 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCodeErrorResponse() {
-        if (response.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
-                && response.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+        if (httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             throw SAMLComplianceException.createWithPropertyMessage(
                     SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
-                    actual = response.statusCode.toString(),
+                    actual = httpResponse.statusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
                             HttpStatusCodes.STATUS_CODE_SEE_OTHER +
                             "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE"
@@ -132,17 +133,17 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * 3.4.4 Message Encoding
      */
     private fun verifyNoNullsAndParse(): Map<String, String> {
-        val url = response.header(LOCATION) ?: throw SAMLComplianceException.create(
+        val url = httpResponse.header(LOCATION) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Url not found.")
 
         val splitUrl = Splitter.on("?").splitToList(url)
 
-        splitUrl[0] ?: throw SAMLComplianceException.create(
+        splitUrl.getOrNull(0) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Path not found.")
 
-        val parameters = splitUrl[1] ?: throw SAMLComplianceException.create(
+        val parameters = splitUrl.getOrNull(1) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Parameters not found.")
 
@@ -169,19 +170,19 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * 3.4.4 Message Encoding
      */
     private fun verifyNoNullsErrorAndParse(): Map<String, String> {
-        val url = response.header(LOCATION) ?: throw SAMLComplianceException.create(
+        val url = httpResponse.header(LOCATION) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Url not found." +
                         "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
 
         val splitUrl = Splitter.on("?").splitToList(url)
 
-        splitUrl[0] ?: throw SAMLComplianceException.create(
+        splitUrl.getOrNull(0) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Path not found." +
                         "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
 
-        val parameters = splitUrl[1] ?: throw SAMLComplianceException.create(
+        val parameters = splitUrl.getOrNull(1) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Parameters not found." +
                         "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
@@ -211,7 +212,7 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decode(paramMap: Map<String, String>): org.w3c.dom.Node {
+    private fun decode(paramMap: Map<String, String>): Node {
         val samlResponse = paramMap[SAML_RESPONSE]
         // Need to url decode SAMLEncoding first to check the encoding method uri
         val samlEncoding = paramMap[SAML_ENCODING]?.let {
@@ -275,7 +276,7 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decodeAndVerifyErrorResponse(paramMap: Map<String, String>): org.w3c.dom.Node {
+    private fun decodeAndVerifyErrorResponse(paramMap: Map<String, String>): Node {
         val samlResponse = paramMap[SAML_RESPONSE]
         // Need to url decode SAMLEncoding first to check the encoding method uri
         val samlEncoding = paramMap[SAML_ENCODING]?.let {
@@ -343,7 +344,7 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * rules in the binding spec
      * 3.4.4.1 DEFLATE Encoding
      */
-    private fun verifyNoXMLSig(samlResponseDom: org.w3c.dom.Node) {
+    private fun verifyNoXMLSig(samlResponseDom: Node) {
         if (samlResponseDom.children("Signature").isNotEmpty()) {
             throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
                     message = "Signature element found.",
@@ -450,7 +451,7 @@ class RedirectBindingVerifier(override val response: Response) : BindingVerifier
      * spec
      * 3.4.5.2 Security Considerations
      */
-    private fun verifyRedirectDestination(samlResponseDom: org.w3c.dom.Node) {
+    private fun verifyRedirectDestination(samlResponseDom: Node) {
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = samlResponseDom.recursiveChildren("Signature")
 

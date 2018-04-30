@@ -26,7 +26,6 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
@@ -78,7 +77,7 @@ abstract class ResponseVerifier(private val samlRequestDom: Node,
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
-                        expected = REQUEST_ID ?: "No ACS URL Found",
+                        expected = acsUrl[HTTP_POST] ?: "No ACS URL Found",
                         node = samlResponseDom)
 
             CommonDataTypeVerifier.verifyUriValues(this)
@@ -104,8 +103,7 @@ abstract class ResponseVerifier(private val samlRequestDom: Node,
 
         samlResponseDom.recursiveChildren(STATUS_CODE)
                 .map { it.attributeNode("Value") }
-                .filterNotNull()
-                .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
+                .mapNotNull { CommonDataTypeVerifier.verifyUriValues(it) }
     }
 
     /** 3.2.2.3 Element <StatusMessage> */

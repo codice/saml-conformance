@@ -63,7 +63,7 @@ class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy
 
     private fun verifyFormatsMatch(nameId: Node) {
         nameId.attributeText(FORMAT).let { idFormat ->
-            if (!idFormat.equals(policyFormat)) {
+            if (idFormat != policyFormat) {
                 throw SAMLComplianceException.create(SAMLCore_3_4_1_1_b,
                         message = "A NameID element was found with a Format attribute " +
                                 "value of $idFormat instead of $policyFormat.",

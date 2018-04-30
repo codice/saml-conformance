@@ -26,8 +26,8 @@ import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnReques
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodeToString
+import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier
-import org.codice.compliance.verification.binding.BindingVerifier.Companion.getBindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
@@ -48,11 +48,11 @@ class PostSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
             SingleSignOnProfileVerifier.verifyBinding(finalHttpResponse)
-            val samlResponseDom = getBindingVerifier(finalHttpResponse).decodeAndVerify()
-            val samlRequestDom = authnRequest.dom
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+            val samlRequestDom = authnRequest.dom as Node
 
-            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
-            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom, samlResponseDom).verify()
         }
 
         "POST AuthnRequest With Relay State Test" {
@@ -67,13 +67,13 @@ class PostSSOTest : StringSpec() {
             SingleSignOnProfileVerifier.verifyBinding(finalHttpResponse)
 
             val samlResponseDom =
-                    getBindingVerifier(finalHttpResponse).apply {
+                    finalHttpResponse.getBindingVerifier().apply {
                         isRelayStateGiven = true
                     }.decodeAndVerify()
-            val samlRequestDom = authnRequest.dom
+            val samlRequestDom = authnRequest.dom as Node
 
-            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
-            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom, samlResponseDom).verify()
         }
 
         "POST AuthnRequest Without ACS Url Test" {
@@ -90,11 +90,11 @@ class PostSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
             SingleSignOnProfileVerifier.verifyBinding(finalHttpResponse)
-            val samlResponseDom = getBindingVerifier(finalHttpResponse).decodeAndVerify()
-            val samlRequestDom = authnRequest.dom
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+            val samlRequestDom = authnRequest.dom as Node
 
-            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
-            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom, samlResponseDom).verify()
         }
 
         "POST AuthnRequest With Email NameIDPolicy Format Test" {
@@ -114,13 +114,13 @@ class PostSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
             SingleSignOnProfileVerifier.verifyBinding(finalHttpResponse)
-            val samlResponseDom = getBindingVerifier(finalHttpResponse).decodeAndVerify()
-            val samlRequestDom = authnRequest.dom
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+            val samlRequestDom = authnRequest.dom as Node
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
-            CoreAuthnRequestProtocolVerifier(samlRequestDom as Node, samlResponseDom).verify()
-            SingleSignOnProfileVerifier(samlRequestDom as Node, samlResponseDom).verify()
+            CoreAuthnRequestProtocolVerifier(samlRequestDom, samlResponseDom).verify()
+            SingleSignOnProfileVerifier(samlRequestDom, samlResponseDom).verify()
             // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
             // re-enable this test
         }.config(enabled = false)
@@ -141,7 +141,7 @@ class PostSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
             SingleSignOnProfileVerifier.verifyBinding(finalHttpResponse)
-            val samlResponseDom = getBindingVerifier(finalHttpResponse).decodeAndVerify()
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom
 
             // Main goal of this test is to do the NameID verification

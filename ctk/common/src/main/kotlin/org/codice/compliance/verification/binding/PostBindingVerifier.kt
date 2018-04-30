@@ -30,13 +30,14 @@ import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMIN
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
+import org.w3c.dom.Node
 import kotlin.test.assertNotNull
 
-class PostBindingVerifier(override val response: Response) : BindingVerifier(response) {
+class PostBindingVerifier(override val httpResponse: Response) : BindingVerifier(httpResponse) {
     /** Verify the response for a post binding */
-    override fun decodeAndVerify(): org.w3c.dom.Node {
-        verifyHttpStatusCode(response.statusCode)
-        val samlResponseString = PostFormVerifier(response, isRelayStateGiven).verifyAndParse()
+    override fun decodeAndVerify(): Node {
+        verifyHttpStatusCode(httpResponse.statusCode)
+        val samlResponseString = PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParse()
         val samlResponseDom = decode(samlResponseString)
         verifyPostSSO(samlResponseDom)
         verifyPostDestination(samlResponseDom)
@@ -44,9 +45,10 @@ class PostBindingVerifier(override val response: Response) : BindingVerifier(res
     }
 
     /** Verify an error response (Negative path) */
-    override fun decodeAndVerifyError(): org.w3c.dom.Node {
-        verifyHttpStatusCodeErrorResponse(response.statusCode)
-        val samlResponseString = PostFormVerifier(response, isRelayStateGiven).verifyAndParseError()
+    override fun decodeAndVerifyError(): Node {
+        verifyHttpStatusCodeErrorResponse(httpResponse.statusCode)
+        val samlResponseString =
+                PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParseError()
         return decodeError(samlResponseString)
     }
 
@@ -55,7 +57,7 @@ class PostBindingVerifier(override val response: Response) : BindingVerifier(res
      * in the binding spec
      * 3.5.4 Message Encoding
      */
-    private fun decode(response: String): org.w3c.dom.Node {
+    private fun decode(response: String): Node {
         val decodedMessage: String
         try {
             decodedMessage = Decoder.decodePostMessage(response)
@@ -76,7 +78,7 @@ class PostBindingVerifier(override val response: Response) : BindingVerifier(res
      * in the binding spec (Negative path)
      * 3.5.4 Message Encoding
      */
-    private fun decodeError(response: String): org.w3c.dom.Node {
+    private fun decodeError(response: String): Node {
         val decodedMessage: String
         try {
             decodedMessage = Decoder.decodePostMessage(response)
@@ -97,7 +99,7 @@ class PostBindingVerifier(override val response: Response) : BindingVerifier(res
      * Checks POST-specific rules from SSO profile spec
      * 4.1.4.5 POST-Specific Processing Rules
      */
-    private fun verifyPostSSO(samlResponseDom: org.w3c.dom.Node) {
+    private fun verifyPostSSO(samlResponseDom: Node) {
         if (samlResponseDom.children(SIGNATURE).isEmpty()
                 || samlResponseDom.children(ASSERTION).any {
                     it.children(SIGNATURE).isEmpty()
@@ -111,9 +113,9 @@ class PostBindingVerifier(override val response: Response) : BindingVerifier(res
      * Verifies the destination is correct according to the post binding rules in the binding spec
      * 3.5.5.2 Security Considerations
      */
-    private fun verifyPostDestination(samlResponseDom: org.w3c.dom.Node) {
+    private fun verifyPostDestination(samlResponseDom: Node) {
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
-        val signatures = samlResponseDom.recursiveChildren("Signature")
+        val signatures = samlResponseDom.recursiveChildren(SIGNATURE)
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,

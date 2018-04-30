@@ -17,10 +17,8 @@ import com.jayway.restassured.response.Response
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
-import org.codice.compliance.utils.determineBinding
-import org.codice.security.saml.SamlProtocol
 
-abstract class BindingVerifier(open val response: Response) {
+abstract class BindingVerifier(open val httpResponse: Response) {
     companion object {
         private const val HTTP_ERROR_THRESHOLD = 400
 
@@ -56,15 +54,8 @@ abstract class BindingVerifier(open val response: Response) {
                                 "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
         }
-
-        fun getBindingVerifier(response: Response): BindingVerifier {
-            return when (response.determineBinding()) {
-                SamlProtocol.Binding.HTTP_REDIRECT -> RedirectBindingVerifier(response)
-                SamlProtocol.Binding.HTTP_POST -> PostBindingVerifier(response)
-                else -> throw UnsupportedOperationException("Binding is not currently supported.")
-            }
-        }
     }
+
     var isRelayStateGiven: Boolean = false
     abstract fun decodeAndVerifyError(): org.w3c.dom.Node
     abstract fun decodeAndVerify(): org.w3c.dom.Node

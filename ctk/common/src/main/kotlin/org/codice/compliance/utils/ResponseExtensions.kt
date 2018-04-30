@@ -17,6 +17,9 @@ import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.NAME
+import org.codice.compliance.verification.binding.BindingVerifier
+import org.codice.compliance.verification.binding.PostBindingVerifier
+import org.codice.compliance.verification.binding.RedirectBindingVerifier
 import org.codice.security.saml.SamlProtocol
 
 fun Response.determineBinding(): SamlProtocol.Binding {
@@ -28,6 +31,13 @@ fun Response.determineBinding(): SamlProtocol.Binding {
         }
     }
 }
+fun Response.getBindingVerifier(): BindingVerifier {
+    return when (this.determineBinding()) {
+        SamlProtocol.Binding.HTTP_REDIRECT -> RedirectBindingVerifier(this)
+        SamlProtocol.Binding.HTTP_POST -> PostBindingVerifier(this)
+        else -> throw UnsupportedOperationException("Binding is not currently supported.")
+    }
+}
 
 fun Response.extractSamlResponseForm(): Node? {
     return this
@@ -35,15 +45,14 @@ fun Response.extractSamlResponseForm(): Node? {
             .extract()
             .htmlPath()
             .getList("**.find { it.name() == 'form' }", Node::class.java)
-            .filter {
+            .firstOrNull {
                 it.children()
                         .list()
-                        .stream()
-                        .anyMatch { formControl ->
+                        .any { formControl ->
                             SAML_RESPONSE.equals(formControl.getAttribute(NAME),
                                     ignoreCase = true)
                         }
-            }.firstOrNull()
+            }
 }
 
 private fun Response.isPostBinding(): Boolean {
