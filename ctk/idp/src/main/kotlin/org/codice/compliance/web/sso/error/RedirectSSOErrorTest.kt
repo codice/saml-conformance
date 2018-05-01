@@ -147,7 +147,6 @@ class RedirectSSOErrorTest : StringSpec() {
             val idpResponse = parseErrorResponse(response)
             idpResponse.bindingVerifier().verifyError()
 
-            val responseDom = idpResponse.responseDom
             // DDF returns a valid response to the incorrect url
         }.config(enabled = false)
 

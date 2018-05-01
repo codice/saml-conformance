@@ -49,8 +49,7 @@ class PostSSOTest : StringSpec() {
 
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getPostResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -71,8 +70,7 @@ class PostSSOTest : StringSpec() {
                     .getPostResponse(response).decorate().apply {
                         isRelayStateGiven = true
                     }
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -95,8 +93,7 @@ class PostSSOTest : StringSpec() {
 
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getPostResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -122,8 +119,7 @@ class PostSSOTest : StringSpec() {
 
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getPostResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom
@@ -151,8 +147,7 @@ class PostSSOTest : StringSpec() {
 
             val idpResponse = getServiceProvider(IdpSSOResponder::class)
                     .getPostResponse(response).decorate()
-            // TODO When DDF is fixed to return a POST SSO response, uncomment this line
-            // SingleSignOnProfileVerifier.verifyBinding(idpResponse)
+            SingleSignOnProfileVerifier.verifyBinding(idpResponse)
             idpResponse.bindingVerifier().verify()
 
             val responseDom = idpResponse.responseDom

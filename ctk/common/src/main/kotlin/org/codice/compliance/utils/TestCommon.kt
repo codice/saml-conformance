@@ -149,7 +149,6 @@ class TestCommon {
          * test.
          * @return An {@code IdpResponse} object created from the error response.
          */
-        // TODO Change HTTP status code to expect 302/303
         fun parseErrorResponse(response: Response): IdpResponseDecorator {
             return if (response.header("Location") != null) {
                 parseRedirectErrorResponse(response).decorate()
