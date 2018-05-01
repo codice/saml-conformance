@@ -17,8 +17,9 @@ import com.jayway.restassured.response.Response
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
+import org.w3c.dom.Node
 
-abstract class BindingVerifier(open val httpResponse: Response) {
+abstract class BindingVerifier(val httpResponse: Response) {
     companion object {
         private const val HTTP_ERROR_THRESHOLD = 400
 
@@ -57,6 +58,6 @@ abstract class BindingVerifier(open val httpResponse: Response) {
     }
 
     var isRelayStateGiven: Boolean = false
-    abstract fun decodeAndVerifyError(): org.w3c.dom.Node
-    abstract fun decodeAndVerify(): org.w3c.dom.Node
+    abstract fun decodeAndVerifyError(): Node
+    abstract fun decodeAndVerify(): Node
 }

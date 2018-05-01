@@ -16,7 +16,6 @@ package org.codice.compliance.verification.binding
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
-import org.apache.commons.lang3.StringUtils.isNotEmpty
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLBindings_3_5_3_a
@@ -33,35 +32,33 @@ import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.NAME
-import org.codice.compliance.utils.TestCommon.Companion.VALUE
 import org.codice.compliance.utils.extractSamlResponseForm
+import org.codice.compliance.utils.extractValue
+import org.codice.compliance.utils.hasNoAttributeWithNameAndValue
+import org.codice.compliance.utils.isNotHidden
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 
-/* Small pieces of exception messages are being picked up on. */
-@Suppress("StringLiteralDuplication")
-class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
+@Suppress("StringLiteralDuplication" /* Duplicated phrases in exception messages. */)
+class PostFormVerifier(private val response: Response, private val isRelayStateGiven: Boolean) {
     companion object {
-        private const val HIDDEN = "hidden"
-        private const val TYPE = "type"
         private const val ACTION = "action"
         private const val METHOD = "method"
         private const val POST = "POST"
         private val isNamedRelayState = { formControl: Node ->
-            RELAY_STATE.equals(formControl.attributes().get(TestCommon.NAME), ignoreCase = true)
+            RELAY_STATE.equals(formControl.attributes()[TestCommon.NAME], ignoreCase = true)
         }
         private val isNamedSamlResponse = { formControl: Node ->
-            SAML_RESPONSE.equals(formControl.attributes().get(TestCommon.NAME), ignoreCase = true)
+            SAML_RESPONSE.equals(formControl.attributes()[TestCommon.NAME], ignoreCase = true)
         }
     }
 
-    private val responseForm: Node?
+    private val responseForm: Node? = response.extractSamlResponseForm()
     private val samlResponseFormControl: Node?
     private val samlResponse: String?
     private val relayStateFormControl: Node?
     private val relayState: String?
 
     init {
-        responseForm = response.extractSamlResponseForm()
         samlResponseFormControl =
                 responseForm
                         ?.children()
@@ -289,24 +286,5 @@ class PostFormVerifier(val response: Response, val isRelayStateGiven: Boolean) {
                         expected = EXAMPLE_RELAY_STATE)
             }
         }
-    }
-
-    private fun Node.extractValue(): String? {
-        if (isNotEmpty(this.value())) {
-            return this.value()
-        }
-
-        return if (isNotEmpty(this.attributes()?.get(VALUE))) {
-            this.attributes()?.get(VALUE)
-        } else null
-    }
-
-    private fun Node.isNotHidden(): Boolean {
-        return !HIDDEN.equals(this.getAttribute(TYPE), ignoreCase = true)
-    }
-
-    private fun Node.hasNoAttributeWithNameAndValue(attributeName: String,
-                                                    expectedValue: String): Boolean {
-        return expectedValue != this.getAttribute(attributeName)
     }
 }

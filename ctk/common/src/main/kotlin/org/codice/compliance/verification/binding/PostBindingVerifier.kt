@@ -33,7 +33,7 @@ import org.codice.security.sign.Decoder
 import org.w3c.dom.Node
 import kotlin.test.assertNotNull
 
-class PostBindingVerifier(override val httpResponse: Response) : BindingVerifier(httpResponse) {
+class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
     /** Verify the response for a post binding */
     override fun decodeAndVerify(): Node {
         verifyHttpStatusCode(httpResponse.statusCode)

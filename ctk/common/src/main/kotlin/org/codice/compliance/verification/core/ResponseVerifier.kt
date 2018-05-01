@@ -35,7 +35,8 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.w3c.dom.Node
 
 abstract class ResponseVerifier(private val samlRequestDom: Node,
-                                private val samlResponseDom: Node) : CoreVerifier(samlResponseDom) {
+                                protected val samlResponseDom: Node) :
+        CoreVerifier(samlResponseDom) {
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
@@ -102,8 +103,8 @@ abstract class ResponseVerifier(private val samlRequestDom: Node,
                     node = samlResponseDom)
 
         samlResponseDom.recursiveChildren(STATUS_CODE)
-                .map { it.attributeNode("Value") }
-                .mapNotNull { CommonDataTypeVerifier.verifyUriValues(it) }
+                .mapNotNull { it.attributeNode("Value") }
+                .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
     }
 
     /** 3.2.2.3 Element <StatusMessage> */

@@ -15,8 +15,12 @@ package org.codice.compliance.utils
 
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
+import org.apache.commons.lang3.StringUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.utils.TestCommon.Companion.HIDDEN
 import org.codice.compliance.utils.TestCommon.Companion.NAME
+import org.codice.compliance.utils.TestCommon.Companion.TYPE_LOWER
+import org.codice.compliance.utils.TestCommon.Companion.VALUE
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.compliance.verification.binding.RedirectBindingVerifier
@@ -61,4 +65,23 @@ private fun Response.isPostBinding(): Boolean {
 
 private fun Response.isRedirectBinding(): Boolean {
     return this.getHeader("Location")?.contains("$SAML_RESPONSE=") == true
+}
+
+fun Node.extractValue(): String? {
+    if (StringUtils.isNotEmpty(this.value())) {
+        return this.value()
+    }
+
+    return if (StringUtils.isNotEmpty(this.attributes()?.get(VALUE))) {
+        this.attributes()?.get(VALUE)
+    } else null
+}
+
+fun Node.isNotHidden(): Boolean {
+    return !HIDDEN.equals(this.getAttribute(TYPE_LOWER), ignoreCase = true)
+}
+
+fun Node.hasNoAttributeWithNameAndValue(attributeName: String,
+                                                expectedValue: String): Boolean {
+    return expectedValue != this.getAttribute(attributeName)
 }

@@ -59,6 +59,8 @@ class TestCommon {
         const val AUTHN_STATEMENT = "AuthnStatement"
         const val NAME = "name"
         const val VALUE = "value"
+        const val HIDDEN = "hidden"
+        const val TYPE_LOWER = "type"
         const val LOCATION = "Location"
         const val SAML_ENCODING = "SAMLEncoding"
 

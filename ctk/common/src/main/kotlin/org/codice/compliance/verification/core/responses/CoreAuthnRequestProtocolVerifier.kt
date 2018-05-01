@@ -29,7 +29,7 @@ import org.codice.compliance.verification.core.ResponseVerifier
 import org.w3c.dom.Node
 
 class CoreAuthnRequestProtocolVerifier(authnRequestDom: Node,
-                                       val samlResponseDom: Node) :
+                                       samlResponseDom: Node) :
         ResponseVerifier(authnRequestDom, samlResponseDom) {
 
     private val nameIdPolicyVerifier = authnRequestDom.children("NameIDPolicy").firstOrNull()
