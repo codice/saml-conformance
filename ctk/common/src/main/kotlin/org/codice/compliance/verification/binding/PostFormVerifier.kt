@@ -174,44 +174,42 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
 // TODO refactor this method and response objects so we can show values in the errors
     @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostForm() {
-        with(response) {
-            responseForm?.let {
-                if (it.hasNoAttributeWithNameAndValue(ACTION,
-                                checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
-                    throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_d,
-                            message = """The form "action" is incorrect.""")
-                }
-                if (it.hasNoAttributeWithNameAndValue(METHOD, POST)) {
-                    throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_d,
-                            message = """The form "method" is incorrect.""")
-                }
+        responseForm?.let {
+            if (it.hasNoAttributeWithNameAndValue(ACTION,
+                            checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_d,
+                        message = """The form "action" is incorrect.""")
             }
-            samlResponseFormControl?.let {
-                if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+            if (it.hasNoAttributeWithNameAndValue(METHOD, POST)) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_d,
+                        message = """The form "method" is incorrect.""")
+            }
+        }
+        samlResponseFormControl?.let {
+            if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_b,
+                        message = "The SAMLResponse form control was incorrectly named.")
+            }
+            if (it.isNotHidden()) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_a,
+                        message = "The SAMLResponse form control was not hidden.")
+            }
+        }
+        if (isRelayStateGiven) {
+            relayStateFormControl?.let {
+                if (it.hasNoAttributeWithNameAndValue(NAME, RELAY_STATE)) {
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_b,
-                            message = "The SAMLResponse form control was incorrectly named.")
+                            SAMLBindings_3_5_4_c,
+                            message = "The RelayState form control was incorrectly named.")
                 }
                 if (it.isNotHidden()) {
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_a,
-                            message = "The SAMLResponse form control was not hidden.")
-                }
-            }
-            if (isRelayStateGiven) {
-                relayStateFormControl?.let {
-                    if (it.hasNoAttributeWithNameAndValue(NAME, RELAY_STATE)) {
-                        throw SAMLComplianceException.create(
-                                SAMLBindings_3_5_4_c,
-                                message = "The RelayState form control was incorrectly named.")
-                    }
-                    if (it.isNotHidden()) {
-                        throw SAMLComplianceException.create(
-                                SAMLBindings_3_5_4_c,
-                                message = "The RelayState form control was not hidden.")
-                    }
+                            SAMLBindings_3_5_4_c,
+                            message = "The RelayState form control was not hidden.")
                 }
             }
         }
@@ -219,50 +217,48 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
 
     @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostFormError() {
-        with(response) {
-            responseForm?.let {
-                if (it.hasNoAttributeWithNameAndValue(ACTION,
-                                checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
-                    throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_d,
-                            message = """The form "action" is incorrect.""" +
-                                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-                }
-                if (it.hasNoAttributeWithNameAndValue(METHOD, POST)) {
-                    throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_d,
-                            message = """The form "method" is incorrect.""" +
-                                    "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-                }
+        responseForm?.let {
+            if (it.hasNoAttributeWithNameAndValue(ACTION,
+                            checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_d,
+                        message = """The form "action" is incorrect.""" +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
-            samlResponseFormControl?.let {
-                if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+            if (it.hasNoAttributeWithNameAndValue(METHOD, POST)) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_d,
+                        message = """The form "method" is incorrect.""" +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+        }
+        samlResponseFormControl?.let {
+            if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_b,
+                        message = "The SAMLResponse form control was incorrectly named." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+            if (it.isNotHidden()) {
+                throw SAMLComplianceException.create(
+                        SAMLBindings_3_5_4_a,
+                        message = "The SAMLResponse form control was not hidden." +
+                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+            }
+        }
+        if (isRelayStateGiven) {
+            relayStateFormControl?.let {
+                if (isRelayStateGiven && it.hasNoAttributeWithNameAndValue(NAME, RELAY_STATE)) {
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_b,
-                            message = "The SAMLResponse form control was incorrectly named." +
+                            SAMLBindings_3_5_4_c,
+                            message = "The RelayState form control was incorrectly named." +
                                     "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
                 }
                 if (it.isNotHidden()) {
                     throw SAMLComplianceException.create(
-                            SAMLBindings_3_5_4_a,
-                            message = "The SAMLResponse form control was not hidden." +
+                            SAMLBindings_3_5_4_c,
+                            message = "The RelayState form control was not hidden." +
                                     "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-                }
-            }
-            if (isRelayStateGiven) {
-                relayStateFormControl?.let {
-                    if (isRelayStateGiven && it.hasNoAttributeWithNameAndValue(NAME, RELAY_STATE)) {
-                        throw SAMLComplianceException.create(
-                                SAMLBindings_3_5_4_c,
-                                message = "The RelayState form control was incorrectly named." +
-                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-                    }
-                    if (it.isNotHidden()) {
-                        throw SAMLComplianceException.create(
-                                SAMLBindings_3_5_4_c,
-                                message = "The RelayState form control was not hidden." +
-                                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-                    }
                 }
             }
         }
