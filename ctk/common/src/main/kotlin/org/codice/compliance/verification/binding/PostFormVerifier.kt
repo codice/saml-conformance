@@ -45,10 +45,10 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
         private const val METHOD = "method"
         private const val POST = "POST"
         private val isNamedRelayState = { formControl: Node ->
-            RELAY_STATE.equals(formControl.attributes()[TestCommon.NAME], ignoreCase = true)
+            RELAY_STATE.equals(formControl.attributes()[NAME], ignoreCase = true)
         }
         private val isNamedSamlResponse = { formControl: Node ->
-            SAML_RESPONSE.equals(formControl.attributes()[TestCommon.NAME], ignoreCase = true)
+            SAML_RESPONSE.equals(formControl.attributes()[NAME], ignoreCase = true)
         }
     }
 

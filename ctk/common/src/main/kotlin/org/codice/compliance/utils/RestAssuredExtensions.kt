@@ -15,7 +15,6 @@ package org.codice.compliance.utils
 
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
-import org.apache.commons.lang3.StringUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.HIDDEN
 import org.codice.compliance.utils.TestCommon.Companion.NAME
@@ -68,11 +67,11 @@ private fun Response.isRedirectBinding(): Boolean {
 }
 
 fun Node.extractValue(): String? {
-    if (StringUtils.isNotEmpty(this.value())) {
+    if (this.value().isNullOrEmpty()) {
         return this.value()
     }
 
-    return if (StringUtils.isNotEmpty(this.attributes()?.get(VALUE))) {
+    return if (!this.attributes()?.get(VALUE).isNullOrEmpty()) {
         this.attributes()?.get(VALUE)
     } else null
 }
