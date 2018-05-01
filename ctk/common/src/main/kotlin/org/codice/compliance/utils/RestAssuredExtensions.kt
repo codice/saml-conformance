@@ -67,7 +67,7 @@ private fun Response.isRedirectBinding(): Boolean {
 }
 
 fun Node.extractValue(): String? {
-    if (this.value().isNullOrEmpty()) {
+    if (!this.value().isNullOrEmpty()) {
         return this.value()
     }
 
