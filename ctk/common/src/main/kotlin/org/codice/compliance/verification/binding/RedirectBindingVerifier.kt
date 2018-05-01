@@ -14,7 +14,13 @@
 package org.codice.compliance.verification.binding
 
 import com.google.api.client.http.HttpStatusCodes
+import com.google.common.base.Splitter
+import com.jayway.restassured.response.Response
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
+import org.codice.compliance.Common
 import org.codice.compliance.SAMLBindings_3_1_2_1_a
 import org.codice.compliance.SAMLBindings_3_4_3_a
 import org.codice.compliance.SAMLBindings_3_4_3_b
@@ -37,10 +43,11 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
+import org.codice.compliance.utils.TestCommon.Companion.LOCATION
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
+import org.codice.compliance.utils.TestCommon.Companion.SAML_ENCODING
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
-import org.codice.compliance.utils.decorators.IdpRedirectResponseDecorator
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyUriValues
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
@@ -53,34 +60,34 @@ import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVAL
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
 import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
+import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 @Suppress("TooManyFunctions" /* At least at present, there is no value in refactoring */)
-class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator)
-    : BindingVerifier() {
+class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
 
     /** Verify the response for a redirect binding */
-    override fun verify() {
+    override fun decodeAndVerify(): Node {
         verifyHttpRedirectStatusCode()
-        verifyNoNulls()
-        decodeAndVerify()
-        verifyNoXMLSig()
-        if (response.isRelayStateGiven || response.relayState != null) {
-            verifyRedirectRelayState()
+        val paramMap = verifyNoNullsAndParse()
+        verifyRedirectRelayState(paramMap[RELAY_STATE])
+        val samlResponseDom = decode(paramMap)
+        verifyNoXMLSig(samlResponseDom)
+        paramMap[SIGNATURE]?.let {
+            verifyRedirectSignature(paramMap)
+            verifyRedirectDestination(samlResponseDom)
         }
-        response.signature?.let {
-            verifyRedirectSignature()
-            verifyRedirectDestination()
-        }
+
+        return samlResponseDom
     }
 
     /** Verify an error response (Negative path) */
-    override fun verifyError() {
+    override fun decodeAndVerifyError(): Node {
         verifyHttpRedirectStatusCodeErrorResponse()
-        verifyNoNullsErrorResponse()
-        decodeAndVerifyErrorResponse()
+        val paramMap = verifyNoNullsErrorAndParse()
+        return decodeAndVerifyErrorResponse(paramMap)
     }
 
     /**
@@ -89,12 +96,12 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCode() {
-        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
-                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+        if (httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             throw SAMLComplianceException.createWithPropertyMessage(
                     SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
-                    actual = response.httpStatusCode.toString(),
+                    actual = httpResponse.statusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
                             HttpStatusCodes.STATUS_CODE_SEE_OTHER
             )
@@ -107,12 +114,12 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCodeErrorResponse() {
-        if (response.httpStatusCode != HttpStatusCodes.STATUS_CODE_FOUND
-                && response.httpStatusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+        if (httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
+                && httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             throw SAMLComplianceException.createWithPropertyMessage(
                     SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",
-                    actual = response.httpStatusCode.toString(),
+                    actual = httpResponse.statusCode.toString(),
                     expected = "${HttpStatusCodes.STATUS_CODE_FOUND} or " +
                             HttpStatusCodes.STATUS_CODE_SEE_OTHER +
                             "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE"
@@ -125,34 +132,36 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec
      * 3.4.4 Message Encoding
      */
-    private fun verifyNoNulls() {
-        with(response) {
-            if (isUrlNull) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "Url not found.")
-            }
-            if (isPathNull) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "Path not found.")
-            }
-            if (isParametersNull) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "Parameters not found.")
-            }
-            if (samlResponse == null) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "SAMLResponse not found.")
-            }
-            if (isRelayStateGiven && relayState == null) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_3_b,
-                        message = "RelayState not found.")
-            }
+    private fun verifyNoNullsAndParse(): Map<String, String> {
+        val url = httpResponse.header(LOCATION) ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "Url not found.")
+
+        val splitUrl = Splitter.on("?").splitToList(url)
+
+        splitUrl.getOrNull(0) ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "Path not found.")
+
+        val parameters = splitUrl.getOrNull(1) ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "Parameters not found.")
+
+        val paramMap = parameters.split("&")
+                .map { s -> s.split("=") }
+                .associate { s -> s[0] to s[1] }
+
+        paramMap[SAML_RESPONSE] ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "SAMLResponse not found.")
+
+        if (isRelayStateGiven && paramMap[RELAY_STATE] == null) {
+            throw SAMLComplianceException.create(
+                    SAMLBindings_3_4_3_b,
+                    message = "RelayState not found.")
         }
+
+        return paramMap
     }
 
     /**
@@ -160,39 +169,41 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * binding spec (Negative path)
      * 3.4.4 Message Encoding
      */
-    private fun verifyNoNullsErrorResponse() {
-        with(response) {
-            if (isUrlNull) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "Url not found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (isPathNull) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "Path not found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (isParametersNull) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "Parameters not found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (samlResponse == null) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_4_b,
-                        message = "SAMLResponse not found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
-            if (isRelayStateGiven && relayState == null) {
-                throw SAMLComplianceException.create(
-                        SAMLBindings_3_4_3_b,
-                        message = "RelayState not found." +
-                                "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
-            }
+    private fun verifyNoNullsErrorAndParse(): Map<String, String> {
+        val url = httpResponse.header(LOCATION) ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "Url not found." +
+                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+
+        val splitUrl = Splitter.on("?").splitToList(url)
+
+        splitUrl.getOrNull(0) ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "Path not found." +
+                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+
+        val parameters = splitUrl.getOrNull(1) ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "Parameters not found." +
+                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+
+        val paramMap = parameters.split("&")
+                .map { s -> s.split("=") }
+                .associate { s -> s[0] to s[1] }
+
+        paramMap[SAML_RESPONSE] ?: throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "SAMLResponse not found." +
+                        "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
+
+        if (isRelayStateGiven && paramMap[RELAY_STATE] == null) {
+            throw SAMLComplianceException.create(
+                    SAMLBindings_3_4_3_b,
+                    message = "RelayState not found." +
+                            "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
         }
+
+        return paramMap
     }
 
     /**
@@ -201,11 +212,10 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decodeAndVerify() {
-        val samlResponse = response.samlResponse
-
+    private fun decode(paramMap: Map<String, String>): Node {
+        val samlResponse = paramMap[SAML_RESPONSE]
         // Need to url decode SAMLEncoding first to check the encoding method uri
-        val samlEncoding = response.samlEncoding?.let {
+        val samlEncoding = paramMap[SAML_ENCODING]?.let {
             try {
                 URLDecoder.decode(it, StandardCharsets.UTF_8.name())
             } catch (e: UnsupportedEncodingException) {
@@ -257,7 +267,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 "encoding currently.")
 
         decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
-        response.decodedSamlResponse = decodedMessage
+        return Common.buildDom(decodedMessage)
     }
 
     /**
@@ -266,11 +276,10 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.4.1 Deflate Encoding
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
-    private fun decodeAndVerifyErrorResponse() {
-        val samlResponse = response.samlResponse
-
+    private fun decodeAndVerifyErrorResponse(paramMap: Map<String, String>): Node {
+        val samlResponse = paramMap[SAML_RESPONSE]
         // Need to url decode SAMLEncoding first to check the encoding method uri
-        val samlEncoding = response.samlEncoding?.let {
+        val samlEncoding = paramMap[SAML_ENCODING]?.let {
             try {
                 URLDecoder.decode(it, StandardCharsets.UTF_8.name())
             } catch (e: UnsupportedEncodingException) {
@@ -327,7 +336,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                 "encoding currently.")
 
         decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
-        response.decodedSamlResponse = decodedMessage
+        return Common.buildDom(decodedMessage)
     }
 
     /**
@@ -335,11 +344,11 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * rules in the binding spec
      * 3.4.4.1 DEFLATE Encoding
      */
-    private fun verifyNoXMLSig() {
-        if (response.responseDom.children("Signature").isNotEmpty()) {
+    private fun verifyNoXMLSig(samlResponseDom: Node) {
+        if (samlResponseDom.children("Signature").isNotEmpty()) {
             throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_a,
                     message = "Signature element found.",
-                    node = response.responseDom)
+                    node = samlResponseDom)
         }
     }
 
@@ -348,10 +357,10 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.4.1 DEFLATE Encoding
      */
     @Suppress("ComplexMethod" /* complexity in exception mapping to error is acceptable */)
-    private fun verifyRedirectSignature() {
+    private fun verifyRedirectSignature(paramMap: Map<String, String>) {
         // Need to url decode SigAlg first to check the signature algorithm uri
         // It is guaranteed SigAlg can be url decoded because it already has been in decodeAndVerify
-        val sigAlg = response.sigAlg?.let {
+        val sigAlg = paramMap[SIG_ALG]?.let {
             URLDecoder.decode(it, StandardCharsets.UTF_8.name())
         }
         verifyUriValues(sigAlg, SAMLBindings_3_4_4_1_e)
@@ -359,17 +368,18 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
         try {
             if (!SimpleSign().validateSignature(
                             SAML_RESPONSE,
-                            response.samlResponse,
-                            response.relayState,
-                            response.signature,
-                            response.sigAlg,
+                            paramMap[SAML_RESPONSE],
+                            paramMap[RELAY_STATE],
+                            paramMap[SIGNATURE],
+                            paramMap[SIG_ALG],
                             idpMetadata.signingCertificate)) {
                 throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f,
                         message = "Signature does not match payload.")
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
-                INVALID_CERTIFICATE -> throw SAMLComplianceException.create(SAMLBindings_3_1_2_1_a,
+                INVALID_CERTIFICATE -> throw SAMLComplianceException.create(
+                        SAMLBindings_3_1_2_1_a,
                         message = "The certificate was invalid.",
                         cause = e)
                 SIG_ALG_NOT_PROVIDED ->
@@ -384,7 +394,7 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
                             cause = e)
                 INVALID_URI -> throw SAMLComplianceException.create(
                         SAMLBindings_3_4_4_1_e,
-                        message = "The Signature algorithm named ${response.sigAlg} is unknown.",
+                        message = "The Signature algorithm named ${paramMap[SIG_ALG]} is unknown.",
                         cause = e)
                 LINEFEED_OR_WHITESPACE ->
                     throw SAMLComplianceException.create(
@@ -403,28 +413,28 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * 3.4.3 RelayState
      * 3.4.4.1 DEFLATE Encoding
      */
-    private fun verifyRedirectRelayState() {
-        val encodedRelayState = response.relayState
-        val isRelayStateGiven = response.isRelayStateGiven
+    private fun verifyRedirectRelayState(encodedRelayState: String?) {
+        if (isRelayStateGiven || encodedRelayState != null) {
+            val decodedRelayState: String
+            try {
+                decodedRelayState =
+                        URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
+            } catch (e: UnsupportedEncodingException) {
+                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
+                        message = "RelayState could not be URL decoded.",
+                        cause = e)
+            }
 
-        val decodedRelayState: String
-        try {
-            decodedRelayState = URLDecoder.decode(encodedRelayState, StandardCharsets.UTF_8.name())
-        } catch (e: UnsupportedEncodingException) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_d,
-                    message = "RelayState could not be URL decoded.",
-                    cause = e)
-        }
+            if (decodedRelayState.toByteArray().size > MAX_RELAY_STATE_LEN) {
+                throw SAMLComplianceException.create(SAMLBindings_3_4_3_a,
+                        message = "RelayState value of $decodedRelayState was longer than 80 " +
+                                "bytes.")
+            }
 
-        if (decodedRelayState.toByteArray().size > MAX_RELAY_STATE_LEN) {
-            throw SAMLComplianceException.create(SAMLBindings_3_4_3_a,
-                    message = "RelayState value of $decodedRelayState was longer than 80 bytes.")
-        }
-
-        if (isRelayStateGiven) {
-            if (decodedRelayState != EXAMPLE_RELAY_STATE) {
+            if (isRelayStateGiven && decodedRelayState != EXAMPLE_RELAY_STATE) {
                 if (encodedRelayState == EXAMPLE_RELAY_STATE) {
-                    throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_4_4_1_d,
+                    throw SAMLComplianceException.createWithPropertyMessage(
+                            SAMLBindings_3_4_4_1_d,
                             property = "RelayState",
                             actual = encodedRelayState)
                 }
@@ -441,16 +451,16 @@ class RedirectBindingVerifier(private val response: IdpRedirectResponseDecorator
      * spec
      * 3.4.5.2 Security Considerations
      */
-    private fun verifyRedirectDestination() {
-        val destination = response.responseDom.attributeNode(DESTINATION)?.nodeValue
-        val signatures = response.responseDom.recursiveChildren("Signature")
+    private fun verifyRedirectDestination(samlResponseDom: Node) {
+        val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
+        val signatures = samlResponseDom.recursiveChildren("Signature")
 
         if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = DESTINATION,
                     actual = destination,
                     expected = acsUrl[HTTP_REDIRECT],
-                    node = response.responseDom)
+                    node = samlResponseDom)
         }
     }
 }

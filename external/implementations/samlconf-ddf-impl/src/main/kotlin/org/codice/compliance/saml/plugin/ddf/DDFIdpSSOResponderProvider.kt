@@ -19,19 +19,18 @@ import com.jayway.restassured.RestAssured
 import com.jayway.restassured.builder.RequestSpecBuilder
 import com.jayway.restassured.response.Response
 import org.codice.compliance.Common
-import org.codice.compliance.saml.plugin.IdpPostResponse
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
 
 @MetaInfServices
 class DDFIdpSSOResponderProvider : IdpSSOResponder {
-    override fun getRedirectResponse(originalResponse: Response): IdpPostResponse {
-        return IdpPostResponse(parseResponseAndSendRequest(originalResponse))
+    override fun getResponseForRedirectRequest(originalResponse: Response): Response {
+        return parseResponseAndSendRequest(originalResponse)
     }
 
-    override fun getPostResponse(originalResponse: Response): IdpPostResponse {
-        return IdpPostResponse(parseResponseAndSendRequest(originalResponse))
+    override fun getResponseForPostRequest(originalResponse: Response): Response {
+        return parseResponseAndSendRequest(originalResponse)
     }
 
     /** Sends request to DDF's /login/sso endpoint with the query parameters */

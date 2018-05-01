@@ -35,7 +35,7 @@ import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.
 import org.w3c.dom.Node
 import java.time.Instant
 
-abstract class CoreVerifier(val node: Node) {
+abstract class CoreVerifier(protected val node: Node) {
     companion object {
         private const val ENTITY_ID_MAX_LEN = 1024
 

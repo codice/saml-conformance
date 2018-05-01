@@ -14,10 +14,10 @@
 package org.codice.compliance.verification.core.responses
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_3_4_a
+import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_d
-import org.codice.compliance.SAMLCore_3_4_1_4_a
+import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
@@ -26,37 +26,35 @@ import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.verification.core.NameIDPolicyVerifier
 import org.codice.compliance.verification.core.ResponseVerifier
-import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.w3c.dom.Node
 
-class CoreAuthnRequestProtocolVerifier(override val response: Node,
-                                       override val id: String,
-                                       override val acsUrl: String?,
-                                       private val nameIdPolicy: NameIDPolicy? = null) :
-        ResponseVerifier(response, id, acsUrl) {
+class CoreAuthnRequestProtocolVerifier(authnRequestDom: Node,
+                                       samlResponseDom: Node) :
+        ResponseVerifier(authnRequestDom, samlResponseDom) {
 
-    private val nameIdPolicyVerifier = nameIdPolicy?.let { NameIDPolicyVerifier(response, it) }
+    private val nameIdPolicyVerifier = authnRequestDom.children("NameIDPolicy").firstOrNull()
+            ?.let { NameIDPolicyVerifier(samlResponseDom, it) }
 
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {
         super.verify()
         verifyAuthnRequestProtocolResponse()
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
-        // nameIdPolicyVerifier?.apply { verify() }
+//        nameIdPolicyVerifier?.apply { verify() }
     }
 
     private fun verifyAuthnRequestProtocolResponse() {
-        val assertions = response.children(ASSERTION)
+        val assertions = samlResponseDom.children(ASSERTION)
 
-        if (response.localName != "Response" || assertions.isEmpty())
+        if (samlResponseDom.localName != "Response" || assertions.isEmpty())
             throw SAMLComplianceException.create(SAMLCore_3_4_1_4_a,
                     message = "Did not find Response elements with one or more Assertion elements.",
-                    node = response)
+                    node = samlResponseDom)
 
         if (assertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
             throw SAMLComplianceException.create(SAMLCore_3_4_a, SAMLCore_3_4_1_4_c,
                     message = "AuthnStatement not found in any of the Assertions.",
-                    node = response)
+                    node = samlResponseDom)
 
         if (assertions.any {
                     it.recursiveChildren("AudienceRestriction").flatMap { it.children(AUDIENCE) }
@@ -65,7 +63,7 @@ class CoreAuthnRequestProtocolVerifier(override val response: Node,
             throw SAMLComplianceException.create(SAMLCore_3_4_1_4_d,
                     message = "Assertion found without an AudienceRestriction referencing the " +
                             "requester.",
-                    node = response)
+                    node = samlResponseDom)
     }
 
     override fun verifyEncryptedElements() {

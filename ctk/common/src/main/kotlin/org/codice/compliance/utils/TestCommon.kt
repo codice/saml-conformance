@@ -22,11 +22,6 @@ import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.debugPrettyPrintXml
-import org.codice.compliance.saml.plugin.IdpPostResponse
-import org.codice.compliance.saml.plugin.IdpRedirectResponse
-import org.codice.compliance.saml.plugin.IdpResponse
-import org.codice.compliance.utils.decorators.IdpResponseDecorator
-import org.codice.compliance.utils.decorators.decorate
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -62,6 +57,12 @@ class TestCommon {
         const val SUBJECT_CONFIRMATION = "SubjectConfirmation"
         const val AUTHN_REQUEST = "AuthnRequest"
         const val AUTHN_STATEMENT = "AuthnStatement"
+        const val NAME = "name"
+        const val VALUE = "value"
+        const val HIDDEN = "hidden"
+        const val TYPE_LOWER = "type"
+        const val LOCATION = "Location"
+        const val SAML_ENCODING = "SAMLEncoding"
 
         const val SAML_VERSION = "2.0"
         const val REQUEST_ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
@@ -141,30 +142,6 @@ class TestCommon {
         }
 
         /**
-         * Since errors shouldn't be passed to user implementations, this acts as the "user
-         * implementation" and parses the response into the correct idp object for further
-         * processing.
-         *
-         * @param response The error response returned from the first interaction with the IdP under
-         * test.
-         * @return An {@code IdpResponse} object created from the error response.
-         */
-        fun parseErrorResponse(response: Response): IdpResponseDecorator {
-            return if (response.header("Location") != null) {
-                parseRedirectErrorResponse(response).decorate()
-            } else {
-                IdpPostResponse(response).decorate()
-            }
-        }
-
-        private fun parseRedirectErrorResponse(response: Response): IdpRedirectResponse {
-            return IdpRedirectResponse.Builder().apply {
-                httpStatusCode(response.statusCode)
-                url(response.header("Location"))
-            }.build()
-        }
-
-        /**
          * Provides a default request for testing
          * @return A valid Redirect AuthnRequest.
          */
@@ -232,13 +209,5 @@ class TestCommon {
             return if (relayState == null) Encoder.encodePostMessage(authnRequestString)
             else Encoder.encodePostMessage(authnRequestString, relayState)
         }
-    }
-}
-
-fun IdpResponse.decorate(): IdpResponseDecorator {
-    return when (this) {
-        is IdpPostResponse -> decorate()
-        is IdpRedirectResponse -> decorate()
-        else -> throw UnsupportedOperationException()
     }
 }

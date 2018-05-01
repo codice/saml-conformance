@@ -13,6 +13,7 @@
  */
 package org.codice.compliance.verification.profile
 
+import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_2_a
@@ -28,7 +29,6 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
-import org.codice.compliance.saml.plugin.IdpRedirectResponse
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
@@ -39,16 +39,19 @@ import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
+import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
-import org.codice.compliance.utils.decorators.IdpResponseDecorator
+import org.codice.compliance.utils.determineBinding
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
-class SingleSignOnProfileVerifier(private val response: Node,
-                                  private val acsUrl: String?) {
+class SingleSignOnProfileVerifier(private val authnRequestDom: Node,
+                                  private val samlResponseDom: Node) {
     companion object {
-        fun verifyBinding(response: IdpResponseDecorator) {
-            if (response is IdpRedirectResponse) {
+        fun verifyBinding(httpResponse: Response) {
+            if (httpResponse.determineBinding() == HTTP_REDIRECT) {
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_2_a,
                         message = "The <Response> cannot be sent using Redirect Binding.")
             }
@@ -62,7 +65,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
     fun verify() {
         verifyIssuer()
         verifySsoAssertions()
-        ProfilesVerifier(response).verify()
+        ProfilesVerifier(samlResponseDom).verify()
     }
 
     /**
@@ -70,18 +73,18 @@ class SingleSignOnProfileVerifier(private val response: Node,
      * 4.1.4.2 <Response> Usage
      */
     private fun verifyIssuer() {
-        if (response.localName == "Response" &&
-                (response.children(SIGNATURE).isNotEmpty() ||
-                        response.children(ASSERTION)
+        if (samlResponseDom.localName == "Response" &&
+                (samlResponseDom.children(SIGNATURE).isNotEmpty() ||
+                        samlResponseDom.children(ASSERTION)
                                 .any {
                                     it.children(SIGNATURE).isNotEmpty()
                                 })) {
-            val issuers = response.children("Issuer")
+            val issuers = samlResponseDom.children("Issuer")
 
             if (issuers.size != 1)
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
                         message = "${issuers.size} Issuer elements were found.",
-                        node = response)
+                        node = samlResponseDom)
 
             val issuer = issuers[0]
             if (issuer.textContent !=
@@ -89,7 +92,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
                         message = "Issuer value of ${issuer.textContent} does not match the " +
                                 "issuing IdP.",
-                        node = response)
+                        node = samlResponseDom)
 
             val issuerFormat = issuer.attributeText(FORMAT)
             if (issuerFormat != null &&
@@ -98,7 +101,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                         property = FORMAT,
                         actual = issuerFormat,
                         expected = ENTITY,
-                        node = response)
+                        node = samlResponseDom)
         }
     }
 
@@ -107,13 +110,13 @@ class SingleSignOnProfileVerifier(private val response: Node,
      * 4.1.4.2 <Response> Usage
      */
     private fun verifySsoAssertions() {
-        val assertions = response.children(ASSERTION)
-        val encryptedAssertions = response.children("EncryptedAssertion")
+        val assertions = samlResponseDom.children(ASSERTION)
+        val encryptedAssertions = samlResponseDom.children("EncryptedAssertion")
 
         if (assertions.isEmpty() && encryptedAssertions.isEmpty()) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d,
                     message = "No Assertions found.",
-                    node = response)
+                    node = samlResponseDom)
         }
 
         assertions.forEach { verifyIssuer() }
@@ -130,7 +133,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
         if (bearerAssertions.isEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
                     message = "No bearer SubjectConfirmation elements were found.",
-                    node = response)
+                    node = samlResponseDom)
 
         verifyBearerSubjectConfirmations(bearerSubjectConfirmations)
         verifyAssertionsHaveAuthnStmts(bearerAssertions)
@@ -144,7 +147,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
                         .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                         .flatMap { it.children("SubjectConfirmationData") }
                         .none {
-                            it.attributeText("Recipient") == acsUrl &&
+                            it.attributeText("Recipient") == acsUrl[HTTP_POST] &&
                                     it.attributeNode("NotOnOrAfter") != null &&
                                     it.attributeNode("NotBefore") == null &&
                                     it.attributeText("InResponseTo") == REQUEST_ID
@@ -152,7 +155,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "There were no bearer SubjectConfirmation elements that matched " +
                             "the criteria below.",
-                    node = response)
+                    node = samlResponseDom)
         }
     }
 
@@ -160,7 +163,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
         if (bearerAssertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
                     message = "A Bearer Assertion with an AuthnStatement was not found.",
-                    node = response)
+                    node = samlResponseDom)
     }
 
     private fun verifySingleLogoutIncludesSessionIndex(bearerAssertions: List<Node>) {
@@ -174,7 +177,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
                     message = "Single Logout support found in IdP metadata, but no " +
                             "SessionIndex was found.",
-                    node = response)
+                    node = samlResponseDom)
     }
 
     private fun verifyBearerAssertionsContainAudienceRestriction(bearerAssertions: List<Node>) {
@@ -189,7 +192,7 @@ class SingleSignOnProfileVerifier(private val response: Node,
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k,
                     message = "An <Audience> containing the service provider's issuer was " +
                             "not found",
-                    node = response)
+                    node = samlResponseDom)
         }
     }
 

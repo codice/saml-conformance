@@ -28,8 +28,8 @@ import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.encodeAuthnRequest
-import org.codice.compliance.utils.TestCommon.Companion.parseErrorResponse
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
+import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
@@ -57,11 +57,10 @@ class RedirectSSOErrorTest : StringSpec() {
             // Get response from AuthnRequest
             val response = sendRedirectAuthnRequest(queryParams)
 
-            val idpResponse = parseErrorResponse(response)
-            idpResponse.bindingVerifier().verifyError()
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a,
+            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    samlErrorCode = SAMLBindings_3_4_3_a,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 
@@ -81,11 +80,10 @@ class RedirectSSOErrorTest : StringSpec() {
             // Get response from AuthnRequest
             val response = sendRedirectAuthnRequest(queryParams)
 
-            val idpResponse = parseErrorResponse(response)
-            idpResponse.bindingVerifier().verifyError()
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLBindings_3_4_3_a,
+            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    samlErrorCode = SAMLBindings_3_4_3_a,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
 
@@ -98,13 +96,12 @@ class RedirectSSOErrorTest : StringSpec() {
             val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = parseErrorResponse(response)
-            idpResponse.bindingVerifier().verifyError()
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLProfiles_4_1_4_1_a,
+            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    samlErrorCode = SAMLProfiles_4_1_4_1_a,
                     expectedStatusCode = REQUESTER)
-            ProfilesVerifier(responseDom).verifyErrorResponseAssertion()
+            ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
         }.config(enabled = false)
 
         "Redirect AuthnRequest With Empty Subject Test" {
@@ -122,13 +119,12 @@ class RedirectSSOErrorTest : StringSpec() {
             val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = parseErrorResponse(response)
-            idpResponse.bindingVerifier().verifyError()
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLProfiles_4_1_4_1_b,
+            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    samlErrorCode = SAMLProfiles_4_1_4_1_b,
                     expectedStatusCode = REQUESTER)
-            ProfilesVerifier(responseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+            ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
         }.config(enabled = false)
 
         "Redirect AuthnRequest With Incorrect ACS URL And Index Test" {
@@ -144,8 +140,7 @@ class RedirectSSOErrorTest : StringSpec() {
             val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = parseErrorResponse(response)
-            idpResponse.bindingVerifier().verifyError()
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
             // DDF returns a valid response to the incorrect url
         }.config(enabled = false)
@@ -162,11 +157,9 @@ class RedirectSSOErrorTest : StringSpec() {
             val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val idpResponse = parseErrorResponse(response)
-            idpResponse.bindingVerifier().verifyError()
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            val responseDom = idpResponse.responseDom
-            CoreVerifier.verifyErrorStatusCode(responseDom, samlErrorCode = SAMLCore_3_2_1_e,
+            CoreVerifier.verifyErrorStatusCode(samlResponseDom, samlErrorCode = SAMLCore_3_2_1_e,
                     expectedStatusCode = REQUESTER)
         }.config(enabled = false)
     }
