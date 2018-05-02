@@ -24,10 +24,11 @@ import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
+import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.w3c.dom.Node
 
-class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy: Node) {
-    val policyFormat = policy.attributeText("Format")
+class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy: NameIDPolicy) {
+    val policyFormat = policy.format
 
     /** 3.4.1.1 Element <NameIDPolicy> **/
     internal fun verify() {
@@ -50,7 +51,7 @@ class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy
 
     private fun verifySPNameQualifiersMatch(nameId: Node) {
         nameId.attributeText("SPNameQualifier")?.let { spnq ->
-            val spNameQualifier = policy.attributeText("SPNameQualifier")
+            val spNameQualifier = policy.spNameQualifier
             if (spnq != spNameQualifier) {
                 throw SAMLComplianceException.create(SAMLCore_3_4_1_1_b,
                         message = "A NameID element was found with a SPNameQualifier " +

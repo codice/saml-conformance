@@ -16,6 +16,7 @@ package org.codice.compliance.utils
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.utils.TestCommon.Companion.ACTION
 import org.codice.compliance.utils.TestCommon.Companion.HIDDEN
 import org.codice.compliance.utils.TestCommon.Companion.NAME
 import org.codice.compliance.utils.TestCommon.Companion.TYPE_LOWER
@@ -25,20 +26,38 @@ import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.compliance.verification.binding.RedirectBindingVerifier
 import org.codice.security.saml.SamlProtocol
 
+/** Response extension functions **/
+private const val BINDING_UNSUPPORTED_MESSAGE = "Binding is not currently supported."
+
 fun Response.determineBinding(): SamlProtocol.Binding {
     return with(this) {
         when {
             isPostBinding() -> SamlProtocol.Binding.HTTP_POST
             isRedirectBinding() -> SamlProtocol.Binding.HTTP_REDIRECT
-            else -> throw UnsupportedOperationException("Binding is not currently supported.")
+            else -> throw UnsupportedOperationException(BINDING_UNSUPPORTED_MESSAGE)
         }
     }
 }
+
 fun Response.getBindingVerifier(): BindingVerifier {
     return when (this.determineBinding()) {
         SamlProtocol.Binding.HTTP_REDIRECT -> RedirectBindingVerifier(this)
         SamlProtocol.Binding.HTTP_POST -> PostBindingVerifier(this)
-        else -> throw UnsupportedOperationException("Binding is not currently supported.")
+        else -> throw UnsupportedOperationException(BINDING_UNSUPPORTED_MESSAGE)
+    }
+}
+
+fun Response.getLocation(): String? {
+    return when (this.determineBinding()) {
+        SamlProtocol.Binding.HTTP_REDIRECT -> {
+            // Extracted according to Binding 3.4.4
+            this.getHeader("Location")
+        }
+        SamlProtocol.Binding.HTTP_POST -> {
+            // Extracted according to Bindings 3.5.4
+            this.extractSamlResponseForm()?.getAttribute(ACTION)
+        }
+        else -> throw UnsupportedOperationException(BINDING_UNSUPPORTED_MESSAGE)
     }
 }
 
@@ -65,6 +84,8 @@ private fun Response.isPostBinding(): Boolean {
 private fun Response.isRedirectBinding(): Boolean {
     return this.getHeader("Location")?.contains("$SAML_RESPONSE=") == true
 }
+
+/** Node extension functions **/
 
 fun Node.extractValue(): String? {
     if (!this.value().isNullOrEmpty()) {

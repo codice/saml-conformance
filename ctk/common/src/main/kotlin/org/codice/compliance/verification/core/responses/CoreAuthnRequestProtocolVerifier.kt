@@ -13,27 +13,32 @@
  */
 package org.codice.compliance.verification.core.responses
 
+import com.jayway.restassured.response.Response
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_d
+import org.codice.compliance.SAMLCore_3_4_1_a
 import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
+import org.codice.compliance.utils.TestCommon.Companion.SP_ENTITY_INFO
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
+import org.codice.compliance.utils.getLocation
 import org.codice.compliance.verification.core.NameIDPolicyVerifier
 import org.codice.compliance.verification.core.ResponseVerifier
+import org.opensaml.saml.saml2.core.AuthnRequest
 import org.w3c.dom.Node
 
-class CoreAuthnRequestProtocolVerifier(authnRequestDom: Node,
+class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
                                        samlResponseDom: Node) :
-        ResponseVerifier(authnRequestDom, samlResponseDom) {
+        ResponseVerifier(authnRequest, samlResponseDom) {
 
-    private val nameIdPolicyVerifier = authnRequestDom.children("NameIDPolicy").firstOrNull()
-            ?.let { NameIDPolicyVerifier(samlResponseDom, it) }
+    private val nameIdPolicyVerifier =
+            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom, it) }
 
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {
@@ -41,6 +46,17 @@ class CoreAuthnRequestProtocolVerifier(authnRequestDom: Node,
         verifyAuthnRequestProtocolResponse()
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
 //        nameIdPolicyVerifier?.apply { verify() }
+    }
+
+    fun verifyAssertionConsumerService(httpResponse: Response) {
+        val expectedACS = SP_ENTITY_INFO.getAssertionConsumerService(authnRequest, null,
+                authnRequest.assertionConsumerServiceIndex).url
+        val actualACS = httpResponse.getLocation()
+
+        if (actualACS == null || actualACS != expectedACS)
+            throw SAMLComplianceException.create(SAMLCore_3_4_1_a,
+                    message = "The URL at which the Response was received [$actualACS] does not" +
+                            " match the expected ACS URL [$expectedACS] based on the request.")
     }
 
     private fun verifyAuthnRequestProtocolResponse() {

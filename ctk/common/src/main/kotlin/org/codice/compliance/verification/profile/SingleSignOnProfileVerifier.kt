@@ -44,20 +44,12 @@ import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
+import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
-class SingleSignOnProfileVerifier(private val authnRequestDom: Node,
+class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
                                   private val samlResponseDom: Node) {
-    companion object {
-        fun verifyBinding(httpResponse: Response) {
-            if (httpResponse.determineBinding() == HTTP_REDIRECT) {
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_2_a,
-                        message = "The <Response> cannot be sent using Redirect Binding.")
-            }
-        }
-    }
-
     /**
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage
@@ -66,6 +58,13 @@ class SingleSignOnProfileVerifier(private val authnRequestDom: Node,
         verifyIssuer()
         verifySsoAssertions()
         ProfilesVerifier(samlResponseDom).verify()
+    }
+
+    fun verifyBinding(httpResponse: Response) {
+        if (httpResponse.determineBinding() == HTTP_REDIRECT) {
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_2_a,
+                    message = "The <Response> cannot be sent using Redirect Binding.")
+        }
     }
 
     /**

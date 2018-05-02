@@ -32,9 +32,10 @@ import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.w3c.dom.Node
 
-abstract class ResponseVerifier(private val samlRequestDom: Node,
+abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                                 protected val samlResponseDom: Node) :
         CoreVerifier(samlResponseDom) {
 
@@ -53,7 +54,7 @@ abstract class ResponseVerifier(private val samlRequestDom: Node,
 
         // Assuming response is generated in response to a request
         val inResponseTo = samlResponseDom.attributeText("InResponseTo")
-        val requestId = samlRequestDom.attributeText(ID)
+        val requestId = samlRequest.id
         if (inResponseTo != null && inResponseTo != requestId)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_b,
                     property = "InResponseTo",
