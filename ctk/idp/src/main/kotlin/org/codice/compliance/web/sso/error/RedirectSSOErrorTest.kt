@@ -18,6 +18,7 @@ import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.codice.compliance.SAMLBindings_3_4_3_a
+import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
@@ -44,123 +45,157 @@ class RedirectSSOErrorTest : StringSpec() {
 
         // Negative Path Tests
         "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test" {
-            Log.debugWithSupplier {
-                "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test"
-            }
-            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
-            val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = SimpleSign().signUriString(
+            try {
+                Log.debugWithSupplier {
+                    "Redirect AuthnRequest With Relay State Greater Than 80 Bytes Test"
+                }
+                val authnRequest =
+                    createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
+                val encodedRequest = encodeAuthnRequest(authnRequest)
+                val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     RELAY_STATE_GREATER_THAN_80_BYTES)
 
-            // Get response from AuthnRequest
-            val response = sendRedirectAuthnRequest(queryParams)
+                // Get response from AuthnRequest
+                val response = sendRedirectAuthnRequest(queryParams)
 
-            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                     samlErrorCode = SAMLBindings_3_4_3_a,
                     expectedStatusCode = REQUESTER)
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
         }.config(enabled = false)
 
         "Redirect Incomplete AuthnRequest In URL Query Test" {
-            Log.debugWithSupplier {
-                "Redirect Incomplete AuthnRequest In URL Query Test"
-            }
-            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
-            val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = SimpleSign().signUriString(
+            try {
+                Log.debugWithSupplier {
+                    "Redirect Incomplete AuthnRequest In URL Query Test"
+                }
+                val authnRequest =
+                    createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
+                val encodedRequest = encodeAuthnRequest(authnRequest)
+                val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)
-            val qpSamlReq = queryParams[SAML_REQUEST]
-            queryParams.set(SAML_REQUEST, qpSamlReq?.substring(0, qpSamlReq.length / 2))
+                val qpSamlReq = queryParams[SAML_REQUEST]
+                queryParams.set(SAML_REQUEST, qpSamlReq?.substring(0, qpSamlReq.length / 2))
 
-            // Get response from AuthnRequest
-            val response = sendRedirectAuthnRequest(queryParams)
+                // Get response from AuthnRequest
+                val response = sendRedirectAuthnRequest(queryParams)
 
-            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                     samlErrorCode = SAMLBindings_3_4_3_a,
                     expectedStatusCode = REQUESTER)
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
         }.config(enabled = false)
 
         "Empty Redirect AuthnRequest Test" {
-            Log.debugWithSupplier { "Empty Redirect AuthnRequest Test" }
-            val authnRequest = AuthnRequestBuilder().buildObject()
-            val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = mapOf(SAML_REQUEST to encodedRequest)
+            try {
+                Log.debugWithSupplier { "Empty Redirect AuthnRequest Test" }
+                val authnRequest = AuthnRequestBuilder().buildObject()
+                val encodedRequest = encodeAuthnRequest(authnRequest)
+                val queryParams = mapOf(SAML_REQUEST to encodedRequest)
 
-            val response = sendRedirectAuthnRequest(queryParams)
-            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+                val response = sendRedirectAuthnRequest(queryParams)
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                     samlErrorCode = SAMLProfiles_4_1_4_1_a,
                     expectedStatusCode = REQUESTER)
-            ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
+                ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
         }.config(enabled = false)
 
         "Redirect AuthnRequest With Empty Subject Test" {
-            Log.debugWithSupplier { "Redirect AuthnRequest With Empty Subject Test" }
-            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
-                subject = SubjectBuilder().buildObject()
-            }
-            val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = SimpleSign().signUriString(
+            try {
+                Log.debugWithSupplier { "Redirect AuthnRequest With Empty Subject Test" }
+                val authnRequest =
+                    createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
+                    subject = SubjectBuilder().buildObject()
+                }
+                val encodedRequest = encodeAuthnRequest(authnRequest)
+                val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)
 
-            // Get response from AuthnRequest
-            val response = sendRedirectAuthnRequest(queryParams)
-            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+                // Get response from AuthnRequest
+                val response = sendRedirectAuthnRequest(queryParams)
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                     samlErrorCode = SAMLProfiles_4_1_4_1_b,
                     expectedStatusCode = REQUESTER)
-            ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+                ProfilesVerifier(samlResponseDom)
+                    .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
         }.config(enabled = false)
 
         "Redirect AuthnRequest With Incorrect ACS URL And Index Test" {
-            Log.debugWithSupplier { "Redirect AuthnRequest With Incorrect ACS URL And Index Test" }
-            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
-                assertionConsumerServiceURL = INCORRECT_ACS_URL
-                assertionConsumerServiceIndex = -1
+            try {
+                Log.debugWithSupplier { "Redirect AuthnRequest With " +
+                    "Incorrect ACS URL And Index Test" }
+                val authnRequest =
+                    createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
+                    assertionConsumerServiceURL = INCORRECT_ACS_URL
+                    assertionConsumerServiceIndex = -1
+                }
+                val encodedRequest = encodeAuthnRequest(authnRequest)
+                val queryParams =
+                    SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
+
+                // Get response from AuthnRequest
+                val response = sendRedirectAuthnRequest(queryParams)
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+
+                // DDF returns a valid response to the incorrect url
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-            val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
-
-            // Get response from AuthnRequest
-            val response = sendRedirectAuthnRequest(queryParams)
-            BindingVerifier.verifyHttpStatusCode(response.statusCode)
-
-            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
-
-            // DDF returns a valid response to the incorrect url
         }.config(enabled = false)
 
         "Redirect AuthnRequest With Non-Matching Destination" {
-            Log.debugWithSupplier { "Redirect AuthnRequest With Non-Matching Destination" }
-            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
-                destination = INCORRECT_DESTINATION
-            }
-            val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
+            try {
+                Log.debugWithSupplier { "Redirect AuthnRequest With Non-Matching Destination" }
+                val authnRequest =
+                    createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
+                    destination = INCORRECT_DESTINATION
+                }
+                val encodedRequest = encodeAuthnRequest(authnRequest)
+                val queryParams =
+                    SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
 
-            // Get response from AuthnRequest
-            val response = sendRedirectAuthnRequest(queryParams)
-            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+                // Get response from AuthnRequest
+                val response = sendRedirectAuthnRequest(queryParams)
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-            CoreVerifier.verifyErrorStatusCode(samlResponseDom, samlErrorCode = SAMLCore_3_2_1_e,
+                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    samlErrorCode = SAMLCore_3_2_1_e,
                     expectedStatusCode = REQUESTER)
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
         }.config(enabled = false)
     }
 }

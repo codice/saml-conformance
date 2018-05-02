@@ -44,10 +44,10 @@ class BindingVerifierSpec : StringSpec() {
             forAll(codeSeq) { code ->
                 if (code >= HttpURLConnection.HTTP_BAD_REQUEST) {
                     shouldThrow<SAMLComplianceException> {
-                        BindingVerifier.verifyHttpStatusCodeErrorResponse(code)
+                        BindingVerifier.verifyHttpStatusCode(code)
                     }
                 } else {
-                    BindingVerifier.verifyHttpStatusCodeErrorResponse(code)
+                    BindingVerifier.verifyHttpStatusCode(code)
                 }
             }
         }

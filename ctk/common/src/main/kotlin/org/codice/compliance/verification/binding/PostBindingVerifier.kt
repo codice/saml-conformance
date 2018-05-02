@@ -26,7 +26,6 @@ import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
-import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
@@ -46,10 +45,10 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
 
     /** Verify an error response (Negative path) */
     override fun decodeAndVerifyError(): Node {
-        verifyHttpStatusCodeErrorResponse(httpResponse.statusCode)
+        verifyHttpStatusCode(httpResponse.statusCode)
         val samlResponseString =
                 PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParseError()
-        return decodeError(samlResponseString)
+        return decode(samlResponseString)
     }
 
     /**
@@ -65,28 +64,6 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_4_a,
                     message = "The SAML response could not be base64 decoded.",
-                    cause = exception)
-        }
-
-        assertNotNull(decodedMessage)
-        decodedMessage.debugPrettyPrintXml("Decoded SAML Response")
-        return Common.buildDom(decodedMessage)
-    }
-
-    /**
-     * Verifies the encoding of the samlResponse by decoding it according to the post binding rules
-     * in the binding spec (Negative path)
-     * 3.5.4 Message Encoding
-     */
-    private fun decodeError(response: String): Node {
-        val decodedMessage: String
-        try {
-            decodedMessage = Decoder.decodePostMessage(response)
-        } catch (exception: Decoder.DecoderException) {
-            throw SAMLComplianceException.create(
-                    SAMLBindings_3_5_4_a,
-                    message = "The SAML response could not be base64 decoded." +
-                            "\n$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
                     cause = exception)
         }
 

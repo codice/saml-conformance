@@ -74,9 +74,6 @@ class TestCommon {
         const val INCORRECT_ACS_URL = "https://incorrect.acs.url"
         const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
-        const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds immediately " +
-                "with a SAML error response (See section 3.2.1 in the SAML Core specification)"
-
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
         private const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
         private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"

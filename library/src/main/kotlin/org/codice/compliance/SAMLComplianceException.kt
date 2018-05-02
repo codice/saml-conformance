@@ -24,6 +24,10 @@ class SAMLComplianceException : Exception {
                         cause: Throwable) : super(message, cause)
 
     companion object {
+        private const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds " +
+            "immediately with a SAML error response (See section 3.2.1 in the SAML Core " +
+            "specification)"
+
         fun create(vararg codes: SAMLSpecRefMessage,
                    message: String,
                    cause: Throwable? = null,
@@ -59,6 +63,18 @@ class SAMLComplianceException : Exception {
             } else {
                 SAMLComplianceException("The $property value of $actual is not equal to " +
                         "$expected.\n\n$samlExceptions\n\n${node?.debugPrettyPrintXml() ?: ""}")
+            }
+        }
+
+        fun recreateExceptionWithErrorMessage(exception: SAMLComplianceException):
+            SAMLComplianceException {
+            return if (exception.cause != null) {
+                SAMLComplianceException(
+                    "${exception.message}$IDP_ERROR_RESPONSE_REMINDER_MESSAGE",
+                    exception.cause)
+            } else {
+                SAMLComplianceException(
+                    "${exception.message}$IDP_ERROR_RESPONSE_REMINDER_MESSAGE")
             }
         }
 
