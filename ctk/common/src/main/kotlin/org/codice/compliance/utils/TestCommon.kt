@@ -96,15 +96,11 @@ class TestCommon {
         val SP_ENTITY_INFO = checkNotNull(spMetadata[SP_ISSUER])
 
         val acsUrl: Map<SamlProtocol.Binding, String?> by lazy {
-            val spInfo = spMetadata[SP_ISSUER]
-            if (spInfo == null) {
-                emptyMap()
-            } else {
-                SamlProtocol.Binding.values()
-                        .associate {
-                            it to spInfo.getAssertionConsumerService(it)?.url
-                        }
-            }
+            val spInfo = SP_ENTITY_INFO
+            SamlProtocol.Binding.values()
+                    .associate {
+                        it to spInfo.getAssertionConsumerService(it)?.url
+                    }
         }
 
         /**
