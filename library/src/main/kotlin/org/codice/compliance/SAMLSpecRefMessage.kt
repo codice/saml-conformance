@@ -44,6 +44,7 @@ sealed class SAMLSpecRefMessage(docRefKey: String,
 sealed class SAMLProfileRefMessage : SAMLSpecRefMessage("SAMLProfile.doc", "SAMLProfile.uri")
 sealed class SAMLCoreRefMessage : SAMLSpecRefMessage("SAMLCore.doc", "SAMLCore.uri")
 sealed class SAMLBindingRefMessage : SAMLSpecRefMessage("SAMLBinding.doc", "SAMLBinding.uri")
+sealed class SAMLGeneralRefMessage : SAMLSpecRefMessage("SAMLGeneral.doc", "SAMLGeneral.uri")
 
 //-----------------
 // PROFILES
@@ -172,3 +173,9 @@ object SAMLBindings_3_5_4_b : SAMLBindingRefMessage()
 object SAMLBindings_3_5_4_c : SAMLBindingRefMessage()
 object SAMLBindings_3_5_4_d : SAMLBindingRefMessage()
 object SAMLBindings_3_5_5_2_a : SAMLBindingRefMessage()
+
+//------------------
+// GENERAL
+//------------------
+object SAMLGeneral_a : SAMLGeneralRefMessage()
+object SAMLGeneral_b : SAMLGeneralRefMessage()

@@ -36,6 +36,7 @@ import org.codice.compliance.SAMLBindings_3_4_4_b
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLBindings_3_5_5_2_a
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLGeneral_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
@@ -74,6 +75,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         verifyRedirectRelayState(paramMap[RELAY_STATE])
         val samlResponseDom = decode(paramMap)
         verifyNoXMLSig(samlResponseDom)
+        verifyXmlSignatures(samlResponseDom.ownerDocument) // Should verify assertions signature
         paramMap[SIGNATURE]?.let {
             verifyRedirectSignature(paramMap)
             verifyRedirectDestination(samlResponseDom)
@@ -164,11 +166,9 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         }
         samlEncoding?.let { verifyUriValues(it, SAMLBindings_3_4_4_a) }
 
-        /**
-         * A query string parameter named SAMLEncoding is reserved to identify the encoding
-         * mechanism used. If this parameter is omitted, then the value is assumed to be
-         * urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
-         */
+        // A query string parameter named SAMLEncoding is reserved to identify the encoding
+        // mechanism used. If this parameter is omitted, then the value is assumed to be
+        // urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE.
         val decodedMessage = if (samlEncoding == null ||
                 samlEncoding == "urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE") {
             try {
@@ -242,8 +242,9 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
                             paramMap[SIGNATURE],
                             paramMap[SIG_ALG],
                             idpMetadata.signingCertificate)) {
-                throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f,
-                        message = "Signature does not match payload.")
+                throw SAMLComplianceException.create(SAMLGeneral_a,
+                    SAMLBindings_3_4_4_1_f,
+                    message = "Invalid signature.")
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
@@ -270,9 +271,10 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
                             SAMLBindings_3_4_4_1_g,
                             message = "Whitespace was found in the Signature.",
                             cause = e)
-                else -> throw SAMLComplianceException.create(SAMLBindings_3_4_4_1_f,
-                        message = "Signature does not match payload.",
-                        cause = e)
+                else -> throw SAMLComplianceException.create(SAMLGeneral_a,
+                    SAMLBindings_3_4_4_1_f,
+                    message = "Invalid signature.",
+                    cause = e)
             }
         }
     }
