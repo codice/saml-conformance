@@ -165,7 +165,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 val response = sendRedirectAuthnRequest(queryParams)
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+            response.getBindingVerifier().decodeAndVerifyError()
 
                 // DDF returns a valid response to the incorrect url
             } catch (e: SAMLComplianceException) {
