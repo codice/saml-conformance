@@ -61,6 +61,7 @@ class TestCommon {
         const val VALUE = "value"
         const val HIDDEN = "hidden"
         const val TYPE_LOWER = "type"
+        const val ACTION = "action"
         const val LOCATION = "Location"
         const val SAML_ENCODING = "SAMLEncoding"
 
@@ -92,23 +93,20 @@ class TestCommon {
 
         val idpMetadata = Common.parseIdpMetadata()
         val SP_ISSUER = spMetadata.keys.first()
+        val SP_ENTITY_INFO = checkNotNull(spMetadata[SP_ISSUER])
 
         val acsUrl: Map<SamlProtocol.Binding, String?> by lazy {
-            val spInfo = spMetadata[SP_ISSUER]
-            if (spInfo == null) {
-                emptyMap()
-            } else {
-                SamlProtocol.Binding.values()
-                        .associate {
-                            it to spInfo.getAssertionConsumerService(it)?.url
-                        }
-            }
+            val spInfo = SP_ENTITY_INFO
+            SamlProtocol.Binding.values()
+                    .associate {
+                        it to spInfo.getAssertionConsumerService(it)?.url
+                    }
         }
 
         /**
          * Converts the {@param authnRequest} to a String
          */
-        fun authnRequestToString(authnRequest: AuthnRequest): String {
+        private fun authnRequestToString(authnRequest: AuthnRequest): String {
             val doc = DOMUtils.createDocument().apply {
                 appendChild(createElement("root"))
             }

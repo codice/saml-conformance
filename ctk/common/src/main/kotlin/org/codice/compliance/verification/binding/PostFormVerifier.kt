@@ -27,7 +27,7 @@ import org.codice.compliance.SAMLBindings_3_5_4_d
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
-import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.ACTION
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.IDP_ERROR_RESPONSE_REMINDER_MESSAGE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
@@ -36,12 +36,10 @@ import org.codice.compliance.utils.extractSamlResponseForm
 import org.codice.compliance.utils.extractValue
 import org.codice.compliance.utils.hasNoAttributeWithNameAndValue
 import org.codice.compliance.utils.isNotHidden
-import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 
 @Suppress("StringLiteralDuplication" /* Duplicated phrases in exception messages. */)
 class PostFormVerifier(private val response: Response, private val isRelayStateGiven: Boolean) {
     companion object {
-        private const val ACTION = "action"
         private const val METHOD = "method"
         private const val POST = "POST"
         private val isNamedRelayState = { formControl: Node ->
@@ -175,8 +173,7 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
     @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostForm() {
         responseForm?.let {
-            if (it.hasNoAttributeWithNameAndValue(ACTION,
-                            checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
+            if (it.getAttribute(ACTION).isNullOrEmpty()) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_d,
                         message = """The form "action" is incorrect.""")
@@ -218,8 +215,7 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
     @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostFormError() {
         responseForm?.let {
-            if (it.hasNoAttributeWithNameAndValue(ACTION,
-                            checkNotNull(TestCommon.acsUrl[HTTP_POST]))) {
+            if (it.getAttribute(ACTION).isNullOrEmpty()) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_d,
                         message = """The form "action" is incorrect.""" +
