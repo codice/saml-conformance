@@ -29,7 +29,7 @@ public class IdpMetadataTest {
   private static final String IDP_ENTITY_ID = "https://localhost:8993/services/idp/login";
 
   @Test
-  public void testParseSPMetadata() throws Exception {
+  public void testParseIdPMetadata() throws Exception {
     String metadataString =
         Files.toString(
             new File(getClass().getClassLoader().getResource("ddf-idp-metadata.xml").toURI()),
