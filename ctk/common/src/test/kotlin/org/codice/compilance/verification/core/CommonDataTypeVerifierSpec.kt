@@ -32,11 +32,10 @@ import org.w3c.dom.Node
 class CommonDataTypeVerifierSpec : StringSpec() {
     init {
         "null or blank string value fails" {
-            badString(null)
-            badString(null, SAMLCore_3_4_1_1_a)
-            badString("")
-            badString("   ")
-            badString("   ", SAMLCore_3_4_1_1_a)
+            forAll(listOf(null, "", "   ")) {
+                badString(it)
+                badString(it, SAMLCore_3_4_1_1_a)
+            }
         }
 
         "valid string value passes" {
@@ -48,12 +47,10 @@ class CommonDataTypeVerifierSpec : StringSpec() {
         }
 
         "bad Uri value fails" {
-            badUri(null)
-            badUri(null, SAMLCore_3_4_1_1_a)
-            badUri("")
-            badUri("   ")
-            badUri("/not/absolute")
-            badUri("/not/absolute", SAMLCore_3_4_1_1_a)
+            forAll(listOf(null, "", "   ", "/not/absolute")) {
+                badUri(it)
+                badUri(it, SAMLCore_3_4_1_1_a)
+            }
         }
 
         "null Uri node fails" {
