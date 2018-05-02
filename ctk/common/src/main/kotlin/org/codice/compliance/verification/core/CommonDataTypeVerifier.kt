@@ -41,9 +41,6 @@ class CommonDataTypeVerifier {
                         type.contains(ID) -> verifyIdValues(it)
                     }
                 }
-
-                if (it.hasChildNodes())
-                    verifyCommonDataType(it)
             }
         }
 
@@ -63,6 +60,7 @@ class CommonDataTypeVerifier {
         fun verifyUriValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
             verifyUriValues(node?.textContent, errorCode)
         }
+
         fun verifyUriValues(uri: String?, errorCode: SAMLSpecRefMessage? = null) {
             val errorMessage = "The URI value of [$uri] is invalid."
             try {
@@ -89,7 +87,7 @@ class CommonDataTypeVerifier {
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_3_a,
                         message = errorMessage)
-                else throw SAMLComplianceException.create(SAMLCore_1_3_4_a,
+                else throw SAMLComplianceException.create(SAMLCore_1_3_3_a,
                         message = errorMessage)
             }
         }
