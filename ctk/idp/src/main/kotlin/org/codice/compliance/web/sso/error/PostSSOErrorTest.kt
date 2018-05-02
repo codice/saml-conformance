@@ -61,7 +61,7 @@ class PostSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "Empty POST AuthnRequest Test" {
             try {
@@ -82,7 +82,7 @@ class PostSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "POST AuthnRequest With Empty Subject Test" {
             try {
@@ -106,7 +106,7 @@ class PostSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "POST AuthnRequest With Incorrect ACS URL And Index Test" {
             try {
@@ -126,7 +126,7 @@ class PostSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "POST AuthnRequest With Non-Matching Destination" {
             try {
@@ -147,6 +147,6 @@ class PostSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
     }
 }
