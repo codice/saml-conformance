@@ -68,7 +68,7 @@ class RedirectSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "Redirect Incomplete AuthnRequest In URL Query Test" {
             try {
@@ -96,7 +96,7 @@ class RedirectSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "Empty Redirect AuthnRequest Test" {
             try {
@@ -117,7 +117,7 @@ class RedirectSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "Redirect AuthnRequest With Empty Subject Test" {
             try {
@@ -146,7 +146,7 @@ class RedirectSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "Redirect AuthnRequest With Incorrect ACS URL And Index Test" {
             try {
@@ -165,13 +165,13 @@ class RedirectSSOErrorTest : StringSpec() {
                 val response = sendRedirectAuthnRequest(queryParams)
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+            response.getBindingVerifier().decodeAndVerifyError()
 
                 // DDF returns a valid response to the incorrect url
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
 
         "Redirect AuthnRequest With Non-Matching Destination" {
             try {
@@ -196,6 +196,6 @@ class RedirectSSOErrorTest : StringSpec() {
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
-        }.config(enabled = false)
+        }
     }
 }
