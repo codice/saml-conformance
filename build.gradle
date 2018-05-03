@@ -75,9 +75,6 @@ subprojects {
         compile "io.kotlintest:kotlintest-runner-junit5:$kotlin_test_version"
         compile "org.junit.platform:junit-platform-suite-api:$junit_platform_version"
         compile "org.junit.platform:junit-platform-runner:$junit_platform_version"
-
-        testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
     }
 
     test {
