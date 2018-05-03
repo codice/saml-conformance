@@ -19,9 +19,9 @@ import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
+import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
-import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
@@ -120,7 +120,7 @@ class PostSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
-                    spNameQualifier = SP_ISSUER
+                    spNameQualifier = CURRENT_SP_ISSUER
                 }
             }
             val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
@@ -152,7 +152,7 @@ class PostSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = NAMEID_ENCRYPTED
-                    spNameQualifier = SP_ISSUER
+                    spNameQualifier = CURRENT_SP_ISSUER
                 }
             }
             val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)

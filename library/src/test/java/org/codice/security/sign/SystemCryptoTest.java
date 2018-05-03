@@ -27,7 +27,7 @@ public class SystemCryptoTest {
 
   @Test
   public void testCreateSystemCrypto() throws IOException {
-    SystemCrypto crypto = new SystemCrypto();
+    SystemCrypto crypto = new SystemCrypto(null);
 
     assertThat(crypto.getEncryptionAlias(), is(HOSTNAME));
     assertThat(crypto.getEncryptionPassword(), is(PASS));

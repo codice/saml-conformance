@@ -326,11 +326,11 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = samlResponseDom.recursiveChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
+        if (signatures.isNotEmpty() && destination != acsUrl(HTTP_REDIRECT)) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = DESTINATION,
                     actual = destination,
-                    expected = acsUrl[HTTP_REDIRECT],
+                    expected = acsUrl(HTTP_REDIRECT),
                     node = samlResponseDom)
         }
     }

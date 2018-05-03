@@ -37,7 +37,7 @@ class XMLDecryptor {
             org.apache.xml.security.Init.init()
         }
 
-        private const val ENCRYPTION_FILE_NAME = "encryption.properties"
+        private const val ENCRYPTION_FILE_NAME = "samlhost-encryption.properties"
         private const val BC_PROVIDER = "BC"
 
         private val serverPrivateKey by lazy {

@@ -65,11 +65,11 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                 samlResponseDom.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
         samlResponseDom.attributeNode(DESTINATION)?.apply {
-            if (textContent != acsUrl[HTTP_POST])
+            if (textContent != acsUrl(HTTP_POST))
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
-                        expected = acsUrl[HTTP_POST] ?: "No ACS URL Found",
+                        expected = acsUrl(HTTP_POST) ?: "No ACS URL Found",
                         node = samlResponseDom)
 
             CommonDataTypeVerifier.verifyUriValue(this)
