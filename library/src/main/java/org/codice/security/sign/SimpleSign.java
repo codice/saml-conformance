@@ -34,15 +34,26 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.apache.wss4j.common.saml.SAMLKeyInfo;
+import org.apache.wss4j.common.saml.SAMLUtil;
+import org.apache.wss4j.dom.engine.WSSConfig;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
+import org.apache.wss4j.dom.validate.Credential;
+import org.apache.wss4j.dom.validate.SignatureTrustValidator;
+import org.apache.wss4j.dom.validate.Validator;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.KeyInfo;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.opensaml.xmlsec.signature.support.SignatureValidator;
+import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,6 +249,76 @@ public class SimpleSign {
         | java.security.SignatureException
         | IllegalArgumentException e) {
       throw new SignatureException(e);
+    }
+  }
+
+  public void validateSignature(Signature signature) throws SignatureException {
+    RequestData requestData = new RequestData();
+    requestData.setSigVerCrypto(crypto.getSignatureCrypto());
+    WSSConfig wssConfig = WSSConfig.getNewInstance();
+    requestData.setWssConfig(wssConfig);
+
+    SAMLKeyInfo samlKeyInfo = null;
+
+    KeyInfo keyInfo = signature.getKeyInfo();
+    if (keyInfo != null) {
+      try {
+        samlKeyInfo =
+            SAMLUtil.getCredentialFromKeyInfo(
+                keyInfo.getDOM(),
+                new WSSSAMLKeyInfoProcessor(requestData),
+                crypto.getSignatureCrypto());
+      } catch (WSSecurityException e) {
+        throw new SignatureException("Unable to get KeyInfo.", e);
+      }
+    }
+    if (samlKeyInfo == null) {
+      throw new SignatureException("No KeyInfo supplied in the signature");
+    }
+
+    validateSignatureAndSamlKey(signature, samlKeyInfo);
+
+    Credential trustCredential = new Credential();
+    trustCredential.setPublicKey(samlKeyInfo.getPublicKey());
+    trustCredential.setCertificates(samlKeyInfo.getCerts());
+    Validator signatureValidator = new SignatureTrustValidator();
+
+    try {
+      signatureValidator.validate(trustCredential, requestData);
+    } catch (WSSecurityException e) {
+      throw new SignatureException("Error validating signature", e);
+    }
+  }
+
+  private void validateSignatureAndSamlKey(Signature signature, SAMLKeyInfo samlKeyInfo)
+      throws SignatureException {
+    SAMLSignatureProfileValidator validator = new SAMLSignatureProfileValidator();
+    try {
+      validator.validate(signature);
+    } catch (org.opensaml.xmlsec.signature.support.SignatureException e) {
+      throw new SignatureException(e);
+    }
+
+    BasicX509Credential credential;
+    if (samlKeyInfo.getCerts() != null) {
+      credential = new BasicX509Credential(samlKeyInfo.getCerts()[0]);
+    } else {
+      throw new SignatureException("Can't get X509Certificate or PublicKey to verify signature.");
+    }
+
+    ClassLoader threadLoader = null;
+    try {
+      threadLoader = Thread.currentThread().getContextClassLoader();
+      Thread.currentThread()
+          .setContextClassLoader(
+              ApacheSantuarioSignatureValidationProviderImpl.class.getClassLoader());
+      SignatureValidator.validate(signature, credential);
+    } catch (org.opensaml.xmlsec.signature.support.SignatureException e) {
+      throw new SignatureException("Error validating the XML signature", e);
+    } finally {
+      if (threadLoader != null) {
+        Thread.currentThread().setContextClassLoader(threadLoader);
+      }
     }
   }
 

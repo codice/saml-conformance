@@ -38,6 +38,7 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
         verifyHttpStatusCode(httpResponse.statusCode)
         val samlResponseString = PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParse()
         val samlResponseDom = decode(samlResponseString)
+        verifyXmlSignatures(samlResponseDom.ownerDocument)
         verifyPostSSO(samlResponseDom)
         verifyPostDestination(samlResponseDom)
         return samlResponseDom
@@ -48,7 +49,9 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
         verifyHttpStatusCode(httpResponse.statusCode)
         val samlResponseString =
                 PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParseError()
-        return decode(samlResponseString)
+        val samlResponseDom = decode(samlResponseString)
+        verifyXmlSignatures(samlResponseDom.ownerDocument)
+        return samlResponseDom
     }
 
     /**
