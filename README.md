@@ -90,7 +90,7 @@ This module will contain all tests being written against a SAML IdP. The `src` d
   * Class: Based on Binding (i.e. POST, REDIRECT, ARTIFACT)
 * Class: Based on Metadata
 
-This [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests:
+The [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests.
 
 #### common
 This module contains all the classes relating to utility for and verification of the test classes.
