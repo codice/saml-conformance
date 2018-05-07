@@ -85,7 +85,7 @@ Unmarked sections need attention
 -			3.4.1.2 Element <Scoping>
 -			3.4.1.3 Element <IDPList>
 -				3.4.1.3.1 Element <IDPEntry>
-			3.4.1.4 Processing Rules
++			3.4.1.4 Processing Rules
 -			3.4.1.5 Proxying
 				3.4.1.5.1 Proxying Processing Rules
 -	3.5 Artifact Resolution Protocol

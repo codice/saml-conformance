@@ -53,6 +53,8 @@ class PostSSOErrorTest : StringSpec() {
                     signAndEncodeToString(authnRequest, RELAY_STATE_GREATER_THAN_80_BYTES)
                 val response = sendPostAuthnRequest(encodedRequest)
 
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -71,6 +73,7 @@ class PostSSOErrorTest : StringSpec() {
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
@@ -94,6 +97,7 @@ class PostSSOErrorTest : StringSpec() {
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
@@ -118,6 +122,7 @@ class PostSSOErrorTest : StringSpec() {
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             response.getBindingVerifier().decodeAndVerifyError()
@@ -139,6 +144,7 @@ class PostSSOErrorTest : StringSpec() {
                 val response = sendPostAuthnRequest(encodedRequest)
 
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,

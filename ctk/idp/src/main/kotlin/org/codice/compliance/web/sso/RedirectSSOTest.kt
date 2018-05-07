@@ -55,6 +55,9 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
+            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 
@@ -83,6 +86,9 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
+            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
+
             val samlResponseDom =
                     finalHttpResponse.getBindingVerifier().apply {
                         isRelayStateGiven = true
@@ -118,6 +124,9 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
+            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 
@@ -154,6 +163,9 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
+            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 
@@ -193,6 +205,9 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
+            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 

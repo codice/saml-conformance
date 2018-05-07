@@ -33,7 +33,7 @@ Unmarked sections need attention
 -			4.1.3.6 Service Provider Grants or Denies Access to User Agent
 		4.1.4 Use of Authentication Request Protocol
 			4.1.4.1 <AuthnRequest> Usage
-			4.1.4.2 <Response> Usage
++			4.1.4.2 <Response> Usage
 -			4.1.4.3 <Response> Message Processing Rules
 -			4.1.4.4 Artifact-Specific <Response> Message Processing Rules
 +			4.1.4.5 POST-Specific Processing Rules

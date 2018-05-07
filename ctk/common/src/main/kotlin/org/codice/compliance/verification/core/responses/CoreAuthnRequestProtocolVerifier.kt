@@ -18,6 +18,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_d
+import org.codice.compliance.SAMLCore_3_4_1_4_e
 import org.codice.compliance.SAMLCore_3_4_1_a
 import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.children
@@ -27,9 +28,11 @@ import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
 import org.codice.compliance.utils.TestCommon.Companion.SP_ENTITY_INFO
 import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.getLocation
 import org.codice.compliance.verification.core.NameIDPolicyVerifier
 import org.codice.compliance.verification.core.ResponseVerifier
+import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.opensaml.saml.saml2.core.AuthnRequest
 import org.w3c.dom.Node
 
@@ -44,8 +47,9 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
     override fun verify() {
         super.verify()
         verifyAuthnRequestProtocolResponse()
+        verifySubjects()
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
-//        nameIdPolicyVerifier?.apply { verify() }
+        //        nameIdPolicyVerifier?.apply { verify() }
     }
 
     fun verifyAssertionConsumerService(httpResponse: Response) {
@@ -68,7 +72,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
                     node = samlResponseDom)
 
         if (assertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_3_4_a, SAMLCore_3_4_1_4_c,
+            throw SAMLComplianceException.create(SAMLCore_3_4_a, SAMLCore_3_4_1_4_d,
                     message = "AuthnStatement not found in any of the Assertions.",
                     node = samlResponseDom)
 
@@ -76,7 +80,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
                     it.recursiveChildren("AudienceRestriction").flatMap { it.children(AUDIENCE) }
                             .none { it.textContent == SP_ISSUER }
                 })
-            throw SAMLComplianceException.create(SAMLCore_3_4_1_4_d,
+            throw SAMLComplianceException.create(SAMLCore_3_4_1_4_e,
                     message = "Assertion found without an AudienceRestriction referencing the " +
                             "requester.",
                     node = samlResponseDom)
@@ -84,5 +88,16 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
 
     override fun verifyEncryptedElements() {
         nameIdPolicyVerifier?.apply { verifyEncryptedIds() }
+    }
+
+    private fun verifySubjects() {
+        samlResponseDom.recursiveChildren(ASSERTION).forEach {
+            if (it.children(SUBJECT).isEmpty())
+                throw SAMLComplianceException.create(SAMLCore_3_4_1_4_c,
+                        message = "One of the Assertions contained no Subject",
+                        node = it)
+        }
+
+        SubjectComparisonVerifier(authnRequest, samlResponseDom).verifySubjectsMatchAuthnRequest()
     }
 }

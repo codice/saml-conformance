@@ -60,6 +60,8 @@ class RedirectSSOErrorTest : StringSpec() {
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)
 
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -88,6 +90,8 @@ class RedirectSSOErrorTest : StringSpec() {
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)
 
+                BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -106,6 +110,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 val queryParams = mapOf(SAML_REQUEST to encodedRequest)
 
                 val response = sendRedirectAuthnRequest(queryParams)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
@@ -134,6 +139,7 @@ class RedirectSSOErrorTest : StringSpec() {
 
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
@@ -163,6 +169,7 @@ class RedirectSSOErrorTest : StringSpec() {
 
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             response.getBindingVerifier().decodeAndVerifyError()
@@ -186,6 +193,7 @@ class RedirectSSOErrorTest : StringSpec() {
 
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)
+
                 BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()

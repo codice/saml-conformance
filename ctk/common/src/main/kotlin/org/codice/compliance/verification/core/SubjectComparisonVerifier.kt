@@ -27,20 +27,22 @@ import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
+import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.w3c.dom.Node
 
 /**
- * Verifies the request subjects **strongly match** the response subject according to the Core
- * document sections 3.3.4 & 3.4.1.4. (verifySubjectsMatchSSO)
+ * Verifies the samlRequest subjects **strongly match** the samlResponseDom subject according to the
+ * Core document sections 3.3.4 & 3.4.1.4. (verifySubjectsMatchSSO)
  *
- * Verifies the response subjects refer to the same principal according to the Profiles document
- * section 4.1.4.2. (verifySubjectsMatchAuthnRequest)
+ * Verifies the samlResponseDom subjects refer to the same principal according to the Profiles
+ * document section 4.1.4.2. (verifySubjectsMatchAuthnRequest)
  *
- * @param request Optional AuthnRequest {@code Node}. Should be passed when calling the
+ * @param samlRequest Optional AuthnRequest {@code Node}. Should be passed when calling the
  * verifySubjectsMatchAuthnRequest method.
- * @param response Response {@code Node}.
+ * @param samlResponseDom Response {@code Node}.
  */
-class SubjectComparisonVerifier(private val request: Node? = null, private val response: Node) {
+class SubjectComparisonVerifier(private val samlRequest: RequestAbstractType? = null,
+                                private val samlResponseDom: Node) {
 
     companion object {
         private const val UNSPECIFIED_URI =
@@ -56,9 +58,11 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
      * order to fully test this function we need to resolve the Subjects to a principal.
      */
     fun verifySubjectsMatchSSO() {
-        val subjectSet = response.children(ASSERTION)
+        val subjectSet = samlResponseDom.children(ASSERTION)
                 .flatMap { it.children(SUBJECT) }
                 .toSet()
+        if (subjectSet.size < 2) return
+
         Sets.combinations(subjectSet, 2).forEach {
             verifyIdContentsMatchSSO(it.first(), it.last())
         }
@@ -80,7 +84,7 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
                     message = "Two Response Subject identifiers have identical Format attributes " +
                             "[$format1], but the content of one [${id1.textContent}] is not " +
                             "equal to the content of the other [${id2.textContent}]",
-                    node = response)
+                    node = samlResponseDom)
         }
     }
 
@@ -99,16 +103,16 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
     @Suppress("NestedBlockDepth" /* Simple `let` nesting */)
     fun verifySubjectsMatchAuthnRequest() {
 
-        val requestSubject = request?.children(SUBJECT)?.firstOrNull() ?: return
+        val requestSubject = samlRequest?.dom?.children(SUBJECT)?.firstOrNull() ?: return
         val requestId = requestSubject.id
         val requestConfirmations = requestSubject.children(SUBJECT_CONFIRMATION)
 
         if (requestId == null && requestConfirmations.isEmpty()) return
 
         val nameIdPolicyFormat =
-                request.children("NameIDPolicy").firstOrNull()?.filteredFormatValue
+                samlRequest.dom?.children("NameIDPolicy")?.firstOrNull()?.filteredFormatValue
 
-        response.recursiveChildren(ASSERTION)
+        samlResponseDom.recursiveChildren(ASSERTION)
                 .flatMap { it.children(SUBJECT) }
                 .forEach { resSubject ->
 
@@ -198,7 +202,8 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
     }
 
     /**
-     * Verifies that the request SubjectConfirmations **strongly match** the response confirmations.
+     * Verifies that the samlRequest SubjectConfirmations **strongly match** the samlResponseDom
+     * confirmations.
      *
      * Note that this matching only compares the methods of the SubjectConfirmations. In order to
      * properly strongly match we would need to "confirm" the SubjectConfirmation (Hard To Test)
@@ -221,7 +226,7 @@ class SubjectComparisonVerifier(private val request: Node? = null, private val r
                 message = "One of the Response's Subjects had no SubjectConfirmation Methods " +
                         "[$responseMethods] matching the AuthnRequest's SubjectConfirmation " +
                         "Methods [$requestMethods].",
-                node = response)
+                node = samlResponseDom)
     }
 
     /**

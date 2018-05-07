@@ -70,7 +70,6 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
 
     /** Verify the response for a redirect binding */
     override fun decodeAndVerify(): Node {
-        verifyHttpRedirectStatusCode()
         val paramMap = verifyNoNullsAndParse()
         verifyRedirectRelayState(paramMap[RELAY_STATE])
         val samlResponseDom = decode(paramMap)
@@ -86,7 +85,6 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
 
     /** Verify an error response (Negative path) */
     override fun decodeAndVerifyError(): Node {
-        verifyHttpRedirectStatusCode()
         val paramMap = verifyNoNullsAndParse()
         return decode(paramMap)
     }
