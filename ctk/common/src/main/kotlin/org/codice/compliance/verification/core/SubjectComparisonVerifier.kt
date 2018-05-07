@@ -41,8 +41,8 @@ import org.w3c.dom.Node
  * verifySubjectsMatchAuthnRequest method.
  * @param samlResponseDom Response {@code Node}.
  */
-class SubjectComparisonVerifier(private val samlRequest: RequestAbstractType? = null,
-                                private val samlResponseDom: Node) {
+class SubjectComparisonVerifier(private val samlResponseDom: Node,
+                                private val samlRequest: RequestAbstractType? = null) {
 
     companion object {
         private const val UNSPECIFIED_URI =

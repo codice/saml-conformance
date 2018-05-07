@@ -58,7 +58,7 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
     fun verify() {
         verifyIssuer()
         verifySsoAssertions()
-        SubjectComparisonVerifier(authnRequest, samlResponseDom).verifySubjectsMatchSSO()
+        SubjectComparisonVerifier(samlResponseDom).verifySubjectsMatchSSO()
         ProfilesVerifier(samlResponseDom).verify()
     }
 

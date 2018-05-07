@@ -98,6 +98,6 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
                         node = it)
         }
 
-        SubjectComparisonVerifier(authnRequest, samlResponseDom).verifySubjectsMatchAuthnRequest()
+        SubjectComparisonVerifier(samlResponseDom, authnRequest).verifySubjectsMatchAuthnRequest()
     }
 }

@@ -48,8 +48,6 @@ class PostSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
 
-            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
-
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
@@ -72,8 +70,6 @@ class PostSSOTest : StringSpec() {
 
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
-
-            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
 
             // Main goal is to do the relay state verification in the BindingVerifier
             val samlResponseDom =
@@ -104,8 +100,6 @@ class PostSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
 
-            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
-
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
             // Main goal of this test is to verify the ACS in verifyAssertionConsumerService
@@ -134,8 +128,6 @@ class PostSSOTest : StringSpec() {
 
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
-
-            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
 
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
@@ -168,8 +160,6 @@ class PostSSOTest : StringSpec() {
 
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForPostRequest(response)
-
-            BindingVerifier.verifyHttpStatusCode(finalHttpResponse.statusCode)
 
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 

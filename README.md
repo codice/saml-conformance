@@ -77,12 +77,6 @@ To build a docker image, execute `gradlew build docker`.
 >
 > Docker is used exclusively for our Jenkins builds.
 
-### SAML Specification Coverage
-Documentation on positive path IdP SSO coverage can be found in:
-
-    ctk/idp/coverage
-
-
 ## Project Structure
 This section will briefly talk about the project structure.
 

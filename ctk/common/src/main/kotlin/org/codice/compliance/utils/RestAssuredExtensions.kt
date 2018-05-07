@@ -40,6 +40,10 @@ fun Response.determineBinding(): SamlProtocol.Binding {
 }
 
 fun Response.getBindingVerifier(): BindingVerifier {
+    // checking the status code of the response before attempting to determine the binding
+    // because the binding cannot be determined from an http error response
+    BindingVerifier.verifyHttpStatusCode(this.statusCode)
+
     return when (this.determineBinding()) {
         SamlProtocol.Binding.HTTP_REDIRECT -> RedirectBindingVerifier(this)
         SamlProtocol.Binding.HTTP_POST -> PostBindingVerifier(this)
