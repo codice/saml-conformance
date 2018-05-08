@@ -34,7 +34,6 @@ import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.SimpleSign
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
-import org.w3c.dom.Node
 
 class RedirectSSOTest : StringSpec() {
     init {
@@ -57,7 +56,6 @@ class RedirectSSOTest : StringSpec() {
                             response)
 
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
-            val samlRequestDom = authnRequest.dom as Node
 
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
@@ -89,7 +87,6 @@ class RedirectSSOTest : StringSpec() {
                     finalHttpResponse.getBindingVerifier().apply {
                         isRelayStateGiven = true
                     }.decodeAndVerify()
-            val samlRequestDom = authnRequest.dom as Node
 
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
@@ -121,7 +118,6 @@ class RedirectSSOTest : StringSpec() {
                             response)
 
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
-            val samlRequestDom = authnRequest.dom as Node
 
             // Main goal of this test is to verify the ACS in verifyAssertionConsumerService
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
@@ -159,7 +155,6 @@ class RedirectSSOTest : StringSpec() {
                             response)
 
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
-            val samlRequestDom = authnRequest.dom as Node
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
@@ -198,7 +193,6 @@ class RedirectSSOTest : StringSpec() {
                             response)
 
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
-            val samlRequestDom = authnRequest.dom as Node
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier#verifyEncryptedElements

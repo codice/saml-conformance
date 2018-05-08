@@ -17,10 +17,13 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_8_1_2_a
 import org.codice.compliance.SAMLCore_8_2_2_a
 import org.codice.compliance.SAMLCore_8_2_3_a
+import org.codice.compliance.SAMLCore_8_3_6_a
+import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.TestCommon
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -30,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 internal class SamlDefinedIdentifiersVerifier(val node: Node) {
 
     companion object {
+        private const val ENTITY_ID_MAX_LEN = 1024
         private const val ATTRIBUTE_NAME_FORMAT_URI =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
         private const val ATTRIBUTE_NAME_FORMAT_BASIC =
@@ -45,6 +49,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     fun verify() {
         verifyActionNamespaceIdentifiers()
         verifyAttributeNameFormatIdentifiers()
+        verifyEntityIdentifiers()
     }
 
     /** 8.1.2 Read/Write/Execute/Delete/Control with Negation **/
@@ -115,6 +120,29 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                         )
                     }
                 }
+            }
+        }
+    }
+
+    /** 8.3.6 Entity Identifier */
+    private fun verifyEntityIdentifiers() {
+        node.recursiveChildren().filter { it.attributeText(TestCommon.FORMAT) == TestCommon.ENTITY }
+            .forEach { checkEntityIdentifier(it) }
+    }
+
+    private fun checkEntityIdentifier(node: Node) {
+        if (node.attributeNode("NameQualifier") != null ||
+            node.attributeNode("SPNameQualifier") != null ||
+            node.attributeNode("SPProvidedID") != null) {
+            throw SAMLComplianceException.create(SAMLCore_8_3_6_a,
+                message = "No Subject element found.",
+                node = node)
+        }
+        node.nodeValue?.let {
+            if (it.length > ENTITY_ID_MAX_LEN) {
+                throw SAMLComplianceException.create(SAMLCore_8_3_6_b,
+                    message = "Length of URI [$it] is [${it.length}]",
+                    node = node)
             }
         }
     }

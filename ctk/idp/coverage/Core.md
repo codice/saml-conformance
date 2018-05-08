@@ -109,12 +109,12 @@ Unmarked sections need attention
 4 SAML Versioning
 	4.1 SAML Specification Set Version
 -		4.1.1 Schema Version
-		4.1.2 SAML Assertion Version
++		4.1.2 SAML Assertion Version
 		4.1.3 SAML Protocol Version
--			4.1.3.1 Request Version
+			4.1.3.1 Request Version
 			4.1.3.2 Response Version
-			4.1.3.3 Permissible Version Combinations
-	4.2 SAML Namespace Version
++			4.1.3.3 Permissible Version Combinations
++	4.2 SAML Namespace Version
 -		4.2.1 Schema Evolution
 5 SAML and XML Signature Syntax and Processing
 -	5.1 Signing Assertions

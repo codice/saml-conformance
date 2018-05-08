@@ -39,7 +39,8 @@ class TestCommon {
     companion object {
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
-        const val SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val PROTOCOL_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:protocol"
         const val BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
@@ -65,7 +66,6 @@ class TestCommon {
         const val LOCATION = "Location"
         const val SAML_ENCODING = "SAMLEncoding"
 
-        const val SAML_VERSION = "2.0"
         const val REQUEST_ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +

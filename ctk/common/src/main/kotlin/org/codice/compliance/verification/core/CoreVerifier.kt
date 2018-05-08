@@ -17,8 +17,6 @@ import de.jupf.staticlog.Log
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
-import org.codice.compliance.SAMLCore_8_3_6_a
-import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
@@ -26,8 +24,6 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ENTITY
-import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.schema.SchemaValidator
@@ -37,8 +33,6 @@ import java.time.Instant
 
 abstract class CoreVerifier(protected val node: Node) {
     companion object {
-        private const val ENTITY_ID_MAX_LEN = 1024
-
         /**
          * Verifies that a response has the expected status code.
          * This should be called explicitly if an error is expected.
@@ -78,33 +72,6 @@ abstract class CoreVerifier(protected val node: Node) {
         }
 
         /**
-         * Verifies Name Identifiers formatted as type Entity, according to the Core Spec document.
-         *
-         * 8.3.6 Entity Identifier
-         */
-        private fun verifyEntityIdentifiers(responseDom: Node) {
-            responseDom.recursiveChildren().filter { it.attributeText(FORMAT) == ENTITY }
-                    .forEach { checkEntityIdentifier(it) }
-        }
-
-        private fun checkEntityIdentifier(node: Node) {
-            if (node.attributeNode("NameQualifier") != null ||
-                    node.attributeNode("SPNameQualifier") != null ||
-                    node.attributeNode("SPProvidedID") != null) {
-                throw SAMLComplianceException.create(SAMLCore_8_3_6_a,
-                        message = "No Subject element found.",
-                        node = node)
-            }
-            node.nodeValue?.let {
-                if (it.length > ENTITY_ID_MAX_LEN) {
-                    throw SAMLComplianceException.create(SAMLCore_8_3_6_b,
-                            message = "Length of URI [$it] is [${it.length}]",
-                            node = node)
-                }
-            }
-        }
-
-        /**
          * Checks the values of NotBefore and NotOnOrAfter attributes and verifies
          * that the value of NotBefore is less than the value for NotOnOrAfter.
          */
@@ -135,8 +102,8 @@ abstract class CoreVerifier(protected val node: Node) {
     open fun verify() {
         preProcess(node)
         verifyCommonDataType(node)
-        verifyEntityIdentifiers(node)
         SamlAssertionsVerifier(node).verify()
+        SamlVersioningVerifier(node).verify()
         SignatureSyntaxAndProcessingVerifier(node).verify()
         SamlDefinedIdentifiersVerifier(node).verify()
     }
