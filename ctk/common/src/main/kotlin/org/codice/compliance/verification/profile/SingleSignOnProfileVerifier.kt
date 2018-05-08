@@ -42,6 +42,7 @@ import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
+import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.core.AuthnRequest
@@ -57,6 +58,7 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
     fun verify() {
         verifyIssuer()
         verifySsoAssertions()
+        SubjectComparisonVerifier(samlResponseDom).verifySubjectsMatchSSO()
         ProfilesVerifier(samlResponseDom).verify()
     }
 

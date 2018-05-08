@@ -27,8 +27,8 @@ import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnReques
 import org.codice.compliance.utils.TestCommon.Companion.encodeAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
-import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.utils.getBindingVerifier
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
@@ -55,6 +55,7 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 
@@ -83,6 +84,7 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
             val samlResponseDom =
                     finalHttpResponse.getBindingVerifier().apply {
                         isRelayStateGiven = true
@@ -104,7 +106,6 @@ class RedirectSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 assertionConsumerServiceURL = null
             }
-
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
@@ -118,6 +119,7 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 
@@ -140,7 +142,6 @@ class RedirectSSOTest : StringSpec() {
                     spNameQualifier = SP_ISSUER
                 }
             }
-
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
@@ -154,6 +155,7 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 
@@ -179,7 +181,6 @@ class RedirectSSOTest : StringSpec() {
                     spNameQualifier = SP_ISSUER
                 }
             }
-
             val encodedRequest = encodeAuthnRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
@@ -193,6 +194,7 @@ class RedirectSSOTest : StringSpec() {
             val finalHttpResponse =
                     getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
+
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
             val samlRequestDom = authnRequest.dom as Node
 

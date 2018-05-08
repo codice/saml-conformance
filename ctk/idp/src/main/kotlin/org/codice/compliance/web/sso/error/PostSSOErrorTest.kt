@@ -31,7 +31,6 @@ import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnReques
 import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodeToString
 import org.codice.compliance.utils.getBindingVerifier
-import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.security.saml.SamlProtocol
@@ -50,14 +49,14 @@ class PostSSOErrorTest : StringSpec() {
                 }
                 val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST)
                 val encodedRequest =
-                    signAndEncodeToString(authnRequest, RELAY_STATE_GREATER_THAN_80_BYTES)
+                        signAndEncodeToString(authnRequest, RELAY_STATE_GREATER_THAN_80_BYTES)
                 val response = sendPostAuthnRequest(encodedRequest)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                    samlErrorCode = SAMLBindings_3_5_3_a,
-                    expectedStatusCode = REQUESTER)
+                        samlErrorCode = SAMLBindings_3_5_3_a,
+                        expectedStatusCode = REQUESTER)
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
@@ -71,13 +70,12 @@ class PostSSOErrorTest : StringSpec() {
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
-                BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                    samlErrorCode = SAMLProfiles_4_1_4_1_a,
-                    expectedStatusCode = REQUESTER)
+                        samlErrorCode = SAMLProfiles_4_1_4_1_a,
+                        expectedStatusCode = REQUESTER)
                 ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
@@ -88,21 +86,20 @@ class PostSSOErrorTest : StringSpec() {
             try {
                 Log.debugWithSupplier { "POST AuthnRequest With Empty Subject Test" }
                 val authnRequest =
-                    createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
-                    subject = SubjectBuilder().buildObject()
-                }
+                        createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
+                            subject = SubjectBuilder().buildObject()
+                        }
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
-                BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                    samlErrorCode = SAMLProfiles_4_1_4_1_b,
-                    expectedStatusCode = REQUESTER)
+                        samlErrorCode = SAMLProfiles_4_1_4_1_b,
+                        expectedStatusCode = REQUESTER)
                 ProfilesVerifier(samlResponseDom)
-                    .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+                        .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
@@ -118,9 +115,8 @@ class PostSSOErrorTest : StringSpec() {
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
-                BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-            response.getBindingVerifier().decodeAndVerifyError()
+                response.getBindingVerifier().decodeAndVerifyError()
 
                 // DDF returns a valid response to the incorrect url
             } catch (e: SAMLComplianceException) {
@@ -138,12 +134,11 @@ class PostSSOErrorTest : StringSpec() {
                 val encodedRequest = signAndEncodeToString(authnRequest)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                BindingVerifier.verifyHttpStatusCode(response.statusCode)
                 val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                 CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                    samlErrorCode = SAMLCore_3_2_1_e,
-                    expectedStatusCode = REQUESTER)
+                        samlErrorCode = SAMLCore_3_2_1_e,
+                        expectedStatusCode = REQUESTER)
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }

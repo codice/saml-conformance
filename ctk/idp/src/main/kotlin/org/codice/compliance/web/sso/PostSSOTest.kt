@@ -65,6 +65,7 @@ class PostSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST)
             val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
             val response = sendPostAuthnRequest(encodedRequest)
+
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =

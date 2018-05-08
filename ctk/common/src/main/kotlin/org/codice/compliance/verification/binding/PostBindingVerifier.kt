@@ -35,7 +35,6 @@ import kotlin.test.assertNotNull
 class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
     /** Verify the response for a post binding */
     override fun decodeAndVerify(): Node {
-        verifyHttpStatusCode(httpResponse.statusCode)
         val samlResponseString = PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParse()
         val samlResponseDom = decode(samlResponseString)
         verifyXmlSignatures(samlResponseDom.ownerDocument)
@@ -46,7 +45,6 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
 
     /** Verify an error response (Negative path) */
     override fun decodeAndVerifyError(): Node {
-        verifyHttpStatusCode(httpResponse.statusCode)
         val samlResponseString =
                 PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParseError()
         val samlResponseDom = decode(samlResponseString)
