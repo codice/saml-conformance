@@ -134,7 +134,9 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        "Redirect AuthnRequest With Email NameID Format Test" {
+        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
+        // re-enable this test
+        "Redirect AuthnRequest With Email NameID Format Test".config(enabled = false) {
             Log.debugWithSupplier { "Redirect AuthnRequest With Email NameID Format Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
@@ -169,11 +171,11 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-            // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-            // re-enable this test
-        }.config(enabled = false)
+        }
 
-        "Redirect AuthnRequest With Encrypted NameID Format Test" {
+        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
+        // re-enable this test
+        "Redirect AuthnRequest With Encrypted NameID Format Test".config(enabled = false) {
             Log.debugWithSupplier { "Redirect AuthnRequest With Encrypted NameID Format Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
@@ -208,8 +210,6 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-            // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-            // re-enable this test
-        }.config(enabled = false)
+        }
     }
 }

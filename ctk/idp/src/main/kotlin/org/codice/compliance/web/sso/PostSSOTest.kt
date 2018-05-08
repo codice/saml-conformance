@@ -113,7 +113,9 @@ class PostSSOTest : StringSpec() {
             }
         }
 
-        "POST AuthnRequest With Email NameIDPolicy Format Test" {
+        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
+        // re-enable this test
+        "POST AuthnRequest With Email NameIDPolicy Format Test".config (enabled = false) {
             Log.debugWithSupplier { "POST AuthnRequest With Email NameID Format Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
@@ -141,11 +143,11 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-            // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-            // re-enable this test
-        }.config(enabled = false)
+        }
 
-        "POST AuthnRequest With Encrypted NameIDPolicy Format Test" {
+        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
+        // re-enable this test
+        "POST AuthnRequest With Encrypted NameIDPolicy Format Test".config(enabled = false) {
             Log.debugWithSupplier { "POST AuthnRequest With Encrypted NameID Format Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
@@ -173,8 +175,6 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-            // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-            // re-enable this test
-        }.config(enabled = false)
+        }
     }
 }
