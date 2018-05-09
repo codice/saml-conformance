@@ -45,9 +45,9 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.1 String Values **/
-        fun verifyStringValues(node: Node, errorCode: SAMLSpecRefMessage? = null) {
-            if (node.textContent.isNullOrBlank()) {
-                val errorMessage = "The String value of ${node.textContent} is invalid."
+        fun verifyStringValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+            if (node?.textContent.isNullOrBlank()) {
+                val errorMessage = "The String value of ${node?.textContent} is invalid."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
                         SAMLCore_1_3_1_a,
                         message = errorMessage)

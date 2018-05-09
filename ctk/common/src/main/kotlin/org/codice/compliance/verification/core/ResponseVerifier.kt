@@ -17,7 +17,6 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_2_2_a
 import org.codice.compliance.SAMLCore_3_2_2_a
 import org.codice.compliance.SAMLCore_3_2_2_b
-import org.codice.compliance.SAMLCore_3_2_2_c
 import org.codice.compliance.SAMLCore_3_2_2_d
 import org.codice.compliance.SAMLCore_3_2_2_e
 import org.codice.compliance.attributeNode
@@ -26,7 +25,6 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
@@ -62,15 +60,7 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                     expected = requestId,
                     node = samlResponseDom)
 
-        val version = samlResponseDom.attributeNode(VERSION)
-        if (version?.textContent != SAML_VERSION)
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_c,
-                    property = VERSION,
-                    actual = version?.textContent,
-                    expected = SAML_VERSION,
-                    node = samlResponseDom)
-
-        CommonDataTypeVerifier.verifyStringValues(version)
+        CommonDataTypeVerifier.verifyStringValues(samlResponseDom.attributeNode(VERSION))
         CommonDataTypeVerifier.verifyDateTimeValues(
                 samlResponseDom.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 

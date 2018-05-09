@@ -135,6 +135,12 @@ object SAMLCore_3_4_1_4_e : SAMLCoreRefMessage()
 
 object SAMLCore_3_7_1_a : SAMLCoreRefMessage()
 
+object SAMLCore_4_1_2_a : SAMLCoreRefMessage()
+object SAMLCore_4_1_3_2_a : SAMLCoreRefMessage()
+object SAMLCore_4_1_3_2_b : SAMLCoreRefMessage()
+object SAMLCore_4_1_3_3_a : SAMLCoreRefMessage()
+object SAMLCore_4_2_a : SAMLCoreRefMessage()
+
 object SAMLCore_5_4_2_a : SAMLCoreRefMessage()
 
 object SAMLCore_6_1_a : SAMLCoreRefMessage()
@@ -180,3 +186,4 @@ object SAMLBindings_3_5_5_2_a : SAMLBindingRefMessage()
 //------------------
 object SAMLGeneral_a : SAMLGeneralRefMessage()
 object SAMLGeneral_b : SAMLGeneralRefMessage()
+object SAMLGeneral_c : SAMLGeneralRefMessage()

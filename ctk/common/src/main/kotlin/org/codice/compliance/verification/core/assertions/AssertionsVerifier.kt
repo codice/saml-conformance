@@ -16,7 +16,6 @@ package org.codice.compliance.verification.core.assertions
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_2_2_3_a
 import org.codice.compliance.SAMLCore_2_2_3_b
-import org.codice.compliance.SAMLCore_2_3_3_a
 import org.codice.compliance.SAMLCore_2_3_3_b
 import org.codice.compliance.SAMLCore_2_3_3_c
 import org.codice.compliance.attributeNode
@@ -26,7 +25,6 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
 import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.SAML_VERSION
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
 import org.codice.compliance.utils.TestCommon.Companion.XSI
@@ -51,15 +49,7 @@ internal class AssertionsVerifier(val node: Node) {
     @Suppress("ComplexCondition")
     private fun verifyAssertion() {
         node.recursiveChildren(ASSERTION).forEach {
-            val version = it.attributeNode(VERSION)
-            if (version?.textContent != SAML_VERSION)
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_3_3_a,
-                        property = VERSION,
-                        actual = version?.textContent,
-                        expected = SAML_VERSION,
-                        node = node)
-
-            CommonDataTypeVerifier.verifyStringValues(version)
+            CommonDataTypeVerifier.verifyStringValues(it.attributeNode(VERSION))
             CommonDataTypeVerifier.verifyIdValues(it.attributeNode(ID),
                     SAMLCore_2_3_3_b)
             CommonDataTypeVerifier.verifyDateTimeValues(it.attributeNode("IssueInstant"),

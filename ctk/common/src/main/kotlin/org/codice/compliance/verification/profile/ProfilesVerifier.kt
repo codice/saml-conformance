@@ -25,7 +25,7 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
-import org.codice.compliance.utils.TestCommon.Companion.SAML_NAMESPACE
+import org.codice.compliance.utils.TestCommon.Companion.ASSERTION_NAMESPACE
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.TestCommon.Companion.XSI
 import org.w3c.dom.Node
@@ -85,11 +85,11 @@ class ProfilesVerifier(private val node: Node) {
                         expected = "KeyInfoConfirmationDataType",
                         node = node)
 
-            if (type?.firstChild?.namespaceURI != SAML_NAMESPACE)
+            if (type?.firstChild?.namespaceURI != ASSERTION_NAMESPACE)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
                         property = "the namespace prefix",
                         actual = type?.firstChild?.namespaceURI,
-                        expected = SAML_NAMESPACE,
+                        expected = ASSERTION_NAMESPACE,
                         node = node)
 
             val keyInfos = it.children("KeyInfo")

@@ -75,6 +75,7 @@ subprojects {
         compile "io.kotlintest:kotlintest-runner-junit5:$kotlin_test_version"
         compile "org.junit.platform:junit-platform-suite-api:$junit_platform_version"
         compile "org.junit.platform:junit-platform-runner:$junit_platform_version"
+        testCompile "io.mockk:mockk:$mockk_version"
     }
 
     test {

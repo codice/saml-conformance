@@ -21,7 +21,9 @@ import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLGeneral_c
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
 import org.codice.security.sign.SimpleSign
@@ -39,7 +41,8 @@ class TestCommon {
     companion object {
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
         const val ELEMENT = "http://www.w3.org/2001/04/xmlenc#Element"
-        const val SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val ASSERTION_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion"
+        const val PROTOCOL_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:protocol"
         const val BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
@@ -65,7 +68,6 @@ class TestCommon {
         const val LOCATION = "Location"
         const val SAML_ENCODING = "SAMLEncoding"
 
-        const val SAML_VERSION = "2.0"
         const val REQUEST_ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
@@ -88,7 +90,8 @@ class TestCommon {
         private val DEPLOY_CL = getDeployDirClassloader()
         private val spMetadata = Common.parseSpMetadata()
 
-        val idpMetadata = Common.parseIdpMetadata()
+        val idpMetadata = parseAndVerifyVersion()
+
         val SP_ISSUER = spMetadata.keys.first()
         val SP_ENTITY_INFO = checkNotNull(spMetadata[SP_ISSUER])
 
@@ -98,6 +101,15 @@ class TestCommon {
                     .associate {
                         it to spInfo.getAssertionConsumerService(it)?.url
                     }
+        }
+
+        private fun parseAndVerifyVersion(): IdpMetadata {
+            val metadata = Common.parseIdpMetadata()
+            if (metadata.descriptor.supportedProtocols.none { it.contains("2.0") })
+                throw SAMLComplianceException.create(SAMLGeneral_c,
+                    message = "The protocolSupportEnumeration's version specified in the metadata" +
+                        " is not 2.0 and not supported by this conformance test kit.")
+            return metadata
         }
 
         /**
