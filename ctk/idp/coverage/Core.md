@@ -120,11 +120,11 @@ Unmarked sections need attention
 -	5.1 Signing Assertions
 -	5.2 Request/Response Signing
 -	5.3 Signature Inheritance
-	5.4 XML Signature Profile
-		5.4.1 Signing Formats and Algorithms
++	5.4 XML Signature Profile
++		5.4.1 Signing Formats and Algorithms
 +		5.4.2 References
 -		5.4.3 Canonicalization Method
-		5.4.4 Transforms
+-		5.4.4 Transforms
 -		5.4.5 [E91] Object
 -		5.4.6 KeyInfo
 -		5.4.7 Example
