@@ -35,17 +35,17 @@ class CommonDataTypeVerifier {
             samlDom.recursiveChildren().forEach {
                 it.attributeTextNS(XSI, "type")?.let { type ->
                     when {
-                        type.contains("string") -> verifyStringValues(it)
-                        type.contains("anyURI") -> verifyUriValues(it)
-                        type.contains("dateTime") -> verifyDateTimeValues(it)
-                        type.contains(ID) -> verifyIdValues(it)
+                        type.contains("string") -> verifyStringValue(it)
+                        type.contains("anyURI") -> verifyUriValue(it)
+                        type.contains("dateTime") -> verifyDateTimeValue(it)
+                        type.contains(ID) -> verifyIdValue(it)
                     }
                 }
             }
         }
 
         /** 1.3.1 String Values **/
-        fun verifyStringValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+        fun verifyStringValue(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
             if (node?.textContent.isNullOrBlank()) {
                 val errorMessage = "The String value of ${node?.textContent} is invalid."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
@@ -57,11 +57,11 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.2 URI Values **/
-        fun verifyUriValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
-            verifyUriValues(node?.textContent, errorCode)
+        fun verifyUriValue(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+            verifyUriValue(node?.textContent, errorCode)
         }
 
-        fun verifyUriValues(uri: String?, errorCode: SAMLSpecRefMessage? = null) {
+        fun verifyUriValue(uri: String?, errorCode: SAMLSpecRefMessage? = null) {
             val errorMessage = "The URI value of [$uri] is invalid."
             try {
                 if (uri.isNullOrBlank() || !URI.create(uri).isAbsolute) {
@@ -81,7 +81,7 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.3 Time Values **/
-        fun verifyDateTimeValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+        fun verifyDateTimeValue(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
             if (node == null || !node.textContent.endsWith("Z")) {
                 val errorMessage = "The time date value of [${node?.textContent}] is not in UTC."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,
@@ -93,7 +93,7 @@ class CommonDataTypeVerifier {
         }
 
         /** 1.3.4 ID and ID Reference Values **/
-        fun verifyIdValues(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
+        fun verifyIdValue(node: Node?, errorCode: SAMLSpecRefMessage? = null) {
             if (node == null || ids.contains(node.textContent)) {
                 val errorMessage = "The ID value of [${node?.textContent}] is not unique."
                 if (errorCode != null) throw SAMLComplianceException.create(errorCode,

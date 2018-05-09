@@ -48,7 +48,7 @@ import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.SAML_ENCODING
 import org.codice.compliance.utils.TestCommon.Companion.acsUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
-import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyUriValues
+import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyUriValue
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BASE64_DECODING
@@ -164,7 +164,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
                         cause = e)
             }
         }
-        samlEncoding?.let { verifyUriValues(it, SAMLBindings_3_4_4_a) }
+        samlEncoding?.let { verifyUriValue(it, SAMLBindings_3_4_4_a) }
 
         // A query string parameter named SAMLEncoding is reserved to identify the encoding
         // mechanism used. If this parameter is omitted, then the value is assumed to be
@@ -232,7 +232,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         val sigAlg = paramMap[SIG_ALG]?.let {
             URLDecoder.decode(it, StandardCharsets.UTF_8.name())
         }
-        verifyUriValues(sigAlg, SAMLBindings_3_4_4_1_e)
+        verifyUriValue(sigAlg, SAMLBindings_3_4_4_1_e)
 
         try {
             if (!SimpleSign().validateSignature(

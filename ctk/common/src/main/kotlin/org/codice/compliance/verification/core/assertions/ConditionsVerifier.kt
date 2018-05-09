@@ -72,7 +72,7 @@ internal class ConditionsVerifier(val node: Node) {
         conditionsElement.children("AudienceRestriction")
                 .filter { it.children(AUDIENCE).isNotEmpty() }
                 .flatMap { it.children(AUDIENCE) }
-                .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
+                .forEach { CommonDataTypeVerifier.verifyUriValue(it) }
     }
 
     /** 2.5.1.6 Element <ProxyRestriction> */

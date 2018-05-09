@@ -5,6 +5,7 @@ It is currently a prototype being actively developed.
 > NOTE
 > 
 > Only supports SAML Version 2.0. All other version are not supported.
+> This test kit does not support proxying.
 
 ## Setup
 To build the project:

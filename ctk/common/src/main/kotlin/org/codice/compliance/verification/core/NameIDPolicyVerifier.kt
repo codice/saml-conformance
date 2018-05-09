@@ -23,6 +23,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
+import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.w3c.dom.Node
@@ -50,7 +51,7 @@ class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy
     }
 
     private fun verifySPNameQualifiersMatch(nameId: Node) {
-        nameId.attributeText("SPNameQualifier")?.let { spnq ->
+        nameId.attributeText(SP_NAME_QUALIFIER)?.let { spnq ->
             val spNameQualifier = policy.spNameQualifier
             if (spnq != spNameQualifier) {
                 throw SAMLComplianceException.create(SAMLCore_3_4_1_1_b,
