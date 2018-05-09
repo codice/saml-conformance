@@ -17,6 +17,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_8_1_2_a
 import org.codice.compliance.SAMLCore_8_2_2_a
 import org.codice.compliance.SAMLCore_8_2_3_a
+import org.codice.compliance.SAMLCore_8_3_2_a
 import org.codice.compliance.SAMLCore_8_3_6_a
 import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.SAMLCore_8_3_7_a
@@ -51,6 +52,14 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
         private const val ATTRIBUTE_NAME_FORMAT_BASIC =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
 
+        private const val EMAIL_URI = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+        // acquired from http://regexlib.com/REDetails.aspx?regexp_id=2558
+        @Suppress("StringLiteralDuplication")
+        private const val EMAIL_REGEX =
+                "^((([!#\$%&'*+\\-/=?^_`{|}~\\w])|([!#\$%&'*+\\-/=?^_`{|}~\\w][!#\$%&'*+\\-/=?^_`" +
+                        "{|}~\\.\\w]{0,}[!#\$%&'*+\\-/=?^_`{|}~\\w]))[@]\\w+([-.]\\w+)*\\.\\w+([-" +
+                        ".]\\w+)*)\$"
+
         private val RWEDC_URI_SET = setOf(
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc"
@@ -61,6 +70,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     fun verify() {
         verifyActionNamespaceIdentifiers()
         verifyAttributeNameFormatIdentifiers()
+        verifyNameIdentifierFormatIdentifiers()
         verifyPersistentIdentifiers()
         verifyTransientIdentifiers()
         verifyEntityIdentifiers()
@@ -136,6 +146,21 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                 }
             }
         }
+    }
+
+    /** 8.3 Name Identifier Format Identifiers */
+    private fun verifyNameIdentifierFormatIdentifiers() {
+        node.recursiveChildren()
+                .filter { it.attributeText("Format") == EMAIL_URI }
+                .forEach {
+                    if (!it.textContent.matches(EMAIL_REGEX.toRegex()))
+                        throw SAMLComplianceException.create(SAMLCore_8_3_2_a,
+                                message = "The content of the Identifier [${it.localName}] was " +
+                                        "not in the format specified by the Format attribute " +
+                                        "[$EMAIL_URI]",
+                                node = it
+                        )
+                }
     }
 
     /** 8.3.6 Entity Identifier */
