@@ -21,6 +21,7 @@ import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLGeneral_c
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
@@ -88,7 +89,15 @@ class TestCommon {
         private val DEPLOY_CL = getDeployDirClassloader()
         private val spMetadata = Common.parseSpMetadata()
 
-        val idpMetadata = Common.parseIdpMetadata()
+        val idpMetadata by lazy {
+            val metadata = Common.parseIdpMetadata()
+            if (metadata.descriptor.supportedProtocols.none { it.contains("2.0") })
+                throw SAMLComplianceException.create(SAMLGeneral_c,
+                    message = "The protocolSupportEnumeration's version specified in the metadata" +
+                        " is not 2.0 and not supported by this conformance test kit.")
+            return@lazy metadata
+        }
+
         val SP_ISSUER = spMetadata.keys.first()
         val SP_ENTITY_INFO = checkNotNull(spMetadata[SP_ISSUER])
 

@@ -35,22 +35,27 @@ class SamlVersioningVerifierSpec : StringSpec() {
         every { specRefMsg.message } returns "Test message"
         every { specRefMsg.name } returns "Test"
 
-        val instant = Instant.now()
-        val response = { resVersion: String, resUri: String?, version: String, uri: String? ->
+        val now = Instant.now()
+        val response = {
+            resVersion: String, resNamespace: String?, version: String, namespace: String? ->
             """
-            |<s:Response xmlns:s="$resUri" ID="id" Version="$resVersion" IssueInstant="$instant">
+            |<s:Response xmlns:s="$resNamespace" ID="id" Version="$resVersion" IssueInstant="$now">
             |  <s:Status>
             |    <s:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
             |  </s:Status>
-            |  <s2:Assertion xmlns:s2="$uri" ID="id" IssueInstant="$instant" Version="$version">
+            |  <s2:Assertion xmlns:s2="$namespace" ID="id" IssueInstant="$now" Version="$version">
             |    <s2:Issuer>https://localhost:8993/services/idp/login</s2:Issuer>
             |  </s2:Assertion>
             |</s:Response>
            """.trimMargin()
         }
 
+        val incorrectVersions = listOf("1.0", "1.1", "3.0", "2")
+        val incorrectNamespaces = listOf("incorrect_SAML_namespace",
+            "urn:oasis:names:tc:SAML:1.0:protocol", "urn:oasis:names:tc:SAML:3.0:protocol")
+
         "response with incorrect versions fails" {
-            forAll(listOf("1.0", "1.1", "3.0", "2")) { version ->
+            forAll(incorrectVersions) { version ->
                 buildDom(
                     response(version, PROTOCOL_NAMESPACE, "2.0", ASSERTION_NAMESPACE)).let {
                     shouldThrow<SAMLComplianceException> {
@@ -86,7 +91,7 @@ class SamlVersioningVerifierSpec : StringSpec() {
         }
 
         "response with incorrect assertion versions fails" {
-            forAll(listOf("1.0", "1.1", "3.0", "2")) { version ->
+            forAll(incorrectVersions) { version ->
                 buildDom(
                     response("2.0", PROTOCOL_NAMESPACE, version, ASSERTION_NAMESPACE)).let {
                     shouldThrow<SAMLComplianceException> {
@@ -95,9 +100,6 @@ class SamlVersioningVerifierSpec : StringSpec() {
                 }
             }
         }
-
-        val incorrectNamespaces = listOf("incorrect_SAML_namespace",
-            "urn:oasis:names:tc:SAML:1.0:protocol", "urn:oasis:names:tc:SAML:3.0:protocol")
 
         "response with correct namespace URIs passes" {
             buildDom(

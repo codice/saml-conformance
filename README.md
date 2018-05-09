@@ -1,6 +1,10 @@
 # SAML Conformance Test Kit
-This project is intended to be a set of blackbox tests that verify the conformance of an IdP/SP to the SAML Spec.
+This project is intended to be a set of blackbox tests that verify the conformance of an IdP/SP to the SAML V2.0 Standard Specification.
 It is currently a prototype being actively developed.
+
+> NOTE
+> 
+> Only supports SAML Version 2.0. All other version are not supported.
 
 ## Setup
 To build the project:

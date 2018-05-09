@@ -28,6 +28,7 @@ import org.codice.compliance.utils.TestCommon
 import org.opensaml.saml.common.SAMLVersion
 import org.w3c.dom.Node
 
+/** Only supports version 2.0 */
 class SamlVersioningVerifier(private val samlResponseDom: Node) {
     companion object {
         private const val EXPECTED_MAJOR_VERSION = 2
@@ -79,8 +80,7 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
     /** 4.2 SAML Namespace Version **/
     @Suppress("ComplexCondition")
     private fun verifyNamespaceVersioning() {
-        if ((samlResponseDom.namespaceURI != null &&
-            !samlResponseDom.namespaceURI.contains(SAMLVersion.VERSION_20.toString())) ||
+        if (samlResponseDom.namespaceURI?.contains(SAMLVersion.VERSION_20.toString()) != true ||
             samlResponseDom.recursiveChildren()
                 .filter { it.namespaceURI != null && it.namespaceURI.contains("SAML") }
                 .any { !it.namespaceURI.contains(SAMLVersion.VERSION_20.toString()) })

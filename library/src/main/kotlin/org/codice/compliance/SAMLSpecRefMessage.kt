@@ -186,3 +186,4 @@ object SAMLBindings_3_5_5_2_a : SAMLBindingRefMessage()
 //------------------
 object SAMLGeneral_a : SAMLGeneralRefMessage()
 object SAMLGeneral_b : SAMLGeneralRefMessage()
+object SAMLGeneral_c : SAMLGeneralRefMessage()
