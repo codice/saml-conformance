@@ -29,9 +29,9 @@ import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
-import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -183,10 +183,10 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                 }
 
                 it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
-                    if (spNameQualifier != SP_ISSUER )
+                    if (spNameQualifier != CURRENT_SP_ISSUER )
                         throw SAMLComplianceException.create(SAMLCore_8_3_7_d,
                             message = "The Persistent ID's SPNameQualifier [$spNameQualifier] " +
-                                "isn't equal to $SP_ISSUER",
+                                "isn't equal to $CURRENT_SP_ISSUER",
                             node = it)
                 }
             }

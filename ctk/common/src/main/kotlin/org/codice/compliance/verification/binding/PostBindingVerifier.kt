@@ -95,11 +95,11 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = samlResponseDom.recursiveChildren(SIGNATURE)
 
-        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_POST]) {
+        if (signatures.isNotEmpty() && destination != acsUrl(HTTP_POST)) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = DESTINATION,
                     actual = destination,
-                    expected = acsUrl[HTTP_POST],
+                    expected = acsUrl(HTTP_POST),
                     node = samlResponseDom)
         }
     }

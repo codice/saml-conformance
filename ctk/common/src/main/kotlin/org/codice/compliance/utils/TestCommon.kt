@@ -91,19 +91,20 @@ class TestCommon {
                 "org.apache.ws.security.crypto.merlin.keystore.private.password"
 
         private val DEPLOY_CL = getDeployDirClassloader()
-        private val spMetadata = Common.parseSpMetadata()
-
         val idpMetadata = parseAndVerifyVersion()
 
-        val SP_ISSUER = spMetadata.keys.first()
-        val SP_ENTITY_INFO = checkNotNull(spMetadata[SP_ISSUER])
+        const val DEFAULT_SP_ISSUER = "https://samlhost:8993/services/saml"
+        const val DSA_SP_ISSUER = "https://samlhostdsa:8993/services/samldsa"
 
-        val acsUrl: Map<SamlProtocol.Binding, String?> by lazy {
-            val spInfo = SP_ENTITY_INFO
-            SamlProtocol.Binding.values()
-                    .associate {
-                        it to spInfo.getAssertionConsumerService(it)?.url
-                    }
+        private val spMetadata = Common.parseSpMetadata()
+        val DEFAULT_SP_ENTITY_INFO = checkNotNull(spMetadata[DEFAULT_SP_ISSUER])
+        val DSA_SP_ENTITY_INFO = checkNotNull(spMetadata[DSA_SP_ISSUER])
+
+        var CURRENT_SP_ISSUER = DEFAULT_SP_ISSUER
+        var CURRENT_SP_ENTITY_INFO = DEFAULT_SP_ENTITY_INFO
+
+        fun acsUrl(binding: SamlProtocol.Binding): String? {
+            return CURRENT_SP_ENTITY_INFO.getAssertionConsumerService(binding)?.url
         }
 
         private fun parseAndVerifyVersion(): IdpMetadata {
@@ -157,8 +158,8 @@ class TestCommon {
          */
         fun createDefaultAuthnRequest(binding: SamlProtocol.Binding): AuthnRequest {
             return AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply { value = SP_ISSUER }
-                assertionConsumerServiceURL = acsUrl[SamlProtocol.Binding.HTTP_POST]
+                issuer = IssuerBuilder().buildObject().apply { value = CURRENT_SP_ISSUER }
+                assertionConsumerServiceURL = acsUrl(SamlProtocol.Binding.HTTP_POST)
                 id = REQUEST_ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()

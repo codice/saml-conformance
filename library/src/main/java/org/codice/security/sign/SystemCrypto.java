@@ -42,16 +42,20 @@ public class SystemCrypto {
 
   private final String encryptionAlias;
 
-  public SystemCrypto() throws IOException {
+  public SystemCrypto(String hostname) throws IOException {
     this.passwordEncryption = null;
     // new EncryptionServiceImpl()
 
-    Properties sigProperties = createProperty("encryption.properties");
+    if (hostname == null) {
+      hostname = "samlhost";
+    }
+
+    Properties sigProperties = createProperty(String.format("%s-signature.properties", hostname));
     signatureCrypto = createCrypto(sigProperties);
     signaturePassword = getPassword(sigProperties);
     signatureAlias = getAlias(signatureCrypto, sigProperties);
 
-    Properties encProperties = createProperty("signature.properties");
+    Properties encProperties = createProperty(String.format("%s-encryption.properties", hostname));
     encryptionCrypto = createCrypto(encProperties);
     encryptionPassword = getPassword(encProperties);
     encryptionAlias = getAlias(encryptionCrypto, encProperties);
