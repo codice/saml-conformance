@@ -62,9 +62,9 @@ Unmarked sections need attention
 -			2.7.4.3 Element <Evidence>
 3 SAML Protocols
 -	3.1 Schema Header and Namespace Declarations
-	3.2 Requests and Responses
++	3.2 Requests and Responses
 +		3.2.1 Complex Type RequestAbstractType
-		3.2.2 Complex Type StatusResponseType
++		3.2.2 Complex Type StatusResponseType
 +			3.2.2.1 Element <Status>
 +			3.2.2.2 Element <StatusCode>
 +			3.2.2.3 Element <StatusMessage>
@@ -97,11 +97,11 @@ Unmarked sections need attention
 -		3.6.2 Element <ManageNameIDResponse>
 -		3.6.3 Processing Rules
 -	3.7 Single Logout Protocol
--		3.7.1 Element <LogoutRequest>
--		3.7.2 Element <LogoutResponse>
--		3.7.3 Processing Rules
++		3.7.1 Element <LogoutRequest>
++		3.7.2 Element <LogoutResponse>
+		3.7.3 Processing Rules
 -			3.7.3.1 Session Participant Rules
--			3.7.3.2 Session Authority Rules
+			3.7.3.2 Session Authority Rules
 -	3.8 Name Identifier Mapping Protocol
 -		3.8.1 Element <NameIDMappingRequest>
 -		3.8.2 Element <NameIDMappingResponse>
