@@ -32,7 +32,7 @@ abstract class BindingVerifier(val httpResponse: Response) {
          * 3.4.6 & 3.5.6 Error Reporting
          */
         fun verifyHttpStatusCode(code: Int) {
-            if (code >= HTTP_ERROR_THRESHOLD) {
+            if (isErrorHttpStatusCode(code)) {
                 throw SAMLComplianceException.createWithPropertyMessage(
                         SAMLBindings_3_4_6_a,
                         property = "HTTP Status Code",
@@ -40,6 +40,13 @@ abstract class BindingVerifier(val httpResponse: Response) {
                         expected = "a non-error http status code; i.e. less than " +
                                 HTTP_ERROR_THRESHOLD)
             }
+        }
+
+        /**
+         * Verifies if the http status code is an error status code.
+         */
+        fun isErrorHttpStatusCode(code: Int): Boolean {
+            return code >= HTTP_ERROR_THRESHOLD
         }
 
         /** Verifies the response's and assertions' signatures */
