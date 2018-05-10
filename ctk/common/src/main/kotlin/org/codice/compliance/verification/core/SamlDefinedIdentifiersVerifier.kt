@@ -19,11 +19,22 @@ import org.codice.compliance.SAMLCore_8_2_2_a
 import org.codice.compliance.SAMLCore_8_2_3_a
 import org.codice.compliance.SAMLCore_8_3_6_a
 import org.codice.compliance.SAMLCore_8_3_6_b
+import org.codice.compliance.SAMLCore_8_3_7_a
+import org.codice.compliance.SAMLCore_8_3_7_b
+import org.codice.compliance.SAMLCore_8_3_7_c
+import org.codice.compliance.SAMLCore_8_3_7_d
+import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.FORMAT
+import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
+import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
+import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
+import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -34,6 +45,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
 
     companion object {
         private const val ENTITY_ID_MAX_LEN = 1024
+        private const val ID_VALUE_LENGTH_LIMIT = 256
         private const val ATTRIBUTE_NAME_FORMAT_URI =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
         private const val ATTRIBUTE_NAME_FORMAT_BASIC =
@@ -49,6 +61,8 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     fun verify() {
         verifyActionNamespaceIdentifiers()
         verifyAttributeNameFormatIdentifiers()
+        verifyPersistentIdentifiers()
+        verifyTransientIdentifiers()
         verifyEntityIdentifiers()
     }
 
@@ -132,7 +146,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
 
     private fun checkEntityIdentifier(node: Node) {
         if (node.attributeNode("NameQualifier") != null ||
-            node.attributeNode("SPNameQualifier") != null ||
+            node.attributeNode(SP_NAME_QUALIFIER) != null ||
             node.attributeNode("SPProvidedID") != null) {
             throw SAMLComplianceException.create(SAMLCore_8_3_6_a,
                 message = "No Subject element found.",
@@ -145,5 +159,53 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                     node = node)
             }
         }
+    }
+
+    /** 8.3.7 Persistent Identifier */
+    private fun verifyPersistentIdentifiers() {
+        node.recursiveChildren()
+            .filter { it.attributeText(FORMAT) == PERSISTENT_ID }
+            .forEach {
+                if (it.textContent != null && it.textContent.length > ID_VALUE_LENGTH_LIMIT)
+                    throw SAMLComplianceException.create(SAMLCore_8_3_7_a,
+                        message = "The length of the Persistent ID's value " +
+                            "[${it.textContent.length}] was greater than $ID_VALUE_LENGTH_LIMIT " +
+                            "characters.",
+                        node = it)
+
+                it.attributeText(SP_NAME_QUALIFIER)?.let { nameQualifier ->
+                    if (nameQualifier != idpMetadata.entityId)
+                        throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
+                            SAMLCore_8_3_7_c,
+                            message = "The Persistent ID's NameQualifier [$nameQualifier] is not " +
+                                "equal to ${idpMetadata.entityId}",
+                            node = it)
+                }
+
+                it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
+                    if (spNameQualifier != SP_ISSUER )
+                        throw SAMLComplianceException.create(SAMLCore_8_3_7_d,
+                            message = "The Persistent ID's SPNameQualifier [$spNameQualifier] " +
+                                "isn't equal to $SP_ISSUER",
+                            node = it)
+                }
+            }
+    }
+
+    /** 8.3.8 Transient Identifier */
+    private fun verifyTransientIdentifiers() {
+        node.recursiveChildren()
+            .filter { it.attributeText(FORMAT) == TRANSIENT_ID }
+            .filter { it.textContent != null }
+            .forEach {
+                if (it.textContent.length > ID_VALUE_LENGTH_LIMIT)
+                    throw SAMLComplianceException.create(SAMLCore_8_3_8_a,
+                        message = "The length of the Transient ID's value " +
+                            "[${it.textContent.length}]was greater than $ID_VALUE_LENGTH_LIMIT " +
+                            "characters.",
+                        node = it)
+
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_8_3_8_a)
+            }
     }
 }

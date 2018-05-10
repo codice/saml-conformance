@@ -41,7 +41,7 @@ internal class AssertionsVerifier(val node: Node) {
     /** 2.3.2 Element <AssertionURIRef> */
     private fun verifyAssertionURIRef() {
         node.recursiveChildren("AssertionURIRef").forEach {
-            CommonDataTypeVerifier.verifyUriValues(it)
+            CommonDataTypeVerifier.verifyUriValue(it)
         }
     }
 
@@ -49,10 +49,10 @@ internal class AssertionsVerifier(val node: Node) {
     @Suppress("ComplexCondition")
     private fun verifyAssertion() {
         node.recursiveChildren(ASSERTION).forEach {
-            CommonDataTypeVerifier.verifyStringValues(it.attributeNode(VERSION))
-            CommonDataTypeVerifier.verifyIdValues(it.attributeNode(ID),
+            CommonDataTypeVerifier.verifyStringValue(it.attributeNode(VERSION))
+            CommonDataTypeVerifier.verifyIdValue(it.attributeNode(ID),
                     SAMLCore_2_3_3_b)
-            CommonDataTypeVerifier.verifyDateTimeValues(it.attributeNode("IssueInstant"),
+            CommonDataTypeVerifier.verifyDateTimeValue(it.attributeNode("IssueInstant"),
                     SAMLCore_2_3_3_c)
 
             val statements = it.children("Statement")

@@ -47,7 +47,7 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
     private fun verifyStatusResponseType() {
-        CommonDataTypeVerifier.verifyIdValues(samlResponseDom.attributeNode(ID),
+        CommonDataTypeVerifier.verifyIdValue(samlResponseDom.attributeNode(ID),
                 SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
@@ -60,8 +60,8 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                     expected = requestId,
                     node = samlResponseDom)
 
-        CommonDataTypeVerifier.verifyStringValues(samlResponseDom.attributeNode(VERSION))
-        CommonDataTypeVerifier.verifyDateTimeValues(
+        CommonDataTypeVerifier.verifyStringValue(samlResponseDom.attributeNode(VERSION))
+        CommonDataTypeVerifier.verifyDateTimeValue(
                 samlResponseDom.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
         samlResponseDom.attributeNode(DESTINATION)?.apply {
@@ -72,11 +72,11 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                         expected = acsUrl[HTTP_POST] ?: "No ACS URL Found",
                         node = samlResponseDom)
 
-            CommonDataTypeVerifier.verifyUriValues(this)
+            CommonDataTypeVerifier.verifyUriValue(this)
         }
 
         samlResponseDom.attributeNode("Content")?.let {
-            CommonDataTypeVerifier.verifyUriValues(it)
+            CommonDataTypeVerifier.verifyUriValue(it)
         }
     }
 
@@ -95,12 +95,12 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
 
         samlResponseDom.recursiveChildren(STATUS_CODE)
                 .mapNotNull { it.attributeNode("Value") }
-                .forEach { CommonDataTypeVerifier.verifyUriValues(it) }
+                .forEach { CommonDataTypeVerifier.verifyUriValue(it) }
     }
 
     /** 3.2.2.3 Element <StatusMessage> */
     private fun verifyStatusMessage() {
         samlResponseDom.recursiveChildren("StatusMessage")
-                .forEach { CommonDataTypeVerifier.verifyStringValues(it) }
+                .forEach { CommonDataTypeVerifier.verifyStringValue(it) }
     }
 }

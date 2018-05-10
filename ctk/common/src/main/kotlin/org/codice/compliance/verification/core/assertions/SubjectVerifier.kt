@@ -34,7 +34,7 @@ internal class SubjectVerifier(val node: Node) {
         node.recursiveChildren(SUBJECT_CONFIRMATION)
                 .forEach {
                     CommonDataTypeVerifier
-                            .verifyUriValues(it.attributeNode("Method"))
+                            .verifyUriValue(it.attributeNode("Method"))
                 }
     }
 
@@ -44,11 +44,11 @@ internal class SubjectVerifier(val node: Node) {
             validateTimeWindow(it, SAMLCore_2_4_1_2_a)
 
             it.attributeNode("Recipient")?.let {
-                CommonDataTypeVerifier.verifyUriValues(it)
+                CommonDataTypeVerifier.verifyUriValue(it)
             }
 
             it.attributeNode("Address")?.let {
-                CommonDataTypeVerifier.verifyStringValues(it)
+                CommonDataTypeVerifier.verifyStringValue(it)
             }
         }
     }

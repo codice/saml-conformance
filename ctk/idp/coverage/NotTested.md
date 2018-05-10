@@ -39,6 +39,8 @@
 | 8.3.7 - Persistent Identifier | Persistent identifiers are intended as a privacy protection mechanism; as such they MUST NOT be shared in clear text with providers other than the providers that have established the shared identifier. | Impossible to test. Cannot make sure they do not send info to other entities.
 | 8.3.7 - Persistent Identifier | Furthermore, \[persistent identifiers] MUST NOT appear in log files or similar locations without appropriate controls and protections. | Impossible to test. Cannot check their log files (unless provided).
 | 8.3.7 - Persistent Identifier | Deployments without such requirements are free to use other kinds of identifiers in their SAML exchanges, but MUST NOT overload this format with persistent but non-opaque values | Extremely hard to test. Testing if a value is non-opaque, IOW you cannot derive anything about the user from the identifier alone, is hard.
+| 8.3.7 - Persistent Identifier | The element's NameQualifier attribute, if present, MUST contain the unique identifier of the identity provider that generated the identifier (see Section 8.3.6) | This is tested but does not account for proxying.
+| 8.3.7 - Persistent Identifier | Note that a different system entity might later issue its own protocol message or assertion containing the identifier; the NameQualifier attribute does not change in this case, but MUST continue to identify the entity that originally created the identifier (and MUST NOT be omitted in such a case). | Difficult to test. Impossible for the test to know such interaction is taking place.
 
 ### [Profiles](https://www.oasis-open.org/committees/download.php/56782/sstc-saml-profiles-errata-2.0-wd-07.pdf)
 

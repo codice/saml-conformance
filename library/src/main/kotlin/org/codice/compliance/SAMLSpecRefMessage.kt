@@ -154,6 +154,13 @@ object SAMLCore_8_2_3_a : SAMLCoreRefMessage()
 object SAMLCore_8_3_6_a : SAMLCoreRefMessage()
 object SAMLCore_8_3_6_b : SAMLCoreRefMessage()
 
+object SAMLCore_8_3_7_a : SAMLCoreRefMessage()
+object SAMLCore_8_3_7_b : SAMLCoreRefMessage()
+object SAMLCore_8_3_7_c : SAMLCoreRefMessage()
+object SAMLCore_8_3_7_d : SAMLCoreRefMessage()
+
+object SAMLCore_8_3_8_a : SAMLCoreRefMessage()
+
 //-----------------
 // BINDINGS
 //-----------------

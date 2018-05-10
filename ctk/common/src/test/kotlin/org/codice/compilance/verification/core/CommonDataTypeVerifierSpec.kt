@@ -40,8 +40,8 @@ class CommonDataTypeVerifierSpec : StringSpec() {
 
         "valid string value passes" {
             forAll(listOf("a", "abc", "whatever\nyou say")) {
-                CommonDataTypeVerifier.verifyStringValues(buildDom("<fld>$it</fld>"))
-                CommonDataTypeVerifier.verifyStringValues(buildDom("<fld>$it</fld>"),
+                CommonDataTypeVerifier.verifyStringValue(buildDom("<fld>$it</fld>"))
+                CommonDataTypeVerifier.verifyStringValue(buildDom("<fld>$it</fld>"),
                         SAMLCore_3_4_1_1_a)
             }
         }
@@ -55,83 +55,83 @@ class CommonDataTypeVerifierSpec : StringSpec() {
 
         "null Uri node fails" {
             nullNodeFails(expectedErr = SAMLCore_1_3_2_a,
-                    func = CommonDataTypeVerifier.Companion::verifyUriValues)
+                    func = CommonDataTypeVerifier.Companion::verifyUriValue)
             nullNodeFails(SAMLCore_1_3_2_a,
                     SAMLCore_3_4_1_1_a,
-                    CommonDataTypeVerifier.Companion::verifyUriValues)
+                    CommonDataTypeVerifier.Companion::verifyUriValue)
         }
 
         "absolute Uri passes" {
             buildDom("<fld>http://foo.bar</fld>").let {
-                CommonDataTypeVerifier.verifyUriValues(it)
+                CommonDataTypeVerifier.verifyUriValue(it)
             }
             buildDom("<fld>http://foo.bar/subpath</fld>").let {
-                CommonDataTypeVerifier.verifyUriValues(it, SAMLCore_3_4_1_1_a)
+                CommonDataTypeVerifier.verifyUriValue(it, SAMLCore_3_4_1_1_a)
             }
             buildDom("<fld>protocolX://foo.bar/subpath</fld>").let {
-                CommonDataTypeVerifier.verifyUriValues(it, SAMLCore_3_4_1_1_a)
+                CommonDataTypeVerifier.verifyUriValue(it, SAMLCore_3_4_1_1_a)
             }
         }
 
         "null dateTime node fails" {
             nullNodeFails(expectedErr = SAMLCore_1_3_3_a,
-                    func = CommonDataTypeVerifier.Companion::verifyDateTimeValues)
+                    func = CommonDataTypeVerifier.Companion::verifyDateTimeValue)
             nullNodeFails(SAMLCore_1_3_3_a,
                     SAMLCore_3_4_1_1_a,
-                    CommonDataTypeVerifier.Companion::verifyDateTimeValues)
+                    CommonDataTypeVerifier.Companion::verifyDateTimeValue)
         }
 
         "dateTime not in UTC fails" {
             badInput("2018-05-01T06:15:30-07:00",
                     expectedErr = SAMLCore_1_3_3_a,
-                    func = CommonDataTypeVerifier.Companion::verifyDateTimeValues)
+                    func = CommonDataTypeVerifier.Companion::verifyDateTimeValue)
             badInput("2018-05-01T06:15:30-07:00",
                     SAMLCore_1_3_3_a,
                     SAMLCore_3_4_1_1_a,
-                    CommonDataTypeVerifier.Companion::verifyDateTimeValues)
+                    CommonDataTypeVerifier.Companion::verifyDateTimeValue)
         }
 
         "dateTime in UTC passes" {
             buildDom("<fld>2018-05-01T13:15:30Z</fld>").let {
-                CommonDataTypeVerifier.verifyDateTimeValues(it)
-                CommonDataTypeVerifier.verifyDateTimeValues(it, SAMLCore_3_4_1_1_a)
+                CommonDataTypeVerifier.verifyDateTimeValue(it)
+                CommonDataTypeVerifier.verifyDateTimeValue(it, SAMLCore_3_4_1_1_a)
             }
         }
 
         "null id node fails" {
             nullNodeFails(expectedErr = SAMLCore_1_3_4_a,
-                    func = CommonDataTypeVerifier.Companion::verifyIdValues)
+                    func = CommonDataTypeVerifier.Companion::verifyIdValue)
             nullNodeFails(SAMLCore_1_3_4_a,
                     SAMLCore_3_4_1_1_a,
-                    CommonDataTypeVerifier.Companion::verifyIdValues)
+                    CommonDataTypeVerifier.Companion::verifyIdValue)
         }
 
         "null, blank, and good id values pass; duplicates fail" {
             buildDom("<fld/>").let {
-                CommonDataTypeVerifier.verifyIdValues(it)
+                CommonDataTypeVerifier.verifyIdValue(it)
             }
             buildDom("<fld>   </fld>").let {
-                CommonDataTypeVerifier.verifyIdValues(it, SAMLCore_3_4_1_1_a)
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
             buildDom("<fld>this is my id</fld>").let {
-                CommonDataTypeVerifier.verifyIdValues(it, SAMLCore_3_4_1_1_a)
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
 
             buildDom("<fld/>").let {
                 shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyIdValues(it)
+                    CommonDataTypeVerifier.verifyIdValue(it)
                 }.message?.shouldContain(SAMLCore_1_3_4_a.message)
             }
             buildDom("<fld>   </fld>").let {
                 val expectedExc = shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyIdValues(it, SAMLCore_3_4_1_1_a)
+                    CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
                 }
                 expectedExc.message?.shouldContain(SAMLCore_1_3_4_a.message)
                 expectedExc.message?.shouldContain(SAMLCore_3_4_1_1_a.message)
             }
             buildDom("<fld>this is my id</fld>").let {
                 val expectedExc = shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyIdValues(it, SAMLCore_3_4_1_1_a)
+                    CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
                 }
                 expectedExc.message?.shouldContain(SAMLCore_1_3_4_a.message)
                 expectedExc.message?.shouldContain(SAMLCore_3_4_1_1_a.message)
@@ -202,13 +202,13 @@ class CommonDataTypeVerifierSpec : StringSpec() {
         badInput(input,
                 SAMLCore_1_3_1_a,
                 extraError,
-                CommonDataTypeVerifier.Companion::verifyStringValues)
+                CommonDataTypeVerifier.Companion::verifyStringValue)
     }
 
     private fun badUri(input: String?, extraError: SAMLSpecRefMessage? = null) {
         badInput(input,
                 SAMLCore_1_3_2_a,
                 extraError,
-                CommonDataTypeVerifier.Companion::verifyUriValues)
+                CommonDataTypeVerifier.Companion::verifyUriValue)
     }
 }

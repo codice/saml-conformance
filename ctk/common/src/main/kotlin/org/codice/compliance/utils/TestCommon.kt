@@ -47,6 +47,8 @@ class TestCommon {
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
         const val NAMEID_ENCRYPTED = "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted"
+        const val PERSISTENT_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
+        const val TRANSIENT_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
 
         const val ID = "ID"
         const val ASSERTION = "Assertion"
@@ -67,6 +69,7 @@ class TestCommon {
         const val ACTION = "action"
         const val LOCATION = "Location"
         const val SAML_ENCODING = "SAMLEncoding"
+        const val SP_NAME_QUALIFIER = "SPNameQualifier"
 
         const val REQUEST_ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
         const val EXAMPLE_RELAY_STATE = "relay+State"
