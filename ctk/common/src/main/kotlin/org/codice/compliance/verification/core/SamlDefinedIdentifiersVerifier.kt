@@ -14,7 +14,6 @@
 package org.codice.compliance.verification.core
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_8_1_2_a
 import org.codice.compliance.SAMLCore_8_2_2_a
 import org.codice.compliance.SAMLCore_8_2_3_a
 import org.codice.compliance.SAMLCore_8_3_2_a
@@ -27,14 +26,13 @@ import org.codice.compliance.SAMLCore_8_3_7_d
 import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
-import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon
-import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
+import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
+import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
@@ -45,22 +43,31 @@ import javax.xml.parsers.DocumentBuilderFactory
 internal class SamlDefinedIdentifiersVerifier(val node: Node) {
 
     companion object {
-        private const val ENTITY_ID_MAX_LEN = 1024
-        private const val ID_VALUE_LENGTH_LIMIT = 256
-        private const val ATTRIBUTE_NAME_FORMAT_URI =
+        internal const val ENTITY_ID_MAX_LEN = 1024
+        internal const val ID_VALUE_LENGTH_LIMIT = 256
+
+        internal const val ATTRIBUTE_NAME_FORMAT_UNSPECIFIED =
+                "urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified"
+        internal const val ATTRIBUTE_NAME_FORMAT_URI =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
-        private const val ATTRIBUTE_NAME_FORMAT_BASIC =
+        internal const val ATTRIBUTE_NAME_FORMAT_BASIC =
                 "urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
 
-        private const val EMAIL_URI = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
-        // acquired from http://regexlib.com/REDetails.aspx?regexp_id=2558
+        internal const val NAME_ID_FORMAT_EMAIL =
+                "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+        // acquired from emailregex.com
         @Suppress("StringLiteralDuplication")
-        private const val EMAIL_REGEX =
-                "^((([!#\$%&'*+\\-/=?^_`{|}~\\w])|([!#\$%&'*+\\-/=?^_`{|}~\\w][!#\$%&'*+\\-/=?^_`" +
-                        "{|}~\\.\\w]{0,}[!#\$%&'*+\\-/=?^_`{|}~\\w]))[@]\\w+([-.]\\w+)*\\.\\w+([-" +
-                        ".]\\w+)*)\$"
+        private val EMAIL_REGEX =
+                """
+                |((?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\
+                |x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a
+                |-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[
+                |0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*
+                |[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e
+                |-\x7f])+)\]))
+                """.trimMargin().replace("\\s".toRegex(), "")
 
-        private val RWEDC_URI_SET = setOf(
+        internal val RWEDC_URI_LIST = listOf(
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
                 "urn:oasis:names:tc:SAML:1.0:action:rwedc"
         )
@@ -68,55 +75,18 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
 
     /** 8 SAML-Defined Identifiers */
     fun verify() {
-        verifyActionNamespaceIdentifiers()
         verifyAttributeNameFormatIdentifiers()
-        verifyNameIdentifierFormatIdentifiers()
+        verifyEmailAddressIdentifier()
         verifyPersistentIdentifiers()
         verifyTransientIdentifiers()
         verifyEntityIdentifiers()
     }
 
-    /** 8.1.2 Read/Write/Execute/Delete/Control with Negation **/
-    private fun verifyActionNamespaceIdentifiers() {
-        // AuthzDecisionQuery is the only element where "Action" is found (Core 3.3.2.4)
-        node.recursiveChildren("AuthzDecisionQuery").forEach({
-            val actionList = createActionList(it)
-
-            if (actionList.isNotEmpty()) {
-                checkActionList(actionList)
-            }
-        })
-    }
-
-    private fun createActionList(query: Node): List<String> {
-        return query.children("Action")
-                .filter { it.attributeNode("Namespace")?.nodeValue in RWEDC_URI_SET }
-                .map { it.nodeValue }
-                .toList()
-    }
-
-    private fun checkActionList(actionList: List<String>) {
-        val (negated, notNegated) = actionList.partition { it.startsWith("~") }
-        notNegated.forEach {
-            if ("~$it" in negated) {
-                throw SAMLComplianceException.create(
-                        SAMLCore_8_1_2_a,
-                        message = "An \"AuthzDecisionQuery\" element contained an action and its " +
-                                "negated form.",
-                        node = node
-                )
-            }
-        }
-    }
-
     /** 8.2 URI/Basic name attribute formats */
     private fun verifyAttributeNameFormatIdentifiers() {
         node.recursiveChildren("Attribute").forEach {
-            val name = it.attributeNode("Name")
-            val nameFormatText = it.attributeText("NameFormat")
-            if (name == null || nameFormatText == null) {
-                return
-            }
+            val name = it.attributeNode("Name") ?: return
+            val nameFormatText = it.attributeText("NameFormat") ?: return
 
             when (nameFormatText) {
                 ATTRIBUTE_NAME_FORMAT_URI -> {
@@ -148,40 +118,39 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
         }
     }
 
-    /** 8.3 Name Identifier Format Identifiers */
-    private fun verifyNameIdentifierFormatIdentifiers() {
+    /** 8.3.2 Email Address */
+    private fun verifyEmailAddressIdentifier() {
         node.recursiveChildren()
-                .filter { it.attributeText("Format") == EMAIL_URI }
+                .filter { it.attributeText("Format") == NAME_ID_FORMAT_EMAIL }
                 .forEach {
                     if (!it.textContent.matches(EMAIL_REGEX.toRegex()))
                         throw SAMLComplianceException.create(SAMLCore_8_3_2_a,
-                                message = "The content of the Identifier [${it.localName}] was " +
-                                        "not in the format specified by the Format attribute " +
-                                        "[$EMAIL_URI]",
-                                node = it
-                        )
+                                message = "The content [${it.textContent}] of the Identifier " +
+                                        "[${it.localName}] was not in the format specified by " +
+                                        "the Format attribute [$NAME_ID_FORMAT_EMAIL]",
+                                node = it)
                 }
     }
 
     /** 8.3.6 Entity Identifier */
     private fun verifyEntityIdentifiers() {
-        node.recursiveChildren().filter { it.attributeText(TestCommon.FORMAT) == TestCommon.ENTITY }
-            .forEach { checkEntityIdentifier(it) }
+        node.recursiveChildren().filter { it.attributeText(FORMAT) == ENTITY }
+                .forEach { checkEntityIdentifier(it) }
     }
 
     private fun checkEntityIdentifier(node: Node) {
         if (node.attributeNode("NameQualifier") != null ||
-            node.attributeNode(SP_NAME_QUALIFIER) != null ||
-            node.attributeNode("SPProvidedID") != null) {
+                node.attributeNode(SP_NAME_QUALIFIER) != null ||
+                node.attributeNode("SPProvidedID") != null) {
             throw SAMLComplianceException.create(SAMLCore_8_3_6_a,
-                message = "No Subject element found.",
-                node = node)
+                    message = "Entity Identifier included a disallowed attribute.",
+                    node = node)
         }
-        node.nodeValue?.let {
+        node.textContent?.let {
             if (it.length > ENTITY_ID_MAX_LEN) {
                 throw SAMLComplianceException.create(SAMLCore_8_3_6_b,
-                    message = "Length of URI [$it] is [${it.length}]",
-                    node = node)
+                        message = "Length of URI [$it] is [${it.length}]",
+                        node = node)
             }
         }
     }
@@ -189,48 +158,49 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     /** 8.3.7 Persistent Identifier */
     private fun verifyPersistentIdentifiers() {
         node.recursiveChildren()
-            .filter { it.attributeText(FORMAT) == PERSISTENT_ID }
-            .forEach {
-                if (it.textContent != null && it.textContent.length > ID_VALUE_LENGTH_LIMIT)
-                    throw SAMLComplianceException.create(SAMLCore_8_3_7_a,
-                        message = "The length of the Persistent ID's value " +
-                            "[${it.textContent.length}] was greater than $ID_VALUE_LENGTH_LIMIT " +
-                            "characters.",
-                        node = it)
+                .filter { it.attributeText(FORMAT) == PERSISTENT_ID }
+                .forEach {
+                    if (it.textContent != null && it.textContent.length > ID_VALUE_LENGTH_LIMIT)
+                        throw SAMLComplianceException.create(SAMLCore_8_3_7_a,
+                                message = "The length of the Persistent ID's value " +
+                                        "[${it.textContent.length}] was greater than " +
+                                        "$ID_VALUE_LENGTH_LIMIT characters.",
+                                node = it)
 
-                it.attributeText(SP_NAME_QUALIFIER)?.let { nameQualifier ->
-                    if (nameQualifier != idpMetadata.entityId)
-                        throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
-                            SAMLCore_8_3_7_c,
-                            message = "The Persistent ID's NameQualifier [$nameQualifier] is not " +
-                                "equal to ${idpMetadata.entityId}",
-                            node = it)
-                }
+                    it.attributeText(SP_NAME_QUALIFIER)?.let { nameQualifier ->
+                        if (nameQualifier != idpMetadata.entityId)
+                            throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
+                                    SAMLCore_8_3_7_c,
+                                    message = "The Persistent ID's NameQualifier " +
+                                            "[$nameQualifier] is not equal to " +
+                                            "${idpMetadata.entityId}",
+                                    node = it)
+                    }
 
-                it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
-                    if (spNameQualifier != currentSPIssuer )
-                        throw SAMLComplianceException.create(SAMLCore_8_3_7_d,
-                            message = "The Persistent ID's SPNameQualifier [$spNameQualifier] " +
-                                "isn't equal to $currentSPIssuer",
-                            node = it)
+                    it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
+                        if (spNameQualifier != currentSPIssuer)
+                            throw SAMLComplianceException.create(SAMLCore_8_3_7_d,
+                                    message = "The Persistent ID's SPNameQualifier  " +
+                                            "[$spNameQualifier]isn't equal to $currentSPIssuer",
+                                    node = it)
+                    }
                 }
-            }
     }
 
     /** 8.3.8 Transient Identifier */
     private fun verifyTransientIdentifiers() {
         node.recursiveChildren()
-            .filter { it.attributeText(FORMAT) == TRANSIENT_ID }
-            .filter { it.textContent != null }
-            .forEach {
-                if (it.textContent.length > ID_VALUE_LENGTH_LIMIT)
-                    throw SAMLComplianceException.create(SAMLCore_8_3_8_a,
-                        message = "The length of the Transient ID's value " +
-                            "[${it.textContent.length}]was greater than $ID_VALUE_LENGTH_LIMIT " +
-                            "characters.",
-                        node = it)
+                .filter { it.attributeText(FORMAT) == TRANSIENT_ID }
+                .filter { it.textContent != null }
+                .forEach {
+                    if (it.textContent.length > ID_VALUE_LENGTH_LIMIT)
+                        throw SAMLComplianceException.create(SAMLCore_8_3_8_a,
+                                message = "The length of the Transient ID's value " +
+                                        "[${it.textContent.length}]was greater than " +
+                                        "$ID_VALUE_LENGTH_LIMIT characters.",
+                                node = it)
 
-                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_8_3_8_a)
-            }
+                    CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_8_3_8_a)
+                }
     }
 }
