@@ -36,13 +36,13 @@ abstract class RequestVerifier(private val samlRequestDom: Node) : CoreVerifier(
         CommonDataTypeVerifier.verifyStringValue(samlRequestDom.attributeNode(VERSION),
             SAMLCore_3_2_1_b)
         CommonDataTypeVerifier.verifyDateTimeValue(
-            samlRequestDom.attributes.getNamedItem("IssueInstant"), SAMLCore_3_2_1_c)
+            samlRequestDom.attributeNode("IssueInstant"), SAMLCore_3_2_1_c)
 
-        samlRequestDom.attributes.getNamedItem("Destination")?.let {
+        samlRequestDom.attributeNode("Destination")?.let {
             CommonDataTypeVerifier.verifyUriValue(it)
         }
 
-        samlRequestDom.attributes.getNamedItem("Consent")?.let {
+        samlRequestDom.attributeNode("Consent")?.let {
             CommonDataTypeVerifier.verifyUriValue(it)
         }
     }

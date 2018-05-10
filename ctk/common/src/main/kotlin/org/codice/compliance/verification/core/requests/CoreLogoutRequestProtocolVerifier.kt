@@ -34,7 +34,7 @@ class CoreLogoutRequestProtocolVerifier(private val samlRequestDom: Node) :
         }
 
         samlRequestDom.attributeNode("NotOnOrAfter")?.let {
-            CommonDataTypeVerifier.verifyDateTimeValue(it, SAMLCore_3_7_1_a)
+            CommonDataTypeVerifier.verifyDateTimeValue(it)
         }
     }
 }
