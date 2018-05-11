@@ -20,9 +20,10 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
+import org.codice.compliance.utils.TestCommon.Companion.UseDSASigningSP
+import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
-import org.codice.compliance.utils.TestCommon.Companion.SP_ISSUER
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.encodeAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.getServiceProvider
@@ -32,7 +33,7 @@ import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
-import org.codice.security.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class RedirectSSOTest : StringSpec() {
@@ -130,6 +131,37 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
+        "Bindings 3.4.4.1: Redirect AuthnRequest Using DSA1 Signature Algorithm".config(
+                extensions = listOf(UseDSASigningSP)) {
+            Log.debugWithSupplier { "Redirect AuthnRequest Using DSA1 Signature Algorithm" }
+
+            val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
+
+            val encodedRequest = encodeAuthnRequest(authnRequest)
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    encodedRequest,
+                    null)
+
+            // Get response from AuthnRequest
+            val response = sendRedirectAuthnRequest(queryParams)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val finalHttpResponse =
+                    getServiceProvider(IdpSSOResponder::class).getResponseForRedirectRequest(
+                            response)
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+
+            CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
+                verify()
+                verifyAssertionConsumerService(finalHttpResponse)
+            }
+            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+                verify()
+                verifyBinding(finalHttpResponse)
+            }
+        }
+
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
         "Redirect AuthnRequest With Email NameID Format Test".config(enabled = false) {
@@ -137,7 +169,7 @@ class RedirectSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
-                    spNameQualifier = SP_ISSUER
+                    spNameQualifier = currentSPIssuer
                 }
             }
             val encodedRequest = encodeAuthnRequest(authnRequest)
@@ -175,7 +207,7 @@ class RedirectSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = NAMEID_ENCRYPTED
-                    spNameQualifier = SP_ISSUER
+                    spNameQualifier = currentSPIssuer
                 }
             }
             val encodedRequest = encodeAuthnRequest(authnRequest)

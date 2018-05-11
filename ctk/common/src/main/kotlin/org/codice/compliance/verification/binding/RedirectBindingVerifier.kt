@@ -55,11 +55,11 @@ import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BAS
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_INFLATING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_URL_DECODING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.LINEFEED_OR_WHITESPACE
-import org.codice.security.sign.SimpleSign
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_CERTIFICATE
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
+import org.codice.compliance.utils.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_CERTIFICATE
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
 import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
@@ -326,11 +326,11 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = samlResponseDom.recursiveChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != acsUrl[HTTP_REDIRECT]) {
+        if (signatures.isNotEmpty() && destination != acsUrl(HTTP_REDIRECT)) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = DESTINATION,
                     actual = destination,
-                    expected = acsUrl[HTTP_REDIRECT],
+                    expected = acsUrl(HTTP_REDIRECT),
                     node = samlResponseDom)
         }
     }

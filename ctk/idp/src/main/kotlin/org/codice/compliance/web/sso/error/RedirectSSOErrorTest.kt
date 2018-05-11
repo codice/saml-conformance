@@ -34,7 +34,7 @@ import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.security.saml.SamlProtocol
-import org.codice.security.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
@@ -158,7 +158,8 @@ class RedirectSSOErrorTest : StringSpec() {
                         }
                 val encodedRequest = encodeAuthnRequest(authnRequest)
                 val queryParams =
-                        SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
+                        SimpleSign()
+                                .signUriString(SAML_REQUEST, encodedRequest, null)
 
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)
@@ -180,7 +181,8 @@ class RedirectSSOErrorTest : StringSpec() {
                         }
                 val encodedRequest = encodeAuthnRequest(authnRequest)
                 val queryParams =
-                        SimpleSign().signUriString(SAML_REQUEST, encodedRequest, null)
+                        SimpleSign()
+                                .signUriString(SAML_REQUEST, encodedRequest, null)
 
                 // Get response from AuthnRequest
                 val response = sendRedirectAuthnRequest(queryParams)

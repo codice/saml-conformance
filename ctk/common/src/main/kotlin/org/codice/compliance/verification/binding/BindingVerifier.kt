@@ -18,7 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_b
-import org.codice.security.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 

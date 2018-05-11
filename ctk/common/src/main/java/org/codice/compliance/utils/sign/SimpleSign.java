@@ -11,7 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.security.sign;
+package org.codice.compliance.utils.sign;
+
+import static org.codice.compliance.utils.TestCommon.getCurrentSPHostname;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -71,7 +73,7 @@ public class SimpleSign {
   }
 
   public SimpleSign() throws IOException {
-    crypto = new SystemCrypto();
+    crypto = new SystemCrypto(getCurrentSPHostname());
   }
 
   /** Signing * */

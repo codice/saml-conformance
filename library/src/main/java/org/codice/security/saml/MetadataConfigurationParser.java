@@ -22,6 +22,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import org.w3c.dom.Document;
 public class MetadataConfigurationParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetadataConfigurationParser.class);
+  private static final String ENTITIES_DESCRIPTOR = "EntitiesDescriptor";
 
   static {
     OpenSAMLUtil.initSamlEngine();
@@ -43,9 +45,9 @@ public class MetadataConfigurationParser {
   }
 
   public MetadataConfigurationParser(
-      String entityDescriptions, Consumer<EntityDescriptor> updateCallback) {
+      String metadataString, Consumer<EntityDescriptor> updateCallback) {
     this.updateCallback = updateCallback;
-    buildEntityDescriptor(entityDescriptions);
+    buildEntityDescriptors(metadataString);
   }
 
   public Map<String, EntityDescriptor> getEntryDescriptions() {
@@ -55,50 +57,48 @@ public class MetadataConfigurationParser {
   /**
    * Parses and builds an entity descriptor for metadatas.
    *
-   * @param entityDescription - metadata
+   * @param metadataString - metadata
    */
-  private void buildEntityDescriptor(String entityDescription) {
-    EntityDescriptor entityDescriptor = null;
-    entityDescription = entityDescription.trim();
+  private void buildEntityDescriptors(String metadataString) {
+    if (metadataString.startsWith("<") && metadataString.endsWith(">")) {
+      XMLObject xmlObject = readMetadata(new StringReader(metadataString.trim()));
 
-    if (entityDescription.startsWith("<") && entityDescription.endsWith(">")) {
-      entityDescriptor = readEntityDescriptor(new StringReader(entityDescription));
-    }
-
-    if (entityDescriptor != null) {
-      entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
-      if (updateCallback != null) {
-        updateCallback.accept(entityDescriptor);
+      if (metadataString.contains(ENTITIES_DESCRIPTOR)) {
+        EntitiesDescriptor entitiesDescriptor = (EntitiesDescriptor) xmlObject;
+        entitiesDescriptor.getEntityDescriptors().forEach(this::processEntityDescriptor);
+      } else {
+        processEntityDescriptor((EntityDescriptor) xmlObject);
       }
     }
   }
 
-  private EntityDescriptor readEntityDescriptor(Reader reader) {
+  private XMLObject readMetadata(Reader reader) {
     Document entityDoc;
     try {
       entityDoc = StaxUtils.read(reader);
     } catch (Exception ex) {
       throw new IllegalArgumentException("Unable to read SAMLRequest as XML.", ex);
     }
-    XMLObject entityXmlObj;
     try {
-      entityXmlObj = OpenSAMLUtil.fromDom(entityDoc.getDocumentElement());
+      return OpenSAMLUtil.fromDom(entityDoc.getDocumentElement());
     } catch (WSSecurityException ex) {
       throw new IllegalArgumentException(
           "Unable to convert EntityDescriptor document to XMLObject.", ex);
     }
-    EntityDescriptor root = (EntityDescriptor) entityXmlObj;
-    validateMetadata(root);
-    return root;
   }
 
-  private void validateMetadata(EntityDescriptor root) {
-    if (root.getCacheDuration() == null && root.getValidUntil() == null) {
+  private void processEntityDescriptor(EntityDescriptor entityDescriptor) {
+    if (entityDescriptor.getCacheDuration() == null && entityDescriptor.getValidUntil() == null) {
       LOGGER.trace(
           "IDP metadata must either have cache duration or valid-until date."
               + " Defaulting IDP metadata cache duration to {}",
           SamlProtocol.getCacheDuration());
-      root.setCacheDuration(SamlProtocol.getCacheDuration().toMillis());
+      entityDescriptor.setCacheDuration(SamlProtocol.getCacheDuration().toMillis());
+    }
+
+    entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
+    if (updateCallback != null) {
+      updateCallback.accept(entityDescriptor);
     }
   }
 }
