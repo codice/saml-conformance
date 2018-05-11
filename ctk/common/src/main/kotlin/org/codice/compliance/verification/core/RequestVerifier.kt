@@ -25,8 +25,8 @@ abstract class RequestVerifier(private val samlRequestDom: Node) : CoreVerifier(
 
     /** 3.2.1 Complex Type RequestAbstractType */
     override fun verify() {
-        super.verify()
         verifyRequestAbstractType()
+        super.verify()
     }
 
     /** All SAML requests are of types that are derived from the abstract RequestAbstractType

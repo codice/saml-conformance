@@ -24,8 +24,8 @@ class CoreLogoutRequestProtocolVerifier(private val samlRequestDom: Node) :
 
     /** 3.7.1 Element <LogoutRequest>*/
     override fun verify() {
-        super.verify()
         verifyLogoutRequest()
+        super.verify()
     }
 
     private fun verifyLogoutRequest() {

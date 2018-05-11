@@ -41,6 +41,7 @@ import java.net.URI
 import java.net.URLClassLoader
 import java.util.Optional
 import java.util.ServiceLoader
+import java.util.UUID
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -80,7 +81,7 @@ class TestCommon {
         const val SAML_ENCODING = "SAMLEncoding"
         const val SP_NAME_QUALIFIER = "SPNameQualifier"
 
-        const val REQUEST_ID = "a1chfeh0234hbifc1jjd3cb40ji0d49"
+        lateinit var REQUEST_ID: String
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
@@ -205,6 +206,7 @@ class TestCommon {
          * @return A valid Redirect AuthnRequest.
          */
         fun createDefaultAuthnRequest(binding: SamlProtocol.Binding): AuthnRequest {
+            REQUEST_ID = UUID.randomUUID().toString().replace("-", "")
             return AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply { value = currentSPIssuer }
                 assertionConsumerServiceURL = acsUrl(SamlProtocol.Binding.HTTP_POST)
