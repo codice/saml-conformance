@@ -2,7 +2,10 @@
 
 ## Steps to Test DDF's IDP
 * Start and install DDF
-* Copy the contents of `samlconf-sp-metadata.xml` to `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata`.
+* DDF does not support having multiple `EntityDescriptor` elements inside a `EntitiesDescriptor` element. In order to work around this:
+    * From the `samlconf-sp-metadata.xml` file, copy the first `EntityDescriptor` element and all of its contents. Note: Make sure **not** to include the `EntitiesDescriptor` element or the second `EntityDescriptor` element.
+    * Paste that into `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata` as a new entry.
+    * Do the same copy-paste steps but copying the **second** `EntityDescriptor` element.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
 to the file `<samlconf>/implementations/ddf/ddf-idp-metadata.xml` where `<samlconf>` is the root directory of the test kit distribution.
 * Run `<samlconf>/bin/samlconf` where `<samlconf>` is the root directory of the test kit distribution. (no parameters needed since it points to DDF's implementation by default)
