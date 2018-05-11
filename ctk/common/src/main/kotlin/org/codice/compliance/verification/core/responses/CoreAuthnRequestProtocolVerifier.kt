@@ -26,8 +26,8 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
-import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ENTITY_INFO
-import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
+import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.getLocation
 import org.codice.compliance.verification.core.NameIDPolicyVerifier
@@ -53,7 +53,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
     }
 
     fun verifyAssertionConsumerService(httpResponse: Response) {
-        val expectedACS = CURRENT_SP_ENTITY_INFO.getAssertionConsumerService(authnRequest, null,
+        val expectedACS = currentSPEntityInfo.getAssertionConsumerService(authnRequest, null,
                 authnRequest.assertionConsumerServiceIndex).url
         val actualACS = httpResponse.getLocation()
 
@@ -78,7 +78,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
 
         if (assertions.any {
                     it.recursiveChildren("AudienceRestriction").flatMap { it.children(AUDIENCE) }
-                            .none { it.textContent == CURRENT_SP_ISSUER }
+                            .none { it.textContent == currentSPIssuer }
                 })
             throw SAMLComplianceException.create(SAMLCore_3_4_1_4_e,
                     message = "Assertion found without an AudienceRestriction referencing the " +

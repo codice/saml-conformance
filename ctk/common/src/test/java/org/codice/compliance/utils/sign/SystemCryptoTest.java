@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.security.sign;
+package org.codice.compliance.utils.sign;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -27,7 +27,7 @@ public class SystemCryptoTest {
 
   @Test
   public void testCreateSystemCrypto() throws IOException {
-    SystemCrypto crypto = new SystemCrypto(null);
+    SystemCrypto crypto = new SystemCrypto(HOSTNAME);
 
     assertThat(crypto.getEncryptionAlias(), is(HOSTNAME));
     assertThat(crypto.getEncryptionPassword(), is(PASS));

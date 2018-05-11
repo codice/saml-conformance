@@ -33,7 +33,7 @@ import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
 import org.codice.compliance.utils.TestCommon.Companion.BEARER
-import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
@@ -188,7 +188,7 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
                         .map { extractAudienceRestriction(it) }
                         .filter { it.children(AUDIENCE).isNotEmpty() }
                         .flatMap { it.children(AUDIENCE) }
-                        .none { it.textContent == CURRENT_SP_ISSUER }) {
+                        .none { it.textContent == currentSPIssuer }) {
 
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k,
                     message = "An <Audience> containing the service provider's issuer was " +

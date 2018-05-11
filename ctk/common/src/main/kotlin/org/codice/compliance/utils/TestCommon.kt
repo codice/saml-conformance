@@ -15,6 +15,10 @@ package org.codice.compliance.utils
 
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.response.Response
+import io.kotlintest.TestCaseConfig
+import io.kotlintest.TestResult
+import io.kotlintest.extensions.TestCaseExtension
+import io.kotlintest.extensions.TestCaseInterceptContext
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
@@ -23,20 +27,25 @@ import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_c
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.sign.Encoder
-import org.codice.security.sign.SimpleSign
 import org.joda.time.DateTime
 import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import java.io.File
+import java.net.URI
 import java.net.URLClassLoader
+import java.util.Optional
 import java.util.ServiceLoader
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
+@Suppress("TooManyFunctions")
 class TestCommon {
     companion object {
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
@@ -90,21 +99,60 @@ class TestCommon {
         const val PRIVATE_KEY_PASSWORD =
                 "org.apache.ws.security.crypto.merlin.keystore.private.password"
 
-        private val DEPLOY_CL = getDeployDirClassloader()
-        val idpMetadata = parseAndVerifyVersion()
+        private const val DEFAULT_SP_ISSUER = "https://samlhost:8993/services/saml"
+        private const val DSA_SP_ISSUER = "https://samlhostdsa:8993/services/samldsa"
+        @JvmField
+        var currentSPIssuer = DEFAULT_SP_ISSUER
 
-        const val DEFAULT_SP_ISSUER = "https://samlhost:8993/services/saml"
-        const val DSA_SP_ISSUER = "https://samlhostdsa:8993/services/samldsa"
+        /*
+         * All of these properties are lazy, so that unit tests do not have to have all of this
+         * system-level information setup.
+         */
+        private val DEPLOY_CL by lazy {
+            getDeployDirClassloader()
+        }
 
-        private val spMetadata = Common.parseSpMetadata()
-        val DEFAULT_SP_ENTITY_INFO = checkNotNull(spMetadata[DEFAULT_SP_ISSUER])
-        val DSA_SP_ENTITY_INFO = checkNotNull(spMetadata[DSA_SP_ISSUER])
+        val idpMetadata by lazy {
+            parseAndVerifyVersion()
+        }
 
-        var CURRENT_SP_ISSUER = DEFAULT_SP_ISSUER
-        var CURRENT_SP_ENTITY_INFO = DEFAULT_SP_ENTITY_INFO
+        private val spMetadata by lazy {
+            Common.parseSpMetadata()
+        }
+
+        private val DEFAULT_SP_ENTITY_INFO by lazy {
+            checkNotNull(spMetadata[DEFAULT_SP_ISSUER])
+        }
+
+        private val DSA_SP_ENTITY_INFO by lazy {
+            checkNotNull(spMetadata[DSA_SP_ISSUER])
+        }
+
+        var currentSPEntityInfo by LazyVar {
+            DEFAULT_SP_ENTITY_INFO
+        }
+
+        object UseDSASigningSP : TestCaseExtension {
+            override fun intercept(context: TestCaseInterceptContext,
+                                   test: (TestCaseConfig, (TestResult) -> Unit) -> Unit,
+                                   complete: (TestResult) -> Unit) {
+                currentSPIssuer = DSA_SP_ISSUER
+                currentSPEntityInfo = DSA_SP_ENTITY_INFO
+
+                test(context.config, { complete(it) })
+
+                currentSPIssuer = DEFAULT_SP_ISSUER
+                currentSPEntityInfo = DEFAULT_SP_ENTITY_INFO
+            }
+        }
+
+        @JvmStatic
+        fun getCurrentSPHostname(): String {
+            return URI(currentSPIssuer).host
+        }
 
         fun acsUrl(binding: SamlProtocol.Binding): String? {
-            return CURRENT_SP_ENTITY_INFO.getAssertionConsumerService(binding)?.url
+            return currentSPEntityInfo.getAssertionConsumerService(binding)?.url
         }
 
         private fun parseAndVerifyVersion(): IdpMetadata {
@@ -158,7 +206,7 @@ class TestCommon {
          */
         fun createDefaultAuthnRequest(binding: SamlProtocol.Binding): AuthnRequest {
             return AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply { value = CURRENT_SP_ISSUER }
+                issuer = IssuerBuilder().buildObject().apply { value = currentSPIssuer }
                 assertionConsumerServiceURL = acsUrl(SamlProtocol.Binding.HTTP_POST)
                 id = REQUEST_ID
                 version = SAMLVersion.VERSION_20
@@ -220,5 +268,21 @@ class TestCommon {
             return if (relayState == null) Encoder.encodePostMessage(authnRequestString)
             else Encoder.encodePostMessage(authnRequestString, relayState)
         }
+    }
+}
+
+class LazyVar<T>(val init: () -> T) : ReadWriteProperty<Any?, T> {
+
+    private lateinit var value: Optional<T>
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        if (!::value.isInitialized) {
+            value = Optional.of(init())
+        }
+        return value.get()
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        this.value = Optional.of(value)
     }
 }

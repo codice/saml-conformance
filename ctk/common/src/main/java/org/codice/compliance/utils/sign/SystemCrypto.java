@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.security.sign;
+package org.codice.compliance.utils.sign;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -45,10 +45,6 @@ public class SystemCrypto {
   public SystemCrypto(String hostname) throws IOException {
     this.passwordEncryption = null;
     // new EncryptionServiceImpl()
-
-    if (hostname == null) {
-      hostname = "samlhost";
-    }
 
     Properties sigProperties = createProperty(String.format("%s-signature.properties", hostname));
     signatureCrypto = createCrypto(sigProperties);

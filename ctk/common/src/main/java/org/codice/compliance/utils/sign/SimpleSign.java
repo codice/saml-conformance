@@ -11,13 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.security.sign;
+package org.codice.compliance.utils.sign;
+
+import static org.codice.compliance.utils.TestCommon.getCurrentSPHostname;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -73,14 +73,7 @@ public class SimpleSign {
   }
 
   public SimpleSign() throws IOException {
-    crypto = new SystemCrypto(null);
-  }
-
-  public SimpleSign(String entityId) throws IOException, URISyntaxException {
-    URI uri = null;
-    uri = new URI(entityId);
-    String hostname = uri.getHost();
-    crypto = new SystemCrypto(hostname);
+    crypto = new SystemCrypto(getCurrentSPHostname());
   }
 
   /** Signing * */

@@ -22,6 +22,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.KEYSTORE_PASSWORD
 import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_ALIAS
 import org.codice.compliance.utils.TestCommon.Companion.PRIVATE_KEY_PASSWORD
+import org.codice.compliance.utils.TestCommon.Companion.getCurrentSPHostname
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -37,13 +38,13 @@ class XMLDecryptor {
             org.apache.xml.security.Init.init()
         }
 
-        private const val ENCRYPTION_FILE_NAME = "samlhost-encryption.properties"
         private const val BC_PROVIDER = "BC"
 
         private val serverPrivateKey by lazy {
 
             val encryptionFile =
-                    XMLDecryptor::class.java.classLoader.getResource(ENCRYPTION_FILE_NAME)
+                    XMLDecryptor::class.java.classLoader.getResource(
+                            "${getCurrentSPHostname()}-encryption.properties")
 
             checkNotNull(encryptionFile)
 

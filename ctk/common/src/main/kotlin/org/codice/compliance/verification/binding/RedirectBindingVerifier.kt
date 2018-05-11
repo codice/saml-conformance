@@ -55,11 +55,11 @@ import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BAS
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_INFLATING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_URL_DECODING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.LINEFEED_OR_WHITESPACE
-import org.codice.security.sign.SimpleSign
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_CERTIFICATE
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
-import org.codice.security.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
+import org.codice.compliance.utils.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_CERTIFICATE
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
 import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder

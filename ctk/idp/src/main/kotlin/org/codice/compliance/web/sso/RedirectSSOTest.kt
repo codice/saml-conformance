@@ -20,12 +20,8 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.saml.plugin.IdpSSOResponder
-import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ENTITY_INFO
-import org.codice.compliance.utils.TestCommon.Companion.CURRENT_SP_ISSUER
-import org.codice.compliance.utils.TestCommon.Companion.DEFAULT_SP_ENTITY_INFO
-import org.codice.compliance.utils.TestCommon.Companion.DEFAULT_SP_ISSUER
-import org.codice.compliance.utils.TestCommon.Companion.DSA_SP_ENTITY_INFO
-import org.codice.compliance.utils.TestCommon.Companion.DSA_SP_ISSUER
+import org.codice.compliance.utils.TestCommon.Companion.UseDSASigningSP
+import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
@@ -37,7 +33,7 @@ import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol
-import org.codice.security.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class RedirectSSOTest : StringSpec() {
@@ -135,15 +131,14 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        "Redirect AuthnRequest Using DSA1 Signature Algorithm" {
+        "Bindings 3.4.4.1: Redirect AuthnRequest Using DSA1 Signature Algorithm".config(
+                extensions = listOf(UseDSASigningSP)) {
             Log.debugWithSupplier { "Redirect AuthnRequest Using DSA1 Signature Algorithm" }
-            CURRENT_SP_ISSUER = DSA_SP_ISSUER
-            CURRENT_SP_ENTITY_INFO = DSA_SP_ENTITY_INFO
 
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
 
             val encodedRequest = encodeAuthnRequest(authnRequest)
-            val queryParams = SimpleSign(DSA_SP_ISSUER).signUriString(
+            val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)
@@ -165,9 +160,6 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-
-            CURRENT_SP_ISSUER = DEFAULT_SP_ISSUER
-            CURRENT_SP_ENTITY_INFO = DEFAULT_SP_ENTITY_INFO
         }
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
@@ -177,7 +169,7 @@ class RedirectSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
-                    spNameQualifier = CURRENT_SP_ISSUER
+                    spNameQualifier = currentSPIssuer
                 }
             }
             val encodedRequest = encodeAuthnRequest(authnRequest)
@@ -215,7 +207,7 @@ class RedirectSSOTest : StringSpec() {
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = NAMEID_ENCRYPTED
-                    spNameQualifier = CURRENT_SP_ISSUER
+                    spNameQualifier = currentSPIssuer
                 }
             }
             val encodedRequest = encodeAuthnRequest(authnRequest)
