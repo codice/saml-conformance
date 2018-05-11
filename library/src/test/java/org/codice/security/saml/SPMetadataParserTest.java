@@ -33,7 +33,7 @@ public class SPMetadataParserTest {
   public void testParseSPMetadata() throws Exception {
     String metadataString =
         Files.toString(
-            new File(getClass().getClassLoader().getResource("ddf-sp-metadata.xml").toURI()),
+            new File(getClass().getClassLoader().getResource("test-sp-metadata.xml").toURI()),
             StandardCharsets.UTF_8);
 
     Map<String, EntityInformation> spMetadata =
