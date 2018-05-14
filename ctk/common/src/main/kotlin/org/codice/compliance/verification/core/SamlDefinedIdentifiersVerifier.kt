@@ -85,13 +85,13 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     /** 8.2 URI/Basic name attribute formats */
     private fun verifyAttributeNameFormatIdentifiers() {
         node.recursiveChildren("Attribute").forEach {
-            val name = it.attributeNode("Name") ?: return
+            val name = it.attributeText("Name") ?: return
             val nameFormatText = it.attributeText("NameFormat") ?: return
 
             when (nameFormatText) {
                 ATTRIBUTE_NAME_FORMAT_URI -> {
                     try {
-                        URI(name.textContent)
+                        URI(name)
                     } catch (e: URISyntaxException) {
                         throw SAMLComplianceException.create(
                                 SAMLCore_8_2_2_a,
@@ -105,7 +105,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                         DocumentBuilderFactory.newInstance()
                                 .newDocumentBuilder()
                                 .newDocument()
-                                .createElement(name.textContent)
+                                .createElement(name)
                     } catch (e: DOMException) {
                         throw SAMLComplianceException.create(
                                 SAMLCore_8_2_3_a,

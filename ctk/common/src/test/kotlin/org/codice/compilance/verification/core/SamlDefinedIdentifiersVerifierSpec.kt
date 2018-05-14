@@ -109,6 +109,14 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
+        "null (defaults to 'unspecified') attribute format" {
+            createResponse(
+                    attributeName = "This string is only allowed in an 'unspecified' name format",
+                    attributeFormat = "").let {
+                SamlDefinedIdentifiersVerifier(it).verify()
+            }
+        }
+
         "invalid Basic attribute name" {
             createResponse(
                     attributeName = "Whitespace Not Allowed In Attribute Name",
@@ -119,7 +127,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        /* 8.3 Name Identifier Format Identifiers */
+        /* 8.3.2 Email Address */
         "valid Email name identifier" {
             createResponse(
                     identifierValue = "example-email@domain.com",
