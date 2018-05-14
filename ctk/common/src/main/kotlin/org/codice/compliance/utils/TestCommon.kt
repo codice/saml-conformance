@@ -85,7 +85,6 @@ class TestCommon {
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
                 "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAY_STATE_LEN = 80
-        const val INCORRECT_ACS_URL = "https://incorrect.acs.url"
         const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"

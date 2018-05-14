@@ -1,5 +1,5 @@
 # SAML Conformance Test Kit
-This project is intended to be a set of blackbox tests that verify the conformance of an IdP/SP to the SAML V2.0 Standard Specification.
+This project is intended to be a set of blackbox tests that verify the conformance of an IdP to the SAML V2.0 Standard Specification.
 It is currently a prototype being actively developed.
 
 > NOTE
@@ -22,10 +22,10 @@ Upon a successful build, tests can be run with the `samlconf` script found in:
 The `samlconf` script may take the following parameters:
 
     NAME
-           samlconf - Runs the SAML Conformance Tests against an IdP or an SP
+           samlconf - Runs the SAML Conformance Tests against an IdP
     
     SYNOPSIS
-           samlconf [-i path] [--implementation path]
+           samlconf [arguments ...]
     
     DESCRIPTION
            Runs the SAML Conformance Tests which tests the compliance of an IdP and/or an SP
@@ -41,10 +41,12 @@ The `samlconf` script may take the following parameters:
                 the default implementation directory is /implementations/samlconf-ddf-impl.
                       
            -d | --debug
-               Sets the log level to debug.
+                Sets the log level to debug.
 
-           -e | --error
-               Run tests that expect errors.
+           -l | --lenient
+                When an error occurs, the SAML V2.0 Standard Specification requires an IdP to respond with a 200 HTTP status code and a valid SAML response containing an error <StatusCode>.
+                If the -l flag is given, this test kit will allow HTTP error status codes as a valid error response (i.e. 400's and 500's).
+                If it is not given, this test kit will only verify that a valid SAML error response is returned.
 
 
 > NOTE

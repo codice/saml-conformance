@@ -16,6 +16,7 @@ package org.codice.ctk
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.IMPLEMENTATION_PATH
+import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.web.sso.PostSSOTest
 import org.codice.compliance.web.sso.RedirectSSOTest
@@ -27,7 +28,6 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener
-import us.jimschubert.kopper.ArgumentCollection
 import us.jimschubert.kopper.Parser
 import java.io.PrintWriter
 
@@ -56,9 +56,13 @@ fun main(args: Array<String>) {
         listOf("debug"),
         description = "Turn on debug logs.")
 
-    parser.flag("e",
-        listOf("error"),
-        description = "Run tests that expect errors.")
+    parser.flag("l",
+        listOf("lenient"),
+        description = """When an error occurs, the SAML V2.0 Standard Specification requires an IdP
+            to respond with a 200 HTTP status code and a valid SAML response containing an error
+            <StatusCode>. If the -l flag is given, this test kit will allow HTTP error status codes
+            as a valid error response.
+            """)
 
     val arguments = parser.parse(args)
 
@@ -67,6 +71,7 @@ fun main(args: Array<String>) {
 
     System.setProperty(IMPLEMENTATION_PATH, implementationPath)
     System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")
+    System.setProperty(LENIENT_ERROR_VERIFICATION, arguments.flag("l").toString())
 
     if (arguments.flag("d")) {
         Log.logLevel = LogLevel.DEBUG
@@ -74,16 +79,13 @@ fun main(args: Array<String>) {
         Log.logLevel = LogLevel.INFO
     }
 
-    launchTests(arguments)
+    launchTests()
 }
 
 @Suppress("SpreadOperator")
-private fun launchTests(arguments: ArgumentCollection) {
-    val request = LauncherDiscoveryRequestBuilder.request().selectors(*BASIC_TESTS).apply {
-        if (arguments.flag("e")) {
-            selectors(*ERROR_TESTS)
-        }
-    }.build()
+private fun launchTests() {
+    val request = LauncherDiscoveryRequestBuilder.request()
+        .selectors(*BASIC_TESTS, *ERROR_TESTS).build()
 
     val summaryGeneratingListener = SummaryGeneratingListener()
     LauncherFactory.create().apply {

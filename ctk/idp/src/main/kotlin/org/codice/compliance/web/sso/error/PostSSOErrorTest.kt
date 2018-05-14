@@ -16,6 +16,7 @@ package org.codice.compliance.web.sso.error
 import com.jayway.restassured.RestAssured
 import de.jupf.staticlog.Log
 import io.kotlintest.specs.StringSpec
+import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_e
@@ -23,7 +24,6 @@ import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_ACS_URL
 import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
@@ -31,114 +31,114 @@ import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnReques
 import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodeToString
 import org.codice.compliance.utils.getBindingVerifier
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
+import org.opensaml.saml.saml2.core.impl.NameIDBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
 class PostSSOErrorTest : StringSpec() {
     init {
         RestAssured.useRelaxedHTTPSValidation()
+        val isLenient = System.getProperty(LENIENT_ERROR_VERIFICATION) == "true"
 
-        // Negative Path Tests
-        "POST AuthnRequest With Relay State Greater Than 80 Bytes Test" {
+        "Bindings 3.5.3: POST AuthnRequest With Relay State Greater Than 80 Bytes Test" {
             try {
                 Log.debugWithSupplier {
-                    "POST AuthnRequest With Relay State Greater Than 80 Bytes Test"
+                    "Bindings 3.5.3: POST AuthnRequest With Relay State Greater Than 80 Bytes Test"
                 }
                 val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST)
                 val encodedRequest =
                         signAndEncodeToString(authnRequest, RELAY_STATE_GREATER_THAN_80_BYTES)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                         samlErrorCode = SAMLBindings_3_5_3_a,
                         expectedStatusCode = REQUESTER)
+                }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
         }
 
-        "Empty POST AuthnRequest Test" {
+        "Profiles 4.1.4.1: Empty POST AuthnRequest Test" {
             try {
-                Log.debugWithSupplier { "Empty POST AuthnRequest Test" }
+                Log.debugWithSupplier { "Profiles 4.1.4.1: Empty POST AuthnRequest Test" }
                 val authnRequest = AuthnRequestBuilder().buildObject().apply {
                 }
 
                 val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                         samlErrorCode = SAMLProfiles_4_1_4_1_a,
                         expectedStatusCode = REQUESTER)
-                ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
-            } catch (e: SAMLComplianceException) {
-                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
-            }
-        }
-
-        "POST AuthnRequest With Empty Subject Test" {
-            try {
-                Log.debugWithSupplier { "POST AuthnRequest With Empty Subject Test" }
-                val authnRequest =
-                        createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
-                            subject = SubjectBuilder().buildObject()
-                        }
-
-                val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
-                val response = sendPostAuthnRequest(encodedRequest)
-
-                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
-
-                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLProfiles_4_1_4_1_b,
-                        expectedStatusCode = REQUESTER)
-                ProfilesVerifier(samlResponseDom)
-                        .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
-            } catch (e: SAMLComplianceException) {
-                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
-            }
-        }
-
-        "POST AuthnRequest With Incorrect ACS URL And Index Test" {
-            try {
-                Log.debugWithSupplier { "POST AuthnRequest With Incorrect ACS URL And Index Test" }
-                val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
-                    assertionConsumerServiceURL = INCORRECT_ACS_URL
-                    assertionConsumerServiceIndex = -1
+                    ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
                 }
-
-                val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
-                val response = sendPostAuthnRequest(encodedRequest)
-
-                response.getBindingVerifier().decodeAndVerifyError()
-
-                // DDF returns a valid response to the incorrect url
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }
         }
 
-        "POST AuthnRequest With Non-Matching Destination" {
+        // TODO - DDF responds with a successful response. Re-enable test when DDF handles this
+        "Profiles 4.1.4.1: POST AuthnRequest With Subject Containing an Invalid Name ID Test"
+            .config(enabled = false) {
+                try {
+                    Log.debugWithSupplier {
+                        "Profiles 4.1.4.1: POST AuthnRequest With Subject Containing an Invalid " +
+                            "Name ID Test"
+                    }
+                    val authnRequest =
+                        createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
+                            subject = SubjectBuilder().buildObject().apply {
+                                nameID = NameIDBuilder().buildObject().apply {
+                                    value = "UNKNOWN NAME ID VALUE"
+                                }
+                            }
+                        }
+                    val encodedRequest = signAndEncodeToString(authnRequest, EXAMPLE_RELAY_STATE)
+                    val response = sendPostAuthnRequest(encodedRequest)
+
+                    if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                        val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+
+                        CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                            samlErrorCode = SAMLProfiles_4_1_4_1_b,
+                            expectedStatusCode = REQUESTER)
+                        ProfilesVerifier(samlResponseDom)
+                            .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+                    }
+                } catch (e: SAMLComplianceException) {
+                    throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+                }
+            }
+
+        "Core 3.2.1: POST AuthnRequest With Non-Matching Destination" {
             try {
-                Log.debugWithSupplier { "POST AuthnRequest With Non-Matching Destination" }
+                Log.debugWithSupplier {
+                    "Core 3.2.1: POST AuthnRequest With Non-Matching Destination"
+                }
                 val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_POST).apply {
                     destination = INCORRECT_DESTINATION
                 }
-
                 val encodedRequest = signAndEncodeToString(authnRequest)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                         samlErrorCode = SAMLCore_3_2_1_e,
                         expectedStatusCode = REQUESTER)
+                }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
             }

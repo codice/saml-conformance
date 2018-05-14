@@ -33,6 +33,7 @@ import kotlin.test.currentStackTrace
 
 const val IMPLEMENTATION_PATH = "implementation.path"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
+const val LENIENT_ERROR_VERIFICATION = "lenient.error.verification"
 
 class Common {
     companion object {
