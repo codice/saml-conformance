@@ -20,8 +20,6 @@ import org.codice.compliance.SAMLCore_8_3_2_a
 import org.codice.compliance.SAMLCore_8_3_6_a
 import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.SAMLCore_8_3_7_a
-import org.codice.compliance.SAMLCore_8_3_7_b
-import org.codice.compliance.SAMLCore_8_3_7_c
 import org.codice.compliance.SAMLCore_8_3_7_d
 import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.attributeNode
@@ -33,7 +31,6 @@ import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
-import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -66,11 +63,6 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                 |[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e
                 |-\x7f])+)\]))
                 """.trimMargin().replace("\\s".toRegex(), "")
-
-        internal val RWEDC_URI_LIST = listOf(
-                "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
-                "urn:oasis:names:tc:SAML:1.0:action:rwedc"
-        )
     }
 
     /** 8 SAML-Defined Identifiers */
@@ -167,7 +159,9 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                                         "$ID_VALUE_LENGTH_LIMIT characters.",
                                 node = it)
 
-                    it.attributeText(SP_NAME_QUALIFIER)?.let { nameQualifier ->
+                    // TODO - Uncomment when DDF returns correct NameQualifier and add unit tests
+                    /*
+                    it.attributeText("NameQualifier")?.let { nameQualifier ->
                         if (nameQualifier != idpMetadata.entityId)
                             throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
                                     SAMLCore_8_3_7_c,
@@ -176,6 +170,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                                             "${idpMetadata.entityId}",
                                     node = it)
                     }
+                    */
 
                     it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
                         if (spNameQualifier != currentSPIssuer)

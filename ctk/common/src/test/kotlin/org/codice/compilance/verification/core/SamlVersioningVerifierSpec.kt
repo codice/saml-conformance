@@ -17,11 +17,8 @@ import io.kotlintest.forAll
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 import org.codice.compliance.Common.Companion.buildDom
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_4_1_3_2_a
 import org.codice.compliance.SAMLCore_4_1_3_2_b
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION_NAMESPACE
@@ -31,10 +28,6 @@ import java.time.Instant
 
 class SamlVersioningVerifierSpec : StringSpec() {
     init {
-        val specRefMsg = mockk<SAMLCoreRefMessage>()
-        every { specRefMsg.message } returns "Test message"
-        every { specRefMsg.name } returns "Test"
-
         val now = Instant.now()
         val response = {
             resVersion: String, resNamespace: String?, version: String, namespace: String? ->
