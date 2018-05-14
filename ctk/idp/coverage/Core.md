@@ -153,7 +153,7 @@ Unmarked sections need attention
 +		8.2.3 Basic
 -	8.3 Name Identifier Format Identifiers
 -		8.3.1 Unspecified
--		8.3.2 Email Address
++		8.3.2 Email Address
 -			8.3.3 X.509 Subject Name
 -		8.3.4 Windows Domain Qualified Name
 -		8.3.5 Kerberos Principal Name
