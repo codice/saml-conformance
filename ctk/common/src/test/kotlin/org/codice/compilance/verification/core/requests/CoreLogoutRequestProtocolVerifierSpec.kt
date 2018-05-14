@@ -38,9 +38,8 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
             |$attribute
             |IssueInstant="$now">
             |  <s2:Issuer>https://localhost:8993/services/idp/login</s2:Issuer>
-            |  <s2:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">
-            |    admin
-            |  </s2:NameID>
+            |  <s2:NameID
+            |  Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">admin</s2:NameID>
             |</s:LogoutRequest>
            """.trimMargin()
         }
@@ -51,7 +50,7 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect reason should fail with SAMLCore_3_7_1_a" {
+        "response with incorrect reason (relative URI) should fail with SAMLCore_3_7_1_a" {
             val message = Common.buildDom(response("Reason=\"/incorrect/reason/uri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it).verify()
@@ -67,7 +66,7 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect NotOnOrAfter should fail with SAMLCore_3_7_1_a" {
+        "response with incorrect NotOnOrAfter (non-UTC) should fail with SAMLCore_3_7_1_a" {
             Common.buildDom(response("NotOnOrAfter=\"2018-05-01T06:15:30-07:00\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it).verify()

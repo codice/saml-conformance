@@ -41,39 +41,42 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect ID should fail" {
+        "response with non-unique ID should fail" {
             Common.buildDom(createResponse(id = "id")).let {
                 RequestVerifierTest(it).verify()
             }
 
-            val message = Common.buildDom(createResponse(id = "id")).let {
+            Common.buildDom(createResponse(id = "id")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
-                }.message
+                }.message?.apply {
+                    shouldContain(SAMLCore_1_3_4_a.message)
+                    shouldContain(SAMLCore_3_2_1_a.message)
+                }
             }
-            message?.shouldContain(SAMLCore_1_3_4_a.message)
-            message?.shouldContain(SAMLCore_3_2_1_a.message)
         }
 
-        "response with incorrect version should fail" {
-            val message = Common.buildDom(createResponse(version = "")).let {
+        "response with incorrect version (empty) should fail" {
+            Common.buildDom(createResponse(version = "")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
-                }.message
+                }.message?.apply {
+                    shouldContain(SAMLCore_1_3_1_a.message)
+                    shouldContain(SAMLCore_3_2_1_b.message)
+                }
             }
-            message?.shouldContain(SAMLCore_1_3_1_a.message)
-            message?.shouldContain(SAMLCore_3_2_1_b.message)
         }
 
-        "response with incorrect instant should fail" {
-            val message = Common.buildDom(
+        "response with incorrect instant (non-UTC) should fail" {
+            Common.buildDom(
                 createResponse(instant = "2018-05-01T06:15:30-07:00")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
-                }.message
+                }.message?.apply {
+                    shouldContain(SAMLCore_1_3_3_a.message)
+                    shouldContain(SAMLCore_3_2_1_c.message)
+                }
             }
-            message?.shouldContain(SAMLCore_1_3_3_a.message)
-            message?.shouldContain(SAMLCore_3_2_1_c.message)
         }
 
         "response with correct destination should pass" {
@@ -82,7 +85,7 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect destination should fail" {
+        "response with incorrect destination (relative URI) should fail" {
             Common.buildDom(createResponse(attribute = "Destination=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
@@ -96,7 +99,7 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect consent should fail" {
+        "response with incorrect consent (relative URI) should fail" {
             Common.buildDom(createResponse(attribute = "Consent=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
