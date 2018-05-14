@@ -16,11 +16,8 @@ package org.codice.compilance.verification.core
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
-import io.mockk.every
-import io.mockk.mockk
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_1_3_1_a
 import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.SAMLCore_1_3_3_a
@@ -37,9 +34,6 @@ class RequestVerifierSpec : StringSpec() {
     init {
         val incorrectUri = "incorrect/uri"
         val correctUri = "http://correct.uri"
-        val specRefMsg = mockk<SAMLCoreRefMessage>()
-        every { specRefMsg.message } returns "Test message"
-        every { specRefMsg.name } returns "Test"
 
         "response with correct ID, version and instant should pass" {
             Common.buildDom(createResponse()).let {

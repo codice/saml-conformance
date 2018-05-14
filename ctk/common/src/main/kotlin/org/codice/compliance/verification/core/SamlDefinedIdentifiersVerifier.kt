@@ -31,7 +31,6 @@ import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
-import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -64,11 +63,6 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                 |[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e
                 |-\x7f])+)\]))
                 """.trimMargin().replace("\\s".toRegex(), "")
-
-        internal val RWEDC_URI_LIST = listOf(
-                "urn:oasis:names:tc:SAML:1.0:action:rwedc-negation",
-                "urn:oasis:names:tc:SAML:1.0:action:rwedc"
-        )
     }
 
     /** 8 SAML-Defined Identifiers */
@@ -156,51 +150,52 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     /** 8.3.7 Persistent Identifier */
     private fun verifyPersistentIdentifiers() {
         node.recursiveChildren()
-            .filter { it.attributeText(FORMAT) == PERSISTENT_ID }
-            .forEach {
-                if (it.textContent != null && it.textContent.length > ID_VALUE_LENGTH_LIMIT)
-                    throw SAMLComplianceException.create(SAMLCore_8_3_7_a,
-                        message = "The length of the Persistent ID's value " +
-                            "[${it.textContent.length}] was greater than $ID_VALUE_LENGTH_LIMIT " +
-                            "characters.",
-                        node = it)
+                .filter { it.attributeText(FORMAT) == PERSISTENT_ID }
+                .forEach {
+                    if (it.textContent != null && it.textContent.length > ID_VALUE_LENGTH_LIMIT)
+                        throw SAMLComplianceException.create(SAMLCore_8_3_7_a,
+                                message = "The length of the Persistent ID's value " +
+                                        "[${it.textContent.length}] was greater than " +
+                                        "$ID_VALUE_LENGTH_LIMIT characters.",
+                                node = it)
 
-                // TODO - Uncomment when DDF returns correct NameQualifier
-                /*
-                it.attributeText("NameQualifier")?.let { nameQualifier ->
-                    if (nameQualifier != idpMetadata.entityId)
-                        throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
-                            SAMLCore_8_3_7_c,
-                            message = "The Persistent ID's NameQualifier [$nameQualifier] is not " +
-                                "equal to ${idpMetadata.entityId}",
-                            node = it)
-                }
-                */
+                    // TODO - Uncomment when DDF returns correct NameQualifier and add unit tests
+                    /*
+                    it.attributeText("NameQualifier")?.let { nameQualifier ->
+                        if (nameQualifier != idpMetadata.entityId)
+                            throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
+                                    SAMLCore_8_3_7_c,
+                                    message = "The Persistent ID's NameQualifier " +
+                                            "[$nameQualifier] is not equal to " +
+                                            "${idpMetadata.entityId}",
+                                    node = it)
+                    }
+                    */
 
-                it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
-                    if (spNameQualifier != currentSPIssuer )
-                        throw SAMLComplianceException.create(SAMLCore_8_3_7_d,
-                            message = "The Persistent ID's SPNameQualifier [$spNameQualifier] " +
-                                "isn't equal to $currentSPIssuer",
-                            node = it)
+                    it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
+                        if (spNameQualifier != currentSPIssuer)
+                            throw SAMLComplianceException.create(SAMLCore_8_3_7_d,
+                                    message = "The Persistent ID's SPNameQualifier  " +
+                                            "[$spNameQualifier]isn't equal to $currentSPIssuer",
+                                    node = it)
+                    }
                 }
-            }
     }
 
     /** 8.3.8 Transient Identifier */
     private fun verifyTransientIdentifiers() {
         node.recursiveChildren()
-            .filter { it.attributeText(FORMAT) == TRANSIENT_ID }
-            .filter { it.textContent != null }
-            .forEach {
-                if (it.textContent.length > ID_VALUE_LENGTH_LIMIT)
-                    throw SAMLComplianceException.create(SAMLCore_8_3_8_a,
-                        message = "The length of the Transient ID's value " +
-                            "[${it.textContent.length}]was greater than $ID_VALUE_LENGTH_LIMIT " +
-                            "characters.",
-                        node = it)
+                .filter { it.attributeText(FORMAT) == TRANSIENT_ID }
+                .filter { it.textContent != null }
+                .forEach {
+                    if (it.textContent.length > ID_VALUE_LENGTH_LIMIT)
+                        throw SAMLComplianceException.create(SAMLCore_8_3_8_a,
+                                message = "The length of the Transient ID's value " +
+                                        "[${it.textContent.length}]was greater than " +
+                                        "$ID_VALUE_LENGTH_LIMIT characters.",
+                                node = it)
 
-                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_8_3_8_a)
-            }
+                    CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_8_3_8_a)
+                }
     }
 }

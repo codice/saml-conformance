@@ -23,23 +23,31 @@ import org.codice.compliance.SAMLCore_8_2_3_a
 import org.codice.compliance.SAMLCore_8_3_2_a
 import org.codice.compliance.SAMLCore_8_3_6_a
 import org.codice.compliance.SAMLCore_8_3_6_b
+import org.codice.compliance.SAMLCore_8_3_7_a
+import org.codice.compliance.SAMLCore_8_3_7_d
+import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION_NAMESPACE
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
+import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.PROTOCOL_NAMESPACE
+import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
 import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier
 import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier.Companion.ATTRIBUTE_NAME_FORMAT_BASIC
 import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier.Companion.ATTRIBUTE_NAME_FORMAT_UNSPECIFIED
 import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier.Companion.ATTRIBUTE_NAME_FORMAT_URI
 import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier.Companion.ENTITY_ID_MAX_LEN
+import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier.Companion.ID_VALUE_LENGTH_LIMIT
 import org.codice.compliance.verification.core.SamlDefinedIdentifiersVerifier.Companion.NAME_ID_FORMAT_EMAIL
 import org.w3c.dom.Node
 import java.time.Instant
 
+@Suppress("StringLiteralDuplication")
 class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
     init {
         val validEntityId = "ValidEntityID"
         val maxLengthEntityId = "A".repeat(ENTITY_ID_MAX_LEN)
+        val maxLengthPersistentId = "A".repeat(ID_VALUE_LENGTH_LIMIT)
 
         val now = Instant.now()
 
@@ -283,6 +291,62 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                 shouldThrow<SAMLComplianceException> {
                     SamlDefinedIdentifiersVerifier(it).verify()
                 }.message?.shouldContain(SAMLCore_8_3_6_b.message)
+            }
+        }
+
+        /* 8.3.7 Persistent Identifier */
+        "valid length Persistent Identifier" {
+            createResponse(
+                identifierFormat = PERSISTENT_ID,
+                identifierValue = maxLengthPersistentId).let {
+                SamlDefinedIdentifiersVerifier(it).verify()
+            }
+        }
+
+        "invalid length Persistent Identifier" {
+            createResponse(
+                identifierFormat = PERSISTENT_ID,
+                identifierValue = maxLengthPersistentId + "A").let {
+                shouldThrow<SAMLComplianceException> {
+                    SamlDefinedIdentifiersVerifier(it).verify()
+                }.message?.shouldContain(SAMLCore_8_3_7_a.message)
+            }
+        }
+
+        "valid SPNameQualifier attribute on Persistent Identifier" {
+            createResponse(identifierFormat = PERSISTENT_ID,
+                extraIdentifierAttribute =
+                "SPNameQualifier=\"https://samlhost:8993/services/saml\"").let {
+                SamlDefinedIdentifiersVerifier(it).verify()
+            }
+        }
+
+        "invalid SPNameQualifier attribute on Persistent Identifier" {
+            createResponse(identifierFormat = PERSISTENT_ID,
+                extraIdentifierAttribute =
+                "SPNameQualifier=\"https://invalid:8993/sp/name/qualifier\"").let {
+                shouldThrow<SAMLComplianceException> {
+                    SamlDefinedIdentifiersVerifier(it).verify()
+                }.message?.shouldContain(SAMLCore_8_3_7_d.message)
+            }
+        }
+
+        /* 8.3.8 Transient Identifier */
+        "valid length Transient Identifier" {
+            createResponse(
+                identifierFormat = TRANSIENT_ID,
+                identifierValue = maxLengthPersistentId).let {
+                SamlDefinedIdentifiersVerifier(it).verify()
+            }
+        }
+
+        "invalid length Transient Identifier" {
+            createResponse(
+                identifierFormat = TRANSIENT_ID,
+                identifierValue = maxLengthPersistentId + "A").let {
+                shouldThrow<SAMLComplianceException> {
+                    SamlDefinedIdentifiersVerifier(it).verify()
+                }.message?.shouldContain(SAMLCore_8_3_8_a.message)
             }
         }
     }
