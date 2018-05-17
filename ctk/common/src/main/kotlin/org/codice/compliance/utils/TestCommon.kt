@@ -20,22 +20,46 @@ import io.kotlintest.TestResult
 import io.kotlintest.extensions.TestCaseExtension
 import io.kotlintest.extensions.TestCaseInterceptContext
 import org.apache.cxf.helpers.DOMUtils
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common
+import org.codice.compliance.Common.Companion.getSingleLogoutLocation
+import org.codice.compliance.Common.Companion.getSingleSignOnLocation
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_c
+import org.codice.compliance.SAMLGeneral_d
+import org.codice.compliance.attributeText
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.sign.SimpleSign
+import org.codice.compliance.verification.binding.BindingVerifier.Companion.verifyHttpStatusCode
+import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SamlProtocol
-import org.codice.security.sign.Encoder
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.codice.security.saml.SamlProtocol.POST_BINDING
+import org.codice.security.saml.SamlProtocol.REDIRECT_BINDING
+import org.codice.security.sign.Encoder.encodePostMessage
+import org.codice.security.sign.Encoder.encodeRedirectMessage
 import org.joda.time.DateTime
+import org.opensaml.core.xml.XMLObject
 import org.opensaml.saml.common.SAMLVersion
+import org.opensaml.saml.common.SignableSAMLObject
 import org.opensaml.saml.saml2.core.AuthnRequest
+import org.opensaml.saml.saml2.core.LogoutRequest
+import org.opensaml.saml.saml2.core.LogoutResponse
+import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
+import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder
+import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder
+import org.opensaml.saml.saml2.core.impl.NameIDBuilder
+import org.opensaml.saml.saml2.core.impl.StatusBuilder
+import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder
+import org.w3c.dom.Node
 import java.io.File
 import java.net.URI
 import java.net.URLClassLoader
@@ -46,7 +70,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class TestCommon {
     companion object {
         const val XSI = "http://www.w3.org/2001/XMLSchema-instance"
@@ -56,7 +80,7 @@ class TestCommon {
         const val BEARER = "urn:oasis:names:tc:SAML:2.0:cm:bearer"
         const val HOLDER_OF_KEY_URI = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key"
         const val ENTITY = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity"
-        const val NAMEID_ENCRYPTED = "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted"
+        const val ENCRYPTED_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted"
         const val PERSISTENT_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
         const val TRANSIENT_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
 
@@ -70,7 +94,6 @@ class TestCommon {
         const val STATUS_CODE = "StatusCode"
         const val AUDIENCE = "Audience"
         const val SUBJECT_CONFIRMATION = "SubjectConfirmation"
-        const val AUTHN_REQUEST = "AuthnRequest"
         const val AUTHN_STATEMENT = "AuthnStatement"
         const val NAME = "name"
         const val VALUE = "value"
@@ -84,7 +107,7 @@ class TestCommon {
         lateinit var REQUEST_ID: String
         const val EXAMPLE_RELAY_STATE = "relay+State"
         const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
-                "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
+            "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
         const val MAX_RELAY_STATE_LEN = 80
         const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
@@ -97,12 +120,16 @@ class TestCommon {
         const val KEYSTORE_PASSWORD = "org.apache.ws.security.crypto.merlin.keystore.password"
         const val PRIVATE_KEY_ALIAS = "org.apache.ws.security.crypto.merlin.keystore.alias"
         const val PRIVATE_KEY_PASSWORD =
-                "org.apache.ws.security.crypto.merlin.keystore.private.password"
+            "org.apache.ws.security.crypto.merlin.keystore.private.password"
 
         private const val DEFAULT_SP_ISSUER = "https://samlhost:8993/services/saml"
-        private const val DSA_SP_ISSUER = "https://samlhostdsa:8993/services/samldsa"
+        private const val DSA_SP_ISSUER = "https://samlhostdsa:8994/services/samldsa"
+
         @JvmField
         var currentSPIssuer = DEFAULT_SP_ISSUER
+
+        // Used to return the relay state in the logout response. It's set by the binding verifiers.
+        var logoutRequestRelayState: String? = null
 
         /*
          * All of these properties are lazy, so that unit tests do not have to have all of this
@@ -134,16 +161,28 @@ class TestCommon {
 
         object UseDSASigningSP : TestCaseExtension {
             override fun intercept(context: TestCaseInterceptContext,
-                                   test: (TestCaseConfig, (TestResult) -> Unit) -> Unit,
-                                   complete: (TestResult) -> Unit) {
-                currentSPIssuer = DSA_SP_ISSUER
-                currentSPEntityInfo = DSA_SP_ENTITY_INFO
-
+                test: (TestCaseConfig, (TestResult) -> Unit) -> Unit,
+                complete: (TestResult) -> Unit) {
+                useDSAServiceProvider()
                 test(context.config, { complete(it) })
-
-                currentSPIssuer = DEFAULT_SP_ISSUER
-                currentSPEntityInfo = DEFAULT_SP_ENTITY_INFO
+                useDefaultServiceProvider()
             }
+        }
+
+        /**
+         * Sets the current service provider to the https://samlhost:8993/services/saml
+         */
+        fun useDefaultServiceProvider() {
+            currentSPIssuer = DEFAULT_SP_ISSUER
+            currentSPEntityInfo = DEFAULT_SP_ENTITY_INFO
+        }
+
+        /**
+         * Sets the current service provider to the https://samlhostdsa:8994/services/samldsa SP
+         */
+        fun useDSAServiceProvider() {
+            currentSPIssuer = DSA_SP_ISSUER
+            currentSPEntityInfo = DSA_SP_ENTITY_INFO
         }
 
         @JvmStatic
@@ -151,8 +190,19 @@ class TestCommon {
             return URI(currentSPIssuer).host
         }
 
-        fun acsUrl(binding: SamlProtocol.Binding): String? {
-            return currentSPEntityInfo.getAssertionConsumerService(binding)?.url
+        /**
+         * Returns the Assertion Consumer Service URL or the Logout Service URL
+         *
+         * @param binding - the binding of the URL desired
+         * @param response - the response dom is used to determine if it's a login
+         * Response (ACS URL) or a LogoutResponse (Logout Service URL)
+         */
+        fun getServiceUrl(binding: SamlProtocol.Binding, response: Node): String? {
+            val nodeName = response.nodeName.split(":")[1]
+            if (nodeName == "Response")
+                return currentSPEntityInfo.getAssertionConsumerService(binding)?.url
+
+            return currentSPEntityInfo.getLogoutService(binding)?.url
         }
 
         private fun parseAndVerifyVersion(): IdpMetadata {
@@ -165,18 +215,18 @@ class TestCommon {
         }
 
         /**
-         * Converts the {@param authnRequest} to a String
+         * Converts the {@param samlObject} to a String
          */
-        private fun authnRequestToString(authnRequest: AuthnRequest): String {
+        private fun samlObjectToString(samlObject: XMLObject): String {
             val doc = DOMUtils.createDocument().apply {
                 appendChild(createElement("root"))
             }
 
-            val requestElement = OpenSAMLUtil.toDom(authnRequest, doc)
-            return DOM2Writer.nodeToString(requestElement)
+            val samlElement = OpenSAMLUtil.toDom(samlObject, doc)
+            return DOM2Writer.nodeToString(samlElement)
         }
 
-        fun <T : Any> getServiceProvider(type: KClass<T>): T {
+        fun <T : Any> getImplementation(type: KClass<T>): T {
             return ServiceLoader.load(type.java, DEPLOY_CL).first()
         }
 
@@ -204,15 +254,17 @@ class TestCommon {
          * Provides a default request for testing
          * @return A valid Redirect AuthnRequest.
          */
-        fun createDefaultAuthnRequest(binding: SamlProtocol.Binding): AuthnRequest {
-            REQUEST_ID = UUID.randomUUID().toString().replace("-", "")
+        fun createDefaultAuthnRequest(binding: SamlProtocol.Binding,
+            requestIssuer: String = currentSPIssuer,
+            entityInfo: EntityInformation = currentSPEntityInfo): AuthnRequest {
+            REQUEST_ID = "a" + UUID.randomUUID().toString() // IDs have to start with a letter
             return AuthnRequestBuilder().buildObject().apply {
-                issuer = IssuerBuilder().buildObject().apply { value = currentSPIssuer }
-                assertionConsumerServiceURL = acsUrl(SamlProtocol.Binding.HTTP_POST)
+                issuer = IssuerBuilder().buildObject().apply { value = requestIssuer }
+                assertionConsumerServiceURL = entityInfo.getAssertionConsumerService(HTTP_POST)?.url
                 id = REQUEST_ID
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
-                destination = Common.getSingleSignOnLocation(binding.uri)
+                destination = getSingleSignOnLocation(binding.uri)
                 protocolBinding = binding.uri
                 isForceAuthn = false
                 setIsPassive(false)
@@ -223,51 +275,207 @@ class TestCommon {
          * Submits a request to the IdP with the given parameters.
          * @return The IdP response
          */
-        fun sendRedirectAuthnRequest(queryParams: Map<String, String>): Response {
+        fun sendRedirectAuthnRequest(queryParams: Map<String, String>,
+            cookies: Map<String, String> = mapOf()): Response {
             return RestAssured.given()
                     .urlEncodingEnabled(false)
+                    .cookies(cookies)
                     .params(queryParams)
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .get(Common.getSingleSignOnLocation(SamlProtocol.REDIRECT_BINDING))
+                    .get(getSingleSignOnLocation(REDIRECT_BINDING))
         }
 
         /**
          * Submits a request to the IdP with the given encoded request.
          * @return The IdP response
          */
-        fun sendPostAuthnRequest(encodedRequest: String): Response {
+        fun sendPostAuthnRequest(encodedRequest: String,
+            cookies: Map<String, String> = mapOf()): Response {
             return RestAssured.given()
                     .urlEncodingEnabled(false)
+                    .cookies(cookies)
                     .body(encodedRequest)
                     .contentType("application/x-www-form-urlencoded")
                     .log()
                     .ifValidationFails()
                     .`when`()
-                    .post(Common.getSingleSignOnLocation(SamlProtocol.POST_BINDING))
+                    .post(getSingleSignOnLocation(POST_BINDING))
         }
 
         /**
-         * Encodes an AuthnRequest
+         * Encodes a Redirect Request
          * @return A string representation of the encoded input request
          */
-        fun encodeAuthnRequest(authnRequest: AuthnRequest): String {
-            val authnRequestString = authnRequestToString(authnRequest)
-            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
-            return Encoder.encodeRedirectMessage(authnRequestString)
+        fun encodeRedirectRequest(samlObject: SignableSAMLObject): String {
+            val samlType = if (samlObject is RequestAbstractType) SAML_REQUEST else SAML_RESPONSE
+            val authnRequestString = samlObjectToString(samlObject)
+            authnRequestString.debugPrettyPrintXml(samlType)
+            return encodeRedirectMessage(authnRequestString)
         }
 
         /**
-         * Signs a given AuthnRequest and converts the object to a String for a POST request.
-         * @return The signed AuthnRequest as a String
+         * Signs a given SAML Object (Request or Response) and converts the object to a String
+         * for a POST request.
+         * @param samlObject - The object to sign and encode
+         * @return The signed object as a String
          */
-        fun signAndEncodeToString(authnRequest: AuthnRequest, relayState: String? = null): String {
-            SimpleSign().signSamlObject(authnRequest)
-            val authnRequestString = authnRequestToString(authnRequest)
-            authnRequestString.debugPrettyPrintXml(AUTHN_REQUEST)
-            return if (relayState == null) Encoder.encodePostMessage(authnRequestString)
-            else Encoder.encodePostMessage(authnRequestString, relayState)
+        fun signAndEncodePostRequestToString(samlObject: SignableSAMLObject,
+            relayState: String? = null): String {
+            val samlType = if (samlObject is RequestAbstractType) SAML_REQUEST else SAML_RESPONSE
+
+            SimpleSign().signSamlObject(samlObject)
+            val requestString = samlObjectToString(samlObject)
+            requestString.debugPrettyPrintXml(samlType)
+
+            return if (relayState == null) encodePostMessage(samlType, requestString)
+            else encodePostMessage(samlType, requestString, relayState)
+        }
+
+        /**
+         * Attempts to login to service providers
+         * @param binding - Binding used for login
+         * @param singleSP - if true logs in with one sp, else logs in with both
+         * @return cookies from first SP login, to be used in logout request
+         */
+        @Suppress("TooGenericExceptionCaught" /* Catching all Exceptions */)
+        fun loginAndGetCookies(binding: SamlProtocol.Binding, singleSP: Boolean = true):
+            Map<String, String> {
+            try {
+                val authnRequest by lazy {
+                    createDefaultAuthnRequest(binding)
+                }
+
+                val secondRequest by lazy {
+                    createDefaultAuthnRequest(binding, DSA_SP_ISSUER, DSA_SP_ENTITY_INFO)
+                }
+
+                return if (binding == HTTP_POST) {
+                    val firstLoginResponse = loginPost(authnRequest)
+                    val finalResponse = getImplementation(IdpSSOResponder::class)
+                        .getResponseForPostRequest(firstLoginResponse)
+                    if (!singleSP) {
+                        useDSAServiceProvider()
+                        loginPost(secondRequest, finalResponse.cookies)
+                        useDefaultServiceProvider()
+                    }
+                    finalResponse.cookies
+                } else {
+                    val firstLoginResponse = loginRedirect(authnRequest)
+                    val finalResponse = getImplementation(IdpSSOResponder::class)
+                        .getResponseForRedirectRequest(firstLoginResponse)
+                    if (!singleSP) {
+                        useDSAServiceProvider()
+                        loginRedirect(secondRequest, finalResponse.cookies)
+                        useDefaultServiceProvider()
+                    }
+                    finalResponse.cookies
+                }
+            } catch (e: Exception) {
+                throw SAMLComplianceException.create(SAMLGeneral_d,
+                    message = "The logout test is unable to run because an error occurred while " +
+                        "logging in.",
+                    cause = e)
+            }
+        }
+
+        private fun loginPost(request: AuthnRequest, cookies: Map<String, String> = mapOf()):
+            Response {
+            val response = sendPostAuthnRequest(
+                signAndEncodePostRequestToString(request), cookies)
+            verifyHttpStatusCode(response.statusCode)
+            return response
+        }
+
+        private fun loginRedirect(request: AuthnRequest, cookies: Map<String, String> = mapOf()):
+            Response {
+            val queryParams = SimpleSign().signUriString(
+                SAML_REQUEST,
+                encodeRedirectRequest(request),
+                null)
+
+            val response = sendRedirectAuthnRequest(queryParams, cookies)
+            verifyHttpStatusCode(response.statusCode)
+            return response
+        }
+
+        /**
+         * Provides a default logout request for testing
+         * @return A valid LogoutRequest.
+         */
+        fun createDefaultLogoutRequest(binding: SamlProtocol.Binding): LogoutRequest {
+            REQUEST_ID = "a" + UUID.randomUUID().toString() // IDs have to start with a letter
+            return LogoutRequestBuilder().buildObject().apply {
+                issuer = IssuerBuilder().buildObject().apply { value = currentSPIssuer }
+                id = REQUEST_ID
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                destination = getSingleLogoutLocation(binding.uri)
+                nameID = NameIDBuilder().buildObject().apply {
+                    nameQualifier = idpMetadata.entityId
+                    spNameQualifier = currentSPIssuer
+                    format = PERSISTENT_ID
+                    value = "admin"
+                }
+            }
+        }
+
+        /**
+         * Provides a default logout response for testing
+         * @param sendValidResponse - If true, returns a valid logout. If false, returns a saml
+         * error response
+         */
+        @Suppress("NestedBlockDepth")
+        fun createDefaultLogoutResponse(logoutRequestDom: Node, sendValidResponse: Boolean):
+            LogoutResponse {
+            return LogoutResponseBuilder().buildObject().apply {
+                id = "a" + UUID.randomUUID().toString()
+                version = SAMLVersion.VERSION_20
+                issueInstant = DateTime()
+                inResponseTo = logoutRequestDom.attributeText(ID)
+                issuer = IssuerBuilder().buildObject().apply { value = currentSPIssuer }
+                status = StatusBuilder().buildObject().apply {
+                    statusCode = StatusCodeBuilder().buildObject().apply {
+                        value = if (sendValidResponse) SUCCESS else RESPONDER
+                    }
+                }
+            }
+        }
+
+        /**
+         * Submits a logout request or response to the IdP with the given parameters.
+         * @return The IdP response
+         */
+        fun sendRedirectLogoutMessage(queryParams: Map<String, String>,
+            cookies: Map<String, String> = mapOf()): Response {
+            return RestAssured.given()
+                .urlEncodingEnabled(false)
+                .redirects()
+                .follow(false)
+                .cookies(cookies)
+                .params(queryParams)
+                .log()
+                .ifValidationFails()
+                .`when`()
+                .get(getSingleLogoutLocation(REDIRECT_BINDING))
+        }
+
+        /**
+         * Submits a logout request or response to the IdP with the given encoded message.
+         * @return The IdP response
+         */
+        fun sendPostLogoutMessage(encodedMessage: String,
+            cookies: Map<String, String> = mapOf()): Response {
+            return RestAssured.given()
+                .urlEncodingEnabled(false)
+                .cookies(cookies)
+                .body(encodedMessage)
+                .contentType("application/x-www-form-urlencoded")
+                .log()
+                .ifValidationFails()
+                .`when`()
+                .post(getSingleLogoutLocation(POST_BINDING))
         }
     }
 }

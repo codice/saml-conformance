@@ -15,9 +15,11 @@ package org.codice.compliance.utils
 
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.ACTION
 import org.codice.compliance.utils.TestCommon.Companion.HIDDEN
+import org.codice.compliance.utils.TestCommon.Companion.LOCATION
 import org.codice.compliance.utils.TestCommon.Companion.NAME
 import org.codice.compliance.utils.TestCommon.Companion.TYPE_LOWER
 import org.codice.compliance.utils.TestCommon.Companion.VALUE
@@ -55,17 +57,17 @@ fun Response.getLocation(): String? {
     return when (this.determineBinding()) {
         SamlProtocol.Binding.HTTP_REDIRECT -> {
             // Extracted according to Binding 3.4.4
-            this.getHeader("Location")
+            this.getHeader(LOCATION)
         }
         SamlProtocol.Binding.HTTP_POST -> {
             // Extracted according to Bindings 3.5.4
-            this.extractSamlResponseForm()?.getAttribute(ACTION)
+            this.extractSamlMessageForm()?.getAttribute(ACTION)
         }
         else -> throw UnsupportedOperationException(BINDING_UNSUPPORTED_MESSAGE)
     }
 }
 
-fun Response.extractSamlResponseForm(): Node? {
+fun Response.extractSamlMessageForm(): Node? {
     return this
             .then()
             .extract()
@@ -75,18 +77,20 @@ fun Response.extractSamlResponseForm(): Node? {
                 it.children()
                         .list()
                         .any { formControl ->
-                            SAML_RESPONSE.equals(formControl.getAttribute(NAME),
+                            SAML_RESPONSE.equals(formControl.getAttribute(NAME), ignoreCase = true)
+                                || SAML_REQUEST.equals(formControl.getAttribute(NAME),
                                     ignoreCase = true)
                         }
             }
 }
 
 private fun Response.isPostBinding(): Boolean {
-    return this.extractSamlResponseForm() != null
+    return this.extractSamlMessageForm() != null
 }
 
 private fun Response.isRedirectBinding(): Boolean {
-    return this.getHeader("Location")?.contains("$SAML_RESPONSE=") == true
+    return this.getHeader(LOCATION)?.contains("$SAML_RESPONSE=") == true ||
+        this.getHeader(LOCATION)?.contains("$SAML_REQUEST=") == true
 }
 
 /** Node extension functions **/

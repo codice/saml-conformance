@@ -22,7 +22,7 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
-import org.codice.compliance.utils.TestCommon.Companion.NAMEID_ENCRYPTED
+import org.codice.compliance.utils.TestCommon.Companion.ENCRYPTED_ID
 import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.opensaml.saml.saml2.core.NameIDPolicy
@@ -39,7 +39,7 @@ class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy
                 .flatMap { it.children("NameID") }
                 .forEach {
                     when (policyFormat) {
-                        SAML2Constants.ATTRNAME_FORMAT_UNSPECIFIED, NAMEID_ENCRYPTED -> {
+                        SAML2Constants.ATTRNAME_FORMAT_UNSPECIFIED, ENCRYPTED_ID -> {
                         }
                         else -> {
                             verifyFormatsMatch(it)
@@ -75,7 +75,7 @@ class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy
     }
 
     internal fun verifyEncryptedIds() {
-        if (policyFormat == NAMEID_ENCRYPTED) {
+        if (policyFormat == ENCRYPTED_ID) {
             val subjects = samlResponseDom.recursiveChildren(ASSERTION)
                     .flatMap { it.children(SUBJECT) }
 

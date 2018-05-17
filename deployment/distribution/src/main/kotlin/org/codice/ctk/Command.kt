@@ -18,12 +18,18 @@ import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.web.slo.PostSLOTest
+import org.codice.compliance.web.slo.RedirectSLOTest
+import org.codice.compliance.web.slo.error.PostSLOErrorTest
+import org.codice.compliance.web.slo.error.RedirectSLOErrorTest
 import org.codice.compliance.web.sso.PostSSOTest
 import org.codice.compliance.web.sso.RedirectSSOTest
 import org.codice.compliance.web.sso.error.PostSSOErrorTest
 import org.codice.compliance.web.sso.error.RedirectSSOErrorTest
-import org.codice.ctk.Runner.Companion.BASIC_TESTS
-import org.codice.ctk.Runner.Companion.ERROR_TESTS
+import org.codice.ctk.Runner.Companion.SLO_BASIC_TESTS
+import org.codice.ctk.Runner.Companion.SLO_ERROR_TESTS
+import org.codice.ctk.Runner.Companion.SSO_BASIC_TESTS
+import org.codice.ctk.Runner.Companion.SSO_ERROR_TESTS
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
@@ -33,10 +39,14 @@ import java.io.PrintWriter
 
 private class Runner {
     companion object {
-        val BASIC_TESTS = arrayOf(selectClass(PostSSOTest::class.java),
+        val SSO_BASIC_TESTS = arrayOf(selectClass(PostSSOTest::class.java),
             selectClass(RedirectSSOTest::class.java))
-        val ERROR_TESTS = arrayOf(selectClass(RedirectSSOErrorTest::class.java),
+        val SSO_ERROR_TESTS = arrayOf(selectClass(RedirectSSOErrorTest::class.java),
             selectClass(PostSSOErrorTest::class.java))
+        val SLO_BASIC_TESTS = arrayOf(selectClass(PostSLOTest::class.java),
+            selectClass(RedirectSLOTest::class.java))
+        val SLO_ERROR_TESTS = arrayOf(selectClass(PostSLOErrorTest::class.java),
+            selectClass(RedirectSLOErrorTest::class.java))
     }
 }
 
@@ -49,15 +59,12 @@ fun main(args: Array<String>) {
     parser.setApplicationDescription("SAML Conformance Test Kit")
 
     parser.option("i",
-        listOf("implementation"),
         description = "Path to the implementation to be tested")
 
     parser.flag("d",
-        listOf("debug"),
         description = "Turn on debug logs.")
 
     parser.flag("l",
-        listOf("lenient"),
         description = """When an error occurs, the SAML V2.0 Standard Specification requires an IdP
             to respond with a 200 HTTP status code and a valid SAML response containing an error
             <StatusCode>. If the -l flag is given, this test kit will allow HTTP error status codes
@@ -85,7 +92,11 @@ fun main(args: Array<String>) {
 @Suppress("SpreadOperator")
 private fun launchTests() {
     val request = LauncherDiscoveryRequestBuilder.request()
-        .selectors(*BASIC_TESTS, *ERROR_TESTS).build()
+        .selectors(*SSO_BASIC_TESTS,
+            *SSO_ERROR_TESTS,
+            *SLO_BASIC_TESTS,
+            *SLO_ERROR_TESTS)
+        .build()
 
     val summaryGeneratingListener = SummaryGeneratingListener()
     LauncherFactory.create().apply {

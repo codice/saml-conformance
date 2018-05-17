@@ -35,8 +35,9 @@ public class Encoder {
    * @param message - SAML POST message
    * @return - decoded message
    */
-  public static String encodePostMessage(String message) throws IOException {
-    return "SAMLRequest="
+  public static String encodePostMessage(String samlType, String message) throws IOException {
+    return samlType
+        + "="
         + URLEncoder.encode(
             Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
             StandardCharsets.UTF_8.name());
@@ -49,12 +50,13 @@ public class Encoder {
    * @param relayState - Relay State to URL encode with message
    * @return - decoded message
    */
-  public static String encodePostMessage(String message, String relayState) throws IOException {
+  public static String encodePostMessage(String samlType, String message, String relayState)
+      throws IOException {
     return String.format(
         "%s=%s&%s=%s",
         SSOConstants.RELAY_STATE,
         URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()),
-        SSOConstants.SAML_REQUEST,
+        samlType,
         URLEncoder.encode(
             Base64.getEncoder().encodeToString(message.getBytes(StandardCharsets.UTF_8)),
             StandardCharsets.UTF_8.name()));
