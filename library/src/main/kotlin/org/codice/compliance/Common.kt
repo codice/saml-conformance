@@ -88,6 +88,17 @@ class Common {
         }
 
         /**
+         * Returns SLO url of the passed in binding from the IdP's metadata
+         */
+        fun getSingleLogoutLocation(binding: String): String? {
+            return parseIdpMetadata()
+                .descriptor
+                ?.singleLogoutServices
+                ?.first { it.binding == binding }
+                ?.location
+        }
+
+        /**
          * Generates an xml document from an input string
          */
         fun buildDom(inputXml: String): Node {

@@ -1,5 +1,5 @@
 group = 'org.codice.samlconf.test'
-description = 'Common Functions for IdP and SP Tests.'
+description = 'Common Functions for IdP Tests.'
 
 dependencies {
     compile project(':library')

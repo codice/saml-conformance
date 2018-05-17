@@ -59,9 +59,7 @@ subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven {
-            url "http://artifacts.codice.org/content/repositories/thirdparty/"
-        }
+        maven { url "http://artifacts.codice.org/content/repositories/thirdparty/" }
     }
 
     dependencies {

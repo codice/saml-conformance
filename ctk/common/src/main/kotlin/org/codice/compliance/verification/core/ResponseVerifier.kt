@@ -28,13 +28,14 @@ import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
-import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
+import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.w3c.dom.Node
 
 abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
-                                protected val samlResponseDom: Node) :
+                                protected val samlResponseDom: Node,
+                                private val binding: SamlProtocol.Binding) :
         CoreVerifier(samlResponseDom) {
 
     /** 3.2.2 Complex Type StatusResponseType */
@@ -65,11 +66,13 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                 samlResponseDom.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
         samlResponseDom.attributeNode(DESTINATION)?.apply {
-            if (textContent != acsUrl(HTTP_POST))
+
+            val url = getServiceUrl(binding, samlResponseDom)
+            if (textContent != url)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
-                        expected = acsUrl(HTTP_POST) ?: "No ACS URL Found",
+                        expected = url ?: "No ACS URL Found",
                         node = samlResponseDom)
 
             CommonDataTypeVerifier.verifyUriValue(this)
