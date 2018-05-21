@@ -6,5 +6,6 @@ dependencies {
     compile project(':external:api')
     testCompile "io.kotlintest:kotlintest-runner-junit5:$kotlin_test_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_jupiter_version"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
 }
