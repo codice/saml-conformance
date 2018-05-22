@@ -1,4 +1,4 @@
-#The [DDF](https://github.com/codice/ddf) SAML Implementation
+# The [DDF](https://github.com/codice/ddf) SAML Implementation
 
 ## Steps to Test DDF's IDP
 * Start and install DDF
@@ -8,4 +8,4 @@
     * Do the same copy-paste steps but copying the **second** `EntityDescriptor` element.
 * If not on localhost, copy DDF's IDP metadata from `https://<hostname>:<port>/services/idp/login/metadata` 
 to the file `<samlconf>/implementations/ddf/ddf-idp-metadata.xml` where `<samlconf>` is the root directory of the test kit distribution.
-* Run `<samlconf>/bin/samlconf` where `<samlconf>` is the root directory of the test kit distribution. (no parameters needed since it points to DDF's implementation by default)
+* From the root of the saml-conformance soruce directory, run `deployment/distribution/build/install/samlconf/bin/samlconf -l`. Note: This assumes the project has been succesfully built.
