@@ -19,27 +19,21 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.security.sign.Encoder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-@RunWith(Parameterized.class)
 public class SimpleSignTest {
   private static final String RSA = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
   private static final String DSA = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
@@ -58,23 +52,36 @@ public class SimpleSignTest {
   private String exampleSamlRequest;
   private AuthnRequest exampleAuthnRequest;
 
-  @Parameterized.Parameters
-  public static Collection<Object[]> simpleSignVariations() throws IOException, URISyntaxException {
-    return Arrays.asList(
-        new Object[][] {
-          {SP_ISSUER, RSA, RSA_CERT_STRING},
-          {DSA_SP_ISSUER, DSA, DSA_CERT_STRING}
-        });
+  private static final SignInfo[] SIGN_INFOS = {
+    new SignInfo(SP_ISSUER, RSA, RSA_CERT_STRING), new SignInfo(DSA_SP_ISSUER, DSA, DSA_CERT_STRING)
+  };
+
+  static SignInfo[] signInfos() {
+    return SIGN_INFOS;
   }
 
-  public SimpleSignTest(String issuer, String expectedSigAlg, String certString) throws Exception {
-    OpenSAMLUtil.initSamlEngine();
+  static class SignInfo {
+    private String issuer;
+    private String sigAlg;
+    private String cert;
 
+    SignInfo(String issuer, String sigAlg, String cert) {
+      this.issuer = issuer;
+      this.sigAlg = sigAlg;
+      this.cert = cert;
+    }
+  }
+
+  public SimpleSignTest() {
+    OpenSAMLUtil.initSamlEngine();
+  }
+
+  private void setupParams(SignInfo signInfo) throws Exception {
     // Set parameter-dependent variables
-    currentSPIssuer = issuer;
-    this.expectedSigAlg = expectedSigAlg;
+    currentSPIssuer = signInfo.issuer;
+    this.expectedSigAlg = signInfo.sigAlg;
     this.expectedSigAlgEncoded = URLEncoder.encode(expectedSigAlg, StandardCharsets.UTF_8.name());
-    this.certString = certString;
+    this.certString = signInfo.cert;
 
     // Set universal variables
     this.simpleSign = new SimpleSign();
@@ -82,8 +89,11 @@ public class SimpleSignTest {
     exampleSamlRequest = Encoder.encodeRedirectMessage(authnRequestToString(exampleAuthnRequest));
   }
 
-  @Test
-  public void signUriStringWithoutRelayStateReturns3QueryParameters() throws Exception {
+  @ParameterizedTest
+  @MethodSource("signInfos")
+  public void signUriStringWithoutRelayStateReturns3QueryParameters(SignInfo signInfo)
+      throws Exception {
+    setupParams(signInfo);
     Map<String, String> output =
         simpleSign.signUriString(SSOConstants.SAML_REQUEST, exampleSamlRequest, null);
 
@@ -93,8 +103,11 @@ public class SimpleSignTest {
     assertThat(output.size(), is(3));
   }
 
-  @Test
-  public void signUriStringWithRelayStateReturns4QueryParameters() throws Exception {
+  @ParameterizedTest
+  @MethodSource("signInfos")
+  public void signUriStringWithRelayStateReturns4QueryParameters(SignInfo signInfo)
+      throws Exception {
+    setupParams(signInfo);
     Map<String, String> output =
         simpleSign.signUriString(SSOConstants.SAML_REQUEST, exampleSamlRequest, TEST_RELAY);
 
@@ -105,8 +118,11 @@ public class SimpleSignTest {
     assertThat(output.size(), is(4));
   }
 
-  @Test
-  public void signUriStringWithoutRelayStateReturnsValidSignature() throws Exception {
+  @ParameterizedTest
+  @MethodSource("signInfos")
+  public void signUriStringWithoutRelayStateReturnsValidSignature(SignInfo signInfo)
+      throws Exception {
+    setupParams(signInfo);
     Map<String, String> output =
         simpleSign.signUriString(SSOConstants.SAML_REQUEST, exampleSamlRequest, null);
 
@@ -121,8 +137,11 @@ public class SimpleSignTest {
     assertThat(isValidSignature, is(true));
   }
 
-  @Test
-  public void signSamlObjectAddsSignatureElementWithCorrectAlgorithm() throws Exception {
+  @ParameterizedTest
+  @MethodSource("signInfos")
+  public void signSamlObjectAddsSignatureElementWithCorrectAlgorithm(SignInfo signInfo)
+      throws Exception {
+    setupParams(signInfo);
     assertThat(exampleAuthnRequest.getSignature(), is(nullValue()));
 
     simpleSign.signSamlObject(exampleAuthnRequest);
