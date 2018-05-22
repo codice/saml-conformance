@@ -7,17 +7,46 @@ It is currently a prototype being actively developed.
 > Only supports SAML Version 2.0. All other version are not supported.
 > This test kit does not support proxying.
 
-## Setup
+## Building
 To build the project:
 
     gradlew build
 
-The `deployment/distribution` module will contain a full package of the deployment after the build.
+After the build, the full package of the deployment will be located at `deployment/distribution/build/install/samlconf`.
 
-### Running Test Script
-Upon a successful build, tests can be run with the `samlconf` script found in:
+### Formatting
+If during development the build fails due to `format violations` run the following command to format:
+
+    gradlew spotlessApply
+
+### Docker
+To build a docker image, execute `gradlew build docker`.
+
+> NOTE
+>
+> Docker is used exclusively for our Jenkins builds.
+
+## Running
+
+### Setup for a Specific Implementation
+> NOTE
+> This test kit includes built-in support for [Keycloak](#samlconf-keycloak-impl) and [DDF](#samlconf-ddf-impl) SAML Identity Providers.
+> Steps 1 and 2 have been completed and packaged under `implementations` in the distribution.
+> Steps 3-5 for those specific providers are documented in more detail under the corresponding README's.
+
+1. Implement a plugin jar for the implementation
+    * Write a Java or Kotlin class that implements `IdpSSOResponder`. See that interface for details.
+    * Package that file into a jar
+2. Place the jar from step 1 and the IdP's metadata into a directory.
+3. Setup your IdP.
+4. Configure your IdP with the test kit's SP metadata from `deployment/distribution/build/install/samlconf/conf/samlconf-sp-metadata.xml`.
+5. The directory from step 2 should be referred to with the `-i` option when running tests. (See [Running Test Script](#running_test_script]))
+
+### Run the tests
+After a successful gradle build, tests can be run with the generated `samlconf` script:
     
-    deployment/distribution/build/install/samlconf/bin/samlconf
+    cd deployment/distribution/build/install/samlconf/bin
+    ./samlconf
 
 The `samlconf` script may take the following parameters:
 
@@ -32,70 +61,31 @@ The `samlconf` script may take the following parameters:
            with the SAML Specifications. If a compliance issue is identified, a 
            SAMLConformanceException will be thrown with an explanation of the error and a direct
            quote from the specification. All of the parameters are optional and if they are 
-           not provided, the default values will use DDF's parameters. All parameters must 
-           be given one time.
+           not provided, the default values will use DDF's parameters.
     
     OPTIONS
            -i | --implementation path
-                The path to the custom, server-specific implementation, including its plugins and metadata. If it is not given, 
-                the default implementation directory is /implementations/samlconf-ddf-impl.
+                The path to the directory containing the implementation's plugin and metadata. The default value is /implementations/ddf.
                       
            -d | --debug
-                Sets the log level to debug.
+                Boolean for whether or not to enable debug mode which enables more logging. The default value is false.
 
            -l | --lenient
                 When an error occurs, the SAML V2.0 Standard Specification requires an IdP to respond with a 200 HTTP status code and a valid SAML response containing an error <StatusCode>.
                 If the -l flag is given, this test kit will allow HTTP error status codes as a valid error response (i.e. 400's and 500's).
                 If it is not given, this test kit will only verify that a valid SAML error response is returned.
 
-
-> NOTE
-> 
-> In order for the test kit to execute properly, you must configure both the test kit's and your IdP's/SP's metadata, as well as implement plugins
-for the user-handled portions of SAML profiles. See [Metadata](#metadata) and [Implementations](#implementations) for instructions.
-
-### Formatting
-If during development the build fails due to `format violations` run the following command to format:
-
-    gradlew spotlessApply
-
-### Metadata
-* If testing an IdP:
-  * Provide your IdP's metadata to the `samlconf` script by including it in the directory pointed to by
-   `-i` or `--implementations`.
-  * Configure your IdP with the test kit's SP metadata from
-  `deployment/distribution/build/install/samlconf/conf/samlconf-sp-metadata.xml`
-  or `samlconf-1.0-SNAPSHOT/conf/samlconf-sp-metadata.xml` from the distribution.
-   
-### How to Run Against a Specific Implementation
-This test kit can already be run against [Keycloak](#samlconf-keycloak-impl) and [DDF](#samlconf-ddf-impl) SAML IdP implementations.
-If you're wanting to run the test kit against a different SAML IdP implementation, you will have to follow the below steps.
-
-* Implement a plugin jar for the implementation
-    * Write a Java or Kotlin class that implements `IdpSSOResponder`. See that interface for details.
-    * Package that file into a jar
-* Place the above jar and the IdP's metadata into a directory. Then that directory should be
-referred to by system property when running tests. (See [Running Test Script](#running_test_script]))
-
-### Docker
-To build a docker image, execute `gradlew build docker`. 
-
-> NOTE
->
-> Docker is used exclusively for our Jenkins builds.
-
 ## Project Structure
 This section will briefly talk about the project structure.
 
 ### ctk
-This module contains all the test related modules: `idp` and `common`.
+This module contains all the test related modules.
 
 #### idp
 This module will contain all tests being written against a SAML IdP. The `src` directory of the module is organized by the SAML specification as follows:
 
 * Package: Based on Profile (i.e. WebSSO, Single Logout)
   * Class: Based on Binding (i.e. POST, REDIRECT, ARTIFACT)
-* Class: Based on Metadata
 
 The [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests.
 
@@ -116,7 +106,7 @@ This module contains anything related to a specific SAML implementing product.
 This module contains the API that must be implemented for a SAML product in order to run this test kit against that product.
 
 #### implementations
-This module contains implementations of the API for specific SAML products. See [How to Run Against a Specific Implementation](#how-to-run-against-a-specific-implementation) for details.
+This module contains implementations of the API for specific SAML products.
 
 ##### samlconf-ddf-impl
 Plugin and idp-metadata.xml for the ddf implementation of IdP. See the README in this directory for details.
@@ -138,5 +128,3 @@ To build this module you must run the docker task by executing `gradlew build do
 FICAM: https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/SAML2_1.0.2_Functional_Reqs.pdf
 
 SAML: https://wiki.oasis-open.org/security/FrontPage
-
-ECP: http://docs.oasis-open.org/security/saml/Post2.0/saml-ecp/v2.0/saml-ecp-v2.0.html
