@@ -1,4 +1,4 @@
-#The [Keycloak](https://github.com/keycloak/keycloak) SAML Implementation
+# The [Keycloak](https://github.com/keycloak/keycloak) SAML Implementation
 
 ## Steps to Test Keycloak's IDP
 * Download Keycloak "Server" from [Keycloak Downloads](https://www.keycloak.org/downloads.html).
@@ -15,4 +15,4 @@
     * Under the Clients tab, click the Create button in the top-right.
     * Under Import, click Select File and select the new xml file.
     * Click the Save button.
-* From the root of the saml-conformance GitHub repo, run `cd deployment/distribution/build/install/samlconf && bin/samlconf -i implementations/keycloak -l`.
+* From the root of the saml-conformance source directory, run `cd deployment/distribution/build/install/samlconf && bin/samlconf -i implementations/keycloak -l`.

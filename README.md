@@ -6,6 +6,7 @@ It is currently a prototype being actively developed.
 > 
 > Only supports SAML Version 2.0. All other version are not supported.
 > This test kit does not support proxying.
+> Only MUSTs from the specification are tested, currently.
 
 ## Building
 To build the project:
@@ -30,17 +31,18 @@ To build a docker image, execute `gradlew build docker`.
 
 ### Setup for a Specific Implementation
 > NOTE
-> This test kit includes built-in support for [Keycloak](#samlconf-keycloak-impl) and [DDF](#samlconf-ddf-impl) SAML Identity Providers.
+>
+> This test kit includes built-in support for [Keycloak](external/implementations/samlconf-keycloak-impl/README.md) and [Distributed Data Framework](external/implementations/samlconf-ddf-impl/README.md) (DDF) SAML Identity Providers.
 > Steps 1 and 2 have been completed and packaged under `implementations` in the distribution.
 > Steps 3-5 for those specific providers are documented in more detail under the corresponding README's.
 
 1. Implement a plugin jar for the implementation
-    * Write a Java or Kotlin class that implements `IdpSSOResponder`. See that interface for details.
+    * Write a Java or Kotlin class that implements [IdpSSOResponder](external/api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java).
     * Package that file into a jar
 2. Place the jar from step 1 and the IdP's metadata into a directory.
 3. Setup your IdP.
 4. Configure your IdP with the test kit's SP metadata from `deployment/distribution/build/install/samlconf/conf/samlconf-sp-metadata.xml`.
-5. The directory from step 2 should be referred to with the `-i` option when running tests. (See [Running Test Script](#running_test_script]))
+5. The directory from step 2 should be referred to with the `-i` option when running tests. (See [Run The Tests](#run_the_tests]))
 
 ### Run the tests
 After a successful gradle build, tests can be run with the generated `samlconf` script:
@@ -57,7 +59,7 @@ The `samlconf` script may take the following parameters:
            samlconf [arguments ...]
     
     DESCRIPTION
-           Runs the SAML Conformance Tests which tests the compliance of an IdP and/or an SP
+           Runs the SAML Conformance Tests which test the compliance of an IdP
            with the SAML Specifications. If a compliance issue is identified, a 
            SAMLConformanceException will be thrown with an explanation of the error and a direct
            quote from the specification. All of the parameters are optional and if they are 
@@ -65,10 +67,12 @@ The `samlconf` script may take the following parameters:
     
     OPTIONS
            -i | --implementation path
-                The path to the directory containing the implementation's plugin and metadata. The default value is /implementations/ddf.
+                The path to the directory containing the implementation's plugin and metadata.
+                The default value is `/implementations/ddf`.
                       
            -d | --debug
-                Boolean for whether or not to enable debug mode which enables more logging. The default value is false.
+                Boolean for whether or not to enable debug mode which enables more logging.
+                The default value is false.
 
            -l | --lenient
                 When an error occurs, the SAML V2.0 Standard Specification requires an IdP to respond with a 200 HTTP status code and a valid SAML response containing an error <StatusCode>.
@@ -87,7 +91,7 @@ This module will contain all tests being written against a SAML IdP. The `src` d
 * Package: Based on Profile (i.e. WebSSO, Single Logout)
   * Class: Based on Binding (i.e. POST, REDIRECT, ARTIFACT)
 
-The [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests.
+The [coverage](ctk/idp/coverage) directory is used to track which sections of each SAML specification are covered by these tests. It also includes a list of MUSTs that are not tested and justification for each.
 
 #### common
 This module contains all the classes relating to utility for and verification of the test classes.
@@ -109,10 +113,10 @@ This module contains the API that must be implemented for a SAML product in orde
 This module contains implementations of the API for specific SAML products.
 
 ##### samlconf-ddf-impl
-Plugin and idp-metadata.xml for the ddf implementation of IdP. See the README in this directory for details.
+Plugin and IdP metadata XML for the ddf implementation of IdP. See the [DDF](external/implementations/samlconf-ddf-impl/README.md) in this directory for details.
 
 ##### samlconf-keycloak-impl
-Plugin and idp-metadata.xml for the Keycloak implementation of IdP. See the README in this directory for details.
+Plugin and IdP metadata XML for the Keycloak implementation of IdP. See the [Keycloak](external/implementations/samlconf-keycloak-impl/README.md) in this directory for details.
 
 ### deployment
 This module is the project's full package deployment.
