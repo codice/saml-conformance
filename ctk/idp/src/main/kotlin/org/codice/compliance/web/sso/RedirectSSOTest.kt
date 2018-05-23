@@ -131,8 +131,7 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        "Bindings 3.4.4.1: Redirect AuthnRequest Using DSA1 Signature Algorithm".config(
-                extensions = listOf(UseDSASigningSP)) {
+        "Bindings 3.4.4.1: Redirect AuthnRequest Using DSA1 Signature Algorithm" {
             Log.debugWithSupplier { "Redirect AuthnRequest Using DSA1 Signature Algorithm" }
 
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT)
@@ -160,11 +159,11 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-        }
+        }.config(extensions = listOf(UseDSASigningSP))
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        "Redirect AuthnRequest With Email NameID Format Test".config(enabled = false) {
+        "Redirect AuthnRequest With Email NameID Format Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Email NameID Format Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
@@ -198,11 +197,11 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-        }
+        }.config(enabled = false)
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        "Redirect AuthnRequest With Encrypted NameID Format Test".config(enabled = false) {
+        "Redirect AuthnRequest With Encrypted NameID Format Test" {
             Log.debugWithSupplier { "Redirect AuthnRequest With Encrypted NameID Format Test" }
             val authnRequest = createDefaultAuthnRequest(SamlProtocol.Binding.HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
@@ -236,6 +235,6 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
-        }
+        }.config(enabled = false)
     }
 }

@@ -28,6 +28,7 @@ import org.codice.compliance.verification.core.CoreVerifier
 import java.time.Duration
 import java.time.Instant
 
+@Suppress("StringLiteralDuplication", "MagicNumber")
 class CoreVerifierSpec : StringSpec() {
     init {
         val now = Instant.now()
@@ -35,7 +36,8 @@ class CoreVerifierSpec : StringSpec() {
 
         val response = { statusCode: String ->
             """
-                |<s:Response xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol" ID="id" Version="2.0" IssueInstant="$now">
+                |<s:Response xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol" ID="id" Version="2.0"
+                |    IssueInstant="$now">
                 |  <s:Status>
                 |    <s:StatusCode Value="$statusCode"></s:StatusCode>
                 |  </s:Status>
