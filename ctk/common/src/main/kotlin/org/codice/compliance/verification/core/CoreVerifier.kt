@@ -45,12 +45,6 @@ abstract class CoreVerifier(protected val node: Node) {
                                   expectedStatusCode: String) {
             SchemaValidator.validateSAMLMessage(node)
             val status = node.children("Status")
-            if (status.size != 1)
-                throw SAMLComplianceException.createWithPropertyMessage(samlErrorCode,
-                        property = "Status",
-                        actual = "[]",
-                        expected = "<Status>",
-                        node = node)
             status[0].children(STATUS_CODE).forEach {
                 val code = it.attributeText("Value")
 

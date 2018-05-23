@@ -45,6 +45,28 @@ class CoreVerifierSpec : StringSpec() {
                 """.trimMargin()
         }
 
+        val noStatusResponse = {
+            """
+                |<s:Response xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol" ID="id" Version="2.0"
+                |    IssueInstant="$now">
+                |</s:Response>
+                """.trimMargin()
+        }
+
+        val twoStatusResponse = { statusCode1: String, statusCode2: String ->
+            """
+                |<s:Response xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol" ID="id" Version="2.0"
+                |    IssueInstant="$now">
+                |  <s:Status>
+                |    <s:StatusCode Value="$statusCode1"></s:StatusCode>
+                |  </s:Status>
+                |  <s:Status>
+                |    <s:StatusCode Value="$statusCode2"></s:StatusCode>
+                |  </s:Status>
+                |</s:Response>
+                """.trimMargin()
+        }
+
         val specRefMsg = mockk<SAMLCoreRefMessage>()
         every { specRefMsg.message } returns "test message"
         every { specRefMsg.name } returns "TEST"
@@ -65,11 +87,29 @@ class CoreVerifierSpec : StringSpec() {
             }
         }
 
-        "failure with expected code of REQUESTER includes SAMLCore 3.2.1 response" {
+        "mismatch with expected code of REQUESTER includes SAMLCore 3.2.1 response" {
             buildDom(response("urn:samlconf:fail")).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreVerifier.verifyErrorStatusCode(it, specRefMsg, TestCommon.REQUESTER)
                 }.message?.shouldContain(SAMLCore_3_2_1_d.message)
+            }
+        }
+
+        "response with no status blocks" {
+            val statusCode = "urn:samlconf:fail"
+            buildDom(noStatusResponse()).let {
+                shouldThrow<SAMLComplianceException> {
+                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg, statusCode)
+                }
+            }
+        }
+
+        "response with multiple status blocks" {
+            val statusCode = "urn:samlconf:fail"
+            buildDom(twoStatusResponse("urn:samlconf:fail", "urn:samlconf:fail")).let {
+                shouldThrow<SAMLComplianceException> {
+                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg, statusCode)
+                }
             }
         }
 
