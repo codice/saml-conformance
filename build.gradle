@@ -25,7 +25,7 @@ description = 'SAML Conformance Test Kit'
 
 project.ext {
     project_version = '1.0-SNAPSHOT'
-    kotlin_test_version = '3.1.0-RC2'
+    kotlin_test_version = '3.1.4'
     rest_assured_version = '2.9.0'
     org_slf4j_version = '1.7.1'
     guava_version = '24.0-jre'

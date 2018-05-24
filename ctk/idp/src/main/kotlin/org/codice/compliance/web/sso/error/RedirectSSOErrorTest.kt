@@ -122,7 +122,8 @@ class RedirectSSOErrorTest : StringSpec() {
         }
 
         // TODO - DDF responds with a successful response. Re-enable test when DDF handles this
-        "Profiles 4.1.4.1: Redirect AuthnRequest With Subject Containing an Invalid Name ID Test" {
+        "Profiles 4.1.4.1: Redirect AuthnRequest With Subject Containing an Invalid Name ID Test"
+            .config(enabled = false) {
                 try {
                     Log.debugWithSupplier {
                         "Profiles 4.1.4.1: Redirect AuthnRequest With Subject Containing an " +
@@ -155,7 +156,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 } catch (e: SAMLComplianceException) {
                     throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
                 }
-            }.config(enabled = false)
+            }
 
         "Core 3.2.1: Redirect AuthnRequest With Non-Matching Destination" {
             try {
