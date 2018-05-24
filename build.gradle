@@ -28,7 +28,7 @@ project.ext {
     kotlin_test_version = '3.1.4'
     rest_assured_version = '2.9.0'
     org_slf4j_version = '1.7.1'
-    guava_version = '24.0-jre'
+    guava_version = '25.1-jre'
     detekt_version = '1.0.0.RC6-4'
     java_encoding = 'UTF-8'
     static_log_version = '2.2.0'
