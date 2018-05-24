@@ -31,9 +31,10 @@ public class IdpMetadataTest {
   @Test
   public void testParseIdPMetadata() throws Exception {
     String metadataString =
-        Files.toString(
-            new File(getClass().getClassLoader().getResource("ddf-idp-metadata.xml").toURI()),
-            StandardCharsets.UTF_8);
+        Files.asCharSource(
+                new File(getClass().getClassLoader().getResource("ddf-idp-metadata.xml").toURI()),
+                StandardCharsets.UTF_8)
+            .read();
 
     IdpMetadata idpMetadata = new IdpMetadata();
     idpMetadata.setMetadata(metadataString);
