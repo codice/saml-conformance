@@ -45,12 +45,6 @@ abstract class CoreVerifier(protected val node: Node) {
                                   expectedStatusCode: String) {
             SchemaValidator.validateSAMLMessage(node)
             val status = node.children("Status")
-            if (status.size != 1)
-                throw SAMLComplianceException.createWithPropertyMessage(samlErrorCode,
-                        property = "Status",
-                        actual = "[]",
-                        expected = "<Status>",
-                        node = node)
             status[0].children(STATUS_CODE).forEach {
                 val code = it.attributeText("Value")
 
@@ -88,11 +82,17 @@ abstract class CoreVerifier(protected val node: Node) {
 
             val notBeforeValue = Instant.parse(notBefore.textContent)
             val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
-            if (notBeforeValue.isAfter(notOnOrAfterValue))
+            if (notBeforeValue == notOnOrAfterValue || notBeforeValue.isAfter(notOnOrAfterValue))
                 throw SAMLComplianceException.create(samlCode,
                         message = "NotBefore element with value $notBeforeValue is not less " +
                                 "than NotOnOrAfter element with value $notOnOrAfterValue.",
                         node = node)
+        }
+
+        private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
+            return responseDom.recursiveChildren("EncryptedAssertion") +
+                    responseDom.recursiveChildren("EncryptedAttribute") +
+                    responseDom.recursiveChildren("EncryptedID")
         }
     }
 
@@ -100,7 +100,7 @@ abstract class CoreVerifier(protected val node: Node) {
      * Verify response against the Core Spec document
      */
     open fun verify() {
-        preProcess(node)
+        preProcess()
         verifyCommonDataType(node)
         SamlAssertionsVerifier(node).verify()
         SamlVersioningVerifier(node).verify()
@@ -111,12 +111,11 @@ abstract class CoreVerifier(protected val node: Node) {
     open fun verifyEncryptedElements() {
     }
 
-    private fun preProcess(responseDom: Node,
-                           encVerifier: EncryptionVerifier = EncryptionVerifier()) {
-        val encElements = retrieveCurrentEncryptedElements(responseDom)
+    private fun preProcess(encVerifier: EncryptionVerifier = EncryptionVerifier()) {
+        val encElements = retrieveCurrentEncryptedElements(node)
         if (encElements.isEmpty()) {
             Log.debugWithSupplier {
-                "Decrypted SAML Response:\n\n ${responseDom.prettyPrintXml()}"
+                "Decrypted SAML Response:\n\n ${node.prettyPrintXml()}"
             }
             return
         }
@@ -126,15 +125,9 @@ abstract class CoreVerifier(protected val node: Node) {
                     " on the SAML Response."
         }
 
-        SchemaValidator.validateSAMLMessage(responseDom)
+        SchemaValidator.validateSAMLMessage(node)
         verifyEncryptedElements()
         encVerifier.verifyAndDecryptElements(encElements)
-        preProcess(responseDom, encVerifier)
-    }
-
-    private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
-        return responseDom.recursiveChildren("EncryptedAssertion") +
-                responseDom.recursiveChildren("EncryptedAttribute") +
-                responseDom.recursiveChildren("EncryptedID")
+        preProcess(encVerifier)
     }
 }
