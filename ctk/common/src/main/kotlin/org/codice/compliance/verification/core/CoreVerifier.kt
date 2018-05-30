@@ -41,7 +41,8 @@ abstract class CoreVerifier(protected val node: Node) {
          * @param expectedStatusCode - the uri of the expected status code.
          * For example, urn:oasis:names:tc:SAML:2.0:status:Requester.
          */
-        fun verifyErrorStatusCode(node: Node, samlErrorCode: SAMLSpecRefMessage,
+        @Suppress("SpreadOperator")
+        fun verifyErrorStatusCode(node: Node, vararg samlErrorCode: SAMLSpecRefMessage,
                                   expectedStatusCode: String) {
             SchemaValidator.validateSAMLMessage(node)
             val status = node.children("Status")
@@ -51,11 +52,9 @@ abstract class CoreVerifier(protected val node: Node) {
                 if (code != expectedStatusCode) {
                     val exceptions =
                             if (expectedStatusCode == REQUESTER)
-                                arrayOf(samlErrorCode, SAMLCore_3_2_1_d)
+                                arrayOf(*samlErrorCode, SAMLCore_3_2_1_d)
                             else
-                                arrayOf(samlErrorCode)
-
-                    @Suppress("SpreadOperator")
+                                arrayOf(*samlErrorCode)
                     throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
                             property = "Status Code",
                             actual = code,

@@ -23,7 +23,7 @@ import org.codice.compliance.Common.Companion.buildDom
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
-import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.verification.core.CoreVerifier
 import java.time.Duration
 import java.time.Instant
@@ -75,14 +75,16 @@ class CoreVerifierSpec : StringSpec() {
             val statusCode = "urn:samlconf:fail"
 
             buildDom(response(statusCode)).let {
-                CoreVerifier.verifyErrorStatusCode(it, specRefMsg, statusCode)
+                CoreVerifier.verifyErrorStatusCode(it, specRefMsg,
+                    expectedStatusCode = statusCode)
             }
         }
 
         "mismatched status code fails and does not contain SAMLCore 3.2.1 response" {
             buildDom(response("urn:samlconf:fail")).let {
                 shouldThrow<SAMLComplianceException> {
-                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg, "urn:samlconf:expected")
+                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg,
+                        expectedStatusCode = "urn:samlconf:expected")
                 }.message?.shouldNotContain(SAMLCore_3_2_1_d.message)
             }
         }
@@ -90,7 +92,8 @@ class CoreVerifierSpec : StringSpec() {
         "mismatch with expected code of REQUESTER includes SAMLCore 3.2.1 response" {
             buildDom(response("urn:samlconf:fail")).let {
                 shouldThrow<SAMLComplianceException> {
-                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg, TestCommon.REQUESTER)
+                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg,
+                        expectedStatusCode = REQUESTER)
                 }.message?.shouldContain(SAMLCore_3_2_1_d.message)
             }
         }
@@ -99,7 +102,8 @@ class CoreVerifierSpec : StringSpec() {
             val statusCode = "urn:samlconf:fail"
             buildDom(noStatusResponse()).let {
                 shouldThrow<SAMLComplianceException> {
-                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg, statusCode)
+                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg,
+                        expectedStatusCode = statusCode)
                 }
             }
         }
@@ -108,7 +112,8 @@ class CoreVerifierSpec : StringSpec() {
             val statusCode = "urn:samlconf:fail"
             buildDom(twoStatusResponse("urn:samlconf:fail", "urn:samlconf:fail")).let {
                 shouldThrow<SAMLComplianceException> {
-                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg, statusCode)
+                    CoreVerifier.verifyErrorStatusCode(it, specRefMsg,
+                        expectedStatusCode = statusCode)
                 }
             }
         }

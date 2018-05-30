@@ -13,14 +13,17 @@
  */
 package org.codice.compliance.verification.core.requests
 
+import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_1_a
+import org.codice.compliance.SAMLCore_3_7_3_2_e
 import org.codice.compliance.attributeNode
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.RequestVerifier
+import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 
-class CoreLogoutRequestProtocolVerifier(private val samlRequestDom: Node) :
-    RequestVerifier(samlRequestDom) {
+class CoreLogoutRequestProtocolVerifier(private val samlRequestDom: Node,
+    binding: SamlProtocol.Binding) : RequestVerifier(samlRequestDom, binding) {
 
     /** 3.7.1 Element <LogoutRequest>*/
     override fun verify() {
@@ -33,8 +36,11 @@ class CoreLogoutRequestProtocolVerifier(private val samlRequestDom: Node) :
             CommonDataTypeVerifier.verifyUriValue(it, SAMLCore_3_7_1_a)
         }
 
-        samlRequestDom.attributeNode("NotOnOrAfter")?.let {
-            CommonDataTypeVerifier.verifyDateTimeValue(it)
-        }
+        val notOnOrAfter = samlRequestDom.attributeNode("NotOnOrAfter")
+        ?: throw SAMLComplianceException.create(SAMLCore_3_7_3_2_e,
+            message = "The attribute NotOnOrAfter was not found.",
+            node = samlRequestDom)
+
+        CommonDataTypeVerifier.verifyDateTimeValue(notOnOrAfter)
     }
 }

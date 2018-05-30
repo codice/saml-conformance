@@ -13,15 +13,21 @@
  */
 package org.codice.compliance.verification.core
 
+import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_a
 import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
+import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.attributeNode
+import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.ID
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
+import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
+import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 
-abstract class RequestVerifier(private val samlRequestDom: Node) : CoreVerifier(samlRequestDom) {
+abstract class RequestVerifier(private val samlRequestDom: Node,
+    private val binding: SamlProtocol.Binding) : CoreVerifier(samlRequestDom) {
 
     /** 3.2.1 Complex Type RequestAbstractType */
     override fun verify() {
@@ -38,8 +44,17 @@ abstract class RequestVerifier(private val samlRequestDom: Node) : CoreVerifier(
         CommonDataTypeVerifier.verifyDateTimeValue(
             samlRequestDom.attributeNode("IssueInstant"), SAMLCore_3_2_1_c)
 
-        samlRequestDom.attributeNode("Destination")?.let {
-            CommonDataTypeVerifier.verifyUriValue(it)
+        samlRequestDom.attributeNode(DESTINATION)?.apply {
+
+            val url = getServiceUrl(binding, samlRequestDom)
+            if (textContent != url)
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_1_e,
+                    property = DESTINATION,
+                    actual = textContent,
+                    expected = url ?: "No ACS URL Found",
+                    node = samlRequestDom)
+
+            CommonDataTypeVerifier.verifyUriValue(this)
         }
 
         samlRequestDom.attributeNode("Consent")?.let {

@@ -13,6 +13,7 @@
  */
 package org.codice.compilance.verification.core
 
+import com.google.common.io.Resources
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
@@ -25,7 +26,10 @@ import org.codice.compliance.SAMLCore_1_3_4_a
 import org.codice.compliance.SAMLCore_3_2_1_a
 import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
+import org.codice.compliance.SAMLCore_3_2_1_e
+import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.verification.core.RequestVerifier
+import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.w3c.dom.Node
 import java.time.Instant
 import java.util.UUID
@@ -34,6 +38,8 @@ class RequestVerifierSpec : StringSpec() {
     init {
         val incorrectUri = "incorrect/uri"
         val correctUri = "http://correct.uri"
+        System.setProperty(TEST_SP_METADATA_PROPERTY,
+            Resources.getResource("test-sp-metadata.xml").path)
 
         "response with correct ID, version and instant should pass" {
             Common.buildDom(createResponse()).let {
@@ -85,11 +91,11 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect destination (relative URI) should fail" {
+        "response with incorrect destination should fail" {
             Common.buildDom(createResponse(attribute = "Destination=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
-                }.message?.shouldContain(SAMLCore_1_3_2_a.message)
+                }.message?.shouldContain(SAMLCore_3_2_1_e.message)
             }
         }
 
@@ -128,5 +134,6 @@ class RequestVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private class RequestVerifierTest(samlRequestDom: Node) : RequestVerifier(samlRequestDom)
+    private class RequestVerifierTest(samlRequestDom: Node) :
+        RequestVerifier(samlRequestDom, HTTP_POST)
 }

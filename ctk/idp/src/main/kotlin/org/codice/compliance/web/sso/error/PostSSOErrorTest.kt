@@ -30,7 +30,6 @@ import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier
-import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -55,7 +54,7 @@ class PostSSOErrorTest : StringSpec() {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLBindings_3_5_3_a,
+                        SAMLBindings_3_5_3_a,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {
@@ -74,7 +73,7 @@ class PostSSOErrorTest : StringSpec() {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLProfiles_4_1_4_1_a,
+                        SAMLProfiles_4_1_4_1_a,
                         expectedStatusCode = REQUESTER)
                     ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
                 }
@@ -103,7 +102,7 @@ class PostSSOErrorTest : StringSpec() {
                         val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                         CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                            samlErrorCode = SAMLProfiles_4_1_4_1_b,
+                            SAMLProfiles_4_1_4_1_b,
                             expectedStatusCode = REQUESTER)
                         ProfilesVerifier(samlResponseDom)
                             .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
@@ -125,7 +124,7 @@ class PostSSOErrorTest : StringSpec() {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLCore_3_2_1_e,
+                        SAMLCore_3_2_1_e,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {

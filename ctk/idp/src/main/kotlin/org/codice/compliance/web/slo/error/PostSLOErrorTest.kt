@@ -18,6 +18,8 @@ import io.kotlintest.specs.StringSpec
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_3_7_3_2_a
+import org.codice.compliance.SAMLCore_3_7_3_2_c
 import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutRequest
@@ -26,7 +28,6 @@ import org.codice.compliance.utils.TestCommon.Companion.sendPostLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier
-import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 
@@ -51,7 +52,27 @@ class PostSLOErrorTest : StringSpec() {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLBindings_3_5_3_a,
+                        SAMLBindings_3_5_3_a,
+                        SAMLCore_3_7_3_2_c,
+                        expectedStatusCode = REQUESTER)
+                }
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
+        }
+
+        "Core 3.7.3.2: POST LogoutResponse Test Without Logging In" {
+            try {
+                val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+                val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
+                val response = sendPostLogoutMessage(encodedRequest)
+
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+
+                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                        SAMLCore_3_7_3_2_a,
+                        SAMLCore_3_7_3_2_c,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {

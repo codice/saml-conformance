@@ -112,8 +112,9 @@ class TestCommon {
         const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
+        const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
+        const val PARTIAL_LOGOUT = "urn:oasis:names:tc:SAML:2.0:status:PartialLogout"
         private const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
-        private const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
         private const val RESPONDER = "urn:oasis:names:tc:SAML:2.0:status:Responder"
         val TOP_LEVEL_STATUS_CODES = setOf(SUCCESS, REQUESTER, RESPONDER, VERSION_MISMATCH)
 
