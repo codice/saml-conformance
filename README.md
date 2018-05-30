@@ -4,9 +4,13 @@ It is currently a prototype being actively developed.
 
 > NOTE
 > 
-> Only supports SAML Version 2.0. All other version are not supported.
-> This test kit does not support proxying.
-> Only MUSTs from the specification are tested, currently.
+> - This test kit only supports SAML Version 2.0. All other version are not supported.
+>
+> - It does not support proxying.
+>
+> - Only MUSTs from the specification are tested, currently.
+> 
+> - This test kit only support `RSAwithSHA1` and `DSAwithSHA1` algorithms for Redirect and XML Signatures.
 
 ## Building
 To build the project:
@@ -47,8 +51,8 @@ To build a docker image, execute `gradlew build docker`.
 ### Run the tests
 After a successful gradle build, tests can be run with the generated `samlconf` script:
     
-    cd deployment/distribution/build/install/samlconf/bin
-    ./samlconf
+- `cd deployment/distribution/build/install/samlconf/bin`
+- `./samlconf`
 
 The `samlconf` script may take the following parameters:
 
@@ -66,18 +70,22 @@ The `samlconf` script may take the following parameters:
            not provided, the default values will use DDF's parameters.
     
     OPTIONS
-           -i | --implementation path
+           -i path
                 The path to the directory containing the implementation's plugin and metadata.
                 The default value is `/implementations/ddf`.
                       
-           -d | --debug
+           -d
                 Boolean for whether or not to enable debug mode which enables more logging.
                 The default value is false.
 
-           -l | --lenient
-                When an error occurs, the SAML V2.0 Standard Specification requires an IdP to respond with a 200 HTTP status code and a valid SAML response containing an error <StatusCode>.
-                If the -l flag is given, this test kit will allow HTTP error status codes as a valid error response (i.e. 400's and 500's).
-                If it is not given, this test kit will only verify that a valid SAML error response is returned.
+           -l
+                When an error occurs, the SAML V2.0 Standard Specification requires an IdP to 
+                respond with a 200 HTTP status code and a valid SAML response containing an 
+                error <StatusCode>.
+                If the -l flag is given, this test kit will allow HTTP error status codes as 
+                a valid error response (i.e. 400's and 500's).
+                If it is not given, this test kit will only verify that a valid SAML error 
+                response is returned.
 
 ## Project Structure
 This section will briefly talk about the project structure.

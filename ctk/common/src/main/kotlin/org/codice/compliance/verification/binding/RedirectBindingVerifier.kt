@@ -14,9 +14,9 @@
 package org.codice.compliance.verification.binding
 
 import com.google.api.client.http.HttpStatusCodes
-import com.google.common.base.Splitter
 import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIG_ALG
@@ -46,8 +46,14 @@ import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.LOCATION
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.SAML_ENCODING
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
+import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
+import org.codice.compliance.utils.sign.SimpleSign
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_CERTIFICATE
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
+import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyUriValue
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Decoder
@@ -55,11 +61,6 @@ import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_BAS
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_INFLATING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.ERROR_URL_DECODING
 import org.codice.security.sign.Decoder.DecoderException.InflErrorCode.LINEFEED_OR_WHITESPACE
-import org.codice.compliance.utils.sign.SimpleSign
-import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_CERTIFICATE
-import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.INVALID_URI
-import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIGNATURE_NOT_PROVIDED
-import org.codice.compliance.utils.sign.SimpleSign.SignatureException.SigErrorCode.SIG_ALG_NOT_PROVIDED
 import org.w3c.dom.Node
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
@@ -75,7 +76,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         verifyRedirectRelayState(paramMap[RELAY_STATE])
         val samlResponseDom = decode(paramMap)
         verifyNoXMLSig(samlResponseDom)
-        verifyXmlSignatures(samlResponseDom.ownerDocument) // Should verify assertions signature
+        verifyXmlSignatures(samlResponseDom) // Should verify assertions signature
         paramMap[SIGNATURE]?.let {
             verifyRedirectSignature(paramMap)
             verifyRedirectDestination(samlResponseDom)
@@ -114,12 +115,13 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
      * binding spec
      * 3.4.4 Message Encoding
      */
+    @Suppress("StringLiteralDuplication" /* Doesn't like the not found messages */)
     private fun verifyNoNullsAndParse(): Map<String, String> {
         val url = httpResponse.header(LOCATION) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
                 message = "Url not found.")
 
-        val splitUrl = Splitter.on("?").splitToList(url)
+        val splitUrl = url.split("?")
 
         splitUrl.getOrNull(0) ?: throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
@@ -133,15 +135,24 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
                 .map { s -> s.split("=") }
                 .associate { s -> s[0] to s[1] }
 
-        paramMap[SAML_RESPONSE] ?: throw SAMLComplianceException.create(
+        if (!isSamlRequest && paramMap[SAML_RESPONSE] == null)
+            throw SAMLComplianceException.create(
                 SAMLBindings_3_4_4_b,
-                message = "SAMLResponse not found.")
+                message = "$SAML_RESPONSE not found.")
+
+        if (isSamlRequest && paramMap[SAML_REQUEST] == null)
+            throw SAMLComplianceException.create(
+                SAMLBindings_3_4_4_b,
+                message = "$SAML_REQUEST not found.")
 
         if (isRelayStateGiven && paramMap[RELAY_STATE] == null) {
             throw SAMLComplianceException.create(
                     SAMLBindings_3_4_3_b,
-                    message = "RelayState not found.")
+                    message = "$RELAY_STATE not found.")
         }
+
+        if (isSamlRequest)
+            logoutRequestRelayState = paramMap[RELAY_STATE]
 
         return paramMap
     }
@@ -153,7 +164,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
      */
     @Suppress("ComplexMethod" /* Complexity due to nested `when` is acceptable */)
     private fun decode(paramMap: Map<String, String>): Node {
-        val samlResponse = paramMap[SAML_RESPONSE]
+        val message = paramMap[SAML_RESPONSE] ?: paramMap[SAML_REQUEST]
         // Need to url decode SAMLEncoding first to check the encoding method uri
         val samlEncoding = paramMap[SAML_ENCODING]?.let {
             try {
@@ -172,7 +183,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         val decodedMessage = if (samlEncoding == null ||
                 samlEncoding == "urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE") {
             try {
-                Decoder.decodeAndInflateRedirectMessage(samlResponse)
+                Decoder.decodeAndInflateRedirectMessage(message)
             } catch (e: Decoder.DecoderException) {
                 when (e.inflErrorCode) {
                     ERROR_URL_DECODING ->
@@ -229,6 +240,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
     private fun verifyRedirectSignature(paramMap: Map<String, String>) {
         // Need to url decode SigAlg first to check the signature algorithm uri
         // It is guaranteed SigAlg can be url decoded because it already has been in decodeAndVerify
+        val samlType = if (isSamlRequest) SAML_REQUEST else SAML_RESPONSE
         val sigAlg = paramMap[SIG_ALG]?.let {
             URLDecoder.decode(it, StandardCharsets.UTF_8.name())
         }
@@ -236,8 +248,8 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
 
         try {
             if (!SimpleSign().validateSignature(
-                            SAML_RESPONSE,
-                            paramMap[SAML_RESPONSE],
+                            samlType,
+                            paramMap[samlType],
                             paramMap[RELAY_STATE],
                             paramMap[SIGNATURE],
                             paramMap[SIG_ALG],
@@ -326,11 +338,12 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = samlResponseDom.recursiveChildren("Signature")
 
-        if (signatures.isNotEmpty() && destination != acsUrl(HTTP_REDIRECT)) {
+        val url = getServiceUrl(HTTP_REDIRECT, samlResponseDom)
+        if (signatures.isNotEmpty() && destination != url) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = DESTINATION,
                     actual = destination,
-                    expected = acsUrl(HTTP_REDIRECT),
+                    expected = url,
                     node = samlResponseDom)
         }
     }

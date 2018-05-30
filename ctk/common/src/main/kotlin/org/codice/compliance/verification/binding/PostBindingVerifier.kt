@@ -26,7 +26,7 @@ import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
 import org.w3c.dom.Node
@@ -35,9 +35,10 @@ import kotlin.test.assertNotNull
 class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
     /** Verify the response for a post binding */
     override fun decodeAndVerify(): Node {
-        val samlResponseString = PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParse()
+        val samlResponseString =
+            PostFormVerifier(httpResponse, isRelayStateGiven, isSamlRequest).verifyAndParse()
         val samlResponseDom = decode(samlResponseString)
-        verifyXmlSignatures(samlResponseDom.ownerDocument)
+        verifyXmlSignatures(samlResponseDom)
         verifyPostSSO(samlResponseDom)
         verifyPostDestination(samlResponseDom)
         return samlResponseDom
@@ -46,9 +47,10 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
     /** Verify an error response (Negative path) */
     override fun decodeAndVerifyError(): Node {
         val samlResponseString =
-                PostFormVerifier(httpResponse, isRelayStateGiven).verifyAndParseError()
+                PostFormVerifier(httpResponse, isRelayStateGiven, isSamlRequest)
+                    .verifyAndParseError()
         val samlResponseDom = decode(samlResponseString)
-        verifyXmlSignatures(samlResponseDom.ownerDocument)
+        verifyXmlSignatures(samlResponseDom)
         return samlResponseDom
     }
 
@@ -78,8 +80,9 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
      * 4.1.4.5 POST-Specific Processing Rules
      */
     private fun verifyPostSSO(samlResponseDom: Node) {
-        if (samlResponseDom.children(SIGNATURE).isEmpty()
-                || samlResponseDom.children(ASSERTION).any {
+        if (!samlResponseDom.nodeName.contains("Logout")
+                && samlResponseDom.children(SIGNATURE).isEmpty()
+                && samlResponseDom.children(ASSERTION).any {
                     it.children(SIGNATURE).isEmpty()
                 })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5_a,
@@ -95,11 +98,12 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
         val destination = samlResponseDom.attributeNode(DESTINATION)?.nodeValue
         val signatures = samlResponseDom.recursiveChildren(SIGNATURE)
 
-        if (signatures.isNotEmpty() && destination != acsUrl(HTTP_POST)) {
+        val url = getServiceUrl(HTTP_POST, samlResponseDom)
+        if (signatures.isNotEmpty() && destination != url) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLBindings_3_5_5_2_a,
                     property = DESTINATION,
                     actual = destination,
-                    expected = acsUrl(HTTP_POST),
+                    expected = url,
                     node = samlResponseDom)
         }
     }

@@ -33,13 +33,13 @@ import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
 import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
 import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
 import org.codice.compliance.utils.TestCommon.Companion.BEARER
-import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.ENTITY
 import org.codice.compliance.utils.TestCommon.Companion.FORMAT
 import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
-import org.codice.compliance.utils.TestCommon.Companion.acsUrl
+import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
+import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
@@ -148,7 +148,8 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
                         .filter { it.children("SubjectConfirmationData").isNotEmpty() }
                         .flatMap { it.children("SubjectConfirmationData") }
                         .none {
-                            it.attributeText("Recipient") == acsUrl(HTTP_POST) &&
+                            it.attributeText("Recipient") ==
+                                getServiceUrl(HTTP_POST, samlResponseDom) &&
                                     it.attributeNode("NotOnOrAfter") != null &&
                                     it.attributeNode("NotBefore") == null &&
                                     it.attributeText("InResponseTo") == REQUEST_ID

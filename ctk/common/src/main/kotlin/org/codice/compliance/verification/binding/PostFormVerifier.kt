@@ -17,6 +17,7 @@ import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
+import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLBindings_3_5_3_b
@@ -31,39 +32,43 @@ import org.codice.compliance.utils.TestCommon.Companion.ACTION
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
 import org.codice.compliance.utils.TestCommon.Companion.NAME
-import org.codice.compliance.utils.extractSamlResponseForm
+import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
+import org.codice.compliance.utils.extractSamlMessageForm
 import org.codice.compliance.utils.extractValue
 import org.codice.compliance.utils.hasNoAttributeWithNameAndValue
 import org.codice.compliance.utils.isNotHidden
 
 @Suppress("StringLiteralDuplication" /* Duplicated phrases in exception messages. */)
-class PostFormVerifier(private val response: Response, private val isRelayStateGiven: Boolean) {
+class PostFormVerifier(private val httpResponse: Response, private val isRelayStateGiven: Boolean,
+    private val isSamlRequest: Boolean) {
     companion object {
         private const val METHOD = "method"
         private const val POST = "POST"
-        private val isNamedRelayState = { formControl: Node ->
-            RELAY_STATE.equals(formControl.attributes()[NAME], ignoreCase = true)
-        }
-        private val isNamedSamlResponse = { formControl: Node ->
-            SAML_RESPONSE.equals(formControl.attributes()[NAME], ignoreCase = true)
-        }
     }
 
-    private val responseForm: Node? = response.extractSamlResponseForm()
-    private val samlResponseFormControl: Node?
-    private val samlResponse: String?
+    private val type = if (isSamlRequest) SAML_REQUEST else SAML_RESPONSE
+    private val isNamedRelayState = { formControl: Node ->
+        RELAY_STATE.equals(formControl.attributes()[NAME], ignoreCase = true)
+    }
+    private val isNamedCorrectly = { formControl: Node ->
+        type.equals(formControl.attributes()[NAME], ignoreCase = true)
+    }
+
+    private val samlMessageForm: Node? = httpResponse.extractSamlMessageForm()
+    private val samlMessageFormControl: Node?
+    private val samlMessage: String?
     private val relayStateFormControl: Node?
     private val relayState: String?
 
     init {
-        samlResponseFormControl =
-                responseForm
+        samlMessageFormControl =
+                samlMessageForm
                         ?.children()
                         ?.list()
-                        ?.firstOrNull(isNamedSamlResponse)
-        samlResponse = samlResponseFormControl?.extractValue()
+                        ?.firstOrNull(isNamedCorrectly)
+        samlMessage = samlMessageFormControl?.extractValue()
         relayStateFormControl =
-                responseForm
+                samlMessageForm
                         ?.children()
                         ?.list()
                         ?.firstOrNull(isNamedRelayState)
@@ -73,32 +78,31 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
     /** Verify the response for a post binding */
     fun verifyAndParse(): String {
         verifyNoNulls()
-        if (samlResponse == null) {
+        if (samlMessage == null) {
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_4_a,
                     SAMLBindings_3_5_4_b,
-                    message = "The SAMLResponse within the SAMLResponse form control could " +
-                            "not be found.")
+                    message = "The $type within the $type form control could not be found.")
         }
         verifyPostForm()
         if (isRelayStateGiven || relayState != null) {
             verifyPostRelayState()
         }
-        return samlResponse
+        return samlMessage
     }
 
     /** Verify an error response (Negative path) */
     fun verifyAndParseError(): String {
         verifyNoNulls()
         verifyPostForm()
-        if (samlResponse == null) {
+        if (samlMessage == null) {
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_4_a,
                     SAMLBindings_3_5_4_b,
                     message = "The SAMLResponse within the SAMLResponse form control could" +
                             "not be found.")
         }
-        return samlResponse
+        return samlMessage
     }
 
     /**
@@ -107,9 +111,9 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
      * 3.5.4 Message Encoding
      */
     private fun verifyNoNulls() {
-        if (responseForm == null) {
+        if (samlMessageForm == null) {
             Log.debugWithSupplier {
-                response.then().extract().body().asString().prettyPrintXml()
+                httpResponse.then().extract().body().asString().prettyPrintXml()
             }
             throw SAMLComplianceException.create(
                     SAMLBindings_3_5_4_a,
@@ -139,7 +143,7 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
 // TODO refactor this method and response objects so we can show values in the errors
     @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostForm() {
-        responseForm?.let {
+        samlMessageForm?.let {
             if (it.getAttribute(ACTION).isNullOrEmpty()) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_d,
@@ -151,8 +155,8 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
                         message = """The form "method" is incorrect.""")
             }
         }
-        samlResponseFormControl?.let {
-            if (it.hasNoAttributeWithNameAndValue(NAME, SAML_RESPONSE)) {
+        samlMessageFormControl?.let {
+            if (it.hasNoAttributeWithNameAndValue(NAME, type)) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_b,
                         message = "The SAMLResponse form control was incorrectly named.")
@@ -196,6 +200,10 @@ class PostFormVerifier(private val response: Response, private val isRelayStateG
                         actual = relayState,
                         expected = EXAMPLE_RELAY_STATE)
             }
+        }
+
+        if (isSamlRequest) {
+            logoutRequestRelayState = relayState
         }
     }
 }
