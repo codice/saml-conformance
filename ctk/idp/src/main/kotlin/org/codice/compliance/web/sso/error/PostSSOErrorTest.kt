@@ -29,6 +29,7 @@ import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnReques
 import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
@@ -50,7 +51,7 @@ class PostSSOErrorTest : StringSpec() {
                             RELAY_STATE_GREATER_THAN_80_BYTES)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -69,7 +70,7 @@ class PostSSOErrorTest : StringSpec() {
                     EXAMPLE_RELAY_STATE)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -98,9 +99,8 @@ class PostSSOErrorTest : StringSpec() {
                         EXAMPLE_RELAY_STATE)
                     val response = sendPostAuthnRequest(encodedRequest)
 
-                    if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
-                        val samlResponseDom = response.getBindingVerifier()
-                            .decodeAndVerifyError()
+                    if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                        val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                         CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                             samlErrorCode = SAMLProfiles_4_1_4_1_b,
@@ -121,9 +121,8 @@ class PostSSOErrorTest : StringSpec() {
                 val encodedRequest = signAndEncodePostRequestToString(authnRequest)
                 val response = sendPostAuthnRequest(encodedRequest)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
-                    val samlResponseDom = response.getBindingVerifier()
-                        .decodeAndVerifyError()
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                         samlErrorCode = SAMLCore_3_2_1_e,

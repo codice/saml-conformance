@@ -22,6 +22,7 @@ import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutReque
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutResponse
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.TestCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.useDefaultServiceProvider
@@ -54,7 +55,7 @@ class RedirectSLOTest : StringSpec() {
         }
 
         "Redirect LogoutResponse Test - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT, singleSP = false)
+            val cookies = loginAndGetCookies(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -75,7 +76,7 @@ class RedirectSLOTest : StringSpec() {
             val secondSPResponseQueryParams = SimpleSign().signUriString(
                 SAML_RESPONSE,
                 encodedSecondSPLogoutResponse,
-                null)
+                logoutRequestRelayState)
             val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams, cookies)
 
             useDefaultServiceProvider()
@@ -103,7 +104,7 @@ class RedirectSLOTest : StringSpec() {
         }
 
         "Redirect LogoutRequest Test With Relay State - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT, singleSP = false)
+            val cookies = loginAndGetCookies(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -124,7 +125,7 @@ class RedirectSLOTest : StringSpec() {
             val secondSPResponseQueryParams = SimpleSign().signUriString(
                 SAML_RESPONSE,
                 encodedSecondSPLogoutResponse,
-                null)
+                logoutRequestRelayState)
             val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams, cookies)
 
             useDefaultServiceProvider()

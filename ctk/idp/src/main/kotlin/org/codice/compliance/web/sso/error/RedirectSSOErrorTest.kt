@@ -30,6 +30,7 @@ import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
@@ -54,7 +55,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     RELAY_STATE_GREATER_THAN_80_BYTES)
                 val response = sendRedirectAuthnRequest(queryParams)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -79,7 +80,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 queryParams[SAML_REQUEST] = qpSamlReq?.substring(0, qpSamlReq.length / 2)
                 val response = sendRedirectAuthnRequest(queryParams)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -98,7 +99,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 val queryParams = mapOf(SAML_REQUEST to encodedRequest)
                 val response = sendRedirectAuthnRequest(queryParams)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
@@ -130,9 +131,8 @@ class RedirectSSOErrorTest : StringSpec() {
                         null)
                     val response = sendRedirectAuthnRequest(queryParams)
 
-                    if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
-                        val samlResponseDom = response.getBindingVerifier()
-                            .decodeAndVerifyError()
+                    if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                        val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                         CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                             samlErrorCode = SAMLProfiles_4_1_4_1_b,
@@ -157,9 +157,8 @@ class RedirectSSOErrorTest : StringSpec() {
                         .signUriString(SAML_REQUEST, encodedRequest, null)
                 val response = sendRedirectAuthnRequest(queryParams)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
-                    val samlResponseDom = response.getBindingVerifier()
-                        .decodeAndVerifyError()
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,
                         samlErrorCode = SAMLCore_3_2_1_e,

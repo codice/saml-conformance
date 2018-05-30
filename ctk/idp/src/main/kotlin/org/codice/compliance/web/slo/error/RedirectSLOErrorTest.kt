@@ -27,6 +27,7 @@ import org.codice.compliance.utils.TestCommon.Companion.loginAndGetCookies
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectLogoutMessage
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -50,7 +51,7 @@ class RedirectSLOErrorTest : StringSpec() {
 
                 val response = sendRedirectLogoutMessage(queryParams, cookies)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,

@@ -25,6 +25,7 @@ import org.codice.compliance.utils.TestCommon.Companion.loginAndGetCookies
 import org.codice.compliance.utils.TestCommon.Companion.sendPostLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -46,7 +47,7 @@ class PostSLOErrorTest : StringSpec() {
 
                 val response = sendPostLogoutMessage(encodedRequest, cookies)
 
-                if (!isLenient || !isErrorHttpStatusCode(response.statusCode)) {
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCode(samlResponseDom,

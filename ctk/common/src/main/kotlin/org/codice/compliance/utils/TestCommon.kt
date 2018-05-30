@@ -194,12 +194,11 @@ class TestCommon {
          * Returns the Assertion Consumer Service URL or the Logout Service URL
          *
          * @param binding - the binding of the URL desired
-         * @param response - the response dom is used to determine if it's a login
+         * @param node - the node dom is used to determine if it's a login
          * Response (ACS URL) or a LogoutResponse (Logout Service URL)
          */
-        fun getServiceUrl(binding: SamlProtocol.Binding, response: Node): String? {
-            val nodeName = response.nodeName.split(":")[1]
-            if (nodeName == "Response")
+        fun getServiceUrl(binding: SamlProtocol.Binding, node: Node): String? {
+            if (node.localName == "Response")
                 return currentSPEntityInfo.getAssertionConsumerService(binding)?.url
 
             return currentSPEntityInfo.getLogoutService(binding)?.url
@@ -334,13 +333,13 @@ class TestCommon {
         }
 
         /**
-         * Attempts to login to service providers
+         * Attempts to login from one or two Service Providers
          * @param binding - Binding used for login
-         * @param singleSP - if true logs in with one sp, else logs in with both
+         * @param multipleSP - if false logs in with one sp, else logs in with both
          * @return cookies from first SP login, to be used in logout request
          */
         @Suppress("TooGenericExceptionCaught" /* Catching all Exceptions */)
-        fun loginAndGetCookies(binding: SamlProtocol.Binding, singleSP: Boolean = true):
+        fun loginAndGetCookies(binding: SamlProtocol.Binding, multipleSP: Boolean = false):
             Map<String, String> {
             try {
                 val authnRequest by lazy {
@@ -355,7 +354,7 @@ class TestCommon {
                     val firstLoginResponse = loginPost(authnRequest)
                     val finalResponse = getImplementation(IdpSSOResponder::class)
                         .getResponseForPostRequest(firstLoginResponse)
-                    if (!singleSP) {
+                    if (multipleSP) {
                         useDSAServiceProvider()
                         loginPost(secondRequest, finalResponse.cookies)
                         useDefaultServiceProvider()
@@ -365,7 +364,7 @@ class TestCommon {
                     val firstLoginResponse = loginRedirect(authnRequest)
                     val finalResponse = getImplementation(IdpSSOResponder::class)
                         .getResponseForRedirectRequest(firstLoginResponse)
-                    if (!singleSP) {
+                    if (multipleSP) {
                         useDSAServiceProvider()
                         loginRedirect(secondRequest, finalResponse.cookies)
                         useDefaultServiceProvider()

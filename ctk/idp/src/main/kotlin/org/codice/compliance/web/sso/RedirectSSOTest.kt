@@ -28,7 +28,7 @@ import org.codice.compliance.utils.TestCommon.Companion.getImplementation
 import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
-import org.codice.compliance.verification.binding.BindingVerifier.Companion.verifyHttpStatusCode
+import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -47,7 +47,7 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             val response = sendRedirectAuthnRequest(queryParams)
-            verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
@@ -73,7 +73,7 @@ class RedirectSSOTest : StringSpec() {
                     EXAMPLE_RELAY_STATE)
 
             val response = sendRedirectAuthnRequest(queryParams)
-            verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
@@ -93,7 +93,7 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        "Redirect AuthnRequest Without ACS Url (verify the ACS in verifyAssertionConsumerService)" {
+        "Redirect AuthnRequest Without ACS Url or ACS Index Test" {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 assertionConsumerServiceURL = null
             }
@@ -104,13 +104,14 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             val response = sendRedirectAuthnRequest(queryParams)
-            verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
+            // Main goal of this test is to verify the ACS in verifyAssertionConsumerService
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
@@ -131,7 +132,7 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             val response = sendRedirectAuthnRequest(queryParams)
-            verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
@@ -150,8 +151,7 @@ class RedirectSSOTest : StringSpec() {
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        ("Redirect AuthnRequest With Email NameID Format Test (NameIDPolicy verification in " +
-            "CoreAuthnRequestProtocolVerifier)").config(enabled = false) {
+        "Redirect AuthnRequest With Email NameID Format Test".config(enabled = false) {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
@@ -165,13 +165,15 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             val response = sendRedirectAuthnRequest(queryParams)
-            verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
+            // Main goal of this test is to do the NameIDPolicy verification in
+            // CoreAuthnRequestProtocolVerifier
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
@@ -184,8 +186,7 @@ class RedirectSSOTest : StringSpec() {
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        ("Redirect AuthnRequest With Encrypted NameID Format Test (NameIDPolicy verification in " +
-            "CoreAuthnRequestProtocolVerifier#verifyEncryptedElements)").config(enabled = false) {
+        "Redirect AuthnRequest With Encrypted NameID Format Test".config(enabled = false) {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = ENCRYPTED_ID
@@ -199,13 +200,15 @@ class RedirectSSOTest : StringSpec() {
                     null)
 
             val response = sendRedirectAuthnRequest(queryParams)
-            verifyHttpStatusCode(response.statusCode)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
                             response)
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
+            // Main goal of this test is to do the NameIDPolicy verification in
+            // CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)

@@ -55,18 +55,18 @@ class PostFormVerifier(private val httpResponse: Response, private val isRelaySt
     }
 
     private val samlMessageForm: Node? = httpResponse.extractSamlMessageForm()
-    private val samlFormControl: Node?
+    private val samlMessageFormControl: Node?
     private val samlMessage: String?
     private val relayStateFormControl: Node?
     private val relayState: String?
 
     init {
-        samlFormControl =
+        samlMessageFormControl =
                 samlMessageForm
                         ?.children()
                         ?.list()
                         ?.firstOrNull(isNamedCorrectly)
-        samlMessage = samlFormControl?.extractValue()
+        samlMessage = samlMessageFormControl?.extractValue()
         relayStateFormControl =
                 samlMessageForm
                         ?.children()
@@ -155,7 +155,7 @@ class PostFormVerifier(private val httpResponse: Response, private val isRelaySt
                         message = """The form "method" is incorrect.""")
             }
         }
-        samlFormControl?.let {
+        samlMessageFormControl?.let {
             if (it.hasNoAttributeWithNameAndValue(NAME, type)) {
                 throw SAMLComplianceException.create(
                         SAMLBindings_3_5_4_b,

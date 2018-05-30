@@ -4,13 +4,13 @@ It is currently a prototype being actively developed.
 
 > NOTE
 > 
-> We only supports SAML Version 2.0. All other version are not supported.
+> - This test kit only supports SAML Version 2.0. All other version are not supported.
 >
-> This test kit does not support proxying.
+> - It does not support proxying.
 >
-> Only MUSTs from the specification are tested, currently.
+> - Only MUSTs from the specification are tested, currently.
 > 
-> We only support `RSAwithSHA1` and `DSAwithSHA1` for Redirect and XML Signatures.
+> - This test kit only support `RSAwithSHA1` and `DSAwithSHA1` algorithms for Redirect and XML Signatures.
 
 ## Building
 To build the project:

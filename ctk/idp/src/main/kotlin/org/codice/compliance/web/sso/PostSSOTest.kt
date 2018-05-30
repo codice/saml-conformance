@@ -55,7 +55,7 @@ class PostSSOTest : StringSpec() {
             }
         }
 
-        "POST AuthnRequest With Relay State Test (relay state verification from BindingVerifier)" {
+        "POST AuthnRequest With Relay State Test" {
             val authnRequest = createDefaultAuthnRequest(HTTP_POST)
             val encodedRequest = signAndEncodePostRequestToString(authnRequest, EXAMPLE_RELAY_STATE)
             val response = sendPostAuthnRequest(encodedRequest)
@@ -63,6 +63,7 @@ class PostSSOTest : StringSpec() {
 
             val finalHttpResponse =
                     getImplementation(IdpSSOResponder::class).getResponseForPostRequest(response)
+            // Main goal is to do the relay state verification in the BindingVerifier
             val samlResponseDom =
                     finalHttpResponse.getBindingVerifier().apply {
                         isRelayStateGiven = true
@@ -78,7 +79,7 @@ class PostSSOTest : StringSpec() {
             }
         }
 
-        "POST AuthnRequest Without ACS Url (verify the ACS in verifyAssertionConsumerService)" {
+        "POST AuthnRequest Without ACS Url or ACS Index Test" {
             val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 assertionConsumerServiceURL = null
             }
@@ -90,6 +91,7 @@ class PostSSOTest : StringSpec() {
                     getImplementation(IdpSSOResponder::class).getResponseForPostRequest(response)
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
+            // Main goal of this test is to verify the ACS in verifyAssertionConsumerService
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
@@ -102,8 +104,7 @@ class PostSSOTest : StringSpec() {
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        ("POST AuthnRequest With Email NameIDPolicy Format Test (NameIDPolicy verification in " +
-            "CoreAuthnRequestProtocolVerifier)").config (enabled = false) {
+        "POST AuthnRequest With Email NameIDPolicy Format Test".config (enabled = false) {
             val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
@@ -118,6 +119,8 @@ class PostSSOTest : StringSpec() {
                     getImplementation(IdpSSOResponder::class).getResponseForPostRequest(response)
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
+            // Main goal of this test is to do the NameIDPolicy verification in
+            // CoreAuthnRequestProtocolVerifier
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
@@ -130,9 +133,8 @@ class PostSSOTest : StringSpec() {
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        ("POST AuthnRequest With Encrypted NameIDPolicy Format Test (NameID verification in " +
-            "CoreAuthnRequestProtocolVerifier#verifyEncryptedElements)").config(enabled = false) {
-            val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
+        "POST AuthnRequest With Encrypted NameIDPolicy Format Test".config(enabled = false) {
+        val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = ENCRYPTED_ID
                     spNameQualifier = currentSPIssuer
@@ -146,6 +148,8 @@ class PostSSOTest : StringSpec() {
                     getImplementation(IdpSSOResponder::class).getResponseForPostRequest(response)
             val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
 
+            // Main goal of this test is to do the NameID verification
+            // in CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)

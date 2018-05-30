@@ -48,7 +48,7 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_POST, singleSP = false)
+            val cookies = loginAndGetCookies(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
@@ -87,7 +87,7 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test With Relay State - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_POST, singleSP = false)
+            val cookies = loginAndGetCookies(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest =
