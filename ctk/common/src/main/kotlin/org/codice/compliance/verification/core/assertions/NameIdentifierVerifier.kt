@@ -15,8 +15,8 @@ package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.FORMAT
-import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
+import org.codice.compliance.utils.FORMAT
+import org.codice.compliance.utils.SP_NAME_QUALIFIER
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
 

@@ -23,11 +23,11 @@ import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
-import org.codice.compliance.utils.TestCommon.Companion.HOLDER_OF_KEY_URI
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION_NAMESPACE
-import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
-import org.codice.compliance.utils.TestCommon.Companion.XSI
+import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.ASSERTION_NAMESPACE
+import org.codice.compliance.utils.HOLDER_OF_KEY_URI
+import org.codice.compliance.utils.SUBJECT_CONFIRMATION
+import org.codice.compliance.utils.XSI
 import org.w3c.dom.Node
 
 class ProfilesVerifier(private val node: Node) {

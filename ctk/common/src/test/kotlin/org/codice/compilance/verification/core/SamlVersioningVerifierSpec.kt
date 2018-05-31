@@ -21,8 +21,8 @@ import org.codice.compliance.Common.Companion.buildDom
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_4_1_3_2_a
 import org.codice.compliance.SAMLCore_4_1_3_2_b
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION_NAMESPACE
-import org.codice.compliance.utils.TestCommon.Companion.PROTOCOL_NAMESPACE
+import org.codice.compliance.utils.ASSERTION_NAMESPACE
+import org.codice.compliance.utils.PROTOCOL_NAMESPACE
 import org.codice.compliance.verification.core.SamlVersioningVerifier
 import java.time.Instant
 

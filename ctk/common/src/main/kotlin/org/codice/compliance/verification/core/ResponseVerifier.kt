@@ -24,14 +24,14 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
-import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.STATUS
-import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
-import org.codice.compliance.utils.TestCommon.Companion.SUCCESS
-import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
-import org.codice.compliance.utils.TestCommon.Companion.VERSION
+import org.codice.compliance.utils.DESTINATION
+import org.codice.compliance.utils.ID
+import org.codice.compliance.utils.STATUS
+import org.codice.compliance.utils.STATUS_CODE
+import org.codice.compliance.utils.SUCCESS
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
+import org.codice.compliance.utils.VERSION
+import org.codice.compliance.utils.topLevelStatusCodes
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.w3c.dom.Node
@@ -92,7 +92,7 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
             .flatMap { it.children(STATUS_CODE) }
             .first()
             .attributeText("Value")
-        if (!TOP_LEVEL_STATUS_CODES.contains(topLevelStatusCode))
+        if (!topLevelStatusCodes.contains(topLevelStatusCode))
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     message = "The StatusCode value of $topLevelStatusCode is not a top level " +
                         "SAML status code.",

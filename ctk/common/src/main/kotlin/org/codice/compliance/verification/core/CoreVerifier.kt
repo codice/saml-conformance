@@ -25,11 +25,11 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.utils.TestCommon.Companion.STATUS
-import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
-import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
+import org.codice.compliance.utils.REQUESTER
+import org.codice.compliance.utils.STATUS
+import org.codice.compliance.utils.STATUS_CODE
 import org.codice.compliance.utils.schema.SchemaValidator
+import org.codice.compliance.utils.topLevelStatusCodes
 import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.verifyCommonDataType
 import org.w3c.dom.Node
 import java.time.Instant
@@ -55,7 +55,7 @@ abstract class CoreVerifier(protected val node: Node) {
                 ?.firstOrNull()
                 ?.attributeText("Value")
 
-            if (!TOP_LEVEL_STATUS_CODES.contains(statusCode))
+            if (!topLevelStatusCodes.contains(statusCode))
                 throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     message = "The first <StatusCode> of $statusCode is not a top level SAML " +
                         "status code.",

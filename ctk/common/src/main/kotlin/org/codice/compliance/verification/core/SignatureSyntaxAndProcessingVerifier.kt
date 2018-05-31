@@ -18,7 +18,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_5_4_2_a
 import org.codice.compliance.attributeText
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.ID
 import org.w3c.dom.Node
 
 class SignatureSyntaxAndProcessingVerifier(private val node: Node) {

@@ -41,11 +41,11 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
-import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.LOCATION
-import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
-import org.codice.compliance.utils.TestCommon.Companion.SAML_ENCODING
+import org.codice.compliance.utils.DESTINATION
+import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.LOCATION
+import org.codice.compliance.utils.MAX_RELAY_STATE_LEN
+import org.codice.compliance.utils.SAML_ENCODING
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState

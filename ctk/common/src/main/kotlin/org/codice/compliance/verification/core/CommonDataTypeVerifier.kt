@@ -21,8 +21,8 @@ import org.codice.compliance.SAMLCore_1_3_4_a
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeTextNS
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.XSI
+import org.codice.compliance.utils.ID
+import org.codice.compliance.utils.XSI
 import org.w3c.dom.Node
 import java.net.URI
 

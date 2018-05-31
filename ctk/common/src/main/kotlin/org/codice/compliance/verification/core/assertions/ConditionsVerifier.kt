@@ -24,8 +24,8 @@ import org.codice.compliance.SAMLCore_2_5_1_c
 import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
-import org.codice.compliance.utils.TestCommon.Companion.XSI
+import org.codice.compliance.utils.AUDIENCE
+import org.codice.compliance.utils.XSI
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node

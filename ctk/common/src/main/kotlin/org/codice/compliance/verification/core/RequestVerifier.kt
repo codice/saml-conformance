@@ -19,10 +19,10 @@ import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.attributeNode
-import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
-import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.VERSION
+import org.codice.compliance.utils.DESTINATION
+import org.codice.compliance.utils.ID
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
+import org.codice.compliance.utils.VERSION
 import org.codice.security.saml.SamlProtocol
 import org.w3c.dom.Node
 

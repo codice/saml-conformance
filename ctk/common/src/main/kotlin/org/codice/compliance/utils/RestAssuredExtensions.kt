@@ -17,12 +17,6 @@ import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
-import org.codice.compliance.utils.TestCommon.Companion.ACTION
-import org.codice.compliance.utils.TestCommon.Companion.HIDDEN
-import org.codice.compliance.utils.TestCommon.Companion.LOCATION
-import org.codice.compliance.utils.TestCommon.Companion.NAME
-import org.codice.compliance.utils.TestCommon.Companion.TYPE_LOWER
-import org.codice.compliance.utils.TestCommon.Companion.VALUE
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.binding.PostBindingVerifier
 import org.codice.compliance.verification.binding.RedirectBindingVerifier

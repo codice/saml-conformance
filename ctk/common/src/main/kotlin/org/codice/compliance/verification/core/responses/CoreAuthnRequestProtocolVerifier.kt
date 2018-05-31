@@ -23,10 +23,10 @@ import org.codice.compliance.SAMLCore_3_4_1_a
 import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
-import org.codice.compliance.utils.TestCommon.Companion.AUDIENCE
-import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
-import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
+import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.AUDIENCE
+import org.codice.compliance.utils.AUTHN_STATEMENT
+import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.getLocation

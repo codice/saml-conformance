@@ -21,12 +21,12 @@ import org.codice.compliance.SAMLBindings_3_4_3_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_3_2_a
 import org.codice.compliance.SAMLCore_3_7_3_2_c
-import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN_80_BYTES
-import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutRequest
+import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
+import org.codice.compliance.utils.REQUESTER
+import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
+import org.codice.compliance.utils.SLOCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.SLOCommon.Companion.sendRedirectLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
-import org.codice.compliance.utils.TestCommon.Companion.loginAndGetCookies
-import org.codice.compliance.utils.TestCommon.Companion.sendRedirectLogoutMessage
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
