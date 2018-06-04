@@ -51,7 +51,7 @@ class PostSLOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLBindings_3_5_3_a,
                         SAMLCore_3_7_3_2_c,
                         expectedStatusCode = REQUESTER)
@@ -70,7 +70,7 @@ class PostSLOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLCore_3_7_3_2_a,
                         SAMLCore_3_7_3_2_c,
                         expectedStatusCode = REQUESTER)

@@ -57,7 +57,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLBindings_3_4_3_a,
                         expectedStatusCode = REQUESTER)
                 }
@@ -82,7 +82,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLBindings_3_4_3_a,
                         expectedStatusCode = REQUESTER)
                 }
@@ -101,7 +101,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLProfiles_4_1_4_1_a,
                         expectedStatusCode = REQUESTER)
                     ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
@@ -133,7 +133,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                         val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                        CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                        CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                             SAMLProfiles_4_1_4_1_b,
                             expectedStatusCode = REQUESTER)
                         ProfilesVerifier(samlResponseDom)
@@ -159,7 +159,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLCore_3_2_1_e,
                         expectedStatusCode = REQUESTER)
                 }

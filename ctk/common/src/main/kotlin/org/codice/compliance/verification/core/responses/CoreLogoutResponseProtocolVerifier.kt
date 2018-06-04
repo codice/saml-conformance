@@ -17,26 +17,32 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_3_2_b
 import org.codice.compliance.SAMLCore_3_7_3_2_d
 import org.codice.compliance.attributeText
-import org.codice.compliance.recursiveChildren
+import org.codice.compliance.children
+import org.codice.compliance.utils.TestCommon.Companion.STATUS
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
-import org.codice.compliance.utils.TestCommon.Companion.SUCCESS
 import org.codice.compliance.verification.core.ResponseVerifier
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.LogoutRequest
 import org.w3c.dom.Node
 
 class CoreLogoutResponseProtocolVerifier(logoutRequest: LogoutRequest, samlResponseDom: Node,
-    binding: SamlProtocol.Binding, private val expectedStatusCode: List<String> = listOf(SUCCESS)) :
+    binding: SamlProtocol.Binding, private val expectedStatusCode: String? = null) :
     ResponseVerifier(logoutRequest, samlResponseDom, binding) {
 
     override fun verify() {
         super.verify()
-        verifyStatusCode()
+        verifySecondaryStatusCode()
     }
 
-    private fun verifyStatusCode() {
-        if (samlResponseDom.recursiveChildren(STATUS_CODE)
-                .none { expectedStatusCode.contains(it.attributeText("Value")) })
+    private fun verifySecondaryStatusCode() {
+        val secondaryStatusCode = samlResponseDom.children(STATUS)
+                .flatMap { it.children(STATUS_CODE) }
+                .firstOrNull()
+                ?.children(STATUS_CODE)
+                ?.firstOrNull()
+                ?.attributeText("Value")
+
+        if (expectedStatusCode != null && secondaryStatusCode != expectedStatusCode)
             throw SAMLComplianceException.create(SAMLCore_3_7_3_2_b,
                 SAMLCore_3_7_3_2_d,
                 message = "The status code of $expectedStatusCode was not found",

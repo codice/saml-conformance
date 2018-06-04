@@ -91,6 +91,7 @@ class TestCommon {
         const val SUBJECT = "Subject"
         const val VERSION = "Version"
         const val DESTINATION = "Destination"
+        const val STATUS = "Status"
         const val STATUS_CODE = "StatusCode"
         const val AUDIENCE = "Audience"
         const val SUBJECT_CONFIRMATION = "SubjectConfirmation"
@@ -114,8 +115,8 @@ class TestCommon {
         const val REQUESTER = "urn:oasis:names:tc:SAML:2.0:status:Requester"
         const val SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success"
         const val PARTIAL_LOGOUT = "urn:oasis:names:tc:SAML:2.0:status:PartialLogout"
+        const val RESPONDER = "urn:oasis:names:tc:SAML:2.0:status:Responder"
         private const val VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch"
-        private const val RESPONDER = "urn:oasis:names:tc:SAML:2.0:status:Responder"
         val TOP_LEVEL_STATUS_CODES = setOf(SUCCESS, REQUESTER, RESPONDER, VERSION_MISMATCH)
 
         const val KEYSTORE_PASSWORD = "org.apache.ws.security.crypto.merlin.keystore.password"

@@ -17,7 +17,6 @@ import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.PARTIAL_LOGOUT
-import org.codice.compliance.utils.TestCommon.Companion.SUCCESS
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutRequest
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutResponse
 import org.codice.compliance.utils.TestCommon.Companion.loginAndGetCookies
@@ -143,7 +142,7 @@ class PostSLOTest : StringSpec() {
                 isRelayStateGiven = true
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
-                logoutResponse.determineBinding(), listOf(SUCCESS, PARTIAL_LOGOUT)).verify()
+                logoutResponse.determineBinding(), PARTIAL_LOGOUT).verify()
         }
     }
 }

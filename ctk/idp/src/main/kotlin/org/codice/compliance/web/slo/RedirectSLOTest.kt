@@ -19,7 +19,6 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.TestCommon.Companion.PARTIAL_LOGOUT
-import org.codice.compliance.utils.TestCommon.Companion.SUCCESS
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutRequest
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutResponse
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
@@ -172,7 +171,7 @@ class RedirectSLOTest : StringSpec() {
                 isRelayStateGiven = true
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
-                logoutResponse.determineBinding(), listOf(SUCCESS, PARTIAL_LOGOUT)).verify()
+                logoutResponse.determineBinding(), PARTIAL_LOGOUT).verify()
         }
     }
 }

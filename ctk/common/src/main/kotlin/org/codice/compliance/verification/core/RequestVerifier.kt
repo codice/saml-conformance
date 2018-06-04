@@ -51,7 +51,7 @@ abstract class RequestVerifier(private val samlRequestDom: Node,
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_1_e,
                     property = DESTINATION,
                     actual = textContent,
-                    expected = url ?: "No ACS URL Found",
+                    expected = url,
                     node = samlRequestDom)
 
             CommonDataTypeVerifier.verifyUriValue(this)
