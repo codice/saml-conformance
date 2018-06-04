@@ -80,14 +80,14 @@ Unmarked sections need attention
 -		3.3.3 Element <Response>
 -		3.3.4 Processing Rules
 +	3.4 Authentication Request Protocol
-		3.4.1 Element <AuthnRequest>
++		3.4.1 Element <AuthnRequest>
 +			3.4.1.1 Element <NameIDPolicy>
 -			3.4.1.2 Element <Scoping>
 -			3.4.1.3 Element <IDPList>
 -				3.4.1.3.1 Element <IDPEntry>
 +			3.4.1.4 Processing Rules
 -			3.4.1.5 Proxying
-				3.4.1.5.1 Proxying Processing Rules
+-				3.4.1.5.1 Proxying Processing Rules
 -	3.5 Artifact Resolution Protocol
 -		3.5.1 Element <ArtifactResolve>
 -		3.5.2 Element <ArtifactResponse>
@@ -99,9 +99,9 @@ Unmarked sections need attention
 -	3.7 Single Logout Protocol
 +		3.7.1 Element <LogoutRequest>
 +		3.7.2 Element <LogoutResponse>
-		3.7.3 Processing Rules
++		3.7.3 Processing Rules
 -			3.7.3.1 Session Participant Rules
-			3.7.3.2 Session Authority Rules
++			3.7.3.2 Session Authority Rules
 -	3.8 Name Identifier Mapping Protocol
 -		3.8.1 Element <NameIDMappingRequest>
 -		3.8.2 Element <NameIDMappingResponse>

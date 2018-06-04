@@ -19,13 +19,16 @@ import org.codice.compliance.SAMLCore_3_2_2_a
 import org.codice.compliance.SAMLCore_3_2_2_b
 import org.codice.compliance.SAMLCore_3_2_2_d
 import org.codice.compliance.SAMLCore_3_2_2_e
+import org.codice.compliance.SAMLGeneral_e
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.ID
+import org.codice.compliance.utils.TestCommon.Companion.STATUS
 import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
+import org.codice.compliance.utils.TestCommon.Companion.SUCCESS
 import org.codice.compliance.utils.TestCommon.Companion.TOP_LEVEL_STATUS_CODES
 import org.codice.compliance.utils.TestCommon.Companion.VERSION
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
@@ -85,15 +88,21 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
 
     /** 3.2.2.2 Element <StatusCode> */
     private fun verifyStatusType() {
-        if (samlResponseDom.recursiveChildren("Status")
-                        .any {
-                            !TOP_LEVEL_STATUS_CODES
-                                    .contains(it.children(STATUS_CODE).first()
-                                            .attributeText("Value"))
-                        })
+        val topLevelStatusCode = samlResponseDom.recursiveChildren(STATUS)
+            .flatMap { it.children(STATUS_CODE) }
+            .first()
+            .attributeText("Value")
+        if (!TOP_LEVEL_STATUS_CODES.contains(topLevelStatusCode))
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
-                    SAMLCore_3_2_2_2_a,
-                    message = "The first <StatusCode> is not a top level SAML status code.",
+                    message = "The StatusCode value of $topLevelStatusCode is not a top level " +
+                        "SAML status code.",
+                    node = samlResponseDom)
+
+        if (topLevelStatusCode != SUCCESS)
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLGeneral_e,
+                    property = STATUS_CODE,
+                    expected = SUCCESS,
+                    actual = topLevelStatusCode,
                     node = samlResponseDom)
 
         samlResponseDom.recursiveChildren(STATUS_CODE)

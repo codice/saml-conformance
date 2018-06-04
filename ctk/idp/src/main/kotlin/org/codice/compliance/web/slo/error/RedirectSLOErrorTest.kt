@@ -19,6 +19,8 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_4_3_a
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_3_7_3_2_a
+import org.codice.compliance.SAMLCore_3_7_3_2_c
 import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
 import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutRequest
@@ -28,7 +30,6 @@ import org.codice.compliance.utils.TestCommon.Companion.sendRedirectLogoutMessag
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
-import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 
@@ -54,8 +55,32 @@ class RedirectSLOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLBindings_3_4_3_a,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                        SAMLBindings_3_4_3_a,
+                        SAMLCore_3_7_3_2_c,
+                        expectedStatusCode = REQUESTER)
+                }
+            } catch (e: SAMLComplianceException) {
+                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
+            }
+        }
+
+        "Core 3.7.3.2: Redirect LogoutResponse Test Without Logging In" {
+            try {
+                val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+                val encodedRequest = encodeRedirectRequest(logoutRequest)
+                val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    encodedRequest,
+                    null)
+                val response = sendRedirectLogoutMessage(queryParams)
+
+                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
+                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                        SAMLCore_3_7_3_2_a,
+                        SAMLCore_3_7_3_2_c,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {

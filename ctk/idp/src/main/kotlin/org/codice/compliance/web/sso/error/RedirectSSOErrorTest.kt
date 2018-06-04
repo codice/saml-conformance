@@ -31,7 +31,6 @@ import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
-import org.codice.compliance.verification.binding.BindingVerifier.Companion.isErrorHttpStatusCode
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -58,8 +57,8 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLBindings_3_4_3_a,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                        SAMLBindings_3_4_3_a,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {
@@ -83,8 +82,8 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLBindings_3_4_3_a,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                        SAMLBindings_3_4_3_a,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {
@@ -102,8 +101,8 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLProfiles_4_1_4_1_a,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                        SAMLProfiles_4_1_4_1_a,
                         expectedStatusCode = REQUESTER)
                     ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
                 }
@@ -134,8 +133,8 @@ class RedirectSSOErrorTest : StringSpec() {
                     if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                         val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                        CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                            samlErrorCode = SAMLProfiles_4_1_4_1_b,
+                        CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                            SAMLProfiles_4_1_4_1_b,
                             expectedStatusCode = REQUESTER)
                         ProfilesVerifier(samlResponseDom)
                             .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
@@ -160,8 +159,8 @@ class RedirectSSOErrorTest : StringSpec() {
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
-                    CoreVerifier.verifyErrorStatusCode(samlResponseDom,
-                        samlErrorCode = SAMLCore_3_2_1_e,
+                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
+                        SAMLCore_3_2_1_e,
                         expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {
