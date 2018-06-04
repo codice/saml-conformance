@@ -25,11 +25,11 @@ import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ENTITY
-import org.codice.compliance.utils.TestCommon.Companion.FORMAT
-import org.codice.compliance.utils.TestCommon.Companion.PERSISTENT_ID
-import org.codice.compliance.utils.TestCommon.Companion.SP_NAME_QUALIFIER
-import org.codice.compliance.utils.TestCommon.Companion.TRANSIENT_ID
+import org.codice.compliance.utils.ENTITY
+import org.codice.compliance.utils.FORMAT
+import org.codice.compliance.utils.PERSISTENT_ID
+import org.codice.compliance.utils.SP_NAME_QUALIFIER
+import org.codice.compliance.utils.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node

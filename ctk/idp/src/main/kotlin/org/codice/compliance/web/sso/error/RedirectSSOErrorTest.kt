@@ -22,12 +22,12 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
-import org.codice.compliance.utils.TestCommon.Companion.INCORRECT_DESTINATION
-import org.codice.compliance.utils.TestCommon.Companion.RELAY_STATE_GREATER_THAN_80_BYTES
-import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
+import org.codice.compliance.utils.INCORRECT_DESTINATION
+import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
+import org.codice.compliance.utils.REQUESTER
+import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
+import org.codice.compliance.utils.SSOCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
-import org.codice.compliance.utils.TestCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier

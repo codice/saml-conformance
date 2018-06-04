@@ -16,7 +16,7 @@ package org.codice.compliance.verification.core.assertions
 import org.codice.compliance.SAMLCore_2_4_1_2_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
+import org.codice.compliance.utils.SUBJECT_CONFIRMATION
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node

@@ -23,10 +23,10 @@ import org.codice.compliance.attributeList
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
-import org.codice.compliance.utils.TestCommon.Companion.FORMAT
-import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
-import org.codice.compliance.utils.TestCommon.Companion.SUBJECT_CONFIRMATION
+import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.FORMAT
+import org.codice.compliance.utils.SUBJECT
+import org.codice.compliance.utils.SUBJECT_CONFIRMATION
 import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.w3c.dom.Node
 

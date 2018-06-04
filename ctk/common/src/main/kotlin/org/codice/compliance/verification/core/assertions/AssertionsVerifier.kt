@@ -22,12 +22,12 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
-import org.codice.compliance.utils.TestCommon.Companion.AUTHN_STATEMENT
-import org.codice.compliance.utils.TestCommon.Companion.ID
-import org.codice.compliance.utils.TestCommon.Companion.SUBJECT
-import org.codice.compliance.utils.TestCommon.Companion.VERSION
-import org.codice.compliance.utils.TestCommon.Companion.XSI
+import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.AUTHN_STATEMENT
+import org.codice.compliance.utils.ID
+import org.codice.compliance.utils.SUBJECT
+import org.codice.compliance.utils.VERSION
+import org.codice.compliance.utils.XSI
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
 

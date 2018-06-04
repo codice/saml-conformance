@@ -24,8 +24,8 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon.Companion.ASSERTION
-import org.codice.compliance.utils.TestCommon.Companion.DESTINATION
+import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder

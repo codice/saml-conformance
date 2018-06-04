@@ -24,7 +24,8 @@ import org.codice.compliance.SAMLCore_4_2_a
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.TestCommon
+import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.VERSION
 import org.opensaml.saml.common.SAMLVersion
 import org.w3c.dom.Node
 
@@ -44,7 +45,7 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
     /** 4.1 SAML Specification Set Version **/
     @Suppress("SpreadOperator")
     private fun verifySetVersioning() {
-        val version = samlResponseDom.attributeNode(TestCommon.VERSION)
+        val version = samlResponseDom.attributeNode(VERSION)
         if (version?.textContent != SAMLVersion.VERSION_20.toString()) {
 
             val responseMajorVersion = version?.textContent?.split(".")?.first()?.toInt()
@@ -56,7 +57,7 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
             }
 
             throw SAMLComplianceException.createWithPropertyMessage(*codes.toTypedArray(),
-                property = TestCommon.VERSION,
+                property = VERSION,
                 actual = version?.textContent,
                 expected = SAMLVersion.VERSION_20.toString(),
                 node = samlResponseDom)
@@ -65,12 +66,12 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
 
     /** 4.1.2 SAML Assertion Version **/
     private fun verifyAssertionVersioning() {
-        samlResponseDom.recursiveChildren(TestCommon.ASSERTION).forEach {
-            val version = it.attributeNode(TestCommon.VERSION)
+        samlResponseDom.recursiveChildren(ASSERTION).forEach {
+            val version = it.attributeNode(VERSION)
             if (version?.textContent != SAMLVersion.VERSION_20.toString())
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_2_3_3_a,
                     SAMLCore_4_1_2_a,
-                    property = TestCommon.VERSION,
+                    property = VERSION,
                     actual = version?.textContent,
                     expected = SAMLVersion.VERSION_20.toString(),
                     node = it)

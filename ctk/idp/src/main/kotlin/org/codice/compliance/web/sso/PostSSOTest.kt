@@ -17,12 +17,12 @@ import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.saml.plugin.IdpSSOResponder
-import org.codice.compliance.utils.TestCommon.Companion.ENCRYPTED_ID
-import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.createDefaultAuthnRequest
+import org.codice.compliance.utils.ENCRYPTED_ID
+import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
+import org.codice.compliance.utils.SSOCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.getImplementation
-import org.codice.compliance.utils.TestCommon.Companion.sendPostAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier

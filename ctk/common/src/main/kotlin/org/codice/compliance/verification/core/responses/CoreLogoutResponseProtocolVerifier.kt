@@ -18,8 +18,8 @@ import org.codice.compliance.SAMLCore_3_7_3_2_b
 import org.codice.compliance.SAMLCore_3_7_3_2_d
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon.Companion.STATUS
-import org.codice.compliance.utils.TestCommon.Companion.STATUS_CODE
+import org.codice.compliance.utils.STATUS
+import org.codice.compliance.utils.STATUS_CODE
 import org.codice.compliance.verification.core.ResponseVerifier
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.LogoutRequest

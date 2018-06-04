@@ -21,8 +21,8 @@ import org.codice.compliance.SAMLCore_6_1_a
 import org.codice.compliance.SAMLCore_6_1_b
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
-import org.codice.compliance.utils.TestCommon.Companion.ELEMENT
-import org.codice.compliance.utils.TestCommon.Companion.TYPE
+import org.codice.compliance.utils.ELEMENT
+import org.codice.compliance.utils.TYPE
 import org.codice.compliance.utils.XMLDecryptor
 import org.codice.compliance.utils.XMLDecryptor.Companion.XMLDecryptorException
 import org.w3c.dom.Node

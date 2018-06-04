@@ -23,8 +23,8 @@ import org.codice.compliance.Common.Companion.buildDom
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
-import org.codice.compliance.utils.TestCommon.Companion.REQUESTER
-import org.codice.compliance.utils.TestCommon.Companion.RESPONDER
+import org.codice.compliance.utils.REQUESTER
+import org.codice.compliance.utils.RESPONDER
 import org.codice.compliance.verification.core.CoreVerifier
 import java.time.Duration
 import java.time.Instant

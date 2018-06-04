@@ -15,13 +15,13 @@ package org.codice.compliance.web.slo
 
 import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
-import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.PARTIAL_LOGOUT
-import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutRequest
-import org.codice.compliance.utils.TestCommon.Companion.createDefaultLogoutResponse
-import org.codice.compliance.utils.TestCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.PARTIAL_LOGOUT
+import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
+import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutResponse
+import org.codice.compliance.utils.SLOCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.SLOCommon.Companion.sendPostLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
-import org.codice.compliance.utils.TestCommon.Companion.sendPostLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.useDefaultServiceProvider

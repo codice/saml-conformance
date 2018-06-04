@@ -28,10 +28,10 @@ import org.codice.compliance.SAMLBindings_3_5_4_d
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
-import org.codice.compliance.utils.TestCommon.Companion.ACTION
-import org.codice.compliance.utils.TestCommon.Companion.EXAMPLE_RELAY_STATE
-import org.codice.compliance.utils.TestCommon.Companion.MAX_RELAY_STATE_LEN
-import org.codice.compliance.utils.TestCommon.Companion.NAME
+import org.codice.compliance.utils.ACTION
+import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
+import org.codice.compliance.utils.MAX_RELAY_STATE_LEN
+import org.codice.compliance.utils.NAME
 import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
 import org.codice.compliance.utils.extractSamlMessageForm
 import org.codice.compliance.utils.extractValue
