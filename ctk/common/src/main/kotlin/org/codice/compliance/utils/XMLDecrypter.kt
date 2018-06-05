@@ -27,7 +27,7 @@ import java.security.Key
 import java.security.Security
 import java.util.Properties
 
-class XMLDecryptor {
+class XMLDecrypter {
     companion object {
         // One time initialization
         init {
@@ -40,7 +40,7 @@ class XMLDecryptor {
         private val serverPrivateKey by lazy {
 
             val encryptionFile =
-                    XMLDecryptor::class.java.classLoader.getResource(
+                    XMLDecrypter::class.java.classLoader.getResource(
                             "${getCurrentSPHostname()}-encryption.properties")
 
             checkNotNull(encryptionFile)

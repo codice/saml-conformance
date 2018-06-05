@@ -33,14 +33,14 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
     private val correctNotOnOrAfter = Instant.now().plusMillis(300000).toString()
 
     init {
-        "response with correct reason should pass" {
+        "logout request with correct reason should pass" {
             Common.buildDom(createLogoutRequest("Reason=\"http://correct.reason/uri\"",
                 correctNotOnOrAfter)).let {
                 CoreLogoutRequestProtocolVerifier(it, HTTP_REDIRECT).verify()
             }
         }
 
-        "response with incorrect reason (relative URI) should fail with SAMLCore_3_7_1_a" {
+        "logout request with incorrect reason (relative URI) should fail with SAMLCore_3_7_1_a" {
             Common.buildDom(createLogoutRequest("Reason=\"/incorrect/reason/uri\"",
                 correctNotOnOrAfter)).let {
                 shouldThrow<SAMLComplianceException> {
@@ -52,13 +52,13 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
             }
         }
 
-        "response with correct NotOnOrAfter should pass" {
+        "logout request with correct NotOnOrAfter should pass" {
             Common.buildDom(createLogoutRequest("", "2018-05-01T13:15:30Z")).let {
                 CoreLogoutRequestProtocolVerifier(it, HTTP_REDIRECT).verify()
             }
         }
 
-        "response with incorrect NotOnOrAfter (non-UTC) should fail with SAMLCore_3_7_1_a" {
+        "logout request with incorrect NotOnOrAfter (non-UTC) should fail with SAMLCore_3_7_1_a" {
             Common.buildDom(createLogoutRequest("", "2018-05-01T06:15:30-07:00")).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
@@ -66,7 +66,7 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
             }
         }
 
-        "response with no NotOnOrAfter should fail with SAMLCore_3_7_3_2_e" {
+        "logout request with no NotOnOrAfter should fail with SAMLCore_3_7_3_2_e" {
             Common.buildDom(createLogoutRequest("", null)).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
