@@ -28,6 +28,8 @@ import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.utils.CONSENT
+import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.verification.core.RequestVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.w3c.dom.Node
@@ -86,13 +88,13 @@ class RequestVerifierSpec : StringSpec() {
         }
 
         "request with correct destination should pass" {
-            Common.buildDom(createRequest(attribute = "Destination=\"$correctUri\"")).let {
+            Common.buildDom(createRequest(attribute = "$DESTINATION=\"$correctUri\"")).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
         "request with incorrect destination should fail" {
-            Common.buildDom(createRequest(attribute = "Destination=\"$incorrectUri\"")).let {
+            Common.buildDom(createRequest(attribute = "$DESTINATION=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.shouldContain(SAMLCore_3_2_1_e.message)
@@ -100,13 +102,13 @@ class RequestVerifierSpec : StringSpec() {
         }
 
         "request with correct consent should pass" {
-            Common.buildDom(createRequest(attribute = "Consent=\"$correctUri\"")).let {
+            Common.buildDom(createRequest(attribute = "$CONSENT=\"$correctUri\"")).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
         "request with incorrect consent (relative URI) should fail" {
-            Common.buildDom(createRequest(attribute = "Consent=\"$incorrectUri\"")).let {
+            Common.buildDom(createRequest(attribute = "$CONSENT=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.shouldContain(SAMLCore_1_3_2_a.message)
