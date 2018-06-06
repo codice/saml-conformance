@@ -16,6 +16,9 @@ package org.codice.compliance.verification.profile
 import com.jayway.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLProfiles_3_1_a
+import org.codice.compliance.SAMLProfiles_3_1_b
+import org.codice.compliance.SAMLProfiles_3_1_c
 import org.codice.compliance.SAMLProfiles_4_1_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_b
@@ -27,39 +30,46 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_i
 import org.codice.compliance.SAMLProfiles_4_1_4_2_j
 import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.attributeNode
+import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.ASSERTION_NAMESPACE
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
 import org.codice.compliance.utils.BEARER
 import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.FORMAT
+import org.codice.compliance.utils.HOLDER_OF_KEY_URI
+import org.codice.compliance.utils.KEY_INFO_CONFIRMATION_DATA_TYPE
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
+import org.codice.compliance.utils.SUBJECT_CONFIRMATION_DATA
 import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
+import org.codice.compliance.utils.XSI
 import org.codice.compliance.utils.determineBinding
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
-import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorImpl
 import org.w3c.dom.Node
 
-class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
-                                  private val samlResponseDom: Node) {
+@Suppress("TooManyFunctions")
+class SingleSignOnProfileVerifier(private val samlResponseDom: Node) {
     /**
      * Verify response against the Core Spec document
      * 4.1.4.2 <Response> Usage
      */
     fun verify() {
-        verifyIssuer()
+        if (samlResponseDom.children(SIGNATURE).isNotEmpty())
+            verifyIssuer(samlResponseDom)
         verifySsoAssertions()
+        verifyHolderOfKey()
         SubjectComparisonVerifier(samlResponseDom).verifySubjectsMatchSSO()
-        ProfilesVerifier(samlResponseDom).verify()
     }
 
     fun verifyBinding(httpResponse: Response) {
@@ -73,37 +83,31 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
      * Checks the issuer element against the SSO profile spec
      * 4.1.4.2 <Response> Usage
      */
-    private fun verifyIssuer() {
-        if (samlResponseDom.localName == "Response" &&
-                (samlResponseDom.children(SIGNATURE).isNotEmpty() ||
-                        samlResponseDom.children(ASSERTION)
-                                .any {
-                                    it.children(SIGNATURE).isNotEmpty()
-                                })) {
-            val issuers = samlResponseDom.children("Issuer")
+    private fun verifyIssuer(node: Node) {
+        require(node.localName == "Response" || node.localName == ASSERTION)
+        val issuers = node.children("Issuer")
 
-            if (issuers.size != 1)
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
-                        message = "${issuers.size} Issuer elements were found.",
-                        node = samlResponseDom)
+        if (issuers.size != 1)
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
+                message = "${issuers.size} Issuer elements were found.",
+                node = node)
 
-            val issuer = issuers[0]
-            if (issuer.textContent !=
-                    (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
-                        message = "Issuer value of ${issuer.textContent} does not match the " +
-                                "issuing IdP.",
-                        node = samlResponseDom)
+        val issuer = issuers[0]
+        if (issuer.textContent !=
+            (idpMetadata.descriptor?.parent as EntityDescriptorImpl).entityID)
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
+                message = "Issuer value of ${issuer.textContent} does not match the " +
+                    "issuing IdP.",
+                node = node)
 
-            val issuerFormat = issuer.attributeText(FORMAT)
-            if (issuerFormat != null &&
-                    issuerFormat != ENTITY)
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
-                        property = FORMAT,
-                        actual = issuerFormat,
-                        expected = ENTITY,
-                        node = samlResponseDom)
-        }
+        val issuerFormat = issuer.attributeText(FORMAT)
+        if (issuerFormat != null &&
+            issuerFormat != ENTITY)
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
+                property = FORMAT,
+                actual = issuerFormat,
+                expected = ENTITY,
+                node = node)
     }
 
     /**
@@ -120,7 +124,7 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
                     node = samlResponseDom)
         }
 
-        assertions.forEach { verifyIssuer() }
+        assertions.forEach { verifyIssuer(it) }
 
         val (bearerSubjectConfirmations, bearerAssertions) =
                 assertions.filter { it.children(SUBJECT).isNotEmpty() }
@@ -145,8 +149,8 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
     @Suppress("ComplexCondition")
     private fun verifyBearerSubjectConfirmations(bearerSubjectConfirmations: List<Node>) {
         if (bearerSubjectConfirmations
-                        .filter { it.children("SubjectConfirmationData").isNotEmpty() }
-                        .flatMap { it.children("SubjectConfirmationData") }
+                        .filter { it.children(SUBJECT_CONFIRMATION_DATA).isNotEmpty() }
+                        .flatMap { it.children(SUBJECT_CONFIRMATION_DATA) }
                         .none {
                             it.attributeText("Recipient") ==
                                 getServiceUrl(HTTP_POST, samlResponseDom) &&
@@ -208,5 +212,74 @@ class SingleSignOnProfileVerifier(private val authnRequest: AuthnRequest,
                     node = condition)
         }
         return audienceRestriction.first()
+    }
+
+    /**
+     * 3.1 Holder of Key
+     */
+    internal fun verifyHolderOfKey() {
+        val holderOfKeyList = samlResponseDom.recursiveChildren(SUBJECT_CONFIRMATION)
+            .filter { it.attributeText("Method") == HOLDER_OF_KEY_URI }
+
+        if (holderOfKeyList.isEmpty()) return
+
+        holderOfKeyList.forEach {
+            val subjectConfirmationDataElements = it.children(SUBJECT_CONFIRMATION_DATA)
+
+            if (subjectConfirmationDataElements.isEmpty())
+                throw SAMLComplianceException.create(SAMLProfiles_3_1_a,
+                    message = "<SubjectConfirmationData> not found within Holder of Key " +
+                        "<SubjectConfirmation>",
+                    node = samlResponseDom)
+
+            subjectConfirmationDataElements.forEach { verifyHolderOfKeyData(it) }
+        }
+    }
+
+    private fun verifyHolderOfKeyData(node: Node) {
+        val type = node.attributeNodeNS(XSI, "type")
+        if (type != null) {
+            if (!type.textContent.contains(":"))
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
+                    property = "type",
+                    actual = type.textContent,
+                    expected = KEY_INFO_CONFIRMATION_DATA_TYPE,
+                    node = node)
+
+            val (namespace, value) = type.textContent.split(":")
+            if (value != KEY_INFO_CONFIRMATION_DATA_TYPE)
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
+                    property = "type",
+                    actual = value,
+                    expected = KEY_INFO_CONFIRMATION_DATA_TYPE,
+                    node = node)
+
+            // SSO Response must have at least one assertion with an assertion namespace
+            val assertionNameSpacePrefix = samlResponseDom.children(ASSERTION)
+                .first()
+                .nodeName.split(":")
+                .first()
+            if (namespace != assertionNameSpacePrefix)
+                throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_3_1_b,
+                    property = "namespace prefix",
+                    actual = namespace,
+                    expected = "$assertionNameSpacePrefix which maps to " +
+                        ASSERTION_NAMESPACE,
+                    node = node)
+        }
+
+        val keyInfos = node.children("KeyInfo")
+        if (keyInfos.isEmpty())
+            throw SAMLComplianceException.create(SAMLProfiles_3_1_a,
+                message = "<ds:KeyInfo> not found within the <SubjectConfirmationData> " +
+                    "element.",
+                node = node)
+
+        keyInfos.forEach {
+            if (it.children("KeyValue").size > 1)
+                throw SAMLComplianceException.create(SAMLProfiles_3_1_c,
+                    message = "<ds:KeyInfo> must not have multiple values.",
+                    node = node)
+        }
     }
 }

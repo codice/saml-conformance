@@ -85,6 +85,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLBindings_3_4_3_a,
                         expectedStatusCode = REQUESTER)
+                    ProfilesVerifier.verifyErrorResponseAssertion(samlResponseDom)
                 }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
@@ -104,7 +105,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLProfiles_4_1_4_1_a,
                         expectedStatusCode = REQUESTER)
-                    ProfilesVerifier(samlResponseDom).verifyErrorResponseAssertion()
+                    ProfilesVerifier.verifyErrorResponseAssertion(samlResponseDom)
                 }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
@@ -136,8 +137,8 @@ class RedirectSSOErrorTest : StringSpec() {
                         CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                             SAMLProfiles_4_1_4_1_b,
                             expectedStatusCode = REQUESTER)
-                        ProfilesVerifier(samlResponseDom)
-                            .verifyErrorResponseAssertion(SAMLProfiles_4_1_4_1_b)
+                        ProfilesVerifier
+                            .verifyErrorResponseAssertion(samlResponseDom, SAMLProfiles_4_1_4_1_b)
                     }
                 } catch (e: SAMLComplianceException) {
                     throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
@@ -162,6 +163,7 @@ class RedirectSSOErrorTest : StringSpec() {
                     CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                         SAMLCore_3_2_1_e,
                         expectedStatusCode = REQUESTER)
+                    ProfilesVerifier.verifyErrorResponseAssertion(samlResponseDom)
                 }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)

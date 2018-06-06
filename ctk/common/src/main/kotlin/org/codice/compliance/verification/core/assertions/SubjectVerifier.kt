@@ -17,6 +17,7 @@ import org.codice.compliance.SAMLCore_2_4_1_2_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
+import org.codice.compliance.utils.SUBJECT_CONFIRMATION_DATA
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.CoreVerifier.Companion.validateTimeWindow
 import org.w3c.dom.Node
@@ -40,7 +41,7 @@ internal class SubjectVerifier(val node: Node) {
 
     /** 2.4.1.2 Element <SubjectConfirmationData> */
     private fun verifySubjectConfirmationData() {
-        node.recursiveChildren("SubjectConfirmationData").forEach {
+        node.recursiveChildren(SUBJECT_CONFIRMATION_DATA).forEach {
             validateTimeWindow(it, SAMLCore_2_4_1_2_a)
 
             it.attributeNode("Recipient")?.let {
