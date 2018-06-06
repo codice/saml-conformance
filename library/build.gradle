@@ -1,5 +1,7 @@
 description = 'Common libraries from DDF for building request/response, signing and parsing.'
 
+apply plugin: 'maven-publish'
+
 project.ext {
     apache_wss4j_version='2.1.11'
     apache_cxf_version='3.2.2'
@@ -20,3 +22,13 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+build.dependsOn publishToMavenLocal

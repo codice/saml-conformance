@@ -13,9 +13,9 @@
  */
 package org.codice.compliance.verification.binding
 
-import com.jayway.restassured.path.xml.element.Node
-import com.jayway.restassured.response.Response
 import de.jupf.staticlog.Log
+import io.restassured.path.xml.element.Node
+import io.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
@@ -37,6 +37,7 @@ import org.codice.compliance.utils.extractSamlMessageForm
 import org.codice.compliance.utils.extractValue
 import org.codice.compliance.utils.hasNoAttributeWithNameAndValue
 import org.codice.compliance.utils.isNotHidden
+import org.codice.compliance.utils.recursiveChildren
 
 @Suppress("StringLiteralDuplication" /* Duplicated phrases in exception messages. */)
 class PostFormVerifier(private val httpResponse: Response, private val isRelayStateGiven: Boolean,
@@ -63,14 +64,12 @@ class PostFormVerifier(private val httpResponse: Response, private val isRelaySt
     init {
         samlMessageFormControl =
                 samlMessageForm
-                        ?.children()
-                        ?.list()
+                        ?.recursiveChildren("input")
                         ?.firstOrNull(isNamedCorrectly)
         samlMessage = samlMessageFormControl?.extractValue()
         relayStateFormControl =
                 samlMessageForm
-                        ?.children()
-                        ?.list()
+                        ?.recursiveChildren("input")
                         ?.firstOrNull(isNamedRelayState)
         relayState = relayStateFormControl?.extractValue()
     }

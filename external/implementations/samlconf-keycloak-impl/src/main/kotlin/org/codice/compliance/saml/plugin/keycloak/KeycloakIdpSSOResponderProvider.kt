@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.saml.plugin.keycloak
 
-import com.jayway.restassured.RestAssured
-import com.jayway.restassured.response.Response
+import io.restassured.RestAssured
+import io.restassured.response.Response
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.kohsuke.MetaInfServices
 

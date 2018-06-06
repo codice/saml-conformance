@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.web.sso
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.saml.plugin.IdpSSOResponder
@@ -45,7 +45,6 @@ class RedirectSSOTest : StringSpec() {
                     SAML_REQUEST,
                     encodedRequest,
                     null)
-
             val response = sendRedirectAuthnRequest(queryParams)
             BindingVerifier.verifyHttpStatusCode(response.statusCode)
 

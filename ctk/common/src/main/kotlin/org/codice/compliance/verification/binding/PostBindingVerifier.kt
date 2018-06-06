@@ -13,7 +13,7 @@
  */
 package org.codice.compliance.verification.binding
 
-import com.jayway.restassured.response.Response
+import io.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLBindings_3_5_4_a

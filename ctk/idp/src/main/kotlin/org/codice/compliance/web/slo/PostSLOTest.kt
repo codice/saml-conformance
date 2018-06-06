@@ -13,13 +13,13 @@
  */
 package org.codice.compliance.web.slo
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.PARTIAL_LOGOUT
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutResponse
-import org.codice.compliance.utils.SLOCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.SLOCommon.Companion.login
 import org.codice.compliance.utils.SLOCommon.Companion.sendPostLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
@@ -37,11 +37,11 @@ class PostSLOTest : StringSpec() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "POST LogoutResponse Test - Single SP" {
-            val cookies = loginAndGetCookies(HTTP_POST)
+            login(HTTP_POST)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
-            val response = sendPostLogoutMessage(encodedRequest, cookies)
+            val response = sendPostLogoutMessage(encodedRequest)
 
             val samlResponseDom = response.getBindingVerifier().decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
@@ -49,11 +49,11 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_POST, multipleSP = true)
+            login(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
-            val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest, cookies)
+            val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest)
 
             useDSAServiceProvider()
             val samlLogoutRequestDom = secondSPLogoutRequest.getBindingVerifier().apply {
@@ -65,7 +65,7 @@ class PostSLOTest : StringSpec() {
             val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, true)
             val encodedSecondSPLogoutResponse =
                 signAndEncodePostRequestToString(secondSPLogoutResponse, logoutRequestRelayState)
-            val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse, cookies)
+            val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse)
 
             useDefaultServiceProvider()
             val samlResponseDom = logoutResponse.getBindingVerifier().decodeAndVerify()
@@ -74,12 +74,12 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test With Relay State - Single SP" {
-            val cookies = loginAndGetCookies(HTTP_POST)
+            login(HTTP_POST)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest =
                 signAndEncodePostRequestToString(logoutRequest, EXAMPLE_RELAY_STATE)
-            val response = sendPostLogoutMessage(encodedRequest, cookies)
+            val response = sendPostLogoutMessage(encodedRequest)
 
             val samlResponseDom = response.getBindingVerifier().apply {
                 isRelayStateGiven = true
@@ -89,12 +89,12 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test With Relay State - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_POST, multipleSP = true)
+            login(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest =
                 signAndEncodePostRequestToString(logoutRequest, EXAMPLE_RELAY_STATE)
-            val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest, cookies)
+            val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest)
 
             useDSAServiceProvider()
             val samlLogoutRequestDom = secondSPLogoutRequest.getBindingVerifier().apply {
@@ -106,7 +106,7 @@ class PostSLOTest : StringSpec() {
             val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, true)
             val encodedSecondSPLogoutResponse =
                 signAndEncodePostRequestToString(secondSPLogoutResponse, logoutRequestRelayState)
-            val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse, cookies)
+            val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse)
 
             useDefaultServiceProvider()
             val samlResponseDom = logoutResponse.getBindingVerifier().apply {
@@ -117,12 +117,12 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test With Error Logging Out From SP2 - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_POST, multipleSP = true)
+            login(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest =
                 signAndEncodePostRequestToString(logoutRequest, EXAMPLE_RELAY_STATE)
-            val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest, cookies)
+            val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest)
 
             useDSAServiceProvider()
             val samlLogoutRequestDom = secondSPLogoutRequest.getBindingVerifier().apply {
@@ -135,7 +135,7 @@ class PostSLOTest : StringSpec() {
             val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, false)
             val encodedSecondSPLogoutResponse =
                 signAndEncodePostRequestToString(secondSPLogoutResponse, logoutRequestRelayState)
-            val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse, cookies)
+            val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse)
 
             useDefaultServiceProvider()
             val samlResponseDom = logoutResponse.getBindingVerifier().apply {

@@ -13,7 +13,7 @@
  */
 package org.codice.compliance.saml.plugin;
 
-import com.jayway.restassured.response.Response;
+import io.restassured.response.Response;
 
 /**
  * This interface provides a mechanism for implementers to handle a portion of the SAML IdP

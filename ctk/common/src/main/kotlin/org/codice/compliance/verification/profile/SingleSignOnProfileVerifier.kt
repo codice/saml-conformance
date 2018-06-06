@@ -13,7 +13,7 @@
  */
 package org.codice.compliance.verification.profile
 
-import com.jayway.restassured.response.Response
+import io.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_2_a

@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.web.sso.error
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException

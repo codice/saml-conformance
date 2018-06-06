@@ -13,7 +13,7 @@
  */
 package org.codice.compliance.verification.binding
 
-import com.jayway.restassured.response.Response
+import io.restassured.response.Response
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException

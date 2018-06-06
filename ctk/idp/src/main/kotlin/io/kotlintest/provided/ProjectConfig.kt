@@ -13,12 +13,15 @@
  */
 package io.kotlintest.provided
 
-import com.jayway.restassured.RestAssured
-import com.jayway.restassured.RestAssured.config
-import com.jayway.restassured.config.RedirectConfig.redirectConfig
 import io.kotlintest.AbstractProjectConfig
+import io.kotlintest.extensions.TestListener
+import io.restassured.RestAssured
+import io.restassured.RestAssured.config
+import io.restassured.config.RedirectConfig.redirectConfig
+import org.codice.compliance.utils.GlobalSession
 
 object ProjectConfig : AbstractProjectConfig() {
+    override fun listeners(): List<TestListener> = listOf(GlobalSession)
 
     override fun beforeAll() {
         RestAssured.config = config().redirect(redirectConfig().followRedirects(false))

@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.binding
 
 import com.google.api.client.http.HttpStatusCodes
-import com.jayway.restassured.response.Response
+import io.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE

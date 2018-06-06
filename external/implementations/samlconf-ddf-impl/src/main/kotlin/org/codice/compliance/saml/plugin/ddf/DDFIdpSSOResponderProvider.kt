@@ -15,9 +15,9 @@ package org.codice.compliance.saml.plugin.ddf
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import com.jayway.restassured.RestAssured
-import com.jayway.restassured.builder.RequestSpecBuilder
-import com.jayway.restassured.response.Response
+import io.restassured.RestAssured
+import io.restassured.builder.RequestSpecBuilder
+import io.restassured.response.Response
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.security.saml.SamlProtocol

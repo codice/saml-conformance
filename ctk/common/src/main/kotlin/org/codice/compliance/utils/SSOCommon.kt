@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.utils
 
-import com.jayway.restassured.RestAssured
-import com.jayway.restassured.response.Response
+import io.restassured.RestAssured
+import io.restassured.response.Response
 import org.codice.compliance.Common.Companion.getSingleSignOnLocation
 import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
@@ -48,7 +48,7 @@ class SSOCommon {
                 version = SAMLVersion.VERSION_20
                 issueInstant = DateTime()
                 destination = getSingleSignOnLocation(binding.uri)
-                protocolBinding = binding.uri
+                protocolBinding = HTTP_POST.uri
                 isForceAuthn = false
                 setIsPassive(false)
             }
@@ -58,11 +58,10 @@ class SSOCommon {
          * Submits a request to the IdP with the given parameters.
          * @return The IdP response
          */
-        fun sendRedirectAuthnRequest(queryParams: Map<String, String>,
-            cookies: Map<String, String> = mapOf()): Response {
+        fun sendRedirectAuthnRequest(queryParams: Map<String, String>): Response {
             return RestAssured.given()
                 .urlEncodingEnabled(false)
-                .cookies(cookies)
+                .usingTheGlobalHttpSession()
                 .params(queryParams)
                 .log()
                 .ifValidationFails()
@@ -74,11 +73,10 @@ class SSOCommon {
          * Submits a request to the IdP with the given encoded request.
          * @return The IdP response
          */
-        fun sendPostAuthnRequest(encodedRequest: String,
-            cookies: Map<String, String> = mapOf()): Response {
+        fun sendPostAuthnRequest(encodedRequest: String): Response {
             return RestAssured.given()
                 .urlEncodingEnabled(false)
-                .cookies(cookies)
+                .usingTheGlobalHttpSession()
                 .body(encodedRequest)
                 .contentType("application/x-www-form-urlencoded")
                 .log()

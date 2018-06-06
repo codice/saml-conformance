@@ -1,5 +1,5 @@
 <md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
-  <md:EntityDescriptor cacheDuration="P7DT0H0M0.000S" entityID="https://localhost:8993/services/saml">
+  <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" cacheDuration="P7DT0H0M0.000S" entityID="https://localhost:8993/services/saml">
     <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
       <md:KeyDescriptor use="signing">
         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">

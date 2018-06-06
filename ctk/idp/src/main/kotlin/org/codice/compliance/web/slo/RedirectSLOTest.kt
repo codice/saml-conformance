@@ -13,15 +13,15 @@
  */
 package org.codice.compliance.web.slo
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.PARTIAL_LOGOUT
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutResponse
-import org.codice.compliance.utils.SLOCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.SLOCommon.Companion.login
 import org.codice.compliance.utils.SLOCommon.Companion.sendRedirectLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
@@ -40,7 +40,7 @@ class RedirectSLOTest : StringSpec() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "Redirect LogoutRequest Test - Single SP" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT)
+            login(HTTP_REDIRECT)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -48,7 +48,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_REQUEST,
                 encodedRequest,
                 null)
-            val response = sendRedirectLogoutMessage(queryParams, cookies)
+            val response = sendRedirectLogoutMessage(queryParams)
 
             val samlResponseDom = response.getBindingVerifier().decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
@@ -56,7 +56,7 @@ class RedirectSLOTest : StringSpec() {
         }
 
         "Redirect LogoutResponse Test - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT, multipleSP = true)
+            login(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -64,7 +64,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_REQUEST,
                 encodedRequest,
                 null)
-            val secondSPLogoutRequest = sendRedirectLogoutMessage(queryParams, cookies)
+            val secondSPLogoutRequest = sendRedirectLogoutMessage(queryParams)
 
             useDSAServiceProvider()
             val samlLogoutRequestDom = secondSPLogoutRequest.getBindingVerifier().apply {
@@ -79,7 +79,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_RESPONSE,
                 encodedSecondSPLogoutResponse,
                 logoutRequestRelayState)
-            val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams, cookies)
+            val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams)
 
             useDefaultServiceProvider()
             val samlResponseDom = logoutResponse.getBindingVerifier().decodeAndVerify()
@@ -88,7 +88,7 @@ class RedirectSLOTest : StringSpec() {
         }
 
         "Redirect LogoutRequest Test With Relay State - Single SP" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT)
+            login(HTTP_REDIRECT)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -96,7 +96,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_REQUEST,
                 encodedRequest,
                 EXAMPLE_RELAY_STATE)
-            val response = sendRedirectLogoutMessage(queryParams, cookies)
+            val response = sendRedirectLogoutMessage(queryParams)
 
             val samlResponseDom = response.getBindingVerifier().apply {
                 isRelayStateGiven = true
@@ -106,7 +106,7 @@ class RedirectSLOTest : StringSpec() {
         }
 
         "Redirect LogoutRequest Test With Relay State - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT, multipleSP = true)
+            login(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -114,7 +114,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_REQUEST,
                 encodedRequest,
                 EXAMPLE_RELAY_STATE)
-            val secondSPLogoutRequest = sendRedirectLogoutMessage(queryParams, cookies)
+            val secondSPLogoutRequest = sendRedirectLogoutMessage(queryParams)
 
             useDSAServiceProvider()
             val samlLogoutRequestDom = secondSPLogoutRequest.getBindingVerifier().apply {
@@ -129,7 +129,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_RESPONSE,
                 encodedSecondSPLogoutResponse,
                 logoutRequestRelayState)
-            val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams, cookies)
+            val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams)
 
             useDefaultServiceProvider()
             val samlResponseDom = logoutResponse.getBindingVerifier().apply {
@@ -140,7 +140,7 @@ class RedirectSLOTest : StringSpec() {
         }
 
         "Redirect LogoutRequest Test With Error Logging Out From SP2 - Multiple SPs" {
-            val cookies = loginAndGetCookies(HTTP_REDIRECT, multipleSP = true)
+            login(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -148,7 +148,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_REQUEST,
                 encodedRequest,
                 EXAMPLE_RELAY_STATE)
-            val secondSPLogoutRequest = sendRedirectLogoutMessage(queryParams, cookies)
+            val secondSPLogoutRequest = sendRedirectLogoutMessage(queryParams)
 
             useDSAServiceProvider()
             val samlLogoutRequestDom = secondSPLogoutRequest.getBindingVerifier().apply {
@@ -164,7 +164,7 @@ class RedirectSLOTest : StringSpec() {
                 SAML_RESPONSE,
                 encodedSecondSPLogoutResponse,
                 logoutRequestRelayState)
-            val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams, cookies)
+            val logoutResponse = sendRedirectLogoutMessage(secondSPResponseQueryParams)
 
             useDefaultServiceProvider()
             val samlResponseDom = logoutResponse.getBindingVerifier().apply {
