@@ -41,18 +41,18 @@ class RequestVerifierSpec : StringSpec() {
         System.setProperty(TEST_SP_METADATA_PROPERTY,
             Resources.getResource("test-sp-metadata.xml").path)
 
-        "response with correct ID, version and instant should pass" {
-            Common.buildDom(createResponse()).let {
+        "request with correct ID, version and instant should pass" {
+            Common.buildDom(createRequest()).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
-        "response with non-unique ID should fail" {
-            Common.buildDom(createResponse(id = "id")).let {
+        "request with non-unique ID should fail" {
+            Common.buildDom(createRequest(id = "id")).let {
                 RequestVerifierTest(it).verify()
             }
 
-            Common.buildDom(createResponse(id = "id")).let {
+            Common.buildDom(createRequest(id = "id")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.apply {
@@ -62,8 +62,8 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect version (empty) should fail" {
-            Common.buildDom(createResponse(version = "")).let {
+        "request with incorrect version (empty) should fail" {
+            Common.buildDom(createRequest(version = "")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.apply {
@@ -73,9 +73,9 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with incorrect instant (non-UTC) should fail" {
+        "request with incorrect instant (non-UTC) should fail" {
             Common.buildDom(
-                createResponse(instant = "2018-05-01T06:15:30-07:00")).let {
+                createRequest(instant = "2018-05-01T06:15:30-07:00")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.apply {
@@ -85,28 +85,28 @@ class RequestVerifierSpec : StringSpec() {
             }
         }
 
-        "response with correct destination should pass" {
-            Common.buildDom(createResponse(attribute = "Destination=\"$correctUri\"")).let {
+        "request with correct destination should pass" {
+            Common.buildDom(createRequest(attribute = "Destination=\"$correctUri\"")).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
-        "response with incorrect destination should fail" {
-            Common.buildDom(createResponse(attribute = "Destination=\"$incorrectUri\"")).let {
+        "request with incorrect destination should fail" {
+            Common.buildDom(createRequest(attribute = "Destination=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.shouldContain(SAMLCore_3_2_1_e.message)
             }
         }
 
-        "response with correct consent should pass" {
-            Common.buildDom(createResponse(attribute = "Consent=\"$correctUri\"")).let {
+        "request with correct consent should pass" {
+            Common.buildDom(createRequest(attribute = "Consent=\"$correctUri\"")).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
-        "response with incorrect consent (relative URI) should fail" {
-            Common.buildDom(createResponse(attribute = "Consent=\"$incorrectUri\"")).let {
+        "request with incorrect consent (relative URI) should fail" {
+            Common.buildDom(createRequest(attribute = "Consent=\"$incorrectUri\"")).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.shouldContain(SAMLCore_1_3_2_a.message)
@@ -114,7 +114,7 @@ class RequestVerifierSpec : StringSpec() {
         }
     }
 
-    private fun createResponse(id: String? = UUID.randomUUID().toString().replace("-", ""),
+    private fun createRequest(id: String? = UUID.randomUUID().toString().replace("-", ""),
         version: String? = "2.0",
         attribute: String = "",
         instant: String = Instant.now().toString()): String {

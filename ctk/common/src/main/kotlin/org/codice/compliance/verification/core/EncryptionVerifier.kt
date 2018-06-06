@@ -23,8 +23,8 @@ import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.utils.ELEMENT
 import org.codice.compliance.utils.TYPE
-import org.codice.compliance.utils.XMLDecryptor
-import org.codice.compliance.utils.XMLDecryptor.Companion.XMLDecryptorException
+import org.codice.compliance.utils.XMLDecrypter
+import org.codice.compliance.utils.XMLDecrypter.Companion.XMLDecryptorException
 import org.w3c.dom.Node
 
 class EncryptionVerifier {
@@ -50,7 +50,7 @@ class EncryptionVerifier {
         verifyEncryptedElement(element)
 
         try {
-            XMLDecryptor.decryptAndReplaceNode(element)
+            XMLDecrypter.decryptAndReplaceNode(element)
         } catch (e: XMLDecryptorException) {
             throw SAMLComplianceException.create(
                     SAMLCore_6_1_a,
