@@ -26,7 +26,7 @@ import org.opensaml.saml.saml2.core.LogoutRequest
 import org.w3c.dom.Node
 
 class CoreLogoutResponseProtocolVerifier(logoutRequest: LogoutRequest, samlResponseDom: Node,
-    binding: SamlProtocol.Binding, private val expectedStatusCode: String? = null) :
+    binding: SamlProtocol.Binding, private val expectedSecondLevelStatusCode: String? = null) :
     ResponseVerifier(logoutRequest, samlResponseDom, binding) {
 
     override fun verify() {
@@ -42,10 +42,11 @@ class CoreLogoutResponseProtocolVerifier(logoutRequest: LogoutRequest, samlRespo
                 ?.firstOrNull()
                 ?.attributeText("Value")
 
-        if (expectedStatusCode != null && secondaryStatusCode != expectedStatusCode)
+        if (expectedSecondLevelStatusCode != null
+            && secondaryStatusCode != expectedSecondLevelStatusCode)
             throw SAMLComplianceException.create(SAMLCore_3_7_3_2_b,
                 SAMLCore_3_7_3_2_d,
-                message = "The status code of $expectedStatusCode was not found",
+                message = "The status code of $expectedSecondLevelStatusCode was not found",
                 node = samlResponseDom)
     }
 }
