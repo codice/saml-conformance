@@ -58,7 +58,7 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -87,7 +87,7 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -116,7 +116,7 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -143,7 +143,7 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -178,7 +178,7 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -213,7 +213,7 @@ class RedirectSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }

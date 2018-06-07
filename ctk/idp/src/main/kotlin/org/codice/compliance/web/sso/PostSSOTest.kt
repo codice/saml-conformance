@@ -49,7 +49,7 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -73,7 +73,7 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -96,7 +96,7 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -125,7 +125,7 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
@@ -154,7 +154,7 @@ class PostSSOTest : StringSpec() {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
             }
-            SingleSignOnProfileVerifier(authnRequest, samlResponseDom).apply {
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
                 verifyBinding(finalHttpResponse)
             }
