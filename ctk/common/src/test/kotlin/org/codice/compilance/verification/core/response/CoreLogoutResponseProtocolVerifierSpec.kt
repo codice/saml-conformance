@@ -73,9 +73,32 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
                 }
             }
         }
+
+        "logout response with no second-level status code when expected should fail" {
+            Common.buildDom(createLogoutResponse(null)).let {
+                shouldThrow<SAMLComplianceException> {
+                    CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
+                        .verify()
+                }.apply {
+                    this.message?.shouldContain(SAMLCore_3_7_3_2_b.message)
+                    this.message?.shouldContain(SAMLCore_3_7_3_2_d.message)
+                }
+            }
+        }
+
+        "logout response with a second-level status code when not expecting one should pass" {
+            Common.buildDom(createLogoutResponse(SUCCESS)).let {
+                CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST).verify()
+            }
+        }
     }
 
-    private fun createLogoutResponse(secondStatusCodeValue: String): String {
+    private fun createLogoutResponse(secondStatusCodeValue: String?): String {
+        var secondStatusCode = ""
+        if (secondStatusCodeValue != null) {
+            secondStatusCode = "<s:StatusCode Value=\"$secondStatusCodeValue\"/>"
+        }
+
         return """
             |<s:LogoutResponse
             |xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol"
@@ -85,7 +108,7 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
             |IssueInstant="${Instant.now()}">
             |  <s:Status>
             |    <s:StatusCode Value="$SUCCESS">
-            |      <s:StatusCode Value="$secondStatusCodeValue"/>
+            |      $secondStatusCode
             |    </s:StatusCode>
             |  </s:Status>
             |</s:LogoutResponse>
