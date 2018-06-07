@@ -45,7 +45,7 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
         verifyStatusResponseType()
-        verifyStatusType()
+        verifyStatusCode()
         verifyStatusMessage()
         super.verify()
     }
@@ -88,7 +88,7 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
     }
 
     /** 3.2.2.2 Element <StatusCode> */
-    private fun verifyStatusType() {
+    private fun verifyStatusCode() {
         val topLevelStatusCode = samlResponseDom.recursiveChildren(STATUS)
             .flatMap { it.children(STATUS_CODE) }
             .first()
