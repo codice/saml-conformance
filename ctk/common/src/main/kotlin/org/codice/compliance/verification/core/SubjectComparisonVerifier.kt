@@ -25,6 +25,7 @@ import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.FORMAT
+import org.codice.compliance.utils.METHOD
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
 import org.opensaml.saml.saml2.core.RequestAbstractType
@@ -212,9 +213,9 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
                                                      responseConfirmations: List<Node>) {
 
         val requestMethods = requestConfirmations
-                .mapNotNull { it.attributeText("Method") }.toSet()
+                .mapNotNull { it.attributeText(METHOD) }.toSet()
         val responseMethods = responseConfirmations
-                .mapNotNull { it.attributeText("Method") }.toSet()
+                .mapNotNull { it.attributeText(METHOD) }.toSet()
 
         // If none of the Request SubjectConfirmations have any matching Response
         // SubjectConfirmations

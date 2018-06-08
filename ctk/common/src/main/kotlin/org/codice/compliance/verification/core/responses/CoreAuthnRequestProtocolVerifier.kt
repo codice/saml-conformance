@@ -26,6 +26,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
+import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
@@ -67,7 +68,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
     private fun verifyAuthnRequestProtocolResponse() {
         val assertions = samlResponseDom.children(ASSERTION)
 
-        if (samlResponseDom.localName != "Response" || assertions.isEmpty())
+        if (samlResponseDom.localName != RESPONSE || assertions.isEmpty())
             throw SAMLComplianceException.create(SAMLCore_3_4_1_4_a,
                     message = "Did not find Response elements with one or more Assertion elements.",
                     node = samlResponseDom)

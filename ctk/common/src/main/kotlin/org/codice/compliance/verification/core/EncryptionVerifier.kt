@@ -28,6 +28,13 @@ import org.codice.compliance.utils.XMLDecrypter.Companion.XMLDecryptorException
 import org.w3c.dom.Node
 
 class EncryptionVerifier {
+    companion object {
+        var hasEncryptionAssertions: Boolean? = null
+    }
+
+    init {
+        hasEncryptionAssertions = null
+    }
 
     /**
      * This function has 4 responsibilities:
@@ -61,6 +68,10 @@ class EncryptionVerifier {
     }
 
     private fun verifyEncryptedElement(encryptedElement: Node) {
+        if (hasEncryptionAssertions == null && encryptedElement.localName == "EncryptedAssertion") {
+            hasEncryptionAssertions = true
+        }
+
         if (encryptedElement.children("EncryptedData")
                         .first() // guaranteed to have an EncryptedData child by schema validation
                         .attributeText(TYPE) != ELEMENT)

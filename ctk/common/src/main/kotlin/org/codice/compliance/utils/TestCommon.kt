@@ -126,7 +126,7 @@ class TestCommon {
          * Response (ACS URL) or a LogoutResponse (Logout Service URL)
          */
         fun getServiceUrl(binding: SamlProtocol.Binding, node: Node): String? {
-            if (node.localName == "Response")
+            if (node.localName == RESPONSE)
                 return currentSPEntityInfo.getAssertionConsumerService(binding)?.url
 
             return currentSPEntityInfo.getLogoutService(binding)?.url
