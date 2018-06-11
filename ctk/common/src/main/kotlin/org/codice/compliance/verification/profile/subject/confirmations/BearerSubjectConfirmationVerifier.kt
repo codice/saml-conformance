@@ -36,7 +36,7 @@ import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.w3c.dom.Node
 
-class BearerSubjectConfirmationVerification(private val samlResponseDom: Node) {
+class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
 
     private val bearerSubjectConfirmationPredicate = { node: Node ->
         node.attributeText("Recipient") ==

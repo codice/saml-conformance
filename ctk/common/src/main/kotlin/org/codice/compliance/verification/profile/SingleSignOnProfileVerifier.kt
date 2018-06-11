@@ -30,8 +30,8 @@ import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
-import org.codice.compliance.verification.profile.subject.confirmations.BearerSubjectConfirmationVerification
-import org.codice.compliance.verification.profile.subject.confirmations.HolderOfKeySubjectConfirmationVerification
+import org.codice.compliance.verification.profile.subject.confirmations.BearerSubjectConfirmationVerifier
+import org.codice.compliance.verification.profile.subject.confirmations.HolderOfKeySubjectConfirmationVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.w3c.dom.Node
 
@@ -44,8 +44,8 @@ class SingleSignOnProfileVerifier(private val samlResponseDom: Node) {
 
         verifySSOAssertions()
         SubjectComparisonVerifier(samlResponseDom).verifySubjectsMatchSSO()
-        BearerSubjectConfirmationVerification(samlResponseDom).verify()
-        HolderOfKeySubjectConfirmationVerification(samlResponseDom).verify()
+        BearerSubjectConfirmationVerifier(samlResponseDom).verify()
+        HolderOfKeySubjectConfirmationVerifier(samlResponseDom).verify()
     }
 
     /** 4.1.2 Profile Overview */

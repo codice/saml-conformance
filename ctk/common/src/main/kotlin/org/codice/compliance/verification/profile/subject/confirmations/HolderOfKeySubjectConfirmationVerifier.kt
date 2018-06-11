@@ -31,7 +31,7 @@ import org.codice.compliance.utils.SUBJECT_CONFIRMATION_DATA
 import org.codice.compliance.utils.XSI
 import org.w3c.dom.Node
 
-class HolderOfKeySubjectConfirmationVerification(private val samlResponseDom: Node) {
+class HolderOfKeySubjectConfirmationVerifier(private val samlResponseDom: Node) {
 
     /** 3.1 Holder of Key */
     fun verify() {
