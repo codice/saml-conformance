@@ -33,10 +33,10 @@ object ProjectConfig : AbstractProjectConfig() {
 
         val listOfExclusions = mutableListOf<Tag>()
 
-        if (Common.idpMetadata.descriptor?.singleLogoutServices?.isEmpty() == true)
+        if (Common.idpMetadataObject.descriptor?.singleLogoutServices?.isEmpty() == true)
             listOfExclusions.add(SLO)
 
-        if (Common.idpMetadata.descriptor?.singleSignOnServices?.isEmpty() == true)
+        if (Common.idpMetadataObject.descriptor?.singleSignOnServices?.isEmpty() == true)
             listOfExclusions.add(SSO)
 
         System.setProperty("kotlintest.tags.exclude",

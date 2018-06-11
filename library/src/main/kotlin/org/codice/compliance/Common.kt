@@ -55,7 +55,7 @@ class Common {
         /**
          * Parses and returns the idp metadata
          */
-        val idpMetadata by lazy {
+        val idpMetadataObject by lazy {
             IdpMetadata().apply {
                 setMetadata(IDP_METADATA_STRING)
             }
@@ -80,7 +80,7 @@ class Common {
          * Returns SSO url of the passed in binding from the IdP's metadata
          */
         fun getSingleSignOnLocation(binding: String): String? {
-            return idpMetadata
+            return idpMetadataObject
                     .descriptor
                     ?.singleSignOnServices
                     ?.first { it.binding == binding }
@@ -91,7 +91,7 @@ class Common {
          * Returns SLO url of the passed in binding from the IdP's metadata
          */
         fun getSingleLogoutLocation(binding: String): String? {
-            return idpMetadata
+            return idpMetadataObject
                 .descriptor
                 ?.singleLogoutServices
                 ?.first { it.binding == binding }

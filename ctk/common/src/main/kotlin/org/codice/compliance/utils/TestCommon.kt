@@ -22,6 +22,7 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
+import org.codice.compliance.Common.Companion.idpMetadataObject
 import org.codice.compliance.Common.Companion.parseSpMetadata
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
@@ -132,11 +133,11 @@ class TestCommon {
         }
 
         private fun parseAndVerifyVersion(): IdpMetadata {
-            if (idpMetadata.descriptor.supportedProtocols.none { it.contains("2.0") })
+            if (idpMetadataObject.descriptor.supportedProtocols.none { it.contains("2.0") })
                 throw SAMLComplianceException.create(SAMLGeneral_c,
                     message = "The protocolSupportEnumeration's version specified in the metadata" +
                         " is not 2.0 and not supported by this conformance test kit.")
-            return idpMetadata
+            return idpMetadataObject
         }
 
         /**

@@ -162,12 +162,12 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                     // TODO - Uncomment when DDF returns correct NameQualifier and add unit tests
                     /*
                     it.attributeText("NameQualifier")?.let { nameQualifier ->
-                        if (nameQualifier != idpMetadata.entityId)
+                        if (nameQualifier != idpMetadataObject.entityId)
                             throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
                                     SAMLCore_8_3_7_c,
                                     message = "The Persistent ID's NameQualifier " +
                                             "[$nameQualifier] is not equal to " +
-                                            "${idpMetadata.entityId}",
+                                            "${idpMetadataObject.entityId}",
                                     node = it)
                     }
                     */
