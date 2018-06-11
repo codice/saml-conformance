@@ -19,6 +19,7 @@ import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.attributeNode
+import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
@@ -57,7 +58,7 @@ abstract class RequestVerifier(private val samlRequestDom: Node,
             CommonDataTypeVerifier.verifyUriValue(this)
         }
 
-        samlRequestDom.attributeNode("Consent")?.let {
+        samlRequestDom.attributeNode(CONSENT)?.let {
             CommonDataTypeVerifier.verifyUriValue(it)
         }
     }

@@ -24,6 +24,7 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
 import org.codice.compliance.utils.STATUS
@@ -43,10 +44,10 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
-        super.verify()
         verifyStatusResponseType()
-        verifyStatusType()
+        verifyStatusCode()
         verifyStatusMessage()
+        super.verify()
     }
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
@@ -81,13 +82,13 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
             CommonDataTypeVerifier.verifyUriValue(this)
         }
 
-        samlResponseDom.attributeNode("Content")?.let {
+        samlResponseDom.attributeNode(CONSENT)?.let {
             CommonDataTypeVerifier.verifyUriValue(it)
         }
     }
 
     /** 3.2.2.2 Element <StatusCode> */
-    private fun verifyStatusType() {
+    private fun verifyStatusCode() {
         val topLevelStatusCode = samlResponseDom.recursiveChildren(STATUS)
             .flatMap { it.children(STATUS_CODE) }
             .first()
