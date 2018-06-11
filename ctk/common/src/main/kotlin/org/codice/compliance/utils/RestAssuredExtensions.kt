@@ -11,10 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+@file:Suppress("TooManyFunctions")
+
 package org.codice.compliance.utils
 
-import com.jayway.restassured.path.xml.element.Node
-import com.jayway.restassured.response.Response
+import io.restassured.path.xml.element.Node
+import io.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
 import org.codice.compliance.verification.binding.BindingVerifier
@@ -68,14 +70,43 @@ fun Response.extractSamlMessageForm(): Node? {
             .htmlPath()
             .getList("**.find { it.name() == 'form' }", Node::class.java)
             .firstOrNull {
-                it.children()
-                        .list()
+                it.recursiveChildren("input")
                         .any { formControl ->
                             SAML_RESPONSE.equals(formControl.getAttribute(NAME), ignoreCase = true)
                                 || SAML_REQUEST.equals(formControl.getAttribute(NAME),
                                     ignoreCase = true)
                         }
             }
+}
+
+private fun Node.childrenSearch(name: String? = null): List<Node> {
+    val predicate: (Node) -> Boolean =
+            if (name == null) {
+                { true }
+            } else {
+                { it.name() == name }
+            }
+
+    return ((this.children().size() - 1) downTo 0)
+            .map { this.children().get(it) }
+            .filter(predicate)
+            .toList()
+}
+
+/**
+ * Finds all of the children of a {@code Node}, regardless of how deep an element is nested in its
+ * children.
+ *
+ * @param name - Optional element name to match.
+ * @return List of child {@code Nodes}.
+ */
+fun Node.recursiveChildren(name: String? = null): List<Node> {
+    val nodes = mutableListOf<Node>()
+    this.childrenSearch().forEach {
+        if (name == null || name == it.name()) nodes.add(it)
+        nodes.addAll(it.recursiveChildren(name))
+    }
+    return nodes
 }
 
 private fun Response.isPostBinding(): Boolean {

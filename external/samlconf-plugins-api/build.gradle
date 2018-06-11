@@ -1,0 +1,19 @@
+group = 'org.codice.samlconf.plugins'
+description = 'API for Plugins users need to implement.'
+
+apply plugin: 'maven-publish'
+
+dependencies {
+    compile project(':library')
+    compile "io.rest-assured:rest-assured:$rest_assured_version"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+build.dependsOn publishToMavenLocal

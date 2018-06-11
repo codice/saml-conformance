@@ -114,7 +114,7 @@ This module contains an assortment of Java classes that have been copied over fr
 ### external
 This module contains anything related to a specific SAML implementing product.
 
-#### api
+#### samlconf-plugins-api
 This module contains the API that must be implemented for a SAML product in order to run this test kit against that product.
 
 #### implementations

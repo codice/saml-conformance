@@ -26,7 +26,7 @@ description = 'SAML Conformance Test Kit'
 project.ext {
     project_version = '1.0-SNAPSHOT'
     kotlin_test_version = '3.1.4'
-    rest_assured_version = '2.9.0'
+    rest_assured_version = '3.1.0'
     org_slf4j_version = '1.7.1'
     guava_version = '25.1-jre'
     detekt_version = '1.0.0.RC6-4'
@@ -66,7 +66,7 @@ subprojects {
         compile "org.jetbrains.kotlin:kotlin-reflect"
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         compile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-        compile "com.jayway.restassured:rest-assured:$rest_assured_version"
+        compile "io.rest-assured:rest-assured:$rest_assured_version"
         compile "org.slf4j:slf4j-api:$org_slf4j_version"
         compile "io.github.jupf.staticlog:staticlog:$static_log_version"
         compile "com.google.guava:guava:$guava_version"

@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.web.sso
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.ENCRYPTED_ID
@@ -104,7 +104,7 @@ class PostSSOTest : StringSpec() {
 
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
-        "POST AuthnRequest With Email NameIDPolicy Format Test".config (enabled = false) {
+        "POST AuthnRequest With Email NameIDPolicy Format Test".config(enabled = false) {
             val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
@@ -134,7 +134,7 @@ class PostSSOTest : StringSpec() {
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
         "POST AuthnRequest With Encrypted NameIDPolicy Format Test".config(enabled = false) {
-        val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
+            val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = ENCRYPTED_ID
                     spNameQualifier = currentSPIssuer

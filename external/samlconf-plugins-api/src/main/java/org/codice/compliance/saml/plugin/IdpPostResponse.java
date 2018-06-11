@@ -17,8 +17,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.RELAY_STATE;
 import static org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE;
 
-import com.jayway.restassured.path.xml.element.Node;
-import com.jayway.restassured.response.Response;
+import io.restassured.path.xml.element.Node;
+import io.restassured.response.Response;
 
 /**
  * This class is the return type for methods of the {@code IdpSSOResponder} interface for the POST

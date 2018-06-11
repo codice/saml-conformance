@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.web.slo.error
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException
@@ -23,7 +23,7 @@ import org.codice.compliance.SAMLCore_3_7_3_2_c
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
-import org.codice.compliance.utils.SLOCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.SLOCommon.Companion.login
 import org.codice.compliance.utils.SLOCommon.Companion.sendPostLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
@@ -39,14 +39,14 @@ class PostSLOErrorTest : StringSpec() {
 
         "Bindings 3.5.3: POST LogoutResponse Test With Relay State Greater Than 80 Bytes" {
             try {
-                val cookies = loginAndGetCookies(HTTP_POST)
+                login(HTTP_POST)
 
                 val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
                 val encodedRequest =
                     signAndEncodePostRequestToString(logoutRequest,
                         RELAY_STATE_GREATER_THAN_80_BYTES)
 
-                val response = sendPostLogoutMessage(encodedRequest, cookies)
+                val response = sendPostLogoutMessage(encodedRequest)
 
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()

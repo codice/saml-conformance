@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.utils
 
-import com.jayway.restassured.RestAssured
-import com.jayway.restassured.response.Response
+import io.restassured.RestAssured
+import io.restassured.response.Response
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.codice.compliance.Common.Companion.getSingleLogoutLocation
 import org.codice.compliance.SAMLComplianceException
@@ -60,11 +60,9 @@ class SLOCommon {
          * Attempts to login from one or two Service Providers
          * @param binding - Binding used for login
          * @param multipleSP - if false logs in with one sp, else logs in with both
-         * @return cookies from first SP login, to be used in logout request
          */
         @Suppress("TooGenericExceptionCaught" /* Catching all Exceptions */)
-        fun loginAndGetCookies(binding: SamlProtocol.Binding, multipleSP: Boolean = false):
-            Map<String, String> {
+        fun login(binding: SamlProtocol.Binding, multipleSP: Boolean = false) {
             try {
                 val authnRequest by lazy {
                     createDefaultAuthnRequest(binding)
@@ -74,26 +72,30 @@ class SLOCommon {
                     createDefaultAuthnRequest(binding, DSA_SP_ISSUER, DSA_SP_ENTITY_INFO)
                 }
 
-                return if (binding == HTTP_POST) {
+                if (binding == HTTP_POST) {
                     val firstLoginResponse = loginPost(authnRequest)
-                    val finalResponse = getImplementation(IdpSSOResponder::class)
-                        .getResponseForPostRequest(firstLoginResponse)
+                    val response = getImplementation(IdpSSOResponder::class)
+                            .getResponseForPostRequest(firstLoginResponse)
+                            .run {
+                                GlobalSession.addCookies(cookies)
+                            }
                     if (multipleSP) {
                         useDSAServiceProvider()
-                        loginPost(secondRequest, finalResponse.cookies)
+                        loginPost(secondRequest)
                         useDefaultServiceProvider()
                     }
-                    finalResponse.cookies
                 } else {
                     val firstLoginResponse = loginRedirect(authnRequest)
-                    val finalResponse = getImplementation(IdpSSOResponder::class)
-                        .getResponseForRedirectRequest(firstLoginResponse)
+                    getImplementation(IdpSSOResponder::class)
+                            .getResponseForRedirectRequest(firstLoginResponse)
+                            .run {
+                                GlobalSession.addCookies(cookies)
+                            }
                     if (multipleSP) {
                         useDSAServiceProvider()
-                        loginRedirect(secondRequest, finalResponse.cookies)
+                        loginRedirect(secondRequest)
                         useDefaultServiceProvider()
                     }
-                    finalResponse.cookies
                 }
             } catch (e: Exception) {
                 throw SAMLComplianceException.create(SAMLGeneral_d,
@@ -103,22 +105,22 @@ class SLOCommon {
             }
         }
 
-        private fun loginPost(request: AuthnRequest, cookies: Map<String, String> = mapOf()):
-            Response {
+        private fun loginPost(request: AuthnRequest):
+                Response {
             val response = sendPostAuthnRequest(
-                signAndEncodePostRequestToString(request), cookies)
+                    signAndEncodePostRequestToString(request))
             verifyHttpStatusCode(response.statusCode)
             return response
         }
 
-        private fun loginRedirect(request: AuthnRequest, cookies: Map<String, String> = mapOf()):
+        private fun loginRedirect(request: AuthnRequest):
             Response {
             val queryParams = SimpleSign().signUriString(
                 SAML_REQUEST,
                 encodeRedirectRequest(request),
                 null)
 
-            val response = sendRedirectAuthnRequest(queryParams, cookies)
+            val response = sendRedirectAuthnRequest(queryParams)
             verifyHttpStatusCode(response.statusCode)
             return response
         }
@@ -170,13 +172,12 @@ class SLOCommon {
          * Submits a logout request or response to the IdP with the given parameters.
          * @return The IdP response
          */
-        fun sendRedirectLogoutMessage(queryParams: Map<String, String>,
-            cookies: Map<String, String> = mapOf()): Response {
+        fun sendRedirectLogoutMessage(queryParams: Map<String, String>): Response {
             return RestAssured.given()
                 .urlEncodingEnabled(false)
                 .redirects()
                 .follow(false)
-                .cookies(cookies)
+                .usingTheGlobalHttpSession()
                 .params(queryParams)
                 .log()
                 .ifValidationFails()
@@ -188,11 +189,10 @@ class SLOCommon {
          * Submits a logout request or response to the IdP with the given encoded message.
          * @return The IdP response
          */
-        fun sendPostLogoutMessage(encodedMessage: String,
-            cookies: Map<String, String> = mapOf()): Response {
+        fun sendPostLogoutMessage(encodedMessage: String): Response {
             return RestAssured.given()
                 .urlEncodingEnabled(false)
-                .cookies(cookies)
+                .usingTheGlobalHttpSession()
                 .body(encodedMessage)
                 .contentType("application/x-www-form-urlencoded")
                 .log()

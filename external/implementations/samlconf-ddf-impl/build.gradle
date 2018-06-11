@@ -7,7 +7,7 @@ dependencies {
     compile 'org.apache.cxf:cxf-rt-rs-security-sso-saml:3.1.13'
 
     compile project(':library')
-    compile project(':external:api')
+    compile project(':external:samlconf-plugins-api')
 
     kapt 'org.kohsuke.metainf-services:metainf-services:1.1'
 }

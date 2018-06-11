@@ -34,8 +34,8 @@ class SAMLComplianceException : Exception {
                    node: Node? = null):
                 SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
-                    .fold("SAML Specification References:\n") { acc, s ->
-                        "$acc\n$s"
+                    .fold("\tSAML Specification References:\n") { acc, s ->
+                        "$acc\n\t$s"
                     }
 
             return if (cause != null) {
@@ -54,8 +54,8 @@ class SAMLComplianceException : Exception {
                                       expected: String? = null,
                                       node: Node? = null): SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
-                    .fold("SAML Specification References:\n") { acc, s ->
-                        "$acc\n$s"
+                    .fold("\tSAML Specification References:\n") { acc, s ->
+                        "$acc\n\t$s"
                     }
             return if (expected == null) {
                 SAMLComplianceException("The $property value of $actual is invalid.\n\n" +

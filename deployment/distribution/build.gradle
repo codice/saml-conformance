@@ -12,7 +12,7 @@ dependencies {
     compile project(':external:implementations:samlconf-ddf-impl')
     compile project(':external:implementations:samlconf-keycloak-impl')
     compile project(':library')
-    compile project(':external:api')
+    compile project(':external:samlconf-plugins-api')
     compile project(':ctk:common')
     compile project(':ctk:idp')
 

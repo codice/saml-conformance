@@ -13,7 +13,7 @@
  */
 package org.codice.compliance.verification.core.responses
 
-import com.jayway.restassured.response.Response
+import io.restassured.response.Response
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_c

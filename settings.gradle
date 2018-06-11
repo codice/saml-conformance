@@ -1,6 +1,6 @@
 rootProject.name = 'saml-conformance'
 include ':library'
-include ':external:api'
+include ':external:samlconf-plugins-api'
 include ':external:implementations:samlconf-ddf-impl'
 include ':external:implementations:samlconf-keycloak-impl'
 include ':ctk:common'

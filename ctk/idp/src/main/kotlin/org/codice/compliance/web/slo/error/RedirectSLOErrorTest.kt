@@ -13,8 +13,8 @@
  */
 package org.codice.compliance.web.slo.error
 
-import com.jayway.restassured.RestAssured
 import io.kotlintest.specs.StringSpec
+import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_4_3_a
@@ -24,7 +24,7 @@ import org.codice.compliance.SAMLCore_3_7_3_2_c
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
-import org.codice.compliance.utils.SLOCommon.Companion.loginAndGetCookies
+import org.codice.compliance.utils.SLOCommon.Companion.login
 import org.codice.compliance.utils.SLOCommon.Companion.sendRedirectLogoutMessage
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.getBindingVerifier
@@ -41,7 +41,7 @@ class RedirectSLOErrorTest : StringSpec() {
 
         "Bindings 3.4.3: Redirect LogoutResponse Test With Relay State Greater Than 80 Bytes" {
             try {
-                val cookies = loginAndGetCookies(HTTP_REDIRECT)
+                login(HTTP_REDIRECT)
 
                 val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
                 val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -50,7 +50,7 @@ class RedirectSLOErrorTest : StringSpec() {
                     encodedRequest,
                     RELAY_STATE_GREATER_THAN_80_BYTES)
 
-                val response = sendRedirectLogoutMessage(queryParams, cookies)
+                val response = sendRedirectLogoutMessage(queryParams)
 
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
