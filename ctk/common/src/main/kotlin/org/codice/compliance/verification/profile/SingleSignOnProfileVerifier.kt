@@ -29,7 +29,6 @@ import org.codice.compliance.utils.FORMAT
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
-import org.codice.compliance.verification.core.EncryptionVerifier.Companion.hasEncryptionAssertions
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.compliance.verification.profile.subject.confirmations.BearerSubjectConfirmationVerification
 import org.codice.compliance.verification.profile.subject.confirmations.HolderOfKeySubjectConfirmationVerification
@@ -40,7 +39,7 @@ class SingleSignOnProfileVerifier(private val samlResponseDom: Node) {
 
     /** 4.1.4.2 <Response> Usage */
     fun verify() {
-        if (samlResponseDom.children(SIGNATURE).isNotEmpty() || hasEncryptionAssertions == true)
+        if (samlResponseDom.children(SIGNATURE).isNotEmpty())
             verifyIssuer(samlResponseDom)
 
         verifySSOAssertions()

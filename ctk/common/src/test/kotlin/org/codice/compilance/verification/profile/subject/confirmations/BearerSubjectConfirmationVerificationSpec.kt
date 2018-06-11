@@ -56,9 +56,9 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
     init {
         REQUEST_ID = "a" + UUID.randomUUID().toString()
         System.setProperty(IMPLEMENTATION_PATH,
-            Resources.getResource("implementation").path)
+                Resources.getResource("implementation").path)
         System.setProperty(TEST_SP_METADATA_PROPERTY,
-            Resources.getResource("test-sp-metadata.xml").path)
+                Resources.getResource("test-sp-metadata.xml").path)
 
         "response containing an assertion with no bearer subject confirmation should fail" {
             val nonBearerSubjConf = """
@@ -68,10 +68,38 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
             """.trimMargin()
 
             Common.buildDom(createResponse(
-                assertion = createAssertion(subjConf = nonBearerSubjConf))).let {
+                    assertion = createAssertion(subjConf = nonBearerSubjConf))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_g.message)
+            }
+        }
+
+        "response with one or multiple bearer subject confirmation should pass" {
+            val oneBearerSubjConf = """
+            |${createBearerSubjConf()}
+            |<s2:SubjectConfirmation Method="$HOLDER_OF_KEY_URI">
+            |  <s2:SubjectConfirmationData/>
+            |</s2:SubjectConfirmation>
+            """.trimMargin()
+
+            val multipleBearerSubjConf = """
+            |${createBearerSubjConf()}
+            |${createBearerSubjConf()}
+            """.trimMargin()
+
+            forAll(listOf(oneBearerSubjConf, multipleBearerSubjConf)) {
+                Common.buildDom(createResponse(
+                        assertion = createAssertion(subjConf = it))).let {
+                    BearerSubjectConfirmationVerification(it).verify()
+                }
+            }
+        }
+
+        "bearer subject confirmation with correct attributes and authn statement should pass" {
+            Common.buildDom(createResponse(
+                    assertion = createAssertion(subjConf = createBearerSubjConf()))).let {
+                BearerSubjectConfirmationVerification(it).verify()
             }
         }
 
@@ -87,7 +115,7 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
 
             forAll(listOf(bearerSubjConfsWithIncorrectRecipient, bearerSubjConfsWithNoRecipient)) {
                 Common.buildDom(createResponse(
-                    assertion = createAssertion(subjConf = it))).let {
+                        assertion = createAssertion(subjConf = it))).let {
                     shouldThrow<SAMLComplianceException> {
                         BearerSubjectConfirmationVerification(it).verify()
                     }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
@@ -102,7 +130,7 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
                 """.trimMargin()
 
             Common.buildDom(createResponse(
-                assertion = createAssertion(subjConf = bearerSubjConfs))).let {
+                    assertion = createAssertion(subjConf = bearerSubjConfs))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
@@ -116,7 +144,7 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
                 """.trimMargin()
 
             Common.buildDom(createResponse(
-                assertion = createAssertion(subjConf = bearerSubjConfs))).let {
+                    assertion = createAssertion(subjConf = bearerSubjConfs))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
@@ -130,7 +158,7 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
                 """.trimMargin()
 
             Common.buildDom(createResponse(
-                assertion = createAssertion(subjConf = bearerSubjConfs))).let {
+                    assertion = createAssertion(subjConf = bearerSubjConfs))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
@@ -139,7 +167,7 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
 
         "response with no bearer assertion containing an AuthnStatement should fail" {
             Common.buildDom(createResponse(
-                assertion = createAssertion(authnStatement = ""))).let {
+                    assertion = createAssertion(authnStatement = ""))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_i.message)
@@ -148,10 +176,17 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
 
         "response with no SessionIndex when idp supports slo should fail" {
             Common.buildDom(createResponse(
-                assertion = createAssertion(authnStatement = "<s2:AuthnStatement/>"))).let {
-            shouldThrow<SAMLComplianceException> {
+                    assertion = createAssertion(authnStatement = "<s2:AuthnStatement/>"))).let {
+                shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_j.message)
+            }
+        }
+
+        "response with a bearer assertion with correct Audience should pass" {
+            Common.buildDom(createResponse(assertion =
+            createAssertion(audience = "https://samlhost:8993/services/saml"))).let {
+                BearerSubjectConfirmationVerification(it).verify()
             }
         }
 
@@ -162,8 +197,8 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
                 """.trimMargin()
 
             val incorrectAssertions = listOf(createAssertion(audience = ""),
-                createAssertion(audience = "wrong"),
-                correctAndIncorrectAssertions)
+                    createAssertion(audience = "wrong"),
+                    correctAndIncorrectAssertions)
 
             forAll(incorrectAssertions) {
                 Common.buildDom(createResponse(assertion = it)).let {
@@ -202,8 +237,8 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
     }
 
     private fun createResponse(isSigned: Boolean = false,
-        issuer: String = "<s2:Issuer>$correctIdpIssuer</s2:Issuer>",
-        assertion: String = createAssertion()): String {
+                               issuer: String = "<s2:Issuer>$correctIdpIssuer</s2:Issuer>",
+                               assertion: String = createAssertion()): String {
 
         val signature = if (isSigned) "<ds:Signature/>" else ""
         return """
@@ -216,9 +251,9 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
     }
 
     private fun createAssertion(assertionIssuer: String = correctIdpIssuer,
-        subjConf: String = createBearerSubjConf(),
-        authnStatement: String = "<s2:AuthnStatement SessionIndex=\"0\"/>",
-        audience: String = "https://samlhost:8993/services/saml"): String {
+                                subjConf: String = createBearerSubjConf(),
+                                authnStatement: String = "<s2:AuthnStatement SessionIndex=\"0\"/>",
+                                audience: String = "https://samlhost:8993/services/saml"): String {
 
         return """
             |<s2:Assertion>
@@ -237,9 +272,9 @@ class BearerSubjectConfirmationVerificationSpec : StringSpec() {
     }
 
     private fun createBearerSubjConf(recipient: String = "Recipient=\"http://correct.uri\"",
-        notOnOrAfter: String = "NotOnOrAfter=\"${Instant.now()}\"",
-        inResponseTo: String = "InResponseTo=\"$REQUEST_ID\"",
-        extraAttribute: String = ""): String {
+                                     notOnOrAfter: String = "NotOnOrAfter=\"${Instant.now()}\"",
+                                     inResponseTo: String = "InResponseTo=\"$REQUEST_ID\"",
+                                     extraAttribute: String = ""): String {
         return """
             |<s2:SubjectConfirmation Method="$BEARER">
             |  <s2:SubjectConfirmationData

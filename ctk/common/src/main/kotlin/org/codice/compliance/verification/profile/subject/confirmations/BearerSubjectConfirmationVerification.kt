@@ -37,76 +37,79 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.w3c.dom.Node
 
 class BearerSubjectConfirmationVerification(private val samlResponseDom: Node) {
+
+    private val bearerSubjectConfirmationPredicate = { node: Node ->
+        node.attributeText("Recipient") ==
+                TestCommon.getServiceUrl(HTTP_POST, samlResponseDom) &&
+                node.attributeNode("NotOnOrAfter") != null &&
+                node.attributeNode("NotBefore") == null &&
+                node.attributeText("InResponseTo") == REQUEST_ID
+    }
+
     fun verify() {
         val bearerAssertions = verifyBearerSubjectConfirmations()
-        verifyBearerAssertions(bearerAssertions)
+        verifyAuthnStatements(bearerAssertions)
         verifyAudienceRestriction(bearerAssertions)
     }
 
     @Suppress("ComplexCondition")
     private fun verifyBearerSubjectConfirmations(): List<Node> {
         val (bearerSubjectConfirmations, bearerAssertions) =
-            samlResponseDom.children(ASSERTION)
-                .filter { it.children(SUBJECT).isNotEmpty() }
-                .flatMap { it.children(SUBJECT) }
-                .filter { it.children(SUBJECT_CONFIRMATION).isNotEmpty() }
-                .flatMap { it.children(SUBJECT_CONFIRMATION) }
-                .filter { it.attributeText("Method") == BEARER }
-                .map { it to it.parentNode.parentNode }
-                .unzip()
+                samlResponseDom.children(ASSERTION)
+                        .filter { it.children(SUBJECT).isNotEmpty() }
+                        .flatMap { it.children(SUBJECT) }
+                        .filter { it.children(SUBJECT_CONFIRMATION).isNotEmpty() }
+                        .flatMap { it.children(SUBJECT_CONFIRMATION) }
+                        .filter { it.attributeText("Method") == BEARER }
+                        .map { it to it.parentNode.parentNode }
+                        .unzip()
 
         if (bearerAssertions.isEmpty())
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
-                message = "No bearer SubjectConfirmation elements were found.",
-                node = samlResponseDom)
+                    message = "No bearer SubjectConfirmation elements were found.",
+                    node = samlResponseDom)
 
         if (bearerSubjectConfirmations
-                .filter { it.children(SUBJECT_CONFIRMATION_DATA).isNotEmpty() }
-                .flatMap { it.children(SUBJECT_CONFIRMATION_DATA) }
-                .none {
-                    it.attributeText("Recipient") ==
-                        TestCommon.getServiceUrl(HTTP_POST, samlResponseDom) &&
-                        it.attributeNode("NotOnOrAfter") != null &&
-                        it.attributeNode("NotBefore") == null &&
-                        it.attributeText("InResponseTo") == REQUEST_ID
-                }) {
+                        .filter { it.children(SUBJECT_CONFIRMATION_DATA).isNotEmpty() }
+                        .flatMap { it.children(SUBJECT_CONFIRMATION_DATA) }
+                        .none { bearerSubjectConfirmationPredicate(it) }) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
-                message = "There were no bearer SubjectConfirmation elements that matched " +
-                    "the criteria below.",
-                node = samlResponseDom)
+                    message = "There were no bearer SubjectConfirmation elements that matched " +
+                            "the criteria below.",
+                    node = samlResponseDom)
         }
         return bearerAssertions
     }
 
-    private fun verifyBearerAssertions(bearerAssertions: List<Node>) {
+    private fun verifyAuthnStatements(bearerAssertions: List<Node>) {
         if (bearerAssertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
-                message = "A Bearer Assertion with an AuthnStatement was not found.",
-                node = samlResponseDom)
+                    message = "A Bearer Assertion with an AuthnStatement was not found.",
+                    node = samlResponseDom)
 
         if (idpMetadata.descriptor?.singleLogoutServices?.isEmpty() == true) return
 
         if (bearerAssertions
-                .flatMap { it.children(AUTHN_STATEMENT) }
-                .any { it.attributeNode("SessionIndex") == null })
+                        .flatMap { it.children(AUTHN_STATEMENT) }
+                        .any { it.attributeNode("SessionIndex") == null })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
-                message = "Single Logout support found in IdP metadata, but no " +
-                    "SessionIndex was found for AuthnStatement.",
-                node = samlResponseDom)
+                    message = "Single Logout support found in IdP metadata, but no " +
+                            "SessionIndex was found for AuthnStatement.",
+                    node = samlResponseDom)
     }
 
     private fun verifyAudienceRestriction(bearerAssertions: List<Node>) {
-        bearerAssertions.forEach { bearerAssertion ->
-            if (bearerAssertion.children("Conditions")
-                    .map { extractAudienceRestriction(it) }
-                    .filter { it.children(AUDIENCE).isNotEmpty() }
-                    .flatMap { it.children(AUDIENCE) }
-                    .none { it.textContent == currentSPIssuer }) {
+        val audienceRestrictions = bearerAssertions
+                .flatMap { it.children("Conditions") }
+                .map { extractAudienceRestriction(it) }
+
+        audienceRestrictions.forEach {
+            if (it.children(AUDIENCE)
+                            .none { it.textContent == currentSPIssuer }) {
 
                 throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k,
-                    message = "A bearer assertion which doesn't contains an <Audience> with the " +
-                        "service provider's issuer was found",
-                    node = bearerAssertion)
+                        message = "An <Audience> with $currentSPIssuer was found",
+                        node = it)
             }
         }
     }
@@ -115,10 +118,10 @@ class BearerSubjectConfirmationVerification(private val samlResponseDom: Node) {
         val audienceRestriction = condition.children("AudienceRestriction")
         if (audienceRestriction.size != 1) {
             throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_k,
-                property = "AudienceRestriction",
-                actual = audienceRestriction.toString(),
-                expected = "One <AudienceRestriction>",
-                node = condition)
+                    property = "AudienceRestriction",
+                    actual = audienceRestriction.toString(),
+                    expected = "One <AudienceRestriction>",
+                    node = condition)
         }
         return audienceRestriction.first()
     }

@@ -22,6 +22,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_3_1_a
 import org.codice.compliance.SAMLProfiles_3_1_b
 import org.codice.compliance.SAMLProfiles_3_1_c
+import org.codice.compliance.utils.BEARER
 import org.codice.compliance.utils.HOLDER_OF_KEY_URI
 import org.codice.compliance.verification.profile.subject.confirmations.HolderOfKeySubjectConfirmationVerification
 import java.time.Instant
@@ -39,14 +40,26 @@ class HolderOfKeySubjectConfirmationVerificationSpec : StringSpec() {
     init {
         "response with correct holder-of-key subject confirmation should pass" {
             Common.buildDom(createResponse(
-                subjConf = createHolderOfKeySubjConf(keyInfo = correctKeyInfo))).let {
+                    subjConf = createHolderOfKeySubjConf(keyInfo = correctKeyInfo))).let {
+                HolderOfKeySubjectConfirmationVerification(it).verify()
+            }
+        }
+
+        "response with no holder-of-key subject confirmation should pass" {
+            val basicBearerSubjConf = """
+            |<s2:SubjectConfirmation Method="$BEARER">
+            |  <s2:SubjectConfirmationData/>
+            |</s2:SubjectConfirmation>
+            """.trimMargin()
+
+            Common.buildDom(createResponse(subjConf = basicBearerSubjConf)).let {
                 HolderOfKeySubjectConfirmationVerification(it).verify()
             }
         }
 
         "holder-of-key with no subject confirmation data type should pass" {
             Common.buildDom(createResponse(
-                subjConf = createHolderOfKeySubjConf("", correctKeyInfo))).let {
+                    subjConf = createHolderOfKeySubjConf("", correctKeyInfo))).let {
                 HolderOfKeySubjectConfirmationVerification(it).verify()
             }
         }
@@ -55,7 +68,7 @@ class HolderOfKeySubjectConfirmationVerificationSpec : StringSpec() {
             forAll(listOf("wrong", "s2:wrong", "s:KeyInfoConfirmationDataType")) {
                 val type = "xsi:type=\"$it\""
                 Common.buildDom(createResponse(
-                    subjConf = createHolderOfKeySubjConf(type, correctKeyInfo))).let {
+                        subjConf = createHolderOfKeySubjConf(type, correctKeyInfo))).let {
                     shouldThrow<SAMLComplianceException> {
                         HolderOfKeySubjectConfirmationVerification(it).verify()
                     }.message?.shouldContain(SAMLProfiles_3_1_b.message)
@@ -65,7 +78,7 @@ class HolderOfKeySubjectConfirmationVerificationSpec : StringSpec() {
 
         "holder-of-key with no subject confirmation data should fail" {
             val holderOfKeyWithNoSubjConfData =
-                "<s2:SubjectConfirmation Method=\"$HOLDER_OF_KEY_URI\"/>"
+                    "<s2:SubjectConfirmation Method=\"$HOLDER_OF_KEY_URI\"/>"
             Common.buildDom(createResponse(subjConf = holderOfKeyWithNoSubjConfData)).let {
                 shouldThrow<SAMLComplianceException> {
                     HolderOfKeySubjectConfirmationVerification(it).verify()
@@ -75,7 +88,7 @@ class HolderOfKeySubjectConfirmationVerificationSpec : StringSpec() {
 
         "holder-of-key with no key info should fail" {
             Common.buildDom(createResponse(
-                subjConf = createHolderOfKeySubjConf(keyInfo = ""))).let {
+                    subjConf = createHolderOfKeySubjConf(keyInfo = ""))).let {
                 shouldThrow<SAMLComplianceException> {
                     HolderOfKeySubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_3_1_a.message)
@@ -91,7 +104,7 @@ class HolderOfKeySubjectConfirmationVerificationSpec : StringSpec() {
                 """.trimMargin()
 
             Common.buildDom(createResponse(
-                subjConf = createHolderOfKeySubjConf(keyInfo = multipleKeyInfos))).let {
+                    subjConf = createHolderOfKeySubjConf(keyInfo = multipleKeyInfos))).let {
                 shouldThrow<SAMLComplianceException> {
                     HolderOfKeySubjectConfirmationVerification(it).verify()
                 }.message?.shouldContain(SAMLProfiles_3_1_c.message)
@@ -147,7 +160,7 @@ class HolderOfKeySubjectConfirmationVerificationSpec : StringSpec() {
     }
 
     private fun createHolderOfKeySubjConf(type: String = correctType,
-        keyInfo: String = correctKeyInfo): String {
+                                          keyInfo: String = correctKeyInfo): String {
         return """
             |<s2:SubjectConfirmation Method="$HOLDER_OF_KEY_URI">
             |  <s2:SubjectConfirmationData $type>
