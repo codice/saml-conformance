@@ -18,6 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_b
+import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.opensaml.saml.saml2.core.StatusResponseType
@@ -56,7 +57,7 @@ abstract class BindingVerifier(val httpResponse: Response) {
                 val docElement = node.ownerDocument.documentElement
 
                 val samlResponseObject =
-                    if (node.nodeName.contains("Response"))
+                    if (node.nodeName.contains(RESPONSE))
                         OpenSAMLUtil.fromDom(docElement) as StatusResponseType
                     else OpenSAMLUtil.fromDom(docElement) as RequestAbstractType
 

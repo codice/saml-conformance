@@ -28,7 +28,6 @@ import org.codice.compliance.utils.XMLDecrypter.Companion.XMLDecryptorException
 import org.w3c.dom.Node
 
 class EncryptionVerifier {
-
     /**
      * This function has 4 responsibilities:
      * <ol>

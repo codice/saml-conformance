@@ -16,6 +16,7 @@ package org.codice.compliance.verification.core.assertions
 import org.codice.compliance.SAMLCore_2_4_1_2_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.METHOD
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION_DATA
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
@@ -35,7 +36,7 @@ internal class SubjectVerifier(val node: Node) {
         node.recursiveChildren(SUBJECT_CONFIRMATION)
                 .forEach {
                     CommonDataTypeVerifier
-                            .verifyUriValue(it.attributeNode("Method"))
+                            .verifyUriValue(it.attributeNode(METHOD))
                 }
     }
 
