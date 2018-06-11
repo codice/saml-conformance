@@ -14,16 +14,32 @@
 package io.kotlintest.provided
 
 import io.kotlintest.AbstractProjectConfig
+import io.kotlintest.Tag
 import io.kotlintest.extensions.TestListener
 import io.restassured.RestAssured
 import io.restassured.RestAssured.config
 import io.restassured.config.RedirectConfig.redirectConfig
+import org.codice.compliance.Common
 import org.codice.compliance.utils.GlobalSession
+
+object SLO : Tag()
+object SSO : Tag()
 
 object ProjectConfig : AbstractProjectConfig() {
     override fun listeners(): List<TestListener> = listOf(GlobalSession)
 
     override fun beforeAll() {
         RestAssured.config = config().redirect(redirectConfig().followRedirects(false))
+
+        val listOfExclusions = mutableListOf<Tag>()
+
+        if (Common.idpMetadata.descriptor?.singleLogoutServices?.isEmpty() == true)
+            listOfExclusions.add(SLO)
+
+        if (Common.idpMetadata.descriptor?.singleSignOnServices?.isEmpty() == true)
+            listOfExclusions.add(SSO)
+
+        System.setProperty("kotlintest.tags.exclude",
+                listOfExclusions.joinToString(",", transform = { it.name }))
     }
 }

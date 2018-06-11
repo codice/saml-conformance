@@ -13,6 +13,8 @@
  */
 package org.codice.compliance.web.slo
 
+import io.kotlintest.TestCaseConfig
+import io.kotlintest.provided.SLO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
@@ -32,6 +34,7 @@ import org.codice.compliance.verification.core.responses.CoreLogoutResponseProto
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 
 class PostSLOTest : StringSpec() {
+    override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
 
     init {
         RestAssured.useRelaxedHTTPSValidation()

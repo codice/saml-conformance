@@ -13,6 +13,8 @@
  */
 package org.codice.compliance.web.sso.error
 
+import io.kotlintest.TestCaseConfig
+import io.kotlintest.provided.SSO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
@@ -39,6 +41,8 @@ import org.opensaml.saml.saml2.core.impl.NameIDBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
 class RedirectSSOErrorTest : StringSpec() {
+    override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
+
     init {
         RestAssured.useRelaxedHTTPSValidation()
         val isLenient = System.getProperty(LENIENT_ERROR_VERIFICATION) == "true"

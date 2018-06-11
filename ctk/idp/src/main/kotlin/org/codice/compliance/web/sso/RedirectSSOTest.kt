@@ -13,6 +13,8 @@
  */
 package org.codice.compliance.web.sso
 
+import io.kotlintest.TestCaseConfig
+import io.kotlintest.provided.SSO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
@@ -35,6 +37,8 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 
 class RedirectSSOTest : StringSpec() {
+    override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
+
     init {
         RestAssured.useRelaxedHTTPSValidation()
 
