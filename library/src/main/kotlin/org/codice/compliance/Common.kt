@@ -42,7 +42,7 @@ class Common {
                 SamlProtocol.Binding.HTTP_REDIRECT
         )
 
-        private val IDP_METADATA by lazy {
+        private val IDP_METADATA_STRING by lazy {
             requireNotNull(System.getProperty(IMPLEMENTATION_PATH)) {
                 "Value required for $IMPLEMENTATION_PATH System property."
             }
@@ -50,6 +50,15 @@ class Common {
             File(System.getProperty(IMPLEMENTATION_PATH)).walkTopDown().first {
                 it.name.endsWith("idp-metadata.xml")
             }.readText()
+        }
+
+        /**
+         * Parses and returns the idp metadata
+         */
+        val idpMetadataObject by lazy {
+            IdpMetadata().apply {
+                setMetadata(IDP_METADATA_STRING)
+            }
         }
 
         private val TEST_SP_METADATA by lazy {
@@ -68,19 +77,10 @@ class Common {
         }
 
         /**
-         * Parses and returns the idp metadata
-         */
-        fun parseIdpMetadata(): IdpMetadata {
-            return IdpMetadata().apply {
-                setMetadata(IDP_METADATA)
-            }
-        }
-
-        /**
          * Returns SSO url of the passed in binding from the IdP's metadata
          */
         fun getSingleSignOnLocation(binding: String): String? {
-            return parseIdpMetadata()
+            return idpMetadataObject
                     .descriptor
                     ?.singleSignOnServices
                     ?.first { it.binding == binding }
@@ -91,7 +91,7 @@ class Common {
          * Returns SLO url of the passed in binding from the IdP's metadata
          */
         fun getSingleLogoutLocation(binding: String): String? {
-            return parseIdpMetadata()
+            return idpMetadataObject
                 .descriptor
                 ?.singleLogoutServices
                 ?.first { it.binding == binding }

@@ -13,6 +13,8 @@
  */
 package org.codice.compliance.web.slo.error
 
+import io.kotlintest.TestCaseConfig
+import io.kotlintest.provided.SLO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
@@ -32,6 +34,7 @@ import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 
 class PostSLOErrorTest : StringSpec() {
+    override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
 
     init {
         RestAssured.useRelaxedHTTPSValidation()

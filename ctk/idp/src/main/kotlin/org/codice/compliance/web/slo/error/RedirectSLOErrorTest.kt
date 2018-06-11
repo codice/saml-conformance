@@ -13,6 +13,8 @@
  */
 package org.codice.compliance.web.slo.error
 
+import io.kotlintest.TestCaseConfig
+import io.kotlintest.provided.SLO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
@@ -34,6 +36,7 @@ import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 
 class RedirectSLOErrorTest : StringSpec() {
+    override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
 
     init {
         RestAssured.useRelaxedHTTPSValidation()
