@@ -13,6 +13,7 @@
  */
 package io.kotlintest.provided
 
+import de.jupf.staticlog.Log
 import io.kotlintest.AbstractProjectConfig
 import io.kotlintest.Tag
 import io.kotlintest.extensions.TestListener
@@ -31,15 +32,24 @@ object ProjectConfig : AbstractProjectConfig() {
     override fun beforeAll() {
         RestAssured.config = config().redirect(redirectConfig().followRedirects(false))
 
-        val listOfExclusions = mutableListOf<Tag>()
+        val setOfExclusions = mutableSetOf<Tag>()
 
-        if (Common.idpMetadataObject.descriptor?.singleLogoutServices?.isEmpty() == true)
-            listOfExclusions.add(SLO)
+        if (Common.idpMetadataObject.descriptor?.singleSignOnServices?.isEmpty() == true) {
+            Log.warn("SSO endpoints were not found in the IdP's metadata. " +
+                "Disabling SSO and SLO tests.")
+            setOfExclusions.apply {
+                add(SSO)
+                add(SLO)
+            }
+        }
 
-        if (Common.idpMetadataObject.descriptor?.singleSignOnServices?.isEmpty() == true)
-            listOfExclusions.add(SSO)
+        if (Common.idpMetadataObject.descriptor?.singleLogoutServices?.isEmpty() == true) {
+            Log.warn("SSO endpoints were not found in the IdP's metadata. " +
+                "Disabling SLO tests.")
+            setOfExclusions.add(SLO)
+        }
 
         System.setProperty("kotlintest.tags.exclude",
-                listOfExclusions.joinToString(",", transform = { it.name }))
+            setOfExclusions.joinToString(",", transform = { it.name }))
     }
 }

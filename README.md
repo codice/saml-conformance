@@ -64,10 +64,11 @@ The `samlconf` script may take the following parameters:
     
     DESCRIPTION
            Runs the SAML Conformance Tests which test the compliance of an IdP
-           with the SAML Specifications. If a compliance issue is identified, a 
-           SAMLConformanceException will be thrown with an explanation of the error and a direct
-           quote from the specification. All of the parameters are optional and if they are 
-           not provided, the default values will use DDF's parameters.
+           with the SAML Specifications. If a compliance issue is identified, a
+           SAMLComplianceException will be thrown with an explanation of the error and a direct
+           quote from the specification. Tests will not run if the corresponding
+           endpoints do not exist in the IdP's metadata. All of the parameters
+           are optional and if they are not provided, the default values will use DDF's parameters.
     
     OPTIONS
            -i path
