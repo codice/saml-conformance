@@ -81,6 +81,10 @@ class RedirectSSOErrorTest : StringSpec() {
                     null)
                 val qpSamlReq = queryParams[SAML_REQUEST]
                 queryParams[SAML_REQUEST] = qpSamlReq?.substring(0, qpSamlReq.length / 2)
+
+                if (queryParams[SAML_REQUEST]?.last() == '%')
+                    queryParams[SAML_REQUEST] = queryParams[SAML_REQUEST]?.dropLast(1)
+
                 val response = sendRedirectAuthnRequest(queryParams)
 
                 if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
