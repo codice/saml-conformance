@@ -74,7 +74,7 @@ class SLOCommon {
 
                 if (binding == HTTP_POST) {
                     val firstLoginResponse = loginPost(authnRequest)
-                    val response = getImplementation(IdpSSOResponder::class)
+                    getImplementation(IdpSSOResponder::class)
                             .getResponseForPostRequest(firstLoginResponse)
                             .run {
                                 GlobalSession.addCookies(cookies)
@@ -99,9 +99,9 @@ class SLOCommon {
                 }
             } catch (e: Exception) {
                 throw SAMLComplianceException.create(SAMLGeneral_d,
-                    message = "The logout test is unable to run because an error occurred while " +
-                        "logging in.",
-                    cause = e)
+                        message = "The logout test is unable to run because an error occurred " +
+                                "while logging in.",
+                        cause = e)
             }
         }
 
@@ -114,11 +114,11 @@ class SLOCommon {
         }
 
         private fun loginRedirect(request: AuthnRequest):
-            Response {
+                Response {
             val queryParams = SimpleSign().signUriString(
-                SAML_REQUEST,
-                encodeRedirectRequest(request),
-                null)
+                    SAML_REQUEST,
+                    encodeRedirectRequest(request),
+                    null)
 
             val response = sendRedirectAuthnRequest(queryParams)
             verifyHttpStatusCode(response.statusCode)
@@ -153,7 +153,7 @@ class SLOCommon {
          */
         @Suppress("NestedBlockDepth")
         fun createDefaultLogoutResponse(logoutRequestDom: Node, sendValidResponse: Boolean):
-            LogoutResponse {
+                LogoutResponse {
             return LogoutResponseBuilder().buildObject().apply {
                 id = "a" + UUID.randomUUID().toString()
                 version = SAMLVersion.VERSION_20
@@ -174,15 +174,15 @@ class SLOCommon {
          */
         fun sendRedirectLogoutMessage(queryParams: Map<String, String>): Response {
             return RestAssured.given()
-                .urlEncodingEnabled(false)
-                .redirects()
-                .follow(false)
-                .usingTheGlobalHttpSession()
-                .params(queryParams)
-                .log()
-                .ifValidationFails()
-                .`when`()
-                .get(getSingleLogoutLocation(REDIRECT_BINDING))
+                    .urlEncodingEnabled(false)
+                    .redirects()
+                    .follow(false)
+                    .usingTheGlobalHttpSession()
+                    .params(queryParams)
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .get(getSingleLogoutLocation(REDIRECT_BINDING))
         }
 
         /**
@@ -191,14 +191,14 @@ class SLOCommon {
          */
         fun sendPostLogoutMessage(encodedMessage: String): Response {
             return RestAssured.given()
-                .urlEncodingEnabled(false)
-                .usingTheGlobalHttpSession()
-                .body(encodedMessage)
-                .contentType("application/x-www-form-urlencoded")
-                .log()
-                .ifValidationFails()
-                .`when`()
-                .post(getSingleLogoutLocation(POST_BINDING))
+                    .urlEncodingEnabled(false)
+                    .usingTheGlobalHttpSession()
+                    .body(encodedMessage)
+                    .contentType("application/x-www-form-urlencoded")
+                    .log()
+                    .ifValidationFails()
+                    .`when`()
+                    .post(getSingleLogoutLocation(POST_BINDING))
         }
     }
 }
