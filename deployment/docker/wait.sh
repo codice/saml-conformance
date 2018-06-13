@@ -15,7 +15,7 @@ _target_feature="security-idp"
 
 set -e
 
-_target_feature_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/infoFeature(java.lang.String)/profile-${_target_feature}" | grep -i '"Installed":true' | wc -l)
+_target_feature_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/infoFeature(java.lang.String)/profile-${_target_feature}" --header "Origin: https://${_sut_host}:${_sut_port}" --header "X-Requested-With: XMLHttpRequest" | grep -i '"Installed":true' | wc -l)
 _idp_metadata_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/${_sut_idp_metadata}" | grep -i EntityDescriptor | wc -l)
 
 >&2 echo "SAML Conformance is waiting for DDF to start"
@@ -26,7 +26,7 @@ while [ ${_target_feature_cmd} -ne 1 ] && [ ${_idp_metadata_cmd} -ne 1 ]
 do
     >&2 echo "DDF is NOT up - sleeping for 10 seconds"
     sleep 10s
-    _target_feature_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/infoFeature(java.lang.String)/profile-${_target_feature}" | grep -i '"Installed":true' | wc -l)
+    _target_feature_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/infoFeature(java.lang.String)/profile-${_target_feature}" --header "Origin: https://${_sut_host}:${_sut_port}" --header "X-Requested-With: XMLHttpRequest" | grep -i '"Installed":true' | wc -l)
     _idp_metadata_cmd=$(curl -s -k -i -X GET "https://${_sut_host}:${_sut_port}/${_sut_idp_metadata}" | grep -i EntityDescriptor | wc -l)
 done
 
