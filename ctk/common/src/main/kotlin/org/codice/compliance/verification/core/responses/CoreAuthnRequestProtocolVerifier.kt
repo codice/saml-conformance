@@ -26,6 +26,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
@@ -36,14 +37,13 @@ import org.codice.compliance.verification.core.ResponseVerifier
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.AuthnRequest
-import org.w3c.dom.Node
 
 class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
-                                       samlResponseDom: Node) :
+                                       samlResponseDom: NodeDecorator) :
         ResponseVerifier(authnRequest, samlResponseDom, HTTP_POST) {
 
     private val nameIdPolicyVerifier =
-            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom, it) }
+            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom.node, it) }
 
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {

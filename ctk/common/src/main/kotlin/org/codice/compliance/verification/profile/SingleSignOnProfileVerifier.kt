@@ -26,6 +26,7 @@ import org.codice.compliance.children
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.FORMAT
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
@@ -35,11 +36,13 @@ import org.codice.compliance.verification.profile.subject.confirmations.HolderOf
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.w3c.dom.Node
 
-class SingleSignOnProfileVerifier(private val samlResponseDom: Node) {
+class SingleSignOnProfileVerifier(private val response: NodeDecorator) {
+
+    private val samlResponseDom = response.node
 
     /** 4.1.4.2 <Response> Usage */
     fun verify() {
-        if (samlResponseDom.children(SIGNATURE).isNotEmpty())
+        if (samlResponseDom.children(SIGNATURE).isNotEmpty() || response.hasEncryptedAssertion)
             verifyIssuer(samlResponseDom)
 
         verifySSOAssertions()
@@ -63,25 +66,25 @@ class SingleSignOnProfileVerifier(private val samlResponseDom: Node) {
 
         if (issuers.size != 1)
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
-                message = "${issuers.size} Issuer elements were found under ${node.localName}.",
-                node = node)
+                    message = "${issuers.size} Issuer elements were found under ${node.localName}.",
+                    node = node)
 
         val issuer = issuers.first()
         if (issuer.textContent != idpMetadata.entityId)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_b,
-                property = "${node.localName}'s issuer",
-                expected = idpMetadata.entityId,
-                actual = issuer.textContent,
-                node = node)
+                    property = "${node.localName}'s issuer",
+                    expected = idpMetadata.entityId,
+                    actual = issuer.textContent,
+                    node = node)
 
         val issuerFormat = issuer.attributeText(FORMAT)
         if (issuerFormat != null &&
-            issuerFormat != ENTITY)
+                issuerFormat != ENTITY)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
-                property = FORMAT,
-                actual = issuerFormat,
-                expected = ENTITY,
-                node = node)
+                    property = FORMAT,
+                    actual = issuerFormat,
+                    expected = ENTITY,
+                    node = node)
     }
 
     /** 4.1.4.2 <Response> Usage */

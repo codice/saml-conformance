@@ -228,3 +228,8 @@ class LazyVar<T>(val init: () -> T) : ReadWriteProperty<Any?, T> {
         this.value = Optional.of(value)
     }
 }
+
+class NodeDecorator(response: Node) {
+    var hasEncryptedAssertion: Boolean = false
+    val node: Node = response
+}

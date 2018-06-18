@@ -45,6 +45,7 @@ import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.LOCATION
 import org.codice.compliance.utils.MAX_RELAY_STATE_LEN
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.SAML_ENCODING
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -70,7 +71,7 @@ import java.nio.charset.StandardCharsets
 class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
 
     /** Verify the response for a redirect binding */
-    override fun decodeAndVerify(): Node {
+    override fun decodeAndVerify(): NodeDecorator {
         verifyHttpRedirectStatusCode()
         val paramMap = verifyNoNullsAndParse()
         verifyRedirectRelayState(paramMap[RELAY_STATE])
@@ -82,7 +83,7 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
             verifyRedirectDestination(samlResponseDom)
         }
 
-        return samlResponseDom
+        return NodeDecorator(samlResponseDom)
     }
 
     /** Verify an error response (Negative path) */
@@ -137,13 +138,13 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
 
         if (!isSamlRequest && paramMap[SAML_RESPONSE] == null)
             throw SAMLComplianceException.create(
-                SAMLBindings_3_4_4_b,
-                message = "$SAML_RESPONSE not found.")
+                    SAMLBindings_3_4_4_b,
+                    message = "$SAML_RESPONSE not found.")
 
         if (isSamlRequest && paramMap[SAML_REQUEST] == null)
             throw SAMLComplianceException.create(
-                SAMLBindings_3_4_4_b,
-                message = "$SAML_REQUEST not found.")
+                    SAMLBindings_3_4_4_b,
+                    message = "$SAML_REQUEST not found.")
 
         if (isRelayStateGiven && paramMap[RELAY_STATE] == null) {
             throw SAMLComplianceException.create(
@@ -255,8 +256,8 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
                             paramMap[SIG_ALG],
                             idpMetadata.signingCertificate)) {
                 throw SAMLComplianceException.create(SAMLGeneral_a,
-                    SAMLBindings_3_4_4_1_f,
-                    message = "Invalid signature.")
+                        SAMLBindings_3_4_4_1_f,
+                        message = "Invalid signature.")
             }
         } catch (e: SimpleSign.SignatureException) {
             when (e.errorCode) {
@@ -284,9 +285,9 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
                             message = "Whitespace was found in the Signature.",
                             cause = e)
                 else -> throw SAMLComplianceException.create(SAMLGeneral_a,
-                    SAMLBindings_3_4_4_1_f,
-                    message = "Invalid signature.",
-                    cause = e)
+                        SAMLBindings_3_4_4_1_f,
+                        message = "Invalid signature.",
+                        cause = e)
             }
         }
     }

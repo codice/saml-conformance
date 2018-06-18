@@ -76,7 +76,8 @@ class RedirectSLOTest : StringSpec() {
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
 
-            val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, true)
+            val secondSPLogoutResponse =
+                    createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
             val encodedSecondSPLogoutResponse = encodeRedirectRequest(secondSPLogoutResponse)
             val secondSPResponseQueryParams = SimpleSign().signUriString(
                 SAML_RESPONSE,
@@ -126,7 +127,8 @@ class RedirectSLOTest : StringSpec() {
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
 
-            val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, true)
+            val secondSPLogoutResponse =
+                    createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
             val encodedSecondSPLogoutResponse = encodeRedirectRequest(secondSPLogoutResponse)
             val secondSPResponseQueryParams = SimpleSign().signUriString(
                 SAML_RESPONSE,
@@ -161,7 +163,8 @@ class RedirectSLOTest : StringSpec() {
                 secondSPLogoutRequest.determineBinding()).verify()
 
             // Send a response with an error saml status code
-            val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, false)
+            val secondSPLogoutResponse =
+                    createDefaultLogoutResponse(samlLogoutRequestDom.node, false)
             val encodedSecondSPLogoutResponse = encodeRedirectRequest(secondSPLogoutResponse)
             val secondSPResponseQueryParams = SimpleSign().signUriString(
                 SAML_RESPONSE,

@@ -25,6 +25,7 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
@@ -34,7 +35,7 @@ import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.
 import org.w3c.dom.Node
 import java.time.Instant
 
-abstract class CoreVerifier(protected val node: Node) {
+abstract class CoreVerifier(private val samlNode: NodeDecorator) {
     companion object {
         /**
          * Verifies that a response has the expected status code.
@@ -46,20 +47,20 @@ abstract class CoreVerifier(protected val node: Node) {
          */
         @Suppress("SpreadOperator")
         fun verifyErrorStatusCodes(node: Node, vararg samlErrorCodes: SAMLSpecRefMessage,
-            expectedStatusCode: String) {
+                                   expectedStatusCode: String) {
             SchemaValidator.validateSAMLMessage(node)
 
             val statusCode = node.children(STATUS)
-                .firstOrNull()
-                ?.children(STATUS_CODE)
-                ?.firstOrNull()
-                ?.attributeText("Value")
+                    .firstOrNull()
+                    ?.children(STATUS_CODE)
+                    ?.firstOrNull()
+                    ?.attributeText("Value")
 
             if (!topLevelStatusCodes.contains(statusCode))
                 throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
-                    message = "The first <StatusCode> of $statusCode is not a top level SAML " +
-                        "status code.",
-                    node = node)
+                        message = "The first <StatusCode> of $statusCode is not a top level SAML " +
+                                "status code.",
+                        node = node)
 
             if (statusCode != expectedStatusCode) {
                 val exceptions =
@@ -106,6 +107,8 @@ abstract class CoreVerifier(protected val node: Node) {
         }
     }
 
+    private val node = samlNode.node
+
     /**
      * Verify response against the Core Spec document
      */
@@ -137,6 +140,10 @@ abstract class CoreVerifier(protected val node: Node) {
 
         SchemaValidator.validateSAMLMessage(node)
         verifyEncryptedElements()
+
+        if (encElements.any { it.localName == "EncryptedAssertion" })
+            samlNode.hasEncryptedAssertion = true
+
         encVerifier.verifyAndDecryptElements(encElements)
         preProcess(encVerifier)
     }
