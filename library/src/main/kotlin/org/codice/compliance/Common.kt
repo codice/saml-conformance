@@ -32,6 +32,7 @@ import javax.xml.transform.TransformerFactory
 import kotlin.test.currentStackTrace
 
 const val IMPLEMENTATION_PATH = "implementation.path"
+const val USER_LOGIN = "user.login"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 const val LENIENT_ERROR_VERIFICATION = "lenient.error.verification"
 
@@ -92,10 +93,10 @@ class Common {
          */
         fun getSingleLogoutLocation(binding: String): String? {
             return idpMetadataObject
-                .descriptor
-                ?.singleLogoutServices
-                ?.first { it.binding == binding }
-                ?.location
+                    .descriptor
+                    ?.singleLogoutServices
+                    ?.first { it.binding == binding }
+                    ?.location
         }
 
         /**

@@ -71,13 +71,13 @@ The `samlconf` script may take the following parameters:
            are optional and if they are not provided, the default values will use DDF's parameters.
     
     OPTIONS
-           -i path
-                The path to the directory containing the implementation's plugin and metadata.
-                The default value is `/implementations/ddf`.
-                      
            -d
                 Boolean for whether or not to enable debug mode which enables more logging.
                 The default value is false.
+
+           -i path
+                The path to the directory containing the implementation's plugin and metadata.
+                The default value is /implementations/ddf.
 
            -l
                 When an error occurs, the SAML V2.0 Standard Specification requires an IdP to 
@@ -87,6 +87,10 @@ The `samlconf` script may take the following parameters:
                 a valid error response (i.e. 400's and 500's).
                 If it is not given, this test kit will only verify that a valid SAML error 
                 response is returned.
+
+           -u username:password
+                The username and password to use when logging in.
+                The default value is admin:admin.
 
 ## Project Structure
 This section will briefly talk about the project structure.
