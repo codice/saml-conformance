@@ -21,11 +21,11 @@ import io.kotlintest.specs.StringSpec
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLProfiles_4_1_4_2_e
+import org.codice.compliance.SAMLProfiles_4_1_4_2_f
 import org.codice.compliance.SAMLProfiles_4_1_4_2_g
 import org.codice.compliance.SAMLProfiles_4_1_4_2_h
 import org.codice.compliance.SAMLProfiles_4_1_4_2_i
-import org.codice.compliance.SAMLProfiles_4_1_4_2_j
-import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.utils.BEARER
 import org.codice.compliance.utils.HOLDER_OF_KEY_URI
@@ -71,7 +71,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                     assertion = createAssertion(subjConf = nonBearerSubjConf))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_g.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_e.message)
             }
         }
 
@@ -118,7 +118,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                         assertion = createAssertion(subjConf = it))).let {
                     shouldThrow<SAMLComplianceException> {
                         BearerSubjectConfirmationVerifier(it).verify()
-                    }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
+                    }.message?.shouldContain(SAMLProfiles_4_1_4_2_f.message)
                 }
             }
         }
@@ -133,7 +133,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                     assertion = createAssertion(subjConf = bearerSubjConfs))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_f.message)
             }
         }
 
@@ -147,7 +147,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                     assertion = createAssertion(subjConf = bearerSubjConfs))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_f.message)
             }
         }
 
@@ -161,7 +161,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                     assertion = createAssertion(subjConf = bearerSubjConfs))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_f.message)
             }
         }
 
@@ -170,7 +170,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                     assertion = createAssertion(authnStatement = ""))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_i.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_g.message)
             }
         }
 
@@ -179,7 +179,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                     assertion = createAssertion(authnStatement = "<s2:AuthnStatement/>"))).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_j.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_h.message)
             }
         }
 
@@ -204,7 +204,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
                 Common.buildDom(createResponse(assertion = it)).let {
                     shouldThrow<SAMLComplianceException> {
                         BearerSubjectConfirmationVerifier(it).verify()
-                    }.message?.shouldContain(SAMLProfiles_4_1_4_2_k.message)
+                    }.message?.shouldContain(SAMLProfiles_4_1_4_2_i.message)
                 }
             }
         }
@@ -231,7 +231,7 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
             Common.buildDom(createResponse(assertion = assertion)).let {
                 shouldThrow<SAMLComplianceException> {
                     BearerSubjectConfirmationVerifier(it).verify()
-                }.message?.shouldContain(SAMLProfiles_4_1_4_2_k.message)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_i.message)
             }
         }
     }

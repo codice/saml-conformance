@@ -19,21 +19,15 @@ import org.codice.compliance.SAMLProfiles_4_1_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
-import org.codice.compliance.SAMLProfiles_4_1_4_2_d
-import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.utils.ASSERTION
-import org.codice.compliance.utils.ENTITY
-import org.codice.compliance.utils.FORMAT
 import org.codice.compliance.utils.NodeWrapper
-import org.codice.compliance.utils.RESPONSE
-import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
+import org.codice.compliance.verification.profile.ProfilesVerifier.Companion.verifyIssuer
 import org.codice.compliance.verification.profile.subject.confirmations.BearerSubjectConfirmationVerifier
 import org.codice.compliance.verification.profile.subject.confirmations.HolderOfKeySubjectConfirmationVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
-import org.w3c.dom.Node
 
 class SingleSignOnProfileVerifier(private val response: NodeWrapper) {
 
@@ -42,7 +36,7 @@ class SingleSignOnProfileVerifier(private val response: NodeWrapper) {
     /** 4.1.4.2 <Response> Usage */
     fun verify() {
         if (response.isSigned || response.hasEncryptedAssertion)
-            verifyIssuer(samlResponseDom)
+            verifyIssuer(samlResponseDom, SAMLProfiles_4_1_4_2_a)
 
         verifySSOAssertions()
         SubjectComparisonVerifier(samlResponseDom).verifySubjectsMatchSSO()
@@ -59,41 +53,13 @@ class SingleSignOnProfileVerifier(private val response: NodeWrapper) {
     }
 
     /** 4.1.4.2 <Response> Usage */
-    private fun verifyIssuer(node: Node) {
-        require(node.localName == RESPONSE || node.localName == ASSERTION)
-        val issuers = node.children("Issuer")
-
-        if (issuers.size != 1)
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_a,
-                    message = "${issuers.size} Issuer elements were found under ${node.localName}.",
-                    node = node)
-
-        val issuer = issuers.first()
-        if (issuer.textContent != idpMetadata.entityId)
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_b,
-                    property = "${node.localName}'s issuer",
-                    expected = idpMetadata.entityId,
-                    actual = issuer.textContent,
-                    node = node)
-
-        val issuerFormat = issuer.attributeText(FORMAT)
-        if (issuerFormat != null &&
-                issuerFormat != ENTITY)
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_c,
-                    property = FORMAT,
-                    actual = issuerFormat,
-                    expected = ENTITY,
-                    node = node)
-    }
-
-    /** 4.1.4.2 <Response> Usage */
     private fun verifySSOAssertions() {
         val assertions = samlResponseDom.children(ASSERTION)
         if (assertions.isEmpty()) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
                     message = "No Assertions found.",
                     node = samlResponseDom)
         }
-        assertions.forEach { verifyIssuer(it) }
+        assertions.forEach { verifyIssuer(it, SAMLProfiles_4_1_4_2_c) }
     }
 }

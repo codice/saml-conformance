@@ -13,21 +13,46 @@
  */
 package org.codice.compilance.verification.profile
 
+import com.google.common.io.Resources
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
 import org.codice.compliance.Common
+import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLProfiles_4_1_4_2_k
-import org.codice.compliance.SAMLProfiles_4_1_4_2_l
+import org.codice.compliance.SAMLProfiles_4_1_4_2_a
+import org.codice.compliance.SAMLProfiles_4_1_4_2_i
+import org.codice.compliance.SAMLProfiles_4_1_4_2_j
+import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import java.time.Instant
 import java.util.UUID
 
-@Suppress("StringLiteralDuplication")
 class ProfilesVerifierSpec : StringSpec() {
+    private val correctIdpIssuer = "http://correct.idp.issuer"
+    private val incorrectIdpIssuer = "incorrect/idp/issuer"
+
+    private val createResponse = { issuer: String ->
+        """
+        |<s:Response
+        |xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol"
+        |xmlns:s2="urn:oasis:names:tc:SAML:2.0:assertion"
+        |ID="${"a" + UUID.randomUUID().toString()}"
+        |Version="2.0"
+        |IssueInstant="${Instant.now()}">
+        |  $issuer
+        |</s:Response>
+        """.trimMargin()
+    }
+
+    private val createIssuer = { format: String, value: String ->
+        "<s2:Issuer Format=\"$format\">$value</s2:Issuer>"
+    }
+
     init {
+        System.setProperty(IMPLEMENTATION_PATH,
+                Resources.getResource("implementation").path)
 
         "error response with no assertions should pass" {
             Common.buildDom(createErrorResponse(withAssertion = false)).let {
@@ -38,11 +63,46 @@ class ProfilesVerifierSpec : StringSpec() {
         "error response with an assertion should fail with provided error" {
             Common.buildDom(createErrorResponse(withAssertion = true)).let {
                 shouldThrow<SAMLComplianceException> {
-                    ProfilesVerifier.verifyErrorResponseAssertion(it, SAMLProfiles_4_1_4_2_k)
+                    ProfilesVerifier.verifyErrorResponseAssertion(it, SAMLProfiles_4_1_4_2_i)
                 }.message?.apply {
-                    this.shouldContain(SAMLProfiles_4_1_4_2_l.message)
-                    this.shouldContain(SAMLProfiles_4_1_4_2_k.message)
+                    this.shouldContain(SAMLProfiles_4_1_4_2_j.message)
+                    this.shouldContain(SAMLProfiles_4_1_4_2_i.message)
                 }
+            }
+        }
+
+        "response with correct issuer value and format should pass" {
+            Common.buildDom(createResponse(createIssuer(ENTITY, correctIdpIssuer))).let {
+                ProfilesVerifier.verifyIssuer(it, SAMLProfiles_4_1_4_2_a)
+            }
+        }
+
+        "response with incorrect issuer value should fail" {
+            Common.buildDom(createResponse(createIssuer(ENTITY, incorrectIdpIssuer))).let {
+                shouldThrow<SAMLComplianceException> {
+                    ProfilesVerifier.verifyIssuer(it, SAMLProfiles_4_1_4_2_a)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
+            }
+        }
+
+        "response with incorrect issuer format should fail" {
+            Common.buildDom(createResponse(createIssuer("wrongFormat", correctIdpIssuer))).let {
+                shouldThrow<SAMLComplianceException> {
+                    ProfilesVerifier.verifyIssuer(it, SAMLProfiles_4_1_4_2_a)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
+            }
+        }
+
+        "response with multiple issuers should fail" {
+            val multipleIssuers = """
+            |<s2:Issuer>https://localhost:8993/services/idp/login</s2:Issuer>
+            |<s2:Issuer>https://localhost:8993/services/idp/login</s2:Issuer>
+           """.trimMargin()
+
+            Common.buildDom(createResponse(multipleIssuers)).let {
+                shouldThrow<SAMLComplianceException> {
+                    ProfilesVerifier.verifyIssuer(it, SAMLProfiles_4_1_4_2_a)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
             }
         }
     }

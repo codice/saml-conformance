@@ -61,9 +61,10 @@ class SLOCommon {
          * Attempts to login from one or two Service Providers
          * @param binding - Binding used for login
          * @param multipleSP - if false logs in with one sp, else logs in with both
+         * @return the first AuthnRequest
          */
         @Suppress("TooGenericExceptionCaught" /* Catching all Exceptions */)
-        fun login(binding: SamlProtocol.Binding, multipleSP: Boolean = false) {
+        fun login(binding: SamlProtocol.Binding, multipleSP: Boolean = false): AuthnRequest {
             try {
                 val authnRequest by lazy {
                     createDefaultAuthnRequest(binding)
@@ -98,6 +99,7 @@ class SLOCommon {
                         useDefaultServiceProvider()
                     }
                 }
+                return authnRequest
             } catch (e: Exception) {
                 throw SAMLComplianceException.create(SAMLGeneral_d,
                         message = "The logout test is unable to run because an error occurred " +

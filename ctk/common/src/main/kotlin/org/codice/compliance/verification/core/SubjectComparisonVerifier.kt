@@ -18,7 +18,8 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_3_4_b
 import org.codice.compliance.SAMLCore_3_3_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_b
-import org.codice.compliance.SAMLProfiles_4_1_4_2_e
+import org.codice.compliance.SAMLProfiles_4_1_4_2_d
+import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeList
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
@@ -80,7 +81,7 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
         if (format1 == format2
                 && format1 != null
                 && id1.textContent != id2.textContent) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_e,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d,
                     SAMLCore_3_3_4_b,
                     message = "Two Response Subject identifiers have identical Format attributes " +
                             "[$format1], but the content of one [${id1.textContent}] is not " +
@@ -102,7 +103,7 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
      * need to resolve the Subjects to a principal.
      */
     @Suppress("NestedBlockDepth" /* Simple `let` nesting */)
-    fun verifySubjectsMatchAuthnRequest() {
+    fun verifySubjectsMatchAuthnRequest(samlCode: SAMLSpecRefMessage) {
 
         val requestSubject = samlRequest?.dom?.children(SUBJECT)?.firstOrNull() ?: return
         val requestId = requestSubject.id
@@ -122,9 +123,8 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
                         resSubject.id?.let { resId ->
                             verifyIdAttributesMatchAuthnRequest(reqId, resId, nameIdPolicyFormat)
                             verifyIdContentsMatchAuthnRequest(reqId, resId)
-                        } ?: throw SAMLComplianceException.create(
+                        } ?: throw SAMLComplianceException.create(samlCode,
                                 SAMLCore_3_3_4_b,
-                                SAMLCore_3_4_1_4_b,
                                 message = "One of the Response's Subjects contained no identifier",
                                 node = resSubject)
                     }
@@ -133,9 +133,8 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
                     requestConfirmations.let { reqConfirmations ->
                         resSubject.children(SUBJECT_CONFIRMATION).let { resConfirmations ->
                             if (resConfirmations.isEmpty())
-                                throw SAMLComplianceException.create(
+                                throw SAMLComplianceException.create(samlCode,
                                         SAMLCore_3_3_4_c,
-                                        SAMLCore_3_4_1_4_b,
                                         message = "One of the Response's Subjects contained no " +
                                                 "SubjectConfirmations.",
                                         node = resSubject)

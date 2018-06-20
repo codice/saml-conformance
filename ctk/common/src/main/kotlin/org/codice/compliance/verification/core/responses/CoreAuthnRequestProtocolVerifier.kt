@@ -16,6 +16,7 @@ package org.codice.compliance.verification.core.responses
 import io.restassured.response.Response
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_4_a
+import org.codice.compliance.SAMLCore_3_4_1_4_b
 import org.codice.compliance.SAMLCore_3_4_1_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_d
 import org.codice.compliance.SAMLCore_3_4_1_4_e
@@ -102,6 +103,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
                         node = it)
         }
 
-        SubjectComparisonVerifier(samlResponseDom, authnRequest).verifySubjectsMatchAuthnRequest()
+        SubjectComparisonVerifier(samlResponseDom, authnRequest)
+                .verifySubjectsMatchAuthnRequest(SAMLCore_3_4_1_4_b)
     }
 }

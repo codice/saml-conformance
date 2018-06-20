@@ -48,6 +48,7 @@
 | Section | Specification Snippet | Justification
 | --- | --- | --- |
 | 4.1.4.2 - `<Response>` Usage | If multiple assertions are included, then each assertion's `<Subject>` element MUST refer to the same principal. It is allowable for the content of the `<Subject>` elements to differ (e.g. using different `<NameID>` or alternative `<SubjectConfirmation>` elements). | Figuring out if the subjects all refer to the same principal cannot be done without actually resolving the subjects to a principal. However, `<NameID>` is being partially tested by comparing the content and attributes.
+| 4.4.3.2 Identity Provider Determines Session Participants | \[The Identity Provider] MUST examine the identifier and `<SessionIndex>` elements and determine the set of sessions to be terminated. | The fact that the correct set of sessions is terminated is tested. However, it is impossible to verify that the Identity Provider used the identifier and <SessionIndex> elements to determine that set of sessions.
 
 ### [Bindings](https://www.oasis-open.org/committees/download.php/56779/sstc-saml-bindings-errata-2.0-wd-06.pdf)
 
