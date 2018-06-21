@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
+import org.apache.wss4j.common.WSS4JConstants;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -44,6 +45,7 @@ import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 import org.apache.wss4j.dom.validate.Validator;
+import org.apache.xml.security.algorithms.JCEMapper;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -56,21 +58,10 @@ import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleSign {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleSign.class);
-
   private final SystemCrypto crypto;
-
-  private static final Map<String, String> URI_ALG_MAP = new HashMap<>();
-
-  static {
-    URI_ALG_MAP.put("http://www.w3.org/2000/09/xmldsig#dsa-sha1", "SHA1withDSA");
-    URI_ALG_MAP.put("http://www.w3.org/2000/09/xmldsig#rsa-sha1", "SHA1withRSA");
-  }
 
   public SimpleSign() throws IOException {
     crypto = new SystemCrypto(getCurrentSPHostname());
@@ -224,10 +215,9 @@ public class SimpleSign {
       String signature = URLDecoder.decode(encodedSignature, StandardCharsets.UTF_8.name());
 
       CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-      Certificate certificate;
-      certificate = getCertificate(certificateString, certificateFactory);
+      Certificate certificate = getCertificate(certificateString, certificateFactory);
 
-      String jceSigAlg = URI_ALG_MAP.get(sigAlg);
+      String jceSigAlg = JCEMapper.translateURItoJCEID(sigAlg);
 
       if (jceSigAlg == null) {
         throw new SignatureException(SignatureException.SigErrorCode.INVALID_URI);
@@ -327,36 +317,22 @@ public class SimpleSign {
   /** Private Getters */
   private java.security.Signature getSignature(X509Certificate certificate, PrivateKey privateKey)
       throws SignatureException {
-    String jceSigAlgo = "SHA1withRSA";
-    if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-      jceSigAlgo = "SHA1withDSA";
-    }
-
     java.security.Signature signature;
     try {
+      String jceSigAlgo = String.format("sha1with%s", certificate.getPublicKey().getAlgorithm());
+
       signature = java.security.Signature.getInstance(jceSigAlgo);
-    } catch (NoSuchAlgorithmException e) {
-      throw new SignatureException(e);
-    }
-    try {
       signature.initSign(privateKey);
-    } catch (InvalidKeyException e) {
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       throw new SignatureException(e);
     }
     return signature;
   }
 
   private String getSignatureAlgorithm(X509Certificate certificate) {
-    String sigAlgo = SSOConstants.RSA_SHA1;
-    String pubKeyAlgo = certificate.getPublicKey().getAlgorithm();
-
-    if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
-      sigAlgo = SSOConstants.DSA_SHA1;
-    }
-
-    LOGGER.debug("Using Signature algorithm {}", sigAlgo);
-
-    return sigAlgo;
+    return certificate.getPublicKey().getAlgorithm().equals("RSA")
+        ? WSS4JConstants.RSA
+        : WSS4JConstants.DSA;
   }
 
   private X509Certificate[] getSignatureCertificates() throws SignatureException {
@@ -418,21 +394,19 @@ public class SimpleSign {
 
     private SigErrorCode sigErrorCode;
 
-    public SignatureException() {}
-
-    public SignatureException(Throwable cause) {
+    SignatureException(Throwable cause) {
       super(cause);
     }
 
-    public SignatureException(String message) {
+    SignatureException(String message) {
       super(message);
     }
 
-    public SignatureException(String message, Throwable cause) {
+    SignatureException(String message, Throwable cause) {
       super(message, cause);
     }
 
-    public SignatureException(SigErrorCode sigErrorCode) {
+    SignatureException(SigErrorCode sigErrorCode) {
       super();
       setErrorCode(sigErrorCode);
     }
@@ -441,7 +415,7 @@ public class SimpleSign {
       return sigErrorCode;
     }
 
-    public void setErrorCode(SigErrorCode sigErrorCode) {
+    void setErrorCode(SigErrorCode sigErrorCode) {
       this.sigErrorCode = sigErrorCode;
     }
   }
