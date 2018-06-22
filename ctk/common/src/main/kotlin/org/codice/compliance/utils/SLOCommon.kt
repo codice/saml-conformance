@@ -34,6 +34,7 @@ import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.useDefaultServiceProvider
+import org.codice.compliance.utils.TestCommon.Companion.username
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.verifyHttpStatusCode
 import org.codice.security.saml.SamlProtocol
@@ -141,7 +142,7 @@ class SLOCommon {
                     nameQualifier = idpMetadata.entityId
                     spNameQualifier = currentSPIssuer
                     format = PERSISTENT_ID
-                    value = "admin"
+                    value = username
                 }
             }
         }

@@ -27,6 +27,7 @@ import org.codice.compliance.Common.Companion.parseSpMetadata
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_c
+import org.codice.compliance.USER_LOGIN
 import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.security.saml.IdpMetadata
@@ -67,6 +68,10 @@ class TestCommon {
             getDeployDirClassloader()
         }
 
+        val username by lazy {
+            System.getProperty(USER_LOGIN).split(":").first()
+        }
+
         val idpMetadata by lazy {
             parseAndVerifyVersion()
         }
@@ -89,8 +94,8 @@ class TestCommon {
 
         object UseDSASigningSP : TestCaseExtension {
             override fun intercept(context: TestCaseInterceptContext,
-                test: (TestCaseConfig, (TestResult) -> Unit) -> Unit,
-                complete: (TestResult) -> Unit) {
+                                   test: (TestCaseConfig, (TestResult) -> Unit) -> Unit,
+                                   complete: (TestResult) -> Unit) {
                 useDSAServiceProvider()
                 test(context.config, { complete(it) })
                 useDefaultServiceProvider()
@@ -135,8 +140,9 @@ class TestCommon {
         private fun parseAndVerifyVersion(): IdpMetadata {
             if (idpMetadataObject.descriptor.supportedProtocols.none { it.contains("2.0") })
                 throw SAMLComplianceException.create(SAMLGeneral_c,
-                    message = "The protocolSupportEnumeration's version specified in the metadata" +
-                        " is not 2.0 and not supported by this conformance test kit.")
+                        message = "The protocolSupportEnumeration's version specified in the " +
+                                "metadata is not 2.0 and not supported by this conformance test " +
+                                "kit.")
             return idpMetadataObject
         }
 
@@ -158,7 +164,7 @@ class TestCommon {
          * @return The signed object as a String
          */
         fun signAndEncodePostRequestToString(samlObject: SignableSAMLObject,
-            relayState: String? = null): String {
+                                             relayState: String? = null): String {
             val samlType = if (samlObject is RequestAbstractType) SAML_REQUEST else SAML_RESPONSE
 
             SimpleSign().signSamlObject(samlObject)

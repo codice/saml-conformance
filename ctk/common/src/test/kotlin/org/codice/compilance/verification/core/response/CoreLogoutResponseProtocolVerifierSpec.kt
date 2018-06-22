@@ -66,7 +66,7 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
             Common.buildDom(createLogoutResponse(RESPONDER)).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
-                        .verify()
+                            .verify()
                 }.apply {
                     this.message?.shouldContain(SAMLCore_3_7_3_2_b.message)
                     this.message?.shouldContain(SAMLCore_3_7_3_2_d.message)
@@ -78,7 +78,7 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
             Common.buildDom(createLogoutResponse(null)).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
-                        .verify()
+                            .verify()
                 }.apply {
                     this.message?.shouldContain(SAMLCore_3_7_3_2_b.message)
                     this.message?.shouldContain(SAMLCore_3_7_3_2_d.message)

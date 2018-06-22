@@ -18,6 +18,7 @@ import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.USER_LOGIN
 import org.codice.compliance.web.slo.PostSLOTest
 import org.codice.compliance.web.slo.RedirectSLOTest
 import org.codice.compliance.web.slo.error.PostSLOErrorTest
@@ -40,13 +41,13 @@ import java.io.PrintWriter
 private class Runner {
     companion object {
         val SSO_BASIC_TESTS = arrayOf(selectClass(PostSSOTest::class.java),
-            selectClass(RedirectSSOTest::class.java))
+                selectClass(RedirectSSOTest::class.java))
         val SSO_ERROR_TESTS = arrayOf(selectClass(RedirectSSOErrorTest::class.java),
-            selectClass(PostSSOErrorTest::class.java))
+                selectClass(PostSSOErrorTest::class.java))
         val SLO_BASIC_TESTS = arrayOf(selectClass(PostSLOTest::class.java),
-            selectClass(RedirectSLOTest::class.java))
+                selectClass(RedirectSLOTest::class.java))
         val SLO_ERROR_TESTS = arrayOf(selectClass(PostSLOErrorTest::class.java),
-            selectClass(RedirectSLOErrorTest::class.java))
+                selectClass(RedirectSLOErrorTest::class.java))
     }
 }
 
@@ -59,24 +60,29 @@ fun main(args: Array<String>) {
     parser.setApplicationDescription("SAML Conformance Test Kit")
 
     parser.option("i",
-        description = "Path to the implementation to be tested")
+            description = "Path to the implementation to be tested")
+
+    parser.option("u",
+            description = "User used to login in the format username:password.")
 
     parser.flag("d",
-        description = "Turn on debug logs.")
+            description = "Turn on debug logs.")
 
     parser.flag("l",
-        description = """When an error occurs, the SAML V2.0 Standard Specification requires an IdP
-            to respond with a 200 HTTP status code and a valid SAML response containing an error
-            <StatusCode>. If the -l flag is given, this test kit will allow HTTP error status codes
-            as a valid error response.
-            """)
+            description = """When an error occurs, the SAML V2.0 Standard Specification requires an
+                IdP to respond with a 200 HTTP status code and a valid SAML response containing an
+                error <StatusCode>. If the -l flag is given, this test kit will allow HTTP error
+                status codes as a valid error response.""")
 
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
-        ?: "$samlDist/implementations/ddf"
+            ?: "$samlDist/implementations/ddf"
+
+    val userLogin = arguments.option("i") ?: "admin:admin"
 
     System.setProperty(IMPLEMENTATION_PATH, implementationPath)
+    System.setProperty(USER_LOGIN, userLogin)
     System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")
     System.setProperty(LENIENT_ERROR_VERIFICATION, arguments.flag("l").toString())
 
@@ -92,11 +98,11 @@ fun main(args: Array<String>) {
 @Suppress("SpreadOperator")
 private fun launchTests() {
     val request = LauncherDiscoveryRequestBuilder.request()
-        .selectors(*SSO_BASIC_TESTS,
-            *SSO_ERROR_TESTS,
-            *SLO_BASIC_TESTS,
-            *SLO_ERROR_TESTS)
-        .build()
+            .selectors(*SSO_BASIC_TESTS,
+                    *SSO_ERROR_TESTS,
+                    *SLO_BASIC_TESTS,
+                    *SLO_ERROR_TESTS)
+            .build()
 
     val summaryGeneratingListener = SummaryGeneratingListener()
     LauncherFactory.create().apply {
