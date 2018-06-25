@@ -39,11 +39,13 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.AuthnRequest
 
 class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
-                                       samlResponseDom: NodeDecorator) :
-        ResponseVerifier(authnRequest, samlResponseDom, HTTP_POST) {
+                                       samlResponse: NodeDecorator) :
+        ResponseVerifier(authnRequest, samlResponse, HTTP_POST) {
+
+    private val samlResponseDom = samlResponse.node
 
     private val nameIdPolicyVerifier =
-            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom.node, it) }
+            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom, it) }
 
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {

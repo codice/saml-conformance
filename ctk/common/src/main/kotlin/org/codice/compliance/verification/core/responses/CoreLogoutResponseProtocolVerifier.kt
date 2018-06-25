@@ -26,10 +26,12 @@ import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.LogoutRequest
 
 class CoreLogoutResponseProtocolVerifier(logoutRequest: LogoutRequest,
-                                         samlResponseDom: NodeDecorator,
+                                         samlResponse: NodeDecorator,
                                          binding: SamlProtocol.Binding,
                                          private val expectedSecondLevelStatusCode: String? = null)
-    : ResponseVerifier(logoutRequest, samlResponseDom, binding) {
+    : ResponseVerifier(logoutRequest, samlResponse, binding) {
+
+    private val samlResponseDom = samlResponse.node
 
     override fun verify() {
         super.verify()

@@ -42,7 +42,7 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
                                 private val binding: SamlProtocol.Binding) :
         CoreVerifier(samlResponse) {
 
-    val samlResponseDom = samlResponse.node
+    private val samlResponseDom = samlResponse.node
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
