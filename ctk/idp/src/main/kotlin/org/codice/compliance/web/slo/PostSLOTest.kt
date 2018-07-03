@@ -65,7 +65,8 @@ class PostSLOTest : StringSpec() {
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
 
-            val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, true)
+            val secondSPLogoutResponse =
+                    createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
             val encodedSecondSPLogoutResponse =
                 signAndEncodePostRequestToString(secondSPLogoutResponse, logoutRequestRelayState)
             val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse)
@@ -106,7 +107,8 @@ class PostSLOTest : StringSpec() {
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
 
-            val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, true)
+            val secondSPLogoutResponse =
+                    createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
             val encodedSecondSPLogoutResponse =
                 signAndEncodePostRequestToString(secondSPLogoutResponse, logoutRequestRelayState)
             val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse)
@@ -135,7 +137,8 @@ class PostSLOTest : StringSpec() {
                 secondSPLogoutRequest.determineBinding()).verify()
 
             // Send a response with an error saml status code
-            val secondSPLogoutResponse = createDefaultLogoutResponse(samlLogoutRequestDom, false)
+            val secondSPLogoutResponse =
+                    createDefaultLogoutResponse(samlLogoutRequestDom.node, false)
             val encodedSecondSPLogoutResponse =
                 signAndEncodePostRequestToString(secondSPLogoutResponse, logoutRequestRelayState)
             val logoutResponse = sendPostLogoutMessage(encodedSecondSPLogoutResponse)

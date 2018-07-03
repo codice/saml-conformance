@@ -26,6 +26,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
@@ -36,11 +37,12 @@ import org.codice.compliance.verification.core.ResponseVerifier
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.AuthnRequest
-import org.w3c.dom.Node
 
 class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
-                                       samlResponseDom: Node) :
-        ResponseVerifier(authnRequest, samlResponseDom, HTTP_POST) {
+                                       samlResponse: NodeWrapper) :
+        ResponseVerifier(authnRequest, samlResponse, HTTP_POST) {
+
+    private val samlResponseDom = samlResponse.node
 
     private val nameIdPolicyVerifier =
             authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom, it) }

@@ -20,6 +20,7 @@ import org.codice.compliance.Common
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_3_2_b
 import org.codice.compliance.SAMLCore_3_7_3_2_d
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.PERSISTENT_ID
 import org.codice.compliance.utils.RESPONDER
 import org.codice.compliance.utils.SUCCESS
@@ -57,37 +58,37 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
 
     init {
         "logout response with correct second-level status code should pass" {
-            Common.buildDom(createLogoutResponse(SUCCESS)).let {
+            NodeWrapper(Common.buildDom(createLogoutResponse(SUCCESS))).let {
                 CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS).verify()
             }
         }
 
         "logout response with incorrect second-level status code should fail" {
-            Common.buildDom(createLogoutResponse(RESPONDER)).let {
+            NodeWrapper(Common.buildDom(createLogoutResponse(RESPONDER))).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
                             .verify()
-                }.apply {
-                    this.message?.shouldContain(SAMLCore_3_7_3_2_b.message)
-                    this.message?.shouldContain(SAMLCore_3_7_3_2_d.message)
+                }.message?.apply {
+                    shouldContain(SAMLCore_3_7_3_2_b.message)
+                    shouldContain(SAMLCore_3_7_3_2_d.message)
                 }
             }
         }
 
         "logout response with no second-level status code when expected should fail" {
-            Common.buildDom(createLogoutResponse(null)).let {
+            NodeWrapper(Common.buildDom(createLogoutResponse(null))).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
                             .verify()
-                }.apply {
-                    this.message?.shouldContain(SAMLCore_3_7_3_2_b.message)
-                    this.message?.shouldContain(SAMLCore_3_7_3_2_d.message)
+                }.message?.apply {
+                    shouldContain(SAMLCore_3_7_3_2_b.message)
+                    shouldContain(SAMLCore_3_7_3_2_d.message)
                 }
             }
         }
 
         "logout response with a second-level status code when not expecting one should pass" {
-            Common.buildDom(createLogoutResponse(SUCCESS)).let {
+            NodeWrapper(Common.buildDom(createLogoutResponse(SUCCESS))).let {
                 CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST).verify()
             }
         }

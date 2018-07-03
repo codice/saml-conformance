@@ -18,6 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_b
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.RequestAbstractType
@@ -51,28 +52,33 @@ abstract class BindingVerifier(val httpResponse: Response) {
             return code >= HTTP_ERROR_THRESHOLD
         }
 
-        /** Verifies the response's and assertions' signatures */
-        fun verifyXmlSignatures(node: Node) {
+        /**
+         * Verifies the response's and assertions' signatures.
+         * Returns true if the SAML message is signed. Returns false, otherwise.
+         * */
+        fun verifyXmlSignatures(node: Node): Boolean {
             try {
                 val docElement = node.ownerDocument.documentElement
 
                 val samlResponseObject =
-                    if (node.nodeName.contains(RESPONSE))
-                        OpenSAMLUtil.fromDom(docElement) as StatusResponseType
-                    else OpenSAMLUtil.fromDom(docElement) as RequestAbstractType
+                        if (node.nodeName.contains(RESPONSE))
+                            OpenSAMLUtil.fromDom(docElement) as StatusResponseType
+                        else OpenSAMLUtil.fromDom(docElement) as RequestAbstractType
 
                 if (samlResponseObject.isSigned)
                     SimpleSign().validateSignature(samlResponseObject.signature)
 
                 if (samlResponseObject is org.opensaml.saml.saml2.core.Response) {
                     samlResponseObject.assertions
-                        .filter { it.isSigned }
-                        .forEach { SimpleSign().validateSignature(it.signature) }
+                            .filter { it.isSigned }
+                            .forEach { SimpleSign().validateSignature(it.signature) }
                 }
+
+                return samlResponseObject.isSigned
             } catch (e: SimpleSign.SignatureException) {
                 throw SAMLComplianceException.create(SAMLGeneral_b,
-                    message = "Invalid signature.\n${e.message}",
-                    cause = e)
+                        message = "Invalid signature.\n${e.message}",
+                        cause = e)
             }
         }
     }
@@ -80,5 +86,5 @@ abstract class BindingVerifier(val httpResponse: Response) {
     var isSamlRequest: Boolean = false
     var isRelayStateGiven: Boolean = false
     abstract fun decodeAndVerifyError(): Node
-    abstract fun decodeAndVerify(): Node
+    abstract fun decodeAndVerify(): NodeWrapper
 }

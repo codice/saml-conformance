@@ -22,13 +22,16 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.VERSION
 import org.codice.security.saml.SamlProtocol
-import org.w3c.dom.Node
 
-abstract class RequestVerifier(private val samlRequestDom: Node,
-    private val binding: SamlProtocol.Binding) : CoreVerifier(samlRequestDom) {
+abstract class RequestVerifier(samlRequest: NodeWrapper,
+                               private val binding: SamlProtocol.Binding)
+    : CoreVerifier(samlRequest) {
+
+    private val samlRequestDom = samlRequest.node
 
     /** 3.2.1 Complex Type RequestAbstractType */
     override fun verify() {
@@ -41,19 +44,19 @@ abstract class RequestVerifier(private val samlRequestDom: Node,
     private fun verifyRequestAbstractType() {
         CommonDataTypeVerifier.verifyIdValue(samlRequestDom.attributeNode(ID), SAMLCore_3_2_1_a)
         CommonDataTypeVerifier.verifyStringValue(samlRequestDom.attributeNode(VERSION),
-            SAMLCore_3_2_1_b)
+                SAMLCore_3_2_1_b)
         CommonDataTypeVerifier.verifyDateTimeValue(
-            samlRequestDom.attributeNode("IssueInstant"), SAMLCore_3_2_1_c)
+                samlRequestDom.attributeNode("IssueInstant"), SAMLCore_3_2_1_c)
 
         samlRequestDom.attributeNode(DESTINATION)?.apply {
 
             val url = getServiceUrl(binding, samlRequestDom)
             if (textContent != url)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_1_e,
-                    property = DESTINATION,
-                    actual = textContent,
-                    expected = url,
-                    node = samlRequestDom)
+                        property = DESTINATION,
+                        actual = textContent,
+                        expected = url,
+                        node = samlRequestDom)
 
             CommonDataTypeVerifier.verifyUriValue(this)
         }

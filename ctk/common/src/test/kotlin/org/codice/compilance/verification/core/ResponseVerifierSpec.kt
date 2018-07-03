@@ -32,6 +32,7 @@ import org.codice.compliance.SAMLGeneral_e
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.PARTIAL_LOGOUT
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SUCCESS
@@ -46,7 +47,6 @@ import org.opensaml.saml.common.SAMLVersion.VERSION_20
 import org.opensaml.saml.saml2.core.RequestAbstractType
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder
-import org.w3c.dom.Node
 import java.time.Instant
 import java.util.UUID
 
@@ -72,20 +72,20 @@ class ResponseVerifierSpec : StringSpec() {
     init {
         REQUEST_ID = "a" + UUID.randomUUID().toString()
         System.setProperty(TEST_SP_METADATA_PROPERTY,
-            Resources.getResource("test-sp-metadata.xml").path)
+                Resources.getResource("test-sp-metadata.xml").path)
 
         "response with correct fields should pass" {
-            Common.buildDom(createResponse()).let {
+            NodeWrapper(Common.buildDom(createResponse())).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
         }
 
         "response with non-unique ID should fail" {
-            Common.buildDom(createResponse(id = "not-unique-id")).let {
+            NodeWrapper(Common.buildDom(createResponse(id = "not-unique-id"))).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
 
-            Common.buildDom(createResponse(id = "not-unique-id")).let {
+            NodeWrapper(Common.buildDom(createResponse(id = "not-unique-id"))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.apply {
@@ -96,7 +96,7 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with incorrect InResponseTo should fail" {
-            Common.buildDom(createResponse(inResponseTo = "incorrect")).let {
+            NodeWrapper(Common.buildDom(createResponse(inResponseTo = "incorrect"))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_3_2_2_b.message)
@@ -104,7 +104,7 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with blank version should fail" {
-            Common.buildDom(createResponse(version = " ")).let {
+            NodeWrapper(Common.buildDom(createResponse(version = " "))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_1_3_1_a.message)
@@ -112,24 +112,27 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with non-utc instant issuer should fail" {
-            Common.buildDom(createResponse(instant = "2018-05-01T06:15:30-07:00")).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(instant = "2018-05-01T06:15:30-07:00"))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.apply {
-                    this.shouldContain(SAMLCore_1_3_3_a.message)
-                    this.shouldContain(SAMLCore_3_2_2_d.message)
+                    shouldContain(SAMLCore_1_3_3_a.message)
+                    shouldContain(SAMLCore_3_2_2_d.message)
                 }
             }
         }
 
         "response with correct destination should pass" {
-            Common.buildDom(createResponse(attribute = "$DESTINATION=\"$correctUri\"")).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(attribute = "$DESTINATION=\"$correctUri\""))).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
         }
 
         "response with incorrect destination should fail" {
-            Common.buildDom(createResponse(attribute = "$DESTINATION=\"$incorrectUri\"")).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(attribute = "$DESTINATION=\"$incorrectUri\""))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_3_2_2_e.message)
@@ -137,13 +140,15 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with correct consent should pass" {
-            Common.buildDom(createResponse(attribute = "$CONSENT=\"$correctUri\"")).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(attribute = "$CONSENT=\"$correctUri\""))).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
         }
 
         "response with non-uri consent should fail" {
-            Common.buildDom(createResponse(attribute = "$CONSENT=\"$incorrectUri\"")).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(attribute = "$CONSENT=\"$incorrectUri\""))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_1_3_2_a.message)
@@ -151,7 +156,7 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with a top level status code that isn't success should fail" {
-            Common.buildDom(createResponse(statusCode = REQUESTER)).let {
+            NodeWrapper(Common.buildDom(createResponse(statusCode = REQUESTER))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLGeneral_e.message)
@@ -159,7 +164,7 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with a second-level status code as top-level should fail" {
-            Common.buildDom(createResponse(statusCode = PARTIAL_LOGOUT)).let {
+            NodeWrapper(Common.buildDom(createResponse(statusCode = PARTIAL_LOGOUT))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_3_2_2_2_a.message)
@@ -167,7 +172,7 @@ class ResponseVerifierSpec : StringSpec() {
         }
 
         "response with a blank status message should fail" {
-            Common.buildDom(createResponse(statusMessage = " ")).let {
+            NodeWrapper(Common.buildDom(createResponse(statusMessage = " "))).let {
                 shouldThrow<SAMLComplianceException> {
                     ResponseVerifierTest(request, it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_1_3_1_a.message)
@@ -177,12 +182,12 @@ class ResponseVerifierSpec : StringSpec() {
 
     @Suppress("LongParameterList")
     private fun createResponse(id: String = UUID.randomUUID().toString().replace("-", ""),
-        version: String = "2.0",
-        inResponseTo: String = REQUEST_ID,
-        attribute: String = "",
-        instant: String = Instant.now().toString(),
-        statusCode: String = SUCCESS,
-        statusMessage: String = "Status Message"): String {
+                               version: String = "2.0",
+                               inResponseTo: String = REQUEST_ID,
+                               attribute: String = "",
+                               instant: String = Instant.now().toString(),
+                               statusCode: String = SUCCESS,
+                               statusMessage: String = "Status Message"): String {
         return """
             |<s:Response
             |xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol"
@@ -201,6 +206,8 @@ class ResponseVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private class ResponseVerifierTest(samlRequest: RequestAbstractType, samlResponseDom: Node,
-        binding: SamlProtocol.Binding) : ResponseVerifier(samlRequest, samlResponseDom, binding)
+    private class ResponseVerifierTest(samlRequest: RequestAbstractType,
+                                       samlResponseDom: NodeWrapper,
+                                       binding: SamlProtocol.Binding)
+        : ResponseVerifier(samlRequest, samlResponseDom, binding)
 }

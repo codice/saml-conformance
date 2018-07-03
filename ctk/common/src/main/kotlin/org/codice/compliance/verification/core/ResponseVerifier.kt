@@ -27,6 +27,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
 import org.codice.compliance.utils.SUCCESS
@@ -35,12 +36,13 @@ import org.codice.compliance.utils.VERSION
 import org.codice.compliance.utils.topLevelStatusCodes
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.RequestAbstractType
-import org.w3c.dom.Node
 
 abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
-                                protected val samlResponseDom: Node,
+                                samlResponse: NodeWrapper,
                                 private val binding: SamlProtocol.Binding) :
-        CoreVerifier(samlResponseDom) {
+        CoreVerifier(samlResponse) {
+
+    private val samlResponseDom = samlResponse.node
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
@@ -90,13 +92,13 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
     /** 3.2.2.2 Element <StatusCode> */
     private fun verifyStatusCode() {
         val topLevelStatusCode = samlResponseDom.recursiveChildren(STATUS)
-            .flatMap { it.children(STATUS_CODE) }
-            .first()
-            .attributeText("Value")
+                .flatMap { it.children(STATUS_CODE) }
+                .first()
+                .attributeText("Value")
         if (!topLevelStatusCodes.contains(topLevelStatusCode))
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     message = "The StatusCode value of $topLevelStatusCode is not a top level " +
-                        "SAML status code.",
+                            "SAML status code.",
                     node = samlResponseDom)
 
         if (topLevelStatusCode != SUCCESS)
