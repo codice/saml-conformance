@@ -25,7 +25,7 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
@@ -35,7 +35,7 @@ import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.
 import org.w3c.dom.Node
 import java.time.Instant
 
-abstract class CoreVerifier(private val samlNode: NodeDecorator) {
+abstract class CoreVerifier(private val samlNode: NodeWrapper) {
     companion object {
         /**
          * Verifies that a response has the expected status code.

@@ -27,7 +27,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
 import org.codice.compliance.utils.SUCCESS
@@ -38,7 +38,7 @@ import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.RequestAbstractType
 
 abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
-                                samlResponse: NodeDecorator,
+                                samlResponse: NodeWrapper,
                                 private val binding: SamlProtocol.Binding) :
         CoreVerifier(samlResponse) {
 

@@ -17,12 +17,12 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_1_a
 import org.codice.compliance.SAMLCore_3_7_3_2_e
 import org.codice.compliance.attributeNode
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.RequestVerifier
 import org.codice.security.saml.SamlProtocol
 
-class CoreLogoutRequestProtocolVerifier(private val samlRequest: NodeDecorator,
+class CoreLogoutRequestProtocolVerifier(private val samlRequest: NodeWrapper,
                                         binding: SamlProtocol.Binding)
     : RequestVerifier(samlRequest, binding) {
 

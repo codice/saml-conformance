@@ -27,7 +27,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_d
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.utils.BEARER
 import org.codice.compliance.utils.ENTITY
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.SUCCESS
 import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.verification.core.CoreVerifier
@@ -154,13 +154,13 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
 
         // Issuer Tests
         "unsigned response with no issuer on response element should pass" {
-            NodeDecorator(Common.buildDom(createResponse(false, ""))).let {
+            NodeWrapper(Common.buildDom(createResponse(""))).let {
                 SingleSignOnProfileVerifier(it).verify()
             }
         }
 
         "signed response with no issuer on response element should fail" {
-            NodeDecorator(Common.buildDom(createResponse(true, ""))).let {
+            NodeWrapper(Common.buildDom(createResponse("")), isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
@@ -168,15 +168,16 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
 
         "signed response with correct issuer value and format should pass" {
-            NodeDecorator(Common.buildDom(
-                    createResponse(true, createIssuer(ENTITY, correctIdpIssuer)))).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(createIssuer(ENTITY, correctIdpIssuer))), isSigned = true).let {
                 SingleSignOnProfileVerifier(it).verify()
             }
         }
 
         "signed response with incorrect issuer value should fail" {
-            NodeDecorator(Common.buildDom(
-                    createResponse(true, createIssuer(ENTITY, incorrectIdpIssuer)))).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(createIssuer(ENTITY, incorrectIdpIssuer))),
+                    isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_b.message)
@@ -184,8 +185,9 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
 
         "signed response with incorrect issuer format should fail" {
-            NodeDecorator(Common.buildDom(
-                    createResponse(true, createIssuer("wrongFormat", correctIdpIssuer)))).let {
+            NodeWrapper(Common.buildDom(
+                    createResponse(createIssuer("wrongFormat", correctIdpIssuer))),
+                    isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_c.message)
@@ -198,7 +200,7 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
             |<s2:Issuer>https://localhost:8993/services/idp/login</s2:Issuer>
            """.trimMargin()
 
-            NodeDecorator(Common.buildDom(createResponse(true, multipleIssuers))).let {
+            NodeWrapper(Common.buildDom(createResponse(multipleIssuers)), isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
@@ -206,7 +208,7 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
 
         "response with incorrect assertion issuer value should fail" {
-            NodeDecorator(Common.buildDom(createResponse(false, assertionIssuer = "wrong"))).let {
+            NodeWrapper(Common.buildDom(createResponse(assertionIssuer = "wrong"))).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_b.message)
@@ -215,7 +217,7 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
 
         "response with no assertion should fail" {
             val noAssertionResponse = "<s:Response $responseParams/>"
-            NodeDecorator(Common.buildDom(noAssertionResponse)).let {
+            NodeWrapper(Common.buildDom(noAssertionResponse)).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_d.message)
@@ -223,14 +225,14 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
 
         "unsigned response with encrypted assertion and correct issuer should pass" {
-            NodeDecorator(Common.buildDom(correctEncryptedResponse)).let {
+            NodeWrapper(Common.buildDom(correctEncryptedResponse)).let {
                 CoreVerifierTest(it).verify()
                 SingleSignOnProfileVerifier(it).verify()
             }
         }
 
         "unsigned response with encrypted assertion and incorrect issuer should fail" {
-            NodeDecorator(Common.buildDom(incorrectEncryptedResponse)).let {
+            NodeWrapper(Common.buildDom(incorrectEncryptedResponse)).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreVerifierTest(it).verify()
                     SingleSignOnProfileVerifier(it).verify()
@@ -239,15 +241,12 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
     }
 
-    private fun createResponse(isSigned: Boolean = false,
-                               issuer: String = "<s2:Issuer>$correctIdpIssuer</s2:Issuer>",
+    private fun createResponse(issuer: String = "<s2:Issuer>$correctIdpIssuer</s2:Issuer>",
                                assertionIssuer: String = correctIdpIssuer,
                                subjConf: String = createBearerSubjConf()): String {
-        val signature = if (isSigned) "<ds:Signature/>" else ""
         return """
             |<s:Response $responseParams>
             |  $issuer
-            |  $signature
             |  <s2:Assertion>
             |    <s2:Issuer>$assertionIssuer</s2:Issuer>
             |    <s2:Subject>
@@ -279,4 +278,4 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
     }
 }
 
-class CoreVerifierTest(samlNode: NodeDecorator) : CoreVerifier(samlNode)
+class CoreVerifierTest(samlNode: NodeWrapper) : CoreVerifier(samlNode)

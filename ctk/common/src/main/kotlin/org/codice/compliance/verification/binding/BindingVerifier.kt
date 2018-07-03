@@ -18,7 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_b
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.RequestAbstractType
@@ -52,8 +52,11 @@ abstract class BindingVerifier(val httpResponse: Response) {
             return code >= HTTP_ERROR_THRESHOLD
         }
 
-        /** Verifies the response's and assertions' signatures */
-        fun verifyXmlSignatures(node: Node) {
+        /**
+         * Verifies the response's and assertions' signatures.
+         * Returns true if the SAML message is signed. Returns false, otherwise.
+         * */
+        fun verifyXmlSignatures(node: Node): Boolean {
             try {
                 val docElement = node.ownerDocument.documentElement
 
@@ -70,6 +73,8 @@ abstract class BindingVerifier(val httpResponse: Response) {
                             .filter { it.isSigned }
                             .forEach { SimpleSign().validateSignature(it.signature) }
                 }
+
+                return samlResponseObject.isSigned
             } catch (e: SimpleSign.SignatureException) {
                 throw SAMLComplianceException.create(SAMLGeneral_b,
                         message = "Invalid signature.\n${e.message}",
@@ -81,5 +86,5 @@ abstract class BindingVerifier(val httpResponse: Response) {
     var isSamlRequest: Boolean = false
     var isRelayStateGiven: Boolean = false
     abstract fun decodeAndVerifyError(): Node
-    abstract fun decodeAndVerify(): NodeDecorator
+    abstract fun decodeAndVerify(): NodeWrapper
 }

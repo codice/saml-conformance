@@ -14,7 +14,6 @@
 package org.codice.compliance.verification.profile
 
 import io.restassured.response.Response
-import org.apache.cxf.rs.security.saml.sso.SSOConstants.SIGNATURE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLProfiles_4_1_2_a
 import org.codice.compliance.SAMLProfiles_4_1_4_2_a
@@ -26,7 +25,7 @@ import org.codice.compliance.children
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.FORMAT
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
 import org.codice.compliance.utils.determineBinding
@@ -36,13 +35,13 @@ import org.codice.compliance.verification.profile.subject.confirmations.HolderOf
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.w3c.dom.Node
 
-class SingleSignOnProfileVerifier(private val response: NodeDecorator) {
+class SingleSignOnProfileVerifier(private val response: NodeWrapper) {
 
     private val samlResponseDom = response.node
 
     /** 4.1.4.2 <Response> Usage */
     fun verify() {
-        if (samlResponseDom.children(SIGNATURE).isNotEmpty() || response.hasEncryptedAssertion)
+        if (response.isSigned || response.hasEncryptedAssertion)
             verifyIssuer(samlResponseDom)
 
         verifySSOAssertions()

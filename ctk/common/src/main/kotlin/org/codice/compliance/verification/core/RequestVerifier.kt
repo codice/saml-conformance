@@ -22,12 +22,12 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
-import org.codice.compliance.utils.NodeDecorator
+import org.codice.compliance.utils.NodeWrapper
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.VERSION
 import org.codice.security.saml.SamlProtocol
 
-abstract class RequestVerifier(samlRequest: NodeDecorator,
+abstract class RequestVerifier(samlRequest: NodeWrapper,
                                private val binding: SamlProtocol.Binding)
     : CoreVerifier(samlRequest) {
 

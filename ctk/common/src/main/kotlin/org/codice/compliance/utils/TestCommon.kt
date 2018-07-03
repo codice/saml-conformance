@@ -229,4 +229,5 @@ class LazyVar<T>(val init: () -> T) : ReadWriteProperty<Any?, T> {
     }
 }
 
-data class NodeDecorator(val node: Node, var hasEncryptedAssertion: Boolean = false)
+data class NodeWrapper(val node: Node, var hasEncryptedAssertion: Boolean = false,
+                       var isSigned: Boolean = false)
