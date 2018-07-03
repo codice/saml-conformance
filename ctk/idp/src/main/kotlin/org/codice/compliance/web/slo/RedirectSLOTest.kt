@@ -57,11 +57,11 @@ class RedirectSLOTest : StringSpec() {
             val samlResponseDom = response.getBindingVerifier().decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 response.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "Redirect LogoutResponse Test - Multiple SPs" {
-            val authnRequest = login(HTTP_REDIRECT, multipleSP = true)
+            val ssoResponseDom = login(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -77,7 +77,7 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlLogoutRequestDom, authnRequest)
+            SingleLogoutProfileVerifier(samlLogoutRequestDom).verifyLogoutRequest(ssoResponseDom)
 
             val secondSPLogoutResponse =
                     createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
@@ -92,7 +92,7 @@ class RedirectSLOTest : StringSpec() {
             val samlResponseDom = logoutResponse.getBindingVerifier().decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "Redirect LogoutRequest Test With Relay State - Single SP" {
@@ -111,11 +111,11 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 response.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "Redirect LogoutRequest Test With Relay State - Multiple SPs" {
-            val authnRequest = login(HTTP_REDIRECT, multipleSP = true)
+            val ssoResponseDom = login(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -131,7 +131,7 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlLogoutRequestDom, authnRequest)
+            SingleLogoutProfileVerifier(samlLogoutRequestDom).verifyLogoutRequest(ssoResponseDom)
 
             val secondSPLogoutResponse =
                     createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
@@ -148,11 +148,11 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "Redirect LogoutRequest Test With Error Logging Out From SP2 - Multiple SPs" {
-            val authnRequest = login(HTTP_REDIRECT, multipleSP = true)
+            val ssoResponseDom = login(HTTP_REDIRECT, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
@@ -168,7 +168,7 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlLogoutRequestDom, authnRequest)
+            SingleLogoutProfileVerifier(samlLogoutRequestDom).verifyLogoutRequest(ssoResponseDom)
 
             // Send a response with an error saml status code
             val secondSPLogoutResponse =
@@ -186,7 +186,7 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding(), PARTIAL_LOGOUT).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
     }
 }

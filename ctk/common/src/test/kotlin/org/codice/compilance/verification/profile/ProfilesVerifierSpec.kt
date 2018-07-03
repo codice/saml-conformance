@@ -105,6 +105,14 @@ class ProfilesVerifierSpec : StringSpec() {
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
             }
         }
+
+        "response with no issuer should fail" {
+            Common.buildDom(createResponse("")).let {
+                shouldThrow<SAMLComplianceException> {
+                    ProfilesVerifier.verifyIssuer(it, SAMLProfiles_4_1_4_2_a)
+                }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
+            }
+        }
     }
 
     private fun createErrorResponse(withAssertion: Boolean): String {

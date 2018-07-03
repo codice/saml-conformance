@@ -50,11 +50,11 @@ class PostSLOTest : StringSpec() {
             val samlResponseDom = response.getBindingVerifier().decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 response.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "POST LogoutResponse Test - Multiple SPs" {
-            val authnRequest = login(HTTP_POST, multipleSP = true)
+            val ssoResponseDom = login(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
@@ -66,7 +66,7 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlLogoutRequestDom, authnRequest)
+            SingleLogoutProfileVerifier(samlLogoutRequestDom).verifyLogoutRequest(ssoResponseDom)
 
             val secondSPLogoutResponse =
                     createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
@@ -78,7 +78,7 @@ class PostSLOTest : StringSpec() {
             val samlResponseDom = logoutResponse.getBindingVerifier().decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "POST LogoutResponse Test With Relay State - Single SP" {
@@ -94,11 +94,11 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 response.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "POST LogoutResponse Test With Relay State - Multiple SPs" {
-            val authnRequest = login(HTTP_POST, multipleSP = true)
+            val ssoResponseDom = login(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest =
@@ -111,7 +111,7 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlLogoutRequestDom, authnRequest)
+            SingleLogoutProfileVerifier(samlLogoutRequestDom).verifyLogoutRequest(ssoResponseDom)
 
             val secondSPLogoutResponse =
                     createDefaultLogoutResponse(samlLogoutRequestDom.node, true)
@@ -125,11 +125,11 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
 
         "POST LogoutResponse Test With Error Logging Out From SP2 - Multiple SPs" {
-            val authnRequest = login(HTTP_POST, multipleSP = true)
+            val ssoResponseDom = login(HTTP_POST, multipleSP = true)
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
             val encodedRequest =
@@ -142,7 +142,7 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutRequestProtocolVerifier(samlLogoutRequestDom,
                 secondSPLogoutRequest.determineBinding()).verify()
-            SingleLogoutProfileVerifier(samlLogoutRequestDom, authnRequest)
+            SingleLogoutProfileVerifier(samlLogoutRequestDom).verifyLogoutRequest(ssoResponseDom)
 
             // Send a response with an error saml status code
             val secondSPLogoutResponse =
@@ -157,7 +157,7 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding(), PARTIAL_LOGOUT).verify()
-            SingleLogoutProfileVerifier(samlResponseDom)
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
     }
 }

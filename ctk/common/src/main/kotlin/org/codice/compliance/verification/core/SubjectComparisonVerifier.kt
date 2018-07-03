@@ -19,17 +19,20 @@ import org.codice.compliance.SAMLCore_3_3_4_b
 import org.codice.compliance.SAMLCore_3_3_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_d
+import org.codice.compliance.SAMLProfiles_4_4_4_1_c
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeList
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
+import org.codice.compliance.utils.BASE_ID
 import org.codice.compliance.utils.FORMAT
 import org.codice.compliance.utils.METHOD
+import org.codice.compliance.utils.NAME_ID
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
-import org.opensaml.saml.saml2.core.RequestAbstractType
+import org.opensaml.saml.saml2.core.AuthnRequest
 import org.w3c.dom.Node
 
 /**
@@ -43,8 +46,7 @@ import org.w3c.dom.Node
  * verifySubjectsMatchAuthnRequest method.
  * @param samlResponseDom Response {@code Node}.
  */
-class SubjectComparisonVerifier(private val samlResponseDom: Node,
-                                private val samlRequest: RequestAbstractType? = null) {
+class SubjectComparisonVerifier(private val samlResponseDom: Node) {
 
     companion object {
         private const val UNSPECIFIED_URI =
@@ -66,14 +68,14 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
         if (subjectSet.size < 2) return
 
         Sets.combinations(subjectSet, 2).forEach {
-            verifyIdContentsMatchSSO(it.first(), it.last())
+            verifyIdContentsMatch(it.first(), it.last(), SAMLProfiles_4_1_4_2_d)
         }
     }
 
     /**
      * Compares the text content of the identifiers. Special checking due to nameIdPolicyFormat.
      */
-    private fun verifyIdContentsMatchSSO(id1: Node, id2: Node) {
+    private fun verifyIdContentsMatch(id1: Node, id2: Node, samlCode: SAMLSpecRefMessage) {
         val format1 = id1.filteredFormatValue
         val format2 = id2.filteredFormatValue
 
@@ -81,13 +83,32 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
         if (format1 == format2
                 && format1 != null
                 && id1.textContent != id2.textContent) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_d,
-                    SAMLCore_3_3_4_b,
-                    message = "Two Response Subject identifiers have identical Format attributes " +
+            throw SAMLComplianceException.create(SAMLCore_3_3_4_b,
+                    samlCode,
+                    message = "The identifiers have identical Format attributes " +
                             "[$format1], but the content of one [${id1.textContent}] is not " +
                             "equal to the content of the other [${id2.textContent}]",
                     node = samlResponseDom)
         }
+    }
+
+    /**
+     * This function verifies that the identifier in the LogoutRequest strongly matches
+     * the identifier from the SAML assertion that was issued when that principal was logged in.
+     */
+    fun verifyIdsMatchSLO(logoutRequest: Node) {
+        val assertionId =
+                samlResponseDom.recursiveChildren(ASSERTION).firstOrNull()?.children(SUBJECT)
+                        ?.firstOrNull()?.id ?: throw IllegalArgumentException(
+                        "Could not find the assertion's identifier on the response.")
+
+        val logoutRequestId = logoutRequest.children().firstOrNull {
+            it.localName == NAME_ID || it.localName == BASE_ID
+        } ?: throw IllegalArgumentException(
+                "Could not find the logout request's identifier.")
+
+//        verifyIdAttributesMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
+        verifyIdContentsMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
     }
 
     /**
@@ -103,16 +124,16 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
      * need to resolve the Subjects to a principal.
      */
     @Suppress("NestedBlockDepth" /* Simple `let` nesting */)
-    fun verifySubjectsMatchAuthnRequest(samlCode: SAMLSpecRefMessage) {
+    fun verifySubjectsMatchAuthnRequest(samlCode: SAMLSpecRefMessage, authnRequest: AuthnRequest) {
 
-        val requestSubject = samlRequest?.dom?.children(SUBJECT)?.firstOrNull() ?: return
+        val requestSubject = authnRequest.dom?.children(SUBJECT)?.firstOrNull() ?: return
         val requestId = requestSubject.id
         val requestConfirmations = requestSubject.children(SUBJECT_CONFIRMATION)
 
         if (requestId == null && requestConfirmations.isEmpty()) return
 
         val nameIdPolicyFormat =
-                samlRequest.dom?.children("NameIDPolicy")?.firstOrNull()?.filteredFormatValue
+                authnRequest.dom?.children("NameIDPolicy")?.firstOrNull()?.filteredFormatValue
 
         samlResponseDom.recursiveChildren(ASSERTION)
                 .flatMap { it.children(SUBJECT) }
@@ -121,8 +142,9 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
                     // Verify ids match
                     requestId?.let { reqId ->
                         resSubject.id?.let { resId ->
-                            verifyIdAttributesMatchAuthnRequest(reqId, resId, nameIdPolicyFormat)
-                            verifyIdContentsMatchAuthnRequest(reqId, resId)
+                            verifyIdAttributesMatch(reqId, resId, SAMLCore_3_4_1_4_b,
+                                    nameIdPolicyFormat)
+                            verifyIdContentsMatch(reqId, resId, SAMLCore_3_4_1_4_b)
                         } ?: throw SAMLComplianceException.create(samlCode,
                                 SAMLCore_3_3_4_b,
                                 message = "One of the Response's Subjects contained no identifier",
@@ -148,57 +170,37 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node,
     /**
      * Compares all of the attributes of the identifiers. Special checking for the Format attribute.
      */
-    private fun verifyIdAttributesMatchAuthnRequest(reqId: Node,
-                                                    resId: Node,
-                                                    nameIdPolicyFormat: String? = null) {
+    private fun verifyIdAttributesMatch(id1: Node,
+                                        id2: Node,
+                                        samlCode: SAMLSpecRefMessage,
+                                        nameIdPolicyFormat: String? = null) {
         // Check the format attribute separately
         /*
          * If no NameIDPolicyFormat is defined, the Request format and the Response format are
          * different, and the formats are not unspecified
          */
         if (nameIdPolicyFormat == null) {
-            val reqFormat = reqId.filteredFormatValue
-            val resFormat = resId.filteredFormatValue
-            if (reqFormat != null && reqFormat != resFormat)
+            val format1 = id1.filteredFormatValue
+            val format2 = id2.filteredFormatValue
+            if (format1 != null && format1 != format2)
                 throw SAMLComplianceException.create(SAMLCore_3_3_4_b,
-                        message = "One of the Response's Subject identifier's Format attribute " +
-                                "[${resFormat ?: UNSPECIFIED_URI}] is not identical to the " +
+                        message = "One of the identifier's Format attribute " +
+                                "[${format2 ?: UNSPECIFIED_URI}] is not identical to the " +
                                 "AuthnRequest's Subject identifier's Format attribute " +
-                                "[$reqFormat].",
-                        node = resId)
+                                "[$format1].",
+                        node = id2)
         }
 
-        val reqAttributes = reqId.attributeList().filter { it.localName != FORMAT }.toSet()
-        val resAttributes = resId.attributeList().filter { it.localName != FORMAT }.toSet()
+        val attributes1 = id1.attributeList().filter { it.localName != FORMAT }.toSet()
+        val attributes2 = id2.attributeList().filter { it.localName != FORMAT }.toSet()
 
-        if (reqAttributes != resAttributes)
+        if (attributes1 != attributes2)
             throw SAMLComplianceException.create(SAMLCore_3_3_4_b,
-                    SAMLCore_3_4_1_4_b,
-                    message = "One of the Response's Subject identifier's attributes " +
-                            "[$resAttributes] are not identical to the" +
-                            "AuthnRequest's Subject identifier's attributes [$reqAttributes].",
-                    node = resId)
-    }
-
-    /**
-     * Compares the text content of the identifiers. Special checking due to nameIdPolicyFormat.
-     */
-    private fun verifyIdContentsMatchAuthnRequest(reqId: Node, resId: Node) {
-        val reqFormat = reqId.filteredFormatValue
-        val resFormat = resId.filteredFormatValue
-
-        // If they share a format value that isn't "unspecified", but have different contents
-        if (reqFormat == resFormat
-                && reqFormat != null
-                && reqId.textContent != resId.textContent) {
-            throw SAMLComplianceException.create(SAMLCore_3_3_4_b,
-                    SAMLCore_3_4_1_4_b,
-                    message = "One of the Response's Subject identifier's content " +
-                            "[${resId.textContent}] is not identical to the AuthnRequest's " +
-                            "Subject identifier's content [${reqId.textContent}], even though " +
-                            "they share the same identifier format [$reqFormat].",
-                    node = resId)
-        }
+                    samlCode,
+                    message = "One of the identifier's attributes " +
+                            "[$attributes2] are not identical to another" +
+                            " identifier's attributes [$attributes1].",
+                    node = id2)
     }
 
     /**

@@ -64,7 +64,8 @@ class SLOCommon {
          * @return the first AuthnRequest
          */
         @Suppress("TooGenericExceptionCaught" /* Catching all Exceptions */)
-        fun login(binding: SamlProtocol.Binding, multipleSP: Boolean = false): AuthnRequest {
+        fun login(binding: SamlProtocol.Binding, multipleSP: Boolean = false): Node {
+            var samlResponseDom: Node
             try {
                 val authnRequest by lazy {
                     createDefaultAuthnRequest(binding)
@@ -76,11 +77,12 @@ class SLOCommon {
 
                 if (binding == HTTP_POST) {
                     val firstLoginResponse = loginPost(authnRequest)
-                    getImplementation(IdpSSOResponder::class)
+                    samlResponseDom = getImplementation(IdpSSOResponder::class)
                             .getResponseForPostRequest(firstLoginResponse)
-                            .run {
+                            .apply {
                                 GlobalSession.addCookies(cookies)
-                            }
+                            }.getBindingVerifier().decodeAndVerify().node
+
                     if (multipleSP) {
                         useDSAServiceProvider()
                         loginPost(secondRequest)
@@ -88,18 +90,19 @@ class SLOCommon {
                     }
                 } else {
                     val firstLoginResponse = loginRedirect(authnRequest)
-                    getImplementation(IdpSSOResponder::class)
+                    samlResponseDom = getImplementation(IdpSSOResponder::class)
                             .getResponseForRedirectRequest(firstLoginResponse)
-                            .run {
+                            .apply {
                                 GlobalSession.addCookies(cookies)
-                            }
+                            }.getBindingVerifier().decodeAndVerify().node
+
                     if (multipleSP) {
                         useDSAServiceProvider()
                         loginRedirect(secondRequest)
                         useDefaultServiceProvider()
                     }
                 }
-                return authnRequest
+                return samlResponseDom
             } catch (e: Exception) {
                 throw SAMLComplianceException.create(SAMLGeneral_d,
                         message = "The logout test is unable to run because an error occurred " +

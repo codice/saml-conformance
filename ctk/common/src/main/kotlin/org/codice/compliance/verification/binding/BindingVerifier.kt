@@ -19,10 +19,6 @@ import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_b
 import org.codice.compliance.utils.NodeWrapper
-import org.codice.compliance.SAMLProfiles_4_4_4_1_b
-import org.codice.compliance.SAMLProfiles_4_4_4_2_b
-import org.codice.compliance.utils.LOGOUT_REQUEST
-import org.codice.compliance.utils.LOGOUT_RESPONSE
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.RequestAbstractType
@@ -60,7 +56,6 @@ abstract class BindingVerifier(val httpResponse: Response) {
          * Verifies the response's and assertions' signatures.
          * Returns true if the SAML message is signed. Returns false, otherwise.
          * */
-        @Suppress("SpreadOperator", "ComplexMethod")
         fun verifyXmlSignatures(node: Node): Boolean {
             try {
                 val docElement = node.ownerDocument.documentElement
@@ -81,13 +76,7 @@ abstract class BindingVerifier(val httpResponse: Response) {
 
                 return samlResponseObject.isSigned
             } catch (e: SimpleSign.SignatureException) {
-                val errorCodes = when (node.localName) {
-                    LOGOUT_REQUEST -> arrayOf(SAMLGeneral_b, SAMLProfiles_4_4_4_1_b)
-                    LOGOUT_RESPONSE -> arrayOf(SAMLGeneral_b, SAMLProfiles_4_4_4_2_b)
-                    else -> arrayOf(SAMLGeneral_b)
-                }
-
-                throw SAMLComplianceException.create(*errorCodes,
+                throw SAMLComplianceException.create(SAMLGeneral_b,
                         message = "Invalid signature.\n${e.message}",
                         cause = e)
             }
