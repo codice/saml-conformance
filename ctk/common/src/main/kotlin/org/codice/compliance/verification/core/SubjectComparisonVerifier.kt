@@ -107,7 +107,8 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         } ?: throw IllegalArgumentException(
                 "Could not find the logout request's identifier.")
 
-//        verifyIdAttributesMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
+        // Not handled correctly by DDF, so temporarily disabling this. See DDF-3951.
+        // verifyIdAttributesMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
         verifyIdContentsMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
     }
 
