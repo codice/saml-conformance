@@ -14,11 +14,11 @@
 package org.codice.compliance.verification.profile.subject.confirmations
 
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLProfiles_4_1_4_2_e
+import org.codice.compliance.SAMLProfiles_4_1_4_2_f
 import org.codice.compliance.SAMLProfiles_4_1_4_2_g
 import org.codice.compliance.SAMLProfiles_4_1_4_2_h
 import org.codice.compliance.SAMLProfiles_4_1_4_2_i
-import org.codice.compliance.SAMLProfiles_4_1_4_2_j
-import org.codice.compliance.SAMLProfiles_4_1_4_2_k
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
@@ -65,7 +65,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
                         .unzip()
 
         if (bearerAssertions.isEmpty())
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_e,
                     message = "No bearer SubjectConfirmation elements were found.",
                     node = samlResponseDom)
 
@@ -73,7 +73,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
                         .filter { it.children(SUBJECT_CONFIRMATION_DATA).isNotEmpty() }
                         .flatMap { it.children(SUBJECT_CONFIRMATION_DATA) }
                         .none { bearerSubjectConfirmationPredicate(it) }) {
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_f,
                     message = "There were no bearer SubjectConfirmation elements that matched " +
                             "the criteria below.",
                     node = samlResponseDom)
@@ -83,7 +83,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
 
     private fun verifyAuthnStatements(bearerAssertions: List<Node>) {
         if (bearerAssertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_g,
                     message = "A Bearer Assertion with an AuthnStatement was not found.",
                     node = samlResponseDom)
 
@@ -92,7 +92,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
         if (bearerAssertions
                         .flatMap { it.children(AUTHN_STATEMENT) }
                         .any { it.attributeNode("SessionIndex") == null })
-            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_j,
+            throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "Single Logout support found in IdP metadata, but no " +
                             "SessionIndex was found for AuthnStatement.",
                     node = samlResponseDom)
@@ -107,7 +107,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
             if (it.children(AUDIENCE)
                             .none { it.textContent == currentSPIssuer }) {
 
-                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_k,
+                throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_i,
                         message = "An <Audience> with $currentSPIssuer was found",
                         node = it)
             }
@@ -117,7 +117,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
     private fun extractAudienceRestriction(condition: Node): Node {
         val audienceRestriction = condition.children("AudienceRestriction")
         if (audienceRestriction.size != 1) {
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_k,
+            throw SAMLComplianceException.createWithPropertyMessage(SAMLProfiles_4_1_4_2_i,
                     property = "AudienceRestriction",
                     actual = audienceRestriction.toString(),
                     expected = "One <AudienceRestriction>",

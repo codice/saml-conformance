@@ -22,6 +22,7 @@ import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_3_2_a
 import org.codice.compliance.SAMLCore_3_7_3_2_c
+import org.codice.compliance.SAMLProfiles_4_4_3_5_a
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
@@ -46,8 +47,8 @@ class PostSLOErrorTest : StringSpec() {
 
                 val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
                 val encodedRequest =
-                    signAndEncodePostRequestToString(logoutRequest,
-                        RELAY_STATE_GREATER_THAN_80_BYTES)
+                        signAndEncodePostRequestToString(logoutRequest,
+                                RELAY_STATE_GREATER_THAN_80_BYTES)
 
                 val response = sendPostLogoutMessage(encodedRequest)
 
@@ -55,9 +56,10 @@ class PostSLOErrorTest : StringSpec() {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
-                        SAMLBindings_3_5_3_a,
-                        SAMLCore_3_7_3_2_c,
-                        expectedStatusCode = REQUESTER)
+                            SAMLBindings_3_5_3_a,
+                            SAMLCore_3_7_3_2_c,
+                            SAMLProfiles_4_4_3_5_a,
+                            expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
@@ -74,9 +76,10 @@ class PostSLOErrorTest : StringSpec() {
                     val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
 
                     CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
-                        SAMLCore_3_7_3_2_a,
-                        SAMLCore_3_7_3_2_c,
-                        expectedStatusCode = REQUESTER)
+                            SAMLCore_3_7_3_2_a,
+                            SAMLCore_3_7_3_2_c,
+                            SAMLProfiles_4_4_3_5_a,
+                            expectedStatusCode = REQUESTER)
                 }
             } catch (e: SAMLComplianceException) {
                 throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
