@@ -37,6 +37,7 @@ import org.codice.compliance.utils.TestCommon.Companion.useDefaultServiceProvide
 import org.codice.compliance.utils.TestCommon.Companion.username
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier.Companion.verifyHttpStatusCode
+import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.security.saml.SamlProtocol
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.POST_BINDING
@@ -81,7 +82,9 @@ class SLOCommon {
                             .getResponseForPostRequest(firstLoginResponse)
                             .apply {
                                 GlobalSession.addCookies(cookies)
-                            }.getBindingVerifier().decodeAndVerify().node
+                            }.getBindingVerifier().decodeAndVerify().node.also {
+                        CoreAuthnRequestProtocolVerifier(authnRequest, NodeWrapper(it)).preProcess()
+                    }
 
                     if (multipleSP) {
                         useDSAServiceProvider()
@@ -94,7 +97,9 @@ class SLOCommon {
                             .getResponseForRedirectRequest(firstLoginResponse)
                             .apply {
                                 GlobalSession.addCookies(cookies)
-                            }.getBindingVerifier().decodeAndVerify().node
+                            }.getBindingVerifier().decodeAndVerify().node.also {
+                        CoreAuthnRequestProtocolVerifier(authnRequest, NodeWrapper(it)).preProcess()
+                    }
 
                     if (multipleSP) {
                         useDSAServiceProvider()

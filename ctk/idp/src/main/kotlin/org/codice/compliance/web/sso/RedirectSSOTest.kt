@@ -24,10 +24,10 @@ import org.codice.compliance.utils.ENCRYPTED_ID
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendRedirectAuthnRequest
-import org.codice.compliance.utils.TestCommon.Companion.UseDSASigningSP
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.TestCommon.Companion.getImplementation
+import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
@@ -125,8 +125,8 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        "Bindings 3.4.4.1: Redirect AuthnRequest Using DSA1 Signature Algorithm".config(
-                extensions = listOf(UseDSASigningSP)) {
+        "Bindings 3.4.4.1: Redirect AuthnRequest Using DSA1 Signature Algorithm" {
+            useDSAServiceProvider()
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(authnRequest)
             val queryParams = SimpleSign().signUriString(

@@ -124,7 +124,7 @@ abstract class CoreVerifier(private val samlNode: NodeWrapper) {
     open fun verifyEncryptedElements() {
     }
 
-    private fun preProcess(encVerifier: EncryptionVerifier = EncryptionVerifier()) {
+    fun preProcess(encVerifier: EncryptionVerifier = EncryptionVerifier()) {
         val encElements = retrieveCurrentEncryptedElements(node)
         if (encElements.isEmpty()) {
             Log.debugWithSupplier {
