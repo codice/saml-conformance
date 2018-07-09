@@ -14,6 +14,7 @@
 package org.codice.compliance.verification.core
 
 import com.google.common.collect.Sets
+import org.codice.compliance.Common.Companion.runningAgainstDDF
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_3_4_b
 import org.codice.compliance.SAMLCore_3_3_4_c
@@ -108,7 +109,8 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
                 "Could not find the logout request's identifier.")
 
         // Not handled correctly by DDF, so temporarily disabling this. See DDF-3951.
-        // verifyIdAttributesMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
+        if (!runningAgainstDDF())
+            verifyIdAttributesMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
         verifyIdContentsMatch(assertionId, logoutRequestId, SAMLProfiles_4_4_4_1_c)
     }
 

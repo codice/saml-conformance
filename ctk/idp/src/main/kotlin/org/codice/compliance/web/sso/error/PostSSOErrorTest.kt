@@ -17,6 +17,7 @@ import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SSO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
+import org.codice.compliance.Common.Companion.runningAgainstDDF
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException
@@ -89,7 +90,7 @@ class PostSSOErrorTest : StringSpec() {
 
         // TODO - DDF responds with a successful response. Re-enable test when DDF handles this
         "Profiles 4.1.4.1: POST AuthnRequest With Subject Containing an Invalid Name ID Test"
-            .config(enabled = false) {
+            .config(enabled = !runningAgainstDDF()) {
                 try {
                     val authnRequest =
                         createDefaultAuthnRequest(HTTP_POST).apply {

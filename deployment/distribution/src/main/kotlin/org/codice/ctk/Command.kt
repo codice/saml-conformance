@@ -15,6 +15,7 @@ package org.codice.ctk
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
+import org.codice.compliance.DEFAULT_IMPLEMENTATION_PATH
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
@@ -77,7 +78,7 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
-            ?: "$samlDist/implementations/ddf"
+            ?: "$samlDist/$DEFAULT_IMPLEMENTATION_PATH"
 
     val userLogin = arguments.option("i") ?: "admin:admin"
 
