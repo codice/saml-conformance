@@ -13,10 +13,6 @@
  */
 package org.codice.compliance.utils
 
-import io.kotlintest.TestCaseConfig
-import io.kotlintest.TestResult
-import io.kotlintest.extensions.TestCaseExtension
-import io.kotlintest.extensions.TestCaseInterceptContext
 import org.apache.cxf.helpers.DOMUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
@@ -90,16 +86,6 @@ class TestCommon {
 
         var currentSPEntityInfo by LazyVar {
             DEFAULT_SP_ENTITY_INFO
-        }
-
-        object UseDSASigningSP : TestCaseExtension {
-            override fun intercept(context: TestCaseInterceptContext,
-                                   test: (TestCaseConfig, (TestResult) -> Unit) -> Unit,
-                                   complete: (TestResult) -> Unit) {
-                useDSAServiceProvider()
-                test(context.config, { complete(it) })
-                useDefaultServiceProvider()
-            }
         }
 
         /**

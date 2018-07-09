@@ -41,9 +41,6 @@ import org.apache.wss4j.common.saml.SAMLUtil;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
-import org.apache.wss4j.dom.validate.Credential;
-import org.apache.wss4j.dom.validate.SignatureTrustValidator;
-import org.apache.wss4j.dom.validate.Validator;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -279,17 +276,6 @@ public class SimpleSign {
     }
 
     validateSignatureAndSamlKey(signature, samlKeyInfo);
-
-    Credential trustCredential = new Credential();
-    trustCredential.setPublicKey(samlKeyInfo.getPublicKey());
-    trustCredential.setCertificates(samlKeyInfo.getCerts());
-    Validator signatureValidator = new SignatureTrustValidator();
-
-    try {
-      signatureValidator.validate(trustCredential, requestData);
-    } catch (WSSecurityException e) {
-      throw new SignatureException("Error validating signature", e);
-    }
   }
 
   private void validateSignatureAndSamlKey(Signature signature, SAMLKeyInfo samlKeyInfo)

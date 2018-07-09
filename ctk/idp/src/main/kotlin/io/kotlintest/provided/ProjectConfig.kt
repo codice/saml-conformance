@@ -15,19 +15,22 @@ package io.kotlintest.provided
 
 import de.jupf.staticlog.Log
 import io.kotlintest.AbstractProjectConfig
+import io.kotlintest.Description
 import io.kotlintest.Tag
+import io.kotlintest.TestResult
 import io.kotlintest.extensions.TestListener
 import io.restassured.RestAssured
 import io.restassured.RestAssured.config
 import io.restassured.config.RedirectConfig.redirectConfig
 import org.codice.compliance.Common
 import org.codice.compliance.utils.GlobalSession
+import org.codice.compliance.utils.TestCommon.Companion.useDefaultServiceProvider
 
 object SLO : Tag()
 object SSO : Tag()
 
 object ProjectConfig : AbstractProjectConfig() {
-    override fun listeners(): List<TestListener> = listOf(GlobalSession)
+    override fun listeners(): List<TestListener> = listOf(GlobalSession, SPReset)
 
     override fun beforeAll() {
         RestAssured.config = config().redirect(redirectConfig().followRedirects(false))
@@ -51,5 +54,11 @@ object ProjectConfig : AbstractProjectConfig() {
 
         System.setProperty("kotlintest.tags.exclude",
             setOfExclusions.joinToString(",", transform = { it.name }))
+    }
+}
+
+object SPReset : TestListener {
+    override fun afterTest(description: Description, testResult: TestResult) {
+        useDefaultServiceProvider()
     }
 }
