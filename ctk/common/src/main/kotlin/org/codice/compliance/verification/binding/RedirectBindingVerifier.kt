@@ -45,7 +45,7 @@ import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.LOCATION
 import org.codice.compliance.utils.MAX_RELAY_STATE_LEN
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.SAML_ENCODING
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.TestCommon.Companion.idpMetadata
@@ -71,21 +71,21 @@ import java.nio.charset.StandardCharsets
 class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
 
     /** Verify the response for a redirect binding */
-    override fun decodeAndVerify(): NodeWrapper {
+    override fun decodeAndVerify(): NodeDecorator {
         verifyHttpRedirectStatusCode()
         val paramMap = verifyNoNullsAndParse()
         verifyRedirectRelayState(paramMap[RELAY_STATE])
         val samlResponseDom = decode(paramMap)
         verifyNoXMLSig(samlResponseDom)
         verifyXmlSignatures(samlResponseDom) // Should verify assertions signature
-        val nodeWrapper = NodeWrapper(samlResponseDom)
+        val nodeDecorator = NodeDecorator(samlResponseDom)
         paramMap[SIGNATURE]?.let {
             verifyRedirectSignature(paramMap)
-            verifyRedirectDestination(samlResponseDom)
-            nodeWrapper.isSigned = true
+            verifyRedirectDestination(nodeDecorator)
+            nodeDecorator.isSigned = true
         }
 
-        return nodeWrapper
+        return nodeDecorator
     }
 
     /** Verify an error response (Negative path) */

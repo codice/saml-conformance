@@ -82,9 +82,10 @@ class SLOCommon {
                             .getResponseForPostRequest(firstLoginResponse)
                             .apply {
                                 GlobalSession.addCookies(cookies)
-                            }.getBindingVerifier().decodeAndVerify().node.also {
-                        CoreAuthnRequestProtocolVerifier(authnRequest, NodeWrapper(it)).preProcess()
-                    }
+                            }.getBindingVerifier().decodeAndVerify().also {
+                                CoreAuthnRequestProtocolVerifier(authnRequest,
+                                        it).preProcess()
+                            }
 
                     if (multipleSP) {
                         useDSAServiceProvider()
@@ -97,9 +98,10 @@ class SLOCommon {
                             .getResponseForRedirectRequest(firstLoginResponse)
                             .apply {
                                 GlobalSession.addCookies(cookies)
-                            }.getBindingVerifier().decodeAndVerify().node.also {
-                        CoreAuthnRequestProtocolVerifier(authnRequest, NodeWrapper(it)).preProcess()
-                    }
+                            }.getBindingVerifier().decodeAndVerify().also {
+                                CoreAuthnRequestProtocolVerifier(authnRequest,
+                                        it).preProcess()
+                            }
 
                     if (multipleSP) {
                         useDSAServiceProvider()

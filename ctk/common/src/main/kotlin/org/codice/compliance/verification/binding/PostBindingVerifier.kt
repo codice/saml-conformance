@@ -26,7 +26,7 @@ import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.DESTINATION
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Decoder
@@ -35,16 +35,16 @@ import kotlin.test.assertNotNull
 
 class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse) {
     /** Verify the response for a post binding */
-    override fun decodeAndVerify(): NodeWrapper {
+    override fun decodeAndVerify(): NodeDecorator {
         val samlResponseString =
                 PostFormVerifier(httpResponse, isRelayStateGiven, isSamlRequest).verifyAndParse()
         val samlResponseDom = decode(samlResponseString)
-        val nodeWrapper = NodeWrapper(samlResponseDom).apply {
-            isSigned = verifyXmlSignatures(samlResponseDom)
+        val nodeDecorator = NodeDecorator(samlResponseDom).apply {
+            isSigned = verifyXmlSignatures(this)
         }
-        verifyPostSSO(samlResponseDom)
-        verifyPostDestination(samlResponseDom)
-        return nodeWrapper
+        verifyPostSSO(nodeDecorator)
+        verifyPostDestination(nodeDecorator)
+        return nodeDecorator
     }
 
     /** Verify an error response (Negative path) */

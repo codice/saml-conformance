@@ -28,7 +28,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
@@ -41,13 +41,12 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.AuthnRequest
 
 class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
-                                       samlResponse: NodeWrapper) :
+                                       private val samlResponse: NodeDecorator) :
         ResponseVerifier(authnRequest, samlResponse, HTTP_POST) {
 
-    private val samlResponseDom = samlResponse.node
-
     private val nameIdPolicyVerifier =
-            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(samlResponseDom, it) }
+            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(
+                    this.samlResponse, it) }
 
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {
@@ -71,17 +70,17 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
     }
 
     private fun verifyAuthnRequestProtocolResponse() {
-        val assertions = samlResponseDom.children(ASSERTION)
+        val assertions = samlResponse.children(ASSERTION)
 
-        if (samlResponseDom.localName != RESPONSE || assertions.isEmpty())
+        if (samlResponse.localName != RESPONSE || assertions.isEmpty())
             throw SAMLComplianceException.create(SAMLCore_3_4_1_4_a,
                     message = "Did not find Response elements with one or more Assertion elements.",
-                    node = samlResponseDom)
+                    node = samlResponse)
 
         if (assertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
             throw SAMLComplianceException.create(SAMLCore_3_4_a, SAMLCore_3_4_1_4_d,
                     message = "AuthnStatement not found in any of the Assertions.",
-                    node = samlResponseDom)
+                    node = samlResponse)
 
         if (assertions.any {
                     it.recursiveChildren("AudienceRestriction").flatMap { it.children(AUDIENCE) }
@@ -90,7 +89,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
             throw SAMLComplianceException.create(SAMLCore_3_4_1_4_e,
                     message = "Assertion found without an AudienceRestriction referencing the " +
                             "requester.",
-                    node = samlResponseDom)
+                    node = samlResponse)
     }
 
     override fun verifyEncryptedElements() {
@@ -98,14 +97,14 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
     }
 
     private fun verifySubjects() {
-        samlResponseDom.recursiveChildren(ASSERTION).forEach {
+        samlResponse.recursiveChildren(ASSERTION).forEach {
             if (it.children(SUBJECT).isEmpty())
                 throw SAMLComplianceException.create(SAMLCore_3_4_1_4_c,
                         message = "One of the Assertions contained no Subject",
                         node = it)
         }
 
-        SubjectComparisonVerifier(samlResponseDom)
+        SubjectComparisonVerifier(samlResponse)
                 .verifySubjectsMatchAuthnRequest(SAMLCore_3_4_1_4_b, authnRequest)
     }
 }

@@ -101,9 +101,14 @@ fun Node.attributeList(): List<Node> {
 fun Node.prettyPrintXml(): String {
     // Remove whitespaces outside tags
     normalize()
+    val thisNode = if (this is DecoratedNode)
+        this.getNode()
+    else
+        this
+
     val xPath = XPathFactory.newInstance().newXPath()
     val nodeList = xPath.evaluate("//text()[normalize-space()='']",
-            this,
+            thisNode,
             XPathConstants.NODESET) as NodeList
     for (i in 0 until nodeList.length) {
         val node = nodeList.item(i)
@@ -112,7 +117,7 @@ fun Node.prettyPrintXml(): String {
 
     val transformer = createTransformer()
     val output = StringWriter()
-    transformer.transform(DOMSource(this), StreamResult(output))
+    transformer.transform(DOMSource(thisNode), StreamResult(output))
     return output.toString()
 }
 

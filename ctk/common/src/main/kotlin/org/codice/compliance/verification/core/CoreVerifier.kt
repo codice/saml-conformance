@@ -25,7 +25,7 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
@@ -35,7 +35,7 @@ import org.codice.compliance.verification.core.CommonDataTypeVerifier.Companion.
 import org.w3c.dom.Node
 import java.time.Instant
 
-abstract class CoreVerifier(private val samlNode: NodeWrapper) {
+abstract class CoreVerifier(private val samlNode: NodeDecorator) {
     companion object {
         /**
          * Verifies that a response has the expected status code.
@@ -107,28 +107,26 @@ abstract class CoreVerifier(private val samlNode: NodeWrapper) {
         }
     }
 
-    private val node = samlNode.node
-
     /**
      * Verify response against the Core Spec document
      */
     open fun verify() {
         preProcess()
-        verifyCommonDataType(node)
-        SamlAssertionsVerifier(node).verify()
-        SamlVersioningVerifier(node).verify()
-        SignatureSyntaxAndProcessingVerifier(node).verify()
-        SamlDefinedIdentifiersVerifier(node).verify()
+        verifyCommonDataType(samlNode)
+        SamlAssertionsVerifier(samlNode).verify()
+        SamlVersioningVerifier(samlNode).verify()
+        SignatureSyntaxAndProcessingVerifier(samlNode).verify()
+        SamlDefinedIdentifiersVerifier(samlNode).verify()
     }
 
     open fun verifyEncryptedElements() {
     }
 
     fun preProcess(encVerifier: EncryptionVerifier = EncryptionVerifier()) {
-        val encElements = retrieveCurrentEncryptedElements(node)
+        val encElements = retrieveCurrentEncryptedElements(samlNode)
         if (encElements.isEmpty()) {
             Log.debugWithSupplier {
-                "Decrypted SAML Response:\n\n ${node.prettyPrintXml()}"
+                "Decrypted SAML Response:\n\n ${samlNode.prettyPrintXml()}"
             }
             return
         }
@@ -138,7 +136,7 @@ abstract class CoreVerifier(private val samlNode: NodeWrapper) {
                     " on the SAML Response."
         }
 
-        SchemaValidator.validateSAMLMessage(node)
+        SchemaValidator.validateSAMLMessage(samlNode)
         verifyEncryptedElements()
 
         if (encElements.any { it.localName == "EncryptedAssertion" })

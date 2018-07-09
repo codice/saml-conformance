@@ -30,7 +30,7 @@ import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.core.RequestVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import java.time.Instant
@@ -44,17 +44,17 @@ class RequestVerifierSpec : StringSpec() {
                 Resources.getResource("test-sp-metadata.xml").path)
 
         "request with correct ID, version and instant should pass" {
-            NodeWrapper(Common.buildDom(createRequest())).let {
+            NodeDecorator(Common.buildDom(createRequest())).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
         "request with non-unique ID should fail" {
-            NodeWrapper(Common.buildDom(createRequest(id = "id"))).let {
+            NodeDecorator(Common.buildDom(createRequest(id = "id"))).let {
                 RequestVerifierTest(it).verify()
             }
 
-            NodeWrapper(Common.buildDom(createRequest(id = "id"))).let {
+            NodeDecorator(Common.buildDom(createRequest(id = "id"))).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.apply {
@@ -65,7 +65,7 @@ class RequestVerifierSpec : StringSpec() {
         }
 
         "request with incorrect version (empty) should fail" {
-            NodeWrapper(Common.buildDom(createRequest(version = ""))).let {
+            NodeDecorator(Common.buildDom(createRequest(version = ""))).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
                 }.message?.apply {
@@ -76,7 +76,7 @@ class RequestVerifierSpec : StringSpec() {
         }
 
         "request with incorrect instant (non-UTC) should fail" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createRequest(instant = "2018-05-01T06:15:30-07:00"))).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
@@ -88,14 +88,14 @@ class RequestVerifierSpec : StringSpec() {
         }
 
         "request with correct destination should pass" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createRequest(attribute = "$DESTINATION=\"$correctUri\""))).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
         "request with incorrect destination should fail" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createRequest(attribute = "$DESTINATION=\"$incorrectUri\""))).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
@@ -104,14 +104,14 @@ class RequestVerifierSpec : StringSpec() {
         }
 
         "request with correct consent should pass" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createRequest(attribute = "$CONSENT=\"$correctUri\""))).let {
                 RequestVerifierTest(it).verify()
             }
         }
 
         "request with incorrect consent (relative URI) should fail" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createRequest(attribute = "$CONSENT=\"$incorrectUri\""))).let {
                 shouldThrow<SAMLComplianceException> {
                     RequestVerifierTest(it).verify()
@@ -140,6 +140,6 @@ class RequestVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private class RequestVerifierTest(samlRequestDom: NodeWrapper) :
+    private class RequestVerifierTest(samlRequestDom: NodeDecorator) :
             RequestVerifier(samlRequestDom, HTTP_POST)
 }

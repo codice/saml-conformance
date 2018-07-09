@@ -27,7 +27,7 @@ import org.codice.compliance.recursiveChildren
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
 import org.codice.compliance.utils.SUCCESS
@@ -38,11 +38,9 @@ import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.RequestAbstractType
 
 abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
-                                samlResponse: NodeWrapper,
+                                private val samlResponse: NodeDecorator,
                                 private val binding: SamlProtocol.Binding) :
         CoreVerifier(samlResponse) {
-
-    private val samlResponseDom = samlResponse.node
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
@@ -54,44 +52,44 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
 
     /** All SAML responses are of types that are derived from the StatusResponseType complex type.*/
     private fun verifyStatusResponseType() {
-        CommonDataTypeVerifier.verifyIdValue(samlResponseDom.attributeNode(ID),
+        CommonDataTypeVerifier.verifyIdValue(samlResponse.attributeNode(ID),
                 SAMLCore_3_2_2_a)
 
         // Assuming response is generated in response to a request
-        val inResponseTo = samlResponseDom.attributeText("InResponseTo")
+        val inResponseTo = samlResponse.attributeText("InResponseTo")
         val requestId = samlRequest.id
         if (inResponseTo != null && inResponseTo != requestId)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_b,
                     property = "InResponseTo",
                     actual = inResponseTo,
                     expected = requestId,
-                    node = samlResponseDom)
+                    node = samlResponse)
 
-        CommonDataTypeVerifier.verifyStringValue(samlResponseDom.attributeNode(VERSION))
+        CommonDataTypeVerifier.verifyStringValue(samlResponse.attributeNode(VERSION))
         CommonDataTypeVerifier.verifyDateTimeValue(
-                samlResponseDom.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
+                samlResponse.attributeNode("IssueInstant"), SAMLCore_3_2_2_d)
 
-        samlResponseDom.attributeNode(DESTINATION)?.apply {
+        samlResponse.attributeNode(DESTINATION)?.apply {
 
-            val url = getServiceUrl(binding, samlResponseDom)
+            val url = getServiceUrl(binding, samlResponse)
             if (textContent != url)
                 throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
                         expected = url ?: "No ACS URL Found",
-                        node = samlResponseDom)
+                        node = samlResponse)
 
             CommonDataTypeVerifier.verifyUriValue(this)
         }
 
-        samlResponseDom.attributeNode(CONSENT)?.let {
+        samlResponse.attributeNode(CONSENT)?.let {
             CommonDataTypeVerifier.verifyUriValue(it)
         }
     }
 
     /** 3.2.2.2 Element <StatusCode> */
     private fun verifyStatusCode() {
-        val topLevelStatusCode = samlResponseDom.recursiveChildren(STATUS)
+        val topLevelStatusCode = samlResponse.recursiveChildren(STATUS)
                 .flatMap { it.children(STATUS_CODE) }
                 .first()
                 .attributeText("Value")
@@ -99,23 +97,23 @@ abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
             throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     message = "The StatusCode value of $topLevelStatusCode is not a top level " +
                             "SAML status code.",
-                    node = samlResponseDom)
+                    node = samlResponse)
 
         if (topLevelStatusCode != SUCCESS)
             throw SAMLComplianceException.createWithPropertyMessage(SAMLGeneral_e,
                     property = STATUS_CODE,
                     expected = SUCCESS,
                     actual = topLevelStatusCode,
-                    node = samlResponseDom)
+                    node = samlResponse)
 
-        samlResponseDom.recursiveChildren(STATUS_CODE)
+        samlResponse.recursiveChildren(STATUS_CODE)
                 .mapNotNull { it.attributeNode("Value") }
                 .forEach { CommonDataTypeVerifier.verifyUriValue(it) }
     }
 
     /** 3.2.2.3 Element <StatusMessage> */
     private fun verifyStatusMessage() {
-        samlResponseDom.recursiveChildren("StatusMessage")
+        samlResponse.recursiveChildren("StatusMessage")
                 .forEach { CommonDataTypeVerifier.verifyStringValue(it) }
     }
 }

@@ -21,7 +21,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
 import org.codice.compliance.children
 import org.codice.compliance.utils.ASSERTION
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.determineBinding
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier.Companion.verifyIssuer
@@ -29,19 +29,17 @@ import org.codice.compliance.verification.profile.subject.confirmations.BearerSu
 import org.codice.compliance.verification.profile.subject.confirmations.HolderOfKeySubjectConfirmationVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 
-class SingleSignOnProfileVerifier(private val response: NodeWrapper) {
-
-    private val samlResponseDom = response.node
+class SingleSignOnProfileVerifier(private val response: NodeDecorator) {
 
     /** 4.1.4.2 <Response> Usage */
     fun verify() {
         if (response.isSigned || response.hasEncryptedAssertion)
-            verifyIssuer(samlResponseDom, SAMLProfiles_4_1_4_2_a)
+            verifyIssuer(response, SAMLProfiles_4_1_4_2_a)
 
         verifySSOAssertions()
-        SubjectComparisonVerifier(samlResponseDom).verifySubjectsMatchSSO()
-        BearerSubjectConfirmationVerifier(samlResponseDom).verify()
-        HolderOfKeySubjectConfirmationVerifier(samlResponseDom).verify()
+        SubjectComparisonVerifier(response).verifySubjectsMatchSSO()
+        BearerSubjectConfirmationVerifier(response).verify()
+        HolderOfKeySubjectConfirmationVerifier(response).verify()
     }
 
     /** 4.1.2 Profile Overview */
@@ -54,11 +52,11 @@ class SingleSignOnProfileVerifier(private val response: NodeWrapper) {
 
     /** 4.1.4.2 <Response> Usage */
     private fun verifySSOAssertions() {
-        val assertions = samlResponseDom.children(ASSERTION)
+        val assertions = response.children(ASSERTION)
         if (assertions.isEmpty()) {
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_b,
                     message = "No Assertions found.",
-                    node = samlResponseDom)
+                    node = response)
         }
         assertions.forEach { verifyIssuer(it, SAMLProfiles_4_1_4_2_c) }
     }
