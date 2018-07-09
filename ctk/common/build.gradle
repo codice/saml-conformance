@@ -4,6 +4,8 @@ description = 'Common Functions for IdP Tests.'
 dependencies {
     compile project(':library')
     compile project(':external:samlconf-plugins-api')
+
+    compile "org.apache.wss4j:wss4j-ws-security-common:$apache_wss4j_version"
     testCompile "io.kotlintest:kotlintest-runner-junit5:$kotlin_test_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junit_jupiter_version"

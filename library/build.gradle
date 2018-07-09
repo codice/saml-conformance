@@ -2,20 +2,9 @@ description = 'Common libraries from DDF for building request/response, signing 
 
 apply plugin: 'maven-publish'
 
-project.ext {
-    apache_wss4j_version='2.1.11'
-    apache_cxf_version='3.2.2'
-}
-
 dependencies {
-    compile "org.apache.wss4j:wss4j-ws-security-common:$apache_wss4j_version"
-    compile "org.apache.wss4j:wss4j-ws-security-dom:$apache_wss4j_version"
-    compile "org.apache.cxf:cxf-core:$apache_cxf_version"
     compile "org.apache.cxf:cxf-rt-rs-security-sso-saml:$apache_cxf_version"
-
-    compile 'org.opensaml:opensaml-saml-api:3.1.1'
     compile 'com.google.http-client:google-http-client:1.22.0'
-    compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     compile 'org.keyczar:keyczar:0.66'
     compile 'net.sf.jtidy:jtidy:r938'
 
