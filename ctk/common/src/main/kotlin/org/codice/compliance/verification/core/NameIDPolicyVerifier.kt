@@ -45,7 +45,6 @@ class NameIDPolicyVerifier(private val samlResponseDom: Node, private val policy
                             verifyFormatsMatch(it)
                         }
                     }
-
                     verifySPNameQualifiersMatch(it)
                 }
     }

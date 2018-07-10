@@ -56,8 +56,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
         super.verify()
         verifyAuthnRequestProtocolResponse()
         verifySubjects()
-        // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
-        // nameIdPolicyVerifier?.verify()
+        nameIdPolicyVerifier?.verify()
     }
 
     fun verifyAssertionConsumerService(httpResponse: Response) {

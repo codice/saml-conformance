@@ -38,6 +38,7 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener
 import us.jimschubert.kopper.Parser
+import java.io.File
 import java.io.PrintWriter
 
 private class Runner {
@@ -61,12 +62,13 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
-            ?: "$samlDist/$DEFAULT_IMPLEMENTATION_PATH"
+            ?: "$samlDist${File.separator}$DEFAULT_IMPLEMENTATION_PATH"
     val userLogin = arguments.option("i") ?: "admin:admin"
 
     System.setProperty(IMPLEMENTATION_PATH, implementationPath)
     System.setProperty(USER_LOGIN, userLogin)
-    System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")
+    System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist${File.separator}conf" +
+            "${File.separator}samlconf-sp-metadata.xml")
     System.setProperty(LENIENT_ERROR_VERIFICATION, arguments.flag("l").toString())
     System.setProperty(RUN_DDF_PROFILE, arguments.flag("ddf").toString())
 

@@ -32,7 +32,8 @@ import javax.xml.transform.TransformerFactory
 import kotlin.test.currentStackTrace
 
 const val IMPLEMENTATION_PATH = "implementation.path"
-const val DEFAULT_IMPLEMENTATION_PATH = "implementations/ddf"
+@Suppress("TopLevelPropertyNaming")
+val DEFAULT_IMPLEMENTATION_PATH = "implementations${File.separator}ddf"
 const val USER_LOGIN = "user.login"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 const val LENIENT_ERROR_VERIFICATION = "lenient.error.verification"
