@@ -18,7 +18,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.compliance.SAMLBindings_3_4_6_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_b
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.sign.SimpleSign
 import org.opensaml.saml.saml2.core.RequestAbstractType
@@ -86,5 +86,5 @@ abstract class BindingVerifier(val httpResponse: Response) {
     var isSamlRequest: Boolean = false
     var isRelayStateGiven: Boolean = false
     abstract fun decodeAndVerifyError(): Node
-    abstract fun decodeAndVerify(): NodeWrapper
+    abstract fun decodeAndVerify(): NodeDecorator
 }

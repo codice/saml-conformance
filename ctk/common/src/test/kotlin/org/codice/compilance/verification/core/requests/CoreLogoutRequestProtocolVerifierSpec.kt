@@ -22,7 +22,7 @@ import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.SAMLCore_1_3_3_a
 import org.codice.compliance.SAMLCore_3_7_1_a
 import org.codice.compliance.SAMLCore_3_7_3_2_e
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtocolVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
@@ -35,16 +35,17 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
 
     init {
         "logout request with correct reason should pass" {
-            NodeWrapper(Common.buildDom(
-                    createLogoutRequest("Reason=\"http://correct.reason/uri\"",
+            NodeDecorator(Common.buildDom(
+                    createLogoutRequest("""Reason="http://correct.reason/uri"""",
                             correctNotOnOrAfter))).let {
                 CoreLogoutRequestProtocolVerifier(it, HTTP_REDIRECT).verify()
             }
         }
 
         "logout request with incorrect reason (relative URI) should fail with SAMLCore_3_7_1_a" {
-            NodeWrapper(Common.buildDom(createLogoutRequest("Reason=\"/incorrect/reason/uri\"",
-                    correctNotOnOrAfter))).let {
+            NodeDecorator(Common.buildDom(
+                    createLogoutRequest("""Reason="/incorrect/reason/uri"""",
+                            correctNotOnOrAfter))).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
                 }.message
@@ -55,14 +56,14 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
         }
 
         "logout request with correct NotOnOrAfter should pass" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createLogoutRequest("", "2018-05-01T13:15:30Z"))).let {
                 CoreLogoutRequestProtocolVerifier(it, HTTP_REDIRECT).verify()
             }
         }
 
         "logout request with incorrect NotOnOrAfter (non-UTC) should fail with SAMLCore_3_7_1_a" {
-            NodeWrapper(Common.buildDom(
+            NodeDecorator(Common.buildDom(
                     createLogoutRequest("", "2018-05-01T06:15:30-07:00"))).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
@@ -71,7 +72,7 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
         }
 
         "logout request with no NotOnOrAfter should fail with SAMLCore_3_7_3_2_e" {
-            NodeWrapper(Common.buildDom(createLogoutRequest("", null))).let {
+            NodeDecorator(Common.buildDom(createLogoutRequest("", null))).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
                 }.message?.shouldContain(SAMLCore_3_7_3_2_e.message)

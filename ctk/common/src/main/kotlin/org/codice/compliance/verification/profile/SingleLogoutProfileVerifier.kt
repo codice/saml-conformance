@@ -22,12 +22,11 @@ import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
 import org.codice.compliance.utils.LOGOUT_REQUEST
 import org.codice.compliance.utils.LOGOUT_RESPONSE
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.w3c.dom.Node
 
-class SingleLogoutProfileVerifier(private val samlLogoutNodeWrapper: NodeWrapper) {
-    private val samlLogoutNode = samlLogoutNodeWrapper.node
+class SingleLogoutProfileVerifier(private val samlLogoutNode: NodeDecorator) {
 
     fun verifyLogoutRequest(ssoResponseDom: Node) {
         if (samlLogoutNode.localName != LOGOUT_REQUEST)
@@ -36,7 +35,7 @@ class SingleLogoutProfileVerifier(private val samlLogoutNodeWrapper: NodeWrapper
                             "session participants.",
                     node = samlLogoutNode)
 
-        if (!samlLogoutNodeWrapper.isSigned)
+        if (!samlLogoutNode.isSigned)
             throw SAMLComplianceException.create(SAMLProfiles_4_4_4_1_b,
                     message = "The Logout Request was not signed.",
                     node = samlLogoutNode)
@@ -53,7 +52,7 @@ class SingleLogoutProfileVerifier(private val samlLogoutNodeWrapper: NodeWrapper
                             "session participant.",
                     node = samlLogoutNode)
 
-        if (!samlLogoutNodeWrapper.isSigned)
+        if (!samlLogoutNode.isSigned)
             throw SAMLComplianceException.create(SAMLProfiles_4_4_4_2_b,
                     message = "The Logout Response was not signed.",
                     node = samlLogoutNode)

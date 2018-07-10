@@ -25,7 +25,7 @@ import org.codice.compliance.SAMLProfiles_4_1_4_2_b
 import org.codice.compliance.SAMLProfiles_4_1_4_2_c
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.utils.BEARER
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.SUCCESS
 import org.codice.compliance.utils.TestCommon.Companion.REQUEST_ID
 import org.codice.compliance.verification.core.CoreVerifier
@@ -147,13 +147,13 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
                 Resources.getResource("test-sp-metadata.xml").path)
 
         "unsigned response with no issuer on response element should pass" {
-            NodeWrapper(Common.buildDom(createResponse(issuer = ""))).let {
+            NodeDecorator(Common.buildDom(createResponse(issuer = ""))).let {
                 SingleSignOnProfileVerifier(it).verify()
             }
         }
 
         "signed response with no issuer on response element should fail" {
-            NodeWrapper(Common.buildDom(createResponse(issuer = "")), isSigned = true).let {
+            NodeDecorator(Common.buildDom(createResponse(issuer = "")), isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_a.message)
@@ -161,7 +161,7 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
 
         "response with incorrect assertion issuer value should fail" {
-            NodeWrapper(Common.buildDom(createResponse(assertionIssuer = "wrong"))).let {
+            NodeDecorator(Common.buildDom(createResponse(assertionIssuer = "wrong"))).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_c.message)
@@ -170,7 +170,7 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
 
         "response with no assertion should fail" {
             val noAssertionResponse = "<s:Response $responseParams/>"
-            NodeWrapper(Common.buildDom(noAssertionResponse)).let {
+            NodeDecorator(Common.buildDom(noAssertionResponse)).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleSignOnProfileVerifier(it).verify()
                 }.message?.shouldContain(SAMLProfiles_4_1_4_2_b.message)
@@ -178,14 +178,14 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
 
         "unsigned response with encrypted assertion and correct issuer should pass" {
-            NodeWrapper(Common.buildDom(correctEncryptedResponse)).let {
+            NodeDecorator(Common.buildDom(correctEncryptedResponse)).let {
                 CoreVerifierTest(it).verify()
                 SingleSignOnProfileVerifier(it).verify()
             }
         }
 
         "unsigned response with encrypted assertion and incorrect issuer should fail" {
-            NodeWrapper(Common.buildDom(incorrectEncryptedResponse)).let {
+            NodeDecorator(Common.buildDom(incorrectEncryptedResponse)).let {
                 shouldThrow<SAMLComplianceException> {
                     CoreVerifierTest(it).verify()
                     SingleSignOnProfileVerifier(it).verify()
@@ -231,4 +231,4 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
     }
 }
 
-class CoreVerifierTest(samlNode: NodeWrapper) : CoreVerifier(samlNode)
+class CoreVerifierTest(samlNode: NodeDecorator) : CoreVerifier(samlNode)

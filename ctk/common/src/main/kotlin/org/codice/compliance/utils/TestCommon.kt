@@ -21,6 +21,7 @@ import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common.Companion.idpMetadataObject
 import org.codice.compliance.Common.Companion.parseSpMetadata
 import org.codice.compliance.IMPLEMENTATION_PATH
+import org.codice.compliance.DecoratedNode
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_c
 import org.codice.compliance.USER_LOGIN
@@ -215,5 +216,9 @@ class LazyVar<T>(val init: () -> T) : ReadWriteProperty<Any?, T> {
     }
 }
 
-data class NodeWrapper(val node: Node, var hasEncryptedAssertion: Boolean = false,
-                       var isSigned: Boolean = false)
+class NodeDecorator(private val node: Node, var hasEncryptedAssertion: Boolean = false,
+                    var isSigned: Boolean = false) : DecoratedNode, Node by node {
+    override fun getNode(): Node {
+        return node
+    }
+}

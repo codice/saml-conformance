@@ -27,7 +27,7 @@ import org.codice.compliance.SAMLProfiles_4_4_4_1_b
 import org.codice.compliance.SAMLProfiles_4_4_4_1_c
 import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
-import org.codice.compliance.utils.NodeWrapper
+import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import java.time.Instant
 
@@ -64,14 +64,14 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
                 Resources.getResource("implementation").path)
 
         "logout request with correct issuer should pass" {
-            NodeWrapper(Common.buildDom(createLogoutRequest(correctIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutRequest(correctIdpIssuer)),
                     isSigned = true).let {
                 SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
             }
         }
 
         "verify logout request with logout response should fail" {
-            NodeWrapper(Common.buildDom(createLogoutResponse(incorrectIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutResponse(incorrectIdpIssuer)),
                     isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
@@ -80,7 +80,7 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
         }
 
         "unsigned logout request should fail" {
-            NodeWrapper(Common.buildDom(createLogoutRequest(correctIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutRequest(correctIdpIssuer)),
                     isSigned = false).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
@@ -89,7 +89,7 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
         }
 
         "logout request with incorrect issuer should fail" {
-            NodeWrapper(Common.buildDom(createLogoutRequest(incorrectIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutRequest(incorrectIdpIssuer)),
                     isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
@@ -98,7 +98,7 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
         }
 
         "logout request with non-matching NameID should fail" {
-            NodeWrapper(
+            NodeDecorator(
                     Common.buildDom(createLogoutRequest(correctIdpIssuer, incorrectNameIDValue)),
                     isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
@@ -108,14 +108,14 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
         }
 
         "logout response with correct issuer should pass" {
-            NodeWrapper(Common.buildDom(createLogoutResponse(correctIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutResponse(correctIdpIssuer)),
                     isSigned = true).let {
                 SingleLogoutProfileVerifier(it).verifyLogoutResponse()
             }
         }
 
         "verify logout response with logout request should fail" {
-            NodeWrapper(Common.buildDom(createLogoutRequest(incorrectIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutRequest(incorrectIdpIssuer)),
                     isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleLogoutProfileVerifier(it).verifyLogoutResponse()
@@ -124,7 +124,7 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
         }
 
         "unsigned logout response should fail" {
-            NodeWrapper(Common.buildDom(createLogoutResponse(correctIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutResponse(correctIdpIssuer)),
                     isSigned = false).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleLogoutProfileVerifier(it).verifyLogoutResponse()
@@ -133,7 +133,7 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
         }
 
         "logout response with incorrect issuer should fail" {
-            NodeWrapper(Common.buildDom(createLogoutResponse(incorrectIdpIssuer)),
+            NodeDecorator(Common.buildDom(createLogoutResponse(incorrectIdpIssuer)),
                     isSigned = true).let {
                 shouldThrow<SAMLComplianceException> {
                     SingleLogoutProfileVerifier(it).verifyLogoutResponse()
