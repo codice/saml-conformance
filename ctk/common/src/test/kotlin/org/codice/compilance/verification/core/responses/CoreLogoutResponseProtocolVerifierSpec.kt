@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.compilance.verification.core.response
+package org.codice.compilance.verification.core.responses
 
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldThrow

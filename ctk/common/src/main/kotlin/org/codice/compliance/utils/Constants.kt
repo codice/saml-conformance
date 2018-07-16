@@ -26,6 +26,17 @@ const val ENCRYPTED_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted"
 const val PERSISTENT_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
 const val TRANSIENT_ID = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
 
+const val PASSWORD_AUTH = "urn:oasis:names:tc:SAML:2.0:ac:classes:Password"
+const val PASS_PROTECTED_TRANSPORT =
+        "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
+const val X509_AUTH = "urn:oasis:names:tc:SAML:2.0:ac:classes:X509"
+const val SMART_CARD_PKI = "urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI"
+const val SOFTWARE_PKI = "urn:oasis:names:tc:SAML:2.0:ac:classes:SoftwarePKI"
+const val SPKI_AUTH = "urn:oasis:names:tc:SAML:2.0:ac:classes:SPKI"
+const val TLS_CLIENT = "urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient"
+val ddfAuthnContextList = setOf(PASSWORD_AUTH, PASS_PROTECTED_TRANSPORT, X509_AUTH, SMART_CARD_PKI,
+        SOFTWARE_PKI, SPKI_AUTH, TLS_CLIENT)
+
 const val ID = "ID"
 const val ASSERTION = "Assertion"
 const val RESPONSE = "Response"
@@ -58,7 +69,7 @@ const val SP_NAME_QUALIFIER = "SPNameQualifier"
 
 const val EXAMPLE_RELAY_STATE = "relay+State"
 const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +
-    "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
+        "AccordingToTheSamlSpecItMustNotExceed80BytesInLength"
 const val MAX_RELAY_STATE_LEN = 80
 const val INCORRECT_DESTINATION = "https://incorrect.destination.com"
 
@@ -72,4 +83,4 @@ val topLevelStatusCodes = setOf(SUCCESS, REQUESTER, RESPONDER, VERSION_MISMATCH)
 const val KEYSTORE_PASSWORD = "org.apache.ws.security.crypto.merlin.keystore.password"
 const val PRIVATE_KEY_ALIAS = "org.apache.ws.security.crypto.merlin.keystore.alias"
 const val PRIVATE_KEY_PASSWORD =
-    "org.apache.ws.security.crypto.merlin.keystore.private.password"
+        "org.apache.ws.security.crypto.merlin.keystore.private.password"

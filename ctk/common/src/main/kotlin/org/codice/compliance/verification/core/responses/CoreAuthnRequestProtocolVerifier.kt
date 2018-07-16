@@ -15,6 +15,7 @@ package org.codice.compliance.verification.core.responses
 
 import io.restassured.response.Response
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_3_3_2_2_1_a
 import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_b
 import org.codice.compliance.SAMLCore_3_4_1_4_c
@@ -32,6 +33,7 @@ import org.codice.compliance.utils.RESPONSE
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.TestCommon.Companion.currentSPEntityInfo
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
+import org.codice.compliance.utils.ddfAuthnContextList
 import org.codice.compliance.utils.getLocation
 import org.codice.compliance.verification.core.NameIDPolicyVerifier
 import org.codice.compliance.verification.core.ResponseVerifier
@@ -44,8 +46,10 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
         ResponseVerifier(authnRequest, samlResponse, HTTP_POST) {
 
     private val nameIdPolicyVerifier =
-            authnRequest.nameIDPolicy?.let { NameIDPolicyVerifier(
-                    this.samlResponse, it) }
+            authnRequest.nameIDPolicy?.let {
+                NameIDPolicyVerifier(
+                        this.samlResponse, it)
+            }
 
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {
@@ -65,6 +69,19 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
             throw SAMLComplianceException.create(SAMLCore_3_4_1_a,
                     message = "The URL at which the Response was received [$actualACS] does not" +
                             " match the expected ACS URL [$expectedACS] based on the request.")
+    }
+
+    fun verifyAuthnContextClassRef() {
+        samlResponse.recursiveChildren("AuthnContext")
+                .flatMap { it.children("AuthnContextClassRef") }
+                .firstOrNull { !ddfAuthnContextList.contains(it.textContent) }?.let {
+                    throw SAMLComplianceException.create(SAMLCore_3_3_2_2_1_a,
+                            message = """An <AuthnContextClassRef> that is not part of the
+                                    requested <AuthnContextClassRef>s was found. The requested
+                                    <AuthnContextClassRef>s are
+                                    ${ddfAuthnContextList.joinToString()}.""",
+                            node = it)
+                }
     }
 
     private fun verifyAuthnRequestProtocolResponse() {
