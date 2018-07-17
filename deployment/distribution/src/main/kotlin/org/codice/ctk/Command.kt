@@ -18,6 +18,7 @@ import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.DEFAULT_IMPLEMENTATION_PATH
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
+import org.codice.compliance.RUN_DDF_PROFILE
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.USER_LOGIN
 import org.codice.compliance.web.slo.PostSLOTest
@@ -56,44 +57,44 @@ fun main(args: Array<String>) {
     val samlDist = System.getProperty("app.home")
     requireNotNull(samlDist) { "app.home System property must be set" }
 
-    val parser = Parser()
-    parser.setName("SAML CTK")
-    parser.setApplicationDescription("SAML Conformance Test Kit")
-
-    parser.option("i",
-            description = "Path to the implementation to be tested")
-
-    parser.option("u",
-            description = "User used to login in the format username:password.")
-
-    parser.flag("d",
-            description = "Turn on debug logs.")
-
-    parser.flag("l",
-            description = """When an error occurs, the SAML V2.0 Standard Specification requires an
-                IdP to respond with a 200 HTTP status code and a valid SAML response containing an
-                error <StatusCode>. If the -l flag is given, this test kit will allow HTTP error
-                status codes as a valid error response.""")
-
+    val parser = createParser()
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i")
             ?: "$samlDist/$DEFAULT_IMPLEMENTATION_PATH"
-
     val userLogin = arguments.option("i") ?: "admin:admin"
 
     System.setProperty(IMPLEMENTATION_PATH, implementationPath)
     System.setProperty(USER_LOGIN, userLogin)
     System.setProperty(TEST_SP_METADATA_PROPERTY, "$samlDist/conf/samlconf-sp-metadata.xml")
     System.setProperty(LENIENT_ERROR_VERIFICATION, arguments.flag("l").toString())
+    System.setProperty(RUN_DDF_PROFILE, arguments.flag("ddf").toString())
 
-    if (arguments.flag("d")) {
+    if (arguments.flag("debug")) {
         Log.logLevel = LogLevel.DEBUG
     } else {
         Log.logLevel = LogLevel.INFO
     }
 
     launchTests()
+}
+
+private fun createParser(): Parser {
+    return Parser().apply {
+        setName("SAML CTK")
+        setApplicationDescription("SAML Conformance Test Kit")
+
+        option("i", description = "Path to the implementation to be tested")
+        option("u", description = "User used to login in the format username:password.")
+
+        flag("debug", description = "Turn on debug logs.")
+        flag("ddf", description = """Run the DDF profile. If provided runs the optional
+            SAML V2.0 StandardSpecification rules required by DDF.""")
+        flag("l", description = """When an error occurs, the SAML V2.0 Standard
+            Specification requires an IdP to respond with a 200 HTTP status code and a valid SAML
+            response containing an error <StatusCode>. If the -l flag is given, this test kit will
+            allow HTTP error status codes as a valid error response.""")
+    }
 }
 
 @Suppress("SpreadOperator")
