@@ -17,22 +17,28 @@ import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SLO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
+import org.apache.cxf.rs.security.saml.sso.SSOConstants
+import org.codice.compliance.Common.Companion.runningDDFProfile
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.PARTIAL_LOGOUT
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutResponse
 import org.codice.compliance.utils.SLOCommon.Companion.login
 import org.codice.compliance.utils.SLOCommon.Companion.sendPostLogoutMessage
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.logoutRequestRelayState
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
 import org.codice.compliance.utils.TestCommon.Companion.useDefaultServiceProvider
 import org.codice.compliance.utils.determineBinding
 import org.codice.compliance.utils.getBindingVerifier
+import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtocolVerifier
 import org.codice.compliance.verification.core.responses.CoreLogoutResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
+import org.codice.security.sign.Encoder
 
 class PostSLOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
@@ -157,6 +163,26 @@ class PostSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding(), PARTIAL_LOGOUT).verify()
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
+        }
+
+        "DDF-Specific: POST LogoutRequest With SHA256 Signature Test - Single SP".config(
+                enabled = runningDDFProfile()) {
+            useDSAServiceProvider()
+            login(HTTP_POST)
+
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+
+            SimpleSign().signSamlObject(logoutRequest)
+            val requestString = TestCommon.samlObjectToString(logoutRequest)
+            requestString.debugPrettyPrintXml(SSOConstants.SAML_REQUEST)
+
+            val response = sendPostLogoutMessage(
+                    Encoder.encodePostMessage(SSOConstants.SAML_REQUEST, requestString))
+
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerify()
+            CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
+                    response.determineBinding()).verify()
             SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
     }

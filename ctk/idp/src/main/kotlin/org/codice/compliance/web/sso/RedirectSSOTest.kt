@@ -37,6 +37,8 @@ import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
+import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
+import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
 
 class RedirectSSOTest : StringSpec() {
@@ -181,6 +183,34 @@ class RedirectSSOTest : StringSpec() {
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
+            CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
+                verify()
+                verifyAssertionConsumerService(finalHttpResponse)
+            }
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
+                verify()
+                verifyBinding(finalHttpResponse)
+            }
+        }
+
+        "DDF-Specific: Redirect AuthnRequest Using DSA SHA256 for Signing Test".config(
+                enabled = runningDDFProfile()) {
+            useDSAServiceProvider()
+            val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT)
+            val encodedRequest = encodeRedirectRequest(authnRequest)
+            val queryParams = SimpleSign(ALGO_ID_SIGNATURE_RSA_SHA256,
+                    ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
+                    SAML_REQUEST,
+                    encodedRequest,
+                    null)
+            val response = sendRedirectAuthnRequest(queryParams)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val finalHttpResponse =
+                    getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
+                            response)
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)

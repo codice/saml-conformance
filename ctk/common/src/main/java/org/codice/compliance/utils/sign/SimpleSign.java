@@ -56,7 +56,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
 
-// NOTE: "DDF DIFFERENCE" means something that is different in the DDF version of this class.
+// NOTE: "DDF Difference" means something that is different in the DDF version of this class.
 // DDF Difference: The {@code resignAssertion} and {@code forceSignSamlObject} methods were removed
 // since it was not needed.
 public class SimpleSign {
@@ -65,16 +65,29 @@ public class SimpleSign {
     OpenSAMLUtil.initSamlEngine();
   }
 
-  // DDF Difference: Uses SHA1 for the hashing mechanism when signing by default instead of SHA256.
-  private static final String RSA_ALGO_URI = WSS4JConstants.RSA;
-  private static final String RSA_ALGO_JCE = JCEMapper.translateURItoJCEID(RSA_ALGO_URI);
-  private static final String DSA_ALGO_URI = WSS4JConstants.DSA;
-  private static final String DSA_ALGO_JCE = JCEMapper.translateURItoJCEID(DSA_ALGO_URI);
+  private final String rsaAlgoUri;
+  private final String rsaAlgoJce;
+  private final String dsaAlgoUri;
+  private final String dsaAlgoJce;
 
   private final SystemCrypto crypto;
 
+  // DDF Difference: Uses SHA1 for the hashing mechanism when signing by default instead of SHA256.
   public SimpleSign() throws IOException {
     crypto = new SystemCrypto(getCurrentSPHostname());
+    rsaAlgoUri = WSS4JConstants.RSA;
+    rsaAlgoJce = JCEMapper.translateURItoJCEID(rsaAlgoUri);
+    dsaAlgoUri = WSS4JConstants.DSA;
+    dsaAlgoJce = JCEMapper.translateURItoJCEID(dsaAlgoUri);
+  }
+
+  // DDF Difference: The signing algorithm is not configurable in DDF.
+  public SimpleSign(String rsaAlgoUri, String dsaAlgoUri) throws IOException {
+    crypto = new SystemCrypto(getCurrentSPHostname());
+    this.rsaAlgoUri = rsaAlgoUri;
+    rsaAlgoJce = JCEMapper.translateURItoJCEID(rsaAlgoUri);
+    this.dsaAlgoUri = dsaAlgoUri;
+    dsaAlgoJce = JCEMapper.translateURItoJCEID(dsaAlgoUri);
   }
 
   /** Signing * */
@@ -330,9 +343,9 @@ public class SimpleSign {
     java.security.Signature signature;
     try {
       if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-        signature = java.security.Signature.getInstance(DSA_ALGO_JCE);
+        signature = java.security.Signature.getInstance(dsaAlgoJce);
       } else {
-        signature = java.security.Signature.getInstance(RSA_ALGO_JCE);
+        signature = java.security.Signature.getInstance(rsaAlgoJce);
       }
       signature.initSign(privateKey);
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
@@ -342,7 +355,7 @@ public class SimpleSign {
   }
 
   private String getSignatureAlgorithmURI(X509Certificate certificate) {
-    return certificate.getPublicKey().getAlgorithm().equals("RSA") ? RSA_ALGO_URI : DSA_ALGO_URI;
+    return certificate.getPublicKey().getAlgorithm().equals("RSA") ? rsaAlgoUri : dsaAlgoUri;
   }
 
   private X509Certificate[] getSignatureCertificates() throws SignatureException {
