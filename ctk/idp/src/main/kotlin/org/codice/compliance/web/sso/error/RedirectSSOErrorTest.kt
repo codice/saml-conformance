@@ -18,7 +18,6 @@ import io.kotlintest.provided.SSO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
-import org.codice.compliance.Common.Companion.runningAgainstDDF
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_4_3_a
 import org.codice.compliance.SAMLComplianceException
@@ -123,7 +122,7 @@ class RedirectSSOErrorTest : StringSpec() {
 
         // TODO - DDF responds with a successful response. Re-enable test when DDF handles this
         "Profiles 4.1.4.1: Redirect AuthnRequest With Subject Containing an Invalid Name ID Test"
-                .config(enabled = !runningAgainstDDF()) {
+                .config(enabled = false) {
                 try {
                     val authnRequest =
                         createDefaultAuthnRequest(HTTP_REDIRECT).apply {

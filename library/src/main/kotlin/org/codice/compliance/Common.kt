@@ -36,6 +36,7 @@ const val DEFAULT_IMPLEMENTATION_PATH = "implementations/ddf"
 const val USER_LOGIN = "user.login"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 const val LENIENT_ERROR_VERIFICATION = "lenient.error.verification"
+const val RUN_DDF_PROFILE = "run.ddf.profile"
 
 class Common {
     companion object {
@@ -127,8 +128,7 @@ class Common {
             }
         }
 
-        fun runningAgainstDDF() = System.getProperty(IMPLEMENTATION_PATH).contains(
-                DEFAULT_IMPLEMENTATION_PATH)
+        fun runningDDFProfile() = (System.getProperty(RUN_DDF_PROFILE) == "true")
     }
 }
 

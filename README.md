@@ -71,9 +71,13 @@ The `samlconf` script may take the following parameters:
            are optional and if they are not provided, the default values will use DDF's parameters.
     
     OPTIONS
-           -d
+           -debug
                 Boolean for whether or not to enable debug mode which enables more logging.
                 The default value is false.
+
+           -ddf
+                Run the DDF profile. If provided runs the optional SAML V2.0 Standard
+                Specification rules required by DDF.
 
            -i path
                 The path to the directory containing the implementation's plugin and metadata.
