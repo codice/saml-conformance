@@ -139,7 +139,6 @@ class PostFormVerifier(private val httpResponse: Response, private val isRelaySt
      * binding rules in the binding spec
      * 3.5.4 Message Encoding
      */
-// TODO refactor this method and response objects so we can show values in the errors
     @Suppress("ComplexMethod", "NestedBlockDepth")
     private fun verifyPostForm() {
         samlMessageForm?.let {
