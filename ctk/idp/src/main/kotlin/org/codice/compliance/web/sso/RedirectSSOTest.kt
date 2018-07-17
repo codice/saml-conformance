@@ -19,7 +19,7 @@ import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
-import org.codice.compliance.Common.Companion.runningAgainstDDF
+import org.codice.compliance.Common.Companion.runningDDFProfile
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.ENCRYPTED_ID
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
@@ -156,7 +156,7 @@ class RedirectSSOTest : StringSpec() {
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
         "Redirect AuthnRequest With Email NameID Format Test".config(
-                enabled = !runningAgainstDDF()) {
+                enabled = !runningDDFProfile()) {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
@@ -192,7 +192,7 @@ class RedirectSSOTest : StringSpec() {
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
         // re-enable this test
         "Redirect AuthnRequest With Encrypted NameID Format Test".config(
-                enabled = !runningAgainstDDF()) {
+                enabled = !runningDDFProfile()) {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = ENCRYPTED_ID

@@ -14,7 +14,7 @@
 package org.codice.compliance.verification.core.responses
 
 import io.restassured.response.Response
-import org.codice.compliance.Common.Companion.runningAgainstDDF
+import org.codice.compliance.Common.Companion.runningDDFProfile
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_4_1_4_a
 import org.codice.compliance.SAMLCore_3_4_1_4_b
@@ -54,7 +54,7 @@ class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
         verifyAuthnRequestProtocolResponse()
         verifySubjects()
         // TODO When DDF is fixed to return NameID format based on NameIDPolicy, uncomment this line
-        if (!runningAgainstDDF())
+        if (!runningDDFProfile())
             nameIdPolicyVerifier?.verify()
     }
 
