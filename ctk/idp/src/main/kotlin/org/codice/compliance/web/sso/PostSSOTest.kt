@@ -42,7 +42,6 @@ import org.codice.security.sign.Encoder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
-import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256
 
 class PostSSOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
@@ -149,7 +148,7 @@ class PostSSOTest : StringSpec() {
             useDSAServiceProvider()
             val authnRequest = createDefaultAuthnRequest(HTTP_POST)
 
-            SimpleSign(ALGO_ID_SIGNATURE_RSA_SHA256, ALGO_ID_SIGNATURE_DSA_SHA256).signSamlObject(
+            SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signSamlObject(
                     authnRequest)
             val requestString = TestCommon.samlObjectToString(authnRequest)
             requestString.debugPrettyPrintXml(SSOConstants.SAML_REQUEST)

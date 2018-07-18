@@ -38,7 +38,6 @@ import org.codice.compliance.verification.core.responses.CoreLogoutResponseProto
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
-import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256
 
 class RedirectSLOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
@@ -199,8 +198,7 @@ class RedirectSLOTest : StringSpec() {
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
-            val queryParams = SimpleSign(ALGO_ID_SIGNATURE_RSA_SHA256,
-                    ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
+            val queryParams = SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)

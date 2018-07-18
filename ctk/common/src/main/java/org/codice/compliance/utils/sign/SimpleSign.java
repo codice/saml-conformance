@@ -74,18 +74,16 @@ public class SimpleSign {
 
   // DDF Difference: Uses SHA1 for the hashing mechanism when signing by default instead of SHA256.
   public SimpleSign() throws IOException {
-    crypto = new SystemCrypto(getCurrentSPHostname());
-    rsaAlgoUri = WSS4JConstants.RSA;
-    rsaAlgoJce = JCEMapper.translateURItoJCEID(rsaAlgoUri);
-    dsaAlgoUri = WSS4JConstants.DSA;
-    dsaAlgoJce = JCEMapper.translateURItoJCEID(dsaAlgoUri);
+    this(WSS4JConstants.DSA);
   }
 
   // DDF Difference: The signing algorithm is not configurable in DDF.
-  public SimpleSign(String rsaAlgoUri, String dsaAlgoUri) throws IOException {
+  public SimpleSign(String dsaAlgoUri) throws IOException {
     crypto = new SystemCrypto(getCurrentSPHostname());
-    this.rsaAlgoUri = rsaAlgoUri;
+
+    this.rsaAlgoUri = WSS4JConstants.RSA;
     rsaAlgoJce = JCEMapper.translateURItoJCEID(rsaAlgoUri);
+
     this.dsaAlgoUri = dsaAlgoUri;
     dsaAlgoJce = JCEMapper.translateURItoJCEID(dsaAlgoUri);
   }

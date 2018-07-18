@@ -38,7 +38,6 @@ import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
-import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
 
 class RedirectSSOTest : StringSpec() {
@@ -198,8 +197,7 @@ class RedirectSSOTest : StringSpec() {
             useDSAServiceProvider()
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT)
             val encodedRequest = encodeRedirectRequest(authnRequest)
-            val queryParams = SimpleSign(ALGO_ID_SIGNATURE_RSA_SHA256,
-                    ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
+            val queryParams = SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)

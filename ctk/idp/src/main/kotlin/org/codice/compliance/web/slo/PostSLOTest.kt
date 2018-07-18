@@ -39,6 +39,7 @@ import org.codice.compliance.verification.core.responses.CoreLogoutResponseProto
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Encoder
+import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
 class PostSLOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
@@ -173,7 +174,7 @@ class PostSLOTest : StringSpec() {
 
             val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
 
-            SimpleSign().signSamlObject(logoutRequest)
+            SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signSamlObject(logoutRequest)
             val requestString = TestCommon.samlObjectToString(logoutRequest)
             requestString.debugPrettyPrintXml(SSOConstants.SAML_REQUEST)
 
