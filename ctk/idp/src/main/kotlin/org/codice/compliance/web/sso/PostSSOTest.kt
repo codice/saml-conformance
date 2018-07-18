@@ -19,7 +19,6 @@ import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.saml.plugin.IdpSSOResponder
-import org.codice.compliance.utils.ENCRYPTED_ID
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendPostAuthnRequest
@@ -126,36 +125,6 @@ class PostSSOTest : StringSpec() {
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
-            CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
-                verify()
-                verifyAssertionConsumerService(finalHttpResponse)
-            }
-            SingleSignOnProfileVerifier(samlResponseDom).apply {
-                verify()
-                verifyBinding(finalHttpResponse)
-            }
-        }
-
-        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-        // re-enable this test
-        "POST AuthnRequest With Encrypted NameIDPolicy Format Test".config(
-                enabled = false) {
-            val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
-                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
-                    format = ENCRYPTED_ID
-                    spNameQualifier = currentSPIssuer
-                }
-            }
-            val encodedRequest = signAndEncodePostRequestToString(authnRequest, EXAMPLE_RELAY_STATE)
-            val response = sendPostAuthnRequest(encodedRequest)
-            BindingVerifier.verifyHttpStatusCode(response.statusCode)
-
-            val finalHttpResponse =
-                    getImplementation(IdpSSOResponder::class).getResponseForPostRequest(response)
-            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
-
-            // Main goal of this test is to do the NameID verification
-            // in CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)

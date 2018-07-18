@@ -20,7 +20,6 @@ import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.codice.compliance.saml.plugin.IdpSSOResponder
-import org.codice.compliance.utils.ENCRYPTED_ID
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendRedirectAuthnRequest
@@ -178,42 +177,6 @@ class RedirectSSOTest : StringSpec() {
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
-            CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
-                verify()
-                verifyAssertionConsumerService(finalHttpResponse)
-            }
-            SingleSignOnProfileVerifier(samlResponseDom).apply {
-                verify()
-                verifyBinding(finalHttpResponse)
-            }
-        }
-
-        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-        // re-enable this test
-        "Redirect AuthnRequest With Encrypted NameID Format Test".config(
-                enabled = false) {
-            val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
-                nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
-                    format = ENCRYPTED_ID
-                    spNameQualifier = currentSPIssuer
-                }
-            }
-            val encodedRequest = encodeRedirectRequest(authnRequest)
-            val queryParams = SimpleSign().signUriString(
-                    SAML_REQUEST,
-                    encodedRequest,
-                    null)
-
-            val response = sendRedirectAuthnRequest(queryParams)
-            BindingVerifier.verifyHttpStatusCode(response.statusCode)
-
-            val finalHttpResponse =
-                    getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
-                            response)
-            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
-
-            // Main goal of this test is to do the NameIDPolicy verification in
-            // CoreAuthnRequestProtocolVerifier#verifyEncryptedElements
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
