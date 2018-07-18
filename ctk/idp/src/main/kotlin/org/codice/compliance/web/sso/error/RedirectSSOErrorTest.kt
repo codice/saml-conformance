@@ -24,18 +24,21 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.utils.INCORRECT_DESTINATION
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendRedirectAuthnRequest
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
+import org.codice.compliance.utils.TestCommon.Companion.samlObjectToString
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
+import org.codice.security.sign.Encoder.encodeRedirectMessage
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
@@ -74,16 +77,16 @@ class RedirectSSOErrorTest : StringSpec() {
             try {
                 val authnRequest =
                     createDefaultAuthnRequest(HTTP_REDIRECT)
-                val encodedRequest = encodeRedirectRequest(authnRequest)
+
+                val authnRequestString = samlObjectToString(authnRequest)
+                authnRequestString.debugPrettyPrintXml(SAML_REQUEST)
+                val encodedRequest = encodeRedirectMessage(
+                        authnRequestString?.substring(0, authnRequestString.length / 2))
+
                 val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
                     encodedRequest,
                     null)
-                val qpSamlReq = queryParams[SAML_REQUEST]
-                queryParams[SAML_REQUEST] = qpSamlReq?.substring(0, qpSamlReq.length / 2)
-
-                if (queryParams[SAML_REQUEST]?.last() == '%')
-                    queryParams[SAML_REQUEST] = queryParams[SAML_REQUEST]?.dropLast(1)
 
                 val response = sendRedirectAuthnRequest(queryParams)
 
