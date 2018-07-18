@@ -165,7 +165,7 @@ class TestCommon {
         /**
          * Converts the {@param samlObject} to a String
          */
-        private fun samlObjectToString(samlObject: XMLObject): String {
+        fun samlObjectToString(samlObject: XMLObject): String {
             val doc = DOMUtils.createDocument().apply {
                 appendChild(createElement("root"))
             }
