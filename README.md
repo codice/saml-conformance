@@ -1,6 +1,5 @@
 # SAML Conformance Test Kit
 This project is intended to be a set of blackbox tests that verify the conformance of an IdP to the SAML V2.0 Standard Specification.
-It is currently a prototype being actively developed.
 
 > NOTE
 > 
@@ -9,8 +8,6 @@ It is currently a prototype being actively developed.
 > - It does not support proxying.
 >
 > - Only MUSTs from the specification are tested, currently.
-> 
-> - This test kit only support `RSAwithSHA1` and `DSAwithSHA1` algorithms for Redirect and XML Signatures.
 
 ## Building
 To build the project:
@@ -68,15 +65,16 @@ The `samlconf` script may take the following parameters:
            SAMLComplianceException will be thrown with an explanation of the error and a direct
            quote from the specification. Tests will not run if the corresponding
            endpoints do not exist in the IdP's metadata. All of the parameters
-           are optional and if they are not provided, the default values will use DDF's parameters.
+           are optional and if they are not provided, the default values will use
+           Distributed Data Framework (DDF)'s parameters. See the README.md file at
+           https://github.com/codice/ddf to learn more about DDF.
     
     OPTIONS
            -debug
-                Boolean for whether or not to enable debug mode which enables more logging.
-                The default value is false.
+                Enables debug mode which enables more logging. This mode is off by default.
 
            -ddf
-                Run the DDF profile. If provided runs the optional SAML V2.0 Standard
+                Runs the DDF profile. If provided runs the optional SAML V2.0 Standard
                 Specification rules required by DDF.
 
            -i path
