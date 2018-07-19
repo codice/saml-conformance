@@ -19,6 +19,7 @@ import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
+import org.codice.compliance.Common.Companion.runningDDFProfile
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
@@ -27,13 +28,16 @@ import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.TestCommon.Companion.getImplementation
 import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
+import org.codice.compliance.utils.ddfAuthnContextList
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
+import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
+import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
 
 class RedirectSSOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
@@ -180,6 +184,47 @@ class RedirectSSOTest : StringSpec() {
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)
+            }
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
+                verify()
+                verifyBinding(finalHttpResponse)
+            }
+        }
+
+        "DDF-Specific: Redirect AuthnRequest With AuthnContext Test".config(
+                enabled = runningDDFProfile()) {
+            val reqAuthnContextClassRefs = ddfAuthnContextList
+                    .map {
+                        AuthnContextClassRefBuilder().buildObject().apply {
+                            authnContextClassRef = it
+                        }
+                    }
+                    .toList()
+
+            val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
+                requestedAuthnContext = RequestedAuthnContextBuilder().buildObject().apply {
+                    authnContextClassRefs.addAll(reqAuthnContextClassRefs)
+                }
+            }
+
+            val encodedRequest = encodeRedirectRequest(authnRequest)
+            val queryParams = SimpleSign().signUriString(
+                    SAML_REQUEST,
+                    encodedRequest,
+                    null)
+
+            val response = sendRedirectAuthnRequest(queryParams)
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val finalHttpResponse =
+                    getImplementation(IdpSSOResponder::class).getResponseForRedirectRequest(
+                            response)
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+
+            CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
+                verify()
+                verifyAssertionConsumerService(finalHttpResponse)
+                verifyAuthnContextClassRef()
             }
             SingleSignOnProfileVerifier(samlResponseDom).apply {
                 verify()
