@@ -20,6 +20,8 @@ import org.codice.compliance.SAMLCore_8_3_2_a
 import org.codice.compliance.SAMLCore_8_3_6_a
 import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.SAMLCore_8_3_7_a
+import org.codice.compliance.SAMLCore_8_3_7_b
+import org.codice.compliance.SAMLCore_8_3_7_c
 import org.codice.compliance.SAMLCore_8_3_7_d
 import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.attributeNode
@@ -31,6 +33,7 @@ import org.codice.compliance.utils.PERSISTENT_ID
 import org.codice.compliance.utils.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
+import org.codice.compliance.Common.Companion.idpMetadataObject
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -159,8 +162,6 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                                         "$ID_VALUE_LENGTH_LIMIT characters.",
                                 node = it)
 
-                    // TODO - Uncomment when DDF returns correct NameQualifier and add unit tests
-                    /*
                     it.attributeText("NameQualifier")?.let { nameQualifier ->
                         if (nameQualifier != idpMetadataObject.entityId)
                             throw SAMLComplianceException.create(SAMLCore_8_3_7_b,
@@ -170,7 +171,6 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                                             "${idpMetadataObject.entityId}",
                                     node = it)
                     }
-                    */
 
                     it.attributeText(SP_NAME_QUALIFIER)?.let { spNameQualifier ->
                         if (spNameQualifier != currentSPIssuer)
