@@ -17,6 +17,7 @@ dependencies {
     compile project(':ctk:idp')
 
     compile 'us.jimschubert:kopper-typed:0.0.3'
+    compile 'org.fusesource.jansi:jansi:1.17.1'
 }
 
 applicationDistribution.from('src/main/resources/') {
