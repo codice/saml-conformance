@@ -109,10 +109,7 @@ class PostSSOTest : StringSpec() {
             }
         }
 
-        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-        // re-enable this test
-        "POST AuthnRequest With Email NameIDPolicy Format Test".config(
-                enabled = false) {
+        "POST AuthnRequest With Email NameIDPolicy Format Test" {
             val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
