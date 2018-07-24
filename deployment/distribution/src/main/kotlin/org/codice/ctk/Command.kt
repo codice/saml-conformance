@@ -142,14 +142,11 @@ private class TestNameListener : TestExecutionListener {
         }
     }
 
-    override fun executionFinished(testIdentifier: TestIdentifier?,
-                                   testExecutionResult: TestExecutionResult?) {
-        testIdentifier?.let {
-            if (it.isTest && testExecutionResult != null)
-                System.out.println(
-                        "${testIdentifier.displayName} ${getResultDisplay(
-                                testExecutionResult.status)}")
-        }
+    override fun executionFinished(testIdentifier: TestIdentifier,
+                                   testExecutionResult: TestExecutionResult) {
+        if (testIdentifier.isTest)
+            System.out.println(
+                    "${testIdentifier.displayName} ${getResultDisplay(testExecutionResult.status)}")
     }
 
     private fun getResultDisplay(status: TestExecutionResult.Status): Any {
