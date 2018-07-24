@@ -33,11 +33,16 @@ import org.codice.ctk.Runner.Companion.SLO_BASIC_TESTS
 import org.codice.ctk.Runner.Companion.SLO_ERROR_TESTS
 import org.codice.ctk.Runner.Companion.SSO_BASIC_TESTS
 import org.codice.ctk.Runner.Companion.SSO_ERROR_TESTS
+import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.junit.platform.launcher.TestExecutionListener
+import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener
 import us.jimschubert.kopper.Parser
+import org.fusesource.jansi.Ansi.ansi
+import org.junit.platform.launcher.TestPlan
 import java.io.File
 import java.io.PrintWriter
 
@@ -110,18 +115,45 @@ private fun launchTests() {
 
     val summaryGeneratingListener = SummaryGeneratingListener()
     LauncherFactory.create().apply {
-        registerTestExecutionListeners(summaryGeneratingListener)
+        registerTestExecutionListeners(summaryGeneratingListener, TestNameListener())
     }.execute(request)
 
     PrintWriter(System.out).use { printer ->
+
         summaryGeneratingListener.summary.printFailuresTo(printer)
         summaryGeneratingListener.summary.printTo(printer)
 
         if (summaryGeneratingListener.summary.totalFailureCount > 0) {
-            System.out.println("TESTS FAILED")
+            System.out.println(ansi().fgRed().a("TESTS FAILED").reset())
             System.exit(1)
         }
 
-        printer.println("TESTS PASSED")
+        printer.println(ansi().fgGreen().a("TESTS PASSED").reset())
+    }
+}
+
+private class TestNameListener : TestExecutionListener {
+    override fun testPlanExecutionStarted(testPlan: TestPlan?) {
+        System.out.apply {
+            println()
+            println("----------------------------------")
+            println("SAML Conformance Test Kit Starting")
+            println("----------------------------------")
+        }
+    }
+
+    override fun executionFinished(testIdentifier: TestIdentifier,
+                                   testExecutionResult: TestExecutionResult) {
+        if (testIdentifier.isTest)
+            System.out.println(
+                    "${testIdentifier.displayName} ${getResultDisplay(testExecutionResult.status)}")
+    }
+
+    private fun getResultDisplay(status: TestExecutionResult.Status): Any {
+        return when (status) {
+            TestExecutionResult.Status.SUCCESSFUL -> ansi().fgGreen().a(status.name).reset()
+            TestExecutionResult.Status.FAILED -> ansi().fgRed().a(status.name).reset()
+            else -> status.name
+        }
     }
 }
