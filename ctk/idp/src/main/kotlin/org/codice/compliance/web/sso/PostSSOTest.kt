@@ -17,24 +17,31 @@ import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SSO
 import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
+import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.apache.wss4j.common.saml.builder.SAML2Constants
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.Common.Companion.runningDDFProfile
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendPostAuthnRequest
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.getImplementation
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.ddfAuthnContextList
+import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
 import org.codice.compliance.utils.getBindingVerifier
+import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
+import org.codice.security.sign.Encoder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
+import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
 class PostSSOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
@@ -126,6 +133,34 @@ class PostSSOTest : StringSpec() {
 
             // Main goal of this test is to do the NameIDPolicy verification in
             // CoreAuthnRequestProtocolVerifier
+            CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
+                verify()
+                verifyAssertionConsumerService(finalHttpResponse)
+            }
+            SingleSignOnProfileVerifier(samlResponseDom).apply {
+                verify()
+                verifyBinding(finalHttpResponse)
+            }
+        }
+
+        "DDF-Specific: POST AuthnRequest Using SHA256 for Signing Test".config(
+                enabled = runningDDFProfile()) {
+            useDSAServiceProvider()
+            val authnRequest = createDefaultAuthnRequest(HTTP_POST)
+
+            SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signSamlObject(
+                    authnRequest)
+            val requestString = TestCommon.samlObjectToString(authnRequest)
+            requestString.debugPrettyPrintXml(SSOConstants.SAML_REQUEST)
+
+            val response = sendPostAuthnRequest(
+                    Encoder.encodePostMessage(SSOConstants.SAML_REQUEST, requestString))
+            BindingVerifier.verifyHttpStatusCode(response.statusCode)
+
+            val finalHttpResponse =
+                    getImplementation(IdpSSOResponder::class).getResponseForPostRequest(response)
+            val samlResponseDom = finalHttpResponse.getBindingVerifier().decodeAndVerify()
+
             CoreAuthnRequestProtocolVerifier(authnRequest, samlResponseDom).apply {
                 verify()
                 verifyAssertionConsumerService(finalHttpResponse)

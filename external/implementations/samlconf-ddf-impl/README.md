@@ -8,7 +8,7 @@
 
 
 ## Steps to Test DDF's IDP
-* Start and install DDF
+* Start and install DDF. Note: If installing through the UI, the `users.attributes` file under `etc/` must be changed so that the admin email is `admin@localhost.local` instead of `admin@localhost`.
 * DDF does not support having multiple `EntityDescriptor` elements inside a `EntitiesDescriptor` element. In order to work around this:
     * From the `samlconf-sp-metadata.xml` file, copy the first `EntityDescriptor` element and all of its contents. Note: Make sure **not** to include the `EntitiesDescriptor` element or the second `EntityDescriptor` element.
     * Paste that into `AdminConsole -> Security -> Configuration -> IdPServer -> SP Metadata` as a new entry.

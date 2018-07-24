@@ -19,6 +19,7 @@ import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
+import org.codice.compliance.Common.Companion.runningDDFProfile
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.PARTIAL_LOGOUT
 import org.codice.compliance.utils.SLOCommon.Companion.createDefaultLogoutRequest
@@ -36,6 +37,7 @@ import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtoco
 import org.codice.compliance.verification.core.responses.CoreLogoutResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
+import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
 class RedirectSLOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
@@ -186,6 +188,25 @@ class RedirectSLOTest : StringSpec() {
             }.decodeAndVerify()
             CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
                 logoutResponse.determineBinding(), PARTIAL_LOGOUT).verify()
+            SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
+        }
+
+        "DDF-Specific: Redirect LogoutRequest With SHA256 Signature Test - Single SP".config(
+                enabled = runningDDFProfile()) {
+            useDSAServiceProvider()
+            login(HTTP_REDIRECT)
+
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val encodedRequest = encodeRedirectRequest(logoutRequest)
+            val queryParams = SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
+                    SAML_REQUEST,
+                    encodedRequest,
+                    null)
+            val response = sendRedirectLogoutMessage(queryParams)
+
+            val samlResponseDom = response.getBindingVerifier().decodeAndVerify()
+            CoreLogoutResponseProtocolVerifier(logoutRequest, samlResponseDom,
+                    response.determineBinding()).verify()
             SingleLogoutProfileVerifier(samlResponseDom).verifyLogoutResponse()
         }
     }

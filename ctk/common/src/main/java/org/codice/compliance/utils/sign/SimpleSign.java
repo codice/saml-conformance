@@ -56,15 +56,50 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
 
+// NOTE: "DDF Difference" means something that is different in the DDF version of this class.
+// DDF Difference: The {@code resignAssertion} and {@code forceSignSamlObject} methods were removed
+// since it was not needed.
 public class SimpleSign {
+
+  static {
+    OpenSAMLUtil.initSamlEngine();
+  }
+
+  private final String rsaAlgoUri;
+  private final String rsaAlgoJce;
+  private final String dsaAlgoUri;
+  private final String dsaAlgoJce;
 
   private final SystemCrypto crypto;
 
+  // DDF Difference: Uses SHA1 for the hashing mechanism when signing by default instead of SHA256.
   public SimpleSign() throws IOException {
+    this(WSS4JConstants.DSA);
+  }
+
+  // DDF Difference: The signing algorithm is not configurable in DDF.
+  public SimpleSign(String dsaAlgoUri) throws IOException {
     crypto = new SystemCrypto(getCurrentSPHostname());
+
+    this.rsaAlgoUri = WSS4JConstants.RSA;
+    rsaAlgoJce = JCEMapper.translateURItoJCEID(rsaAlgoUri);
+
+    this.dsaAlgoUri = dsaAlgoUri;
+    dsaAlgoJce = JCEMapper.translateURItoJCEID(dsaAlgoUri);
   }
 
   /** Signing * */
+
+  /** Used to sign post requests */
+  public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
+    X509Certificate[] certificates = getSignatureCertificates();
+    String sigAlgo = getSignatureAlgorithmURI(certificates[0]);
+    signSamlObject(
+        samlObject,
+        sigAlgo,
+        SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS,
+        SignatureConstants.ALGO_ID_DIGEST_SHA1);
+  }
 
   /**
    * Signs uri value. According to the SAML Spec,
@@ -83,7 +118,7 @@ public class SimpleSign {
       String samlType, String samlRequestOrResponse, String relayState) throws SignatureException {
     try {
       X509Certificate[] certificates = getSignatureCertificates();
-      String sigAlgo = getSignatureAlgorithm(certificates[0]);
+      String sigAlgo = getSignatureAlgorithmURI(certificates[0]);
       PrivateKey privateKey = getSignaturePrivateKey();
       java.security.Signature signature = getSignature(certificates[0], privateKey);
 
@@ -119,17 +154,6 @@ public class SimpleSign {
     } catch (java.security.SignatureException | UnsupportedEncodingException e) {
       throw new SignatureException(e);
     }
-  }
-
-  /** Used to sign post requests */
-  public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
-    X509Certificate[] certificates = getSignatureCertificates();
-    String sigAlgo = getSignatureAlgorithm(certificates[0]);
-    signSamlObject(
-        samlObject,
-        sigAlgo,
-        SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS,
-        SignatureConstants.ALGO_ID_DIGEST_SHA1);
   }
 
   private void signSamlObject(
@@ -179,7 +203,12 @@ public class SimpleSign {
     samlObject.releaseChildrenDOM(true);
   }
 
-  /** Validating */
+  /*
+   DDF Differences:
+     - Takes each individual query parameter instead of a string with all of them stacked together.
+     - Takes the public key straight from the saml metadata (i.e. without the BEGIN CERTIFICATE and
+     END CERTIFICATE pieces).
+  */
   public boolean validateSignature(
       String samlType,
       String encodedRequestOrResponse,
@@ -241,6 +270,11 @@ public class SimpleSign {
     }
   }
 
+  /*
+   DDF Differences:
+     - No longer take a Document object for the WSSConfig. Instead a new blank config is created.
+     - No longer validate the trust of the certificate that was used to do the signature.
+  */
   public void validateSignature(Signature signature) throws SignatureException {
     RequestData requestData = new RequestData();
     requestData.setSigVerCrypto(crypto.getSignatureCrypto());
@@ -306,8 +340,11 @@ public class SimpleSign {
 
     java.security.Signature signature;
     try {
-      String jceSigAlgo = String.format("SHA1with%s", certificate.getPublicKey().getAlgorithm());
-      signature = java.security.Signature.getInstance(jceSigAlgo);
+      if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
+        signature = java.security.Signature.getInstance(dsaAlgoJce);
+      } else {
+        signature = java.security.Signature.getInstance(rsaAlgoJce);
+      }
       signature.initSign(privateKey);
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
       throw new SignatureException(e);
@@ -315,10 +352,8 @@ public class SimpleSign {
     return signature;
   }
 
-  private String getSignatureAlgorithm(X509Certificate certificate) {
-    return certificate.getPublicKey().getAlgorithm().equals("RSA")
-        ? WSS4JConstants.RSA
-        : WSS4JConstants.DSA;
+  private String getSignatureAlgorithmURI(X509Certificate certificate) {
+    return certificate.getPublicKey().getAlgorithm().equals("RSA") ? rsaAlgoUri : dsaAlgoUri;
   }
 
   private X509Certificate[] getSignatureCertificates() throws SignatureException {
