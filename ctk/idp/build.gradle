@@ -1,6 +1,0 @@
-group = 'org.codice.samlconf.test'
-description = 'IdP Tests'
-
-dependencies {
-    compile project(':ctk:common')
-}
