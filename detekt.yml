@@ -270,6 +270,8 @@ potential-bugs:
 
 style:
   active: true
+  MandatoryBracesIfStatements:
+    active: false
   CollapsibleIfStatements:
     active: false
   DataClassContainsFunctions:
