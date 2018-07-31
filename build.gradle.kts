@@ -5,7 +5,6 @@ Released under the GNU Lesser General Public License; see
 http://www.gnu.org/licenses/lgpl.html
 */
 // Build file
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 description = "SAML Conformance Test Kit"
@@ -33,6 +32,12 @@ plugins {
 allprojects {
     group = "org.codice.samlconf"
     version = Versions.project
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url = uri("http://artifacts.codice.org/content/repositories/thirdparty/") }
+    }
 
     apply(plugin = "com.diffplug.gradle.spotless")
 
@@ -71,12 +76,6 @@ subprojects {
     val sourceCompatibility = Versions.javaTarget
     val targetCompatibility = Versions.javaTarget
 
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url = uri("http://artifacts.codice.org/content/repositories/thirdparty/") }
-    }
-
     dependencies {
         compile("org.jetbrains.kotlin:kotlin-reflect")
         compile(Libs.kotlinStdlibJdk8)
@@ -102,7 +101,9 @@ tasks {
     }
 }
 
-configure<DetektExtension> {
+detekt {
+    version = Versions.detekt
+
     defaultProfile(Action {
         input = rootProject.projectDir.absolutePath
         config = "$projectDir/detekt.yml"
