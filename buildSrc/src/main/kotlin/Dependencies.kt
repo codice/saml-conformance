@@ -13,12 +13,13 @@ object Versions {
 
     const val kotlin = "1.2.51"
     const val gradleDocker = "3.2.4"
-    const val kotlinTest = "3.1.5"
+    const val kotlinTest = "3.1.8"
     const val restAssured = "3.1.0"
     const val slf4j = "1.7.1"
     const val guava = "25.1-jre"
     const val spotless = "3.10.0"
     const val errorprone = "0.0.16"
+    const val googleErrorProne = "2.3.1"
     const val testLogger = "1.4.0"
     const val detekt = "1.0.0.RC8"
     const val staticLog = "2.2.0"
@@ -41,6 +42,7 @@ object Libs {
     const val kotlinStdlibJdk8 = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
 
+    const val googleErrorProne = "com.google.errorprone:error_prone_core:${Versions.googleErrorProne}"
     const val gradleDockerPlugin = "com.bmuschko:gradle-docker-plugin:${Versions.gradleDocker}"
     const val restAssured = "io.rest-assured:rest-assured:${Versions.restAssured}"
     const val slf4j = "org.slf4j:slf4j-api:${Versions.slf4j}"

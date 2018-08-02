@@ -67,8 +67,8 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "maven")
-    apply(plugin = "kotlin-kapt")
     apply(plugin = "kotlin")
+    apply(plugin = "kotlin-kapt")
     apply(plugin = "com.bmuschko.docker-remote-api")
     apply(plugin = "net.ltgt.errorprone")
     apply(plugin = "com.adarshr.test-logger")
@@ -88,6 +88,7 @@ subprojects {
         compile(Libs.junitPlatformSuite)
         compile(Libs.junitPlatformRunner)
         testCompile(Libs.mockk)
+        errorprone(Libs.googleErrorProne)
     }
 
     tasks.withType<Test> {
@@ -96,7 +97,7 @@ subprojects {
 }
 
 tasks {
-    "build" {
+    "check" {
         dependsOn("detektCheck")
     }
 }
