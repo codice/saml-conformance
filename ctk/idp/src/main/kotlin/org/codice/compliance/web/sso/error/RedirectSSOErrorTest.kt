@@ -74,7 +74,7 @@ class RedirectSSOErrorTest : StringSpec() {
                 val authnRequestString = samlObjectToString(authnRequest)
                 authnRequestString.debugPrettyPrintXml(SAML_REQUEST)
                 val encodedRequest = encodeRedirectMessage(
-                        authnRequestString?.substring(0, authnRequestString.length / 2))
+                        authnRequestString.substring(0, authnRequestString.length / 2))
 
                 val queryParams = SimpleSign().signUriString(
                     SAML_REQUEST,
@@ -116,9 +116,7 @@ class RedirectSSOErrorTest : StringSpec() {
             }
         }
 
-        // TODO - DDF responds with a successful response. Re-enable test when DDF handles this
-        "Profiles 4.1.4.1: Redirect AuthnRequest With Subject Containing an Invalid Name ID Test"
-                .config(enabled = false) {
+        "Profiles 4.1.4.1: Redirect AuthnRequest With Subject Containing an Invalid Name ID Test" {
                 try {
                     val authnRequest =
                         createDefaultAuthnRequest(HTTP_REDIRECT).apply {

@@ -51,7 +51,7 @@ object ProjectConfig : AbstractProjectConfig() {
 }
 
 object SPReset : TestListener {
-    override fun afterTest(description: Description, testResult: TestResult) {
+    override fun afterTest(description: Description, result: TestResult) {
         useDefaultServiceProvider()
     }
 }

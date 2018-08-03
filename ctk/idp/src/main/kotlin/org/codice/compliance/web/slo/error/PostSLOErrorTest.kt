@@ -13,7 +13,6 @@ import io.restassured.RestAssured
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_3_7_3_2_a
 import org.codice.compliance.SAMLCore_3_7_3_2_c
 import org.codice.compliance.SAMLProfiles_4_4_3_5_a
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
@@ -50,26 +49,6 @@ class PostSLOErrorTest : StringSpec() {
 
                     CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                             SAMLBindings_3_5_3_a,
-                            SAMLCore_3_7_3_2_c,
-                            SAMLProfiles_4_4_3_5_a,
-                            expectedStatusCode = REQUESTER)
-                }
-            } catch (e: SAMLComplianceException) {
-                throw SAMLComplianceException.recreateExceptionWithErrorMessage(e)
-            }
-        }
-
-        "Core 3.7.3.2: POST LogoutResponse Test Without Logging In" {
-            try {
-                val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
-                val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
-                val response = sendPostLogoutMessage(encodedRequest)
-
-                if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
-                    val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
-
-                    CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
-                            SAMLCore_3_7_3_2_a,
                             SAMLCore_3_7_3_2_c,
                             SAMLProfiles_4_4_3_5_a,
                             expectedStatusCode = REQUESTER)

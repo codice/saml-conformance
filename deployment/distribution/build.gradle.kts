@@ -5,7 +5,11 @@ Released under the GNU Lesser General Public License; see
 http://www.gnu.org/licenses/lgpl.html
 */
 // Build file
-apply(plugin = "application")
+plugins {
+    id("maven-publish")
+    id("application")
+    id("publishing")
+}
 
 description = "Script and CLI to run the tests."
 
@@ -22,7 +26,7 @@ configure<ApplicationPluginConvention> {
     }
 
     // Copy implementation examples into the distribution
-    project(":external:implementations").getSubprojects().forEach { subProject ->
+    project(":external:implementations").subprojects.forEach { subProject ->
         applicationDistribution
                 .into("implementations/" +
                         subProject.name.replace("samlconf-", "")
@@ -66,5 +70,20 @@ tasks {
 
     "build" {
         finalizedBy("installDist")
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url = uri("http://nexus.phx.connexta.com:8081/nexus/content/repositories/testing-snapshots/")
+        }
+    }
+    (publications) {
+        "mavenJava"(MavenPublication::class) {
+            artifact("build/distributions/samlconf-1.0.zip"){
+                extension = "zip"
+            }
+        }
     }
 }

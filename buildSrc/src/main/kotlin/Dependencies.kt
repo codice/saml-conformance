@@ -7,7 +7,7 @@ http://www.gnu.org/licenses/lgpl.html
 //  Default package
 @file:Suppress("MaxLineLength")
 object Versions {
-    const val project = "1.0-SNAPSHOT"
+    const val project = "1.0"
 
     const val javaTarget = "1.8"
 

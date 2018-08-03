@@ -16,7 +16,7 @@ pipeline {
     }
     environment {
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
-        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.6'}/bin:$PATH"
+        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.9'}/bin:$PATH"
     }
     stages {
         stage('Setup') {
