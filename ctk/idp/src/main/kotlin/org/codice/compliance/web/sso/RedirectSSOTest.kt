@@ -30,8 +30,8 @@ import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
-import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
+import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
 class RedirectSSOTest : StringSpec() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
@@ -149,10 +149,7 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        // TODO When DDF is fixed to return NameID format based on NameIDPolicy,
-        // re-enable this test
-        "Redirect AuthnRequest With Email NameID Format Test".config(
-                enabled = false) {
+        "Redirect AuthnRequest With Email NameID Format Test" {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS

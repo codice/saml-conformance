@@ -1,12 +1,19 @@
-# SAMLconf in Docker
+<!--
+Copyright (c) 2018 Codice Foundation
+
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
+-->
+
+# SAML Conformance Test Kit in Docker
 
 This image can execute a test against a remote host. It is used to run the conformance test against DDF.
 
 To use, run `docker run -it -e SUT_HOST=<target_hostname> -e SUT_PORT=<target_port> codice/samlconf`
 
-# Advanced
+## Advanced
 
-## Retrieve IdP Metadata Automatically
+### Retrieve IdP Metadata Automatically
 
 This image can automatically retrieve IdP metadata from a remote system if it is supported
 
@@ -16,7 +23,7 @@ To change the default location that IdP metadata is retrieved from set the follo
 `SUT_PORT`: port for the system under test (default: `8993`)
 `SUT_METADATA`: context to retrieve metadata from (default: `services/idp/login/metadata`)
 
-## Specify Alternate DDF profile
+### Specify Alternate DDF profile
 
 During startup of this image, the target system is polled to check if it is ready (assumes a ddf currently).
 This is done by checking if the desired install profile on the target system is ready. To change the default install profile to expect:

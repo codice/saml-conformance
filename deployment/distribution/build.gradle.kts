@@ -5,7 +5,11 @@ Released under the GNU Lesser General Public License; see
 http://www.gnu.org/licenses/lgpl.html
 */
 // Build file
-apply(plugin = "application")
+plugins {
+    id("maven-publish")
+    id("application")
+    id("publishing")
+}
 
 description = "Script and CLI to run the tests."
 
@@ -22,7 +26,7 @@ configure<ApplicationPluginConvention> {
     }
 
     // Copy implementation examples into the distribution
-    project(":external:implementations").getSubprojects().forEach { subProject ->
+    project(":external:implementations").subprojects.forEach { subProject ->
         applicationDistribution
                 .into("implementations/" +
                         subProject.name.replace("samlconf-", "")
@@ -66,5 +70,44 @@ tasks {
 
     "build" {
         finalizedBy("installDist")
+    }
+}
+
+publishing {
+    val releaseUrl = "http://artifacts.codice.org/content/repositories/releases/"
+    val snapshotUrl = "http://artifacts.codice.org/content/repositories/snapshots/"
+    repositories {
+        maven {
+            url = if (version.toString().endsWith("SNAPSHOT")) {
+                uri(snapshotUrl)
+            } else {
+                uri(releaseUrl)
+            }
+        }
+    }
+    (publications) {
+        "mavenJava"(MavenPublication::class) {
+            from(components["java"])
+            pom {
+                groupId = "org.codice.samlconf"
+                artifactId = "samlconf"
+                name.set("SAML Conformance Test Kit")
+                description.set("""A set of blackbox tests that verify the conformance of an
+                    Identity Provider (IdP) to the SAML V2.0 Standard Specification.""")
+                url.set("https://github.com/connexta/saml-conformance")
+                licenses {
+                    license {
+                        name.set("The MIT License")
+                        url.set("http://www.opensource.org/licenses/mit-license.php")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/connexta/saml-conformance")
+                    connection.set("scm:git:https://github.com/connexta/saml-conformance.git")
+                    developerConnection
+                            .set("scm:git:git://github.com/connexta/saml-conformance.git")
+                }
+            }
+        }
     }
 }

@@ -16,12 +16,12 @@ pipeline {
     }
     environment {
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
-        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.6'}/bin:$PATH"
+        PATH="${tool 'docker-latest'}/bin:${tool 'gradle-4.9'}/bin:$PATH"
     }
     stages {
         stage('Setup') {
             steps {
-                slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+                slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
             }
         }
         stage('Full Build') {
@@ -30,30 +30,39 @@ pipeline {
             }
         }
         stage('Deploy') {
-            when {
-                allOf {
-                    expression { env.CHANGE_ID == null }
-                    expression { env.BRANCH_NAME == "master" }
+            parallel {
+                stage ('Artifact Deploy') {
+                    steps {
+                        sh './gradlew publish'
+                    }
                 }
-            }
-            environment {
-                DOCKER_LOGIN = credentials('dockerhub-codicebot')
-            }
-            steps {
-                sh 'docker login -u $DOCKER_LOGIN_USR -p $DOCKER_LOGIN_PSW'
-                sh 'docker push codice/samlconf:latest'
+                stage ('Docker Deploy') {
+                    when {
+                        allOf {
+                            expression { env.CHANGE_ID == null }
+                            expression { env.BRANCH_NAME == "master" }
+                        }
+                    }
+                    environment {
+                        DOCKER_LOGIN = credentials('dockerhub-codicebot')
+                    }
+                    steps {
+                        sh 'docker login -u $DOCKER_LOGIN_USR -p $DOCKER_LOGIN_PSW'
+                        sh 'docker push codice/samlconf:latest'
+                    }
+                }
             }
         }
     }
     post {
         success {
-            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
+            slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
         }
         failure {
-            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+            slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
         }
         unstable {
-            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+            slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
         }
     }
 }

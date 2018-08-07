@@ -1,30 +1,23 @@
 <!--
-Copyright (c) Codice Foundation
+Copyright (c) 2018 Codice Foundation
 
-This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
-General Public License as published by the Free Software Foundation, either
-version 3 of the License, or any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
-License is distributed along with this program and can be found at
-<http://www.gnu.org/licenses/lgpl.html>.
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
 -->
-
 
 Welcome to the Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)
 ===================================================================================
 The SAML Conformance Test Kit is a set of blackbox tests that verify the conformance of an
 Identity Provider (IdP) to the SAML V2.0 Standard Specification.
 
-Note following before running the tests:
-  * This test kit only supports SAML Version 2.0. All other version are not supported.
+Note the following before running the tests:
+  * This test kit only supports SAML Version 2.0. All other versions are not supported.
   * This test kit does not support proxying.
-  * Only MUSTs from the SAML V2.0 Standard Specification are tested.
-  * Some MUSTs are hard to test. For a full list, visit
-  https://github.com/connexta/saml-conformance/blob/master/ctk/idp/coverage/NotTested.md
-  * This test kit includes built-in support for Keycloak and Distributed Data Framework (DDF).
+  * Currently, the CTK only tests POST and Redirect bindings.
+  * Single Sign-On and Single Logout are the only two protocols tested.
+  * Only statements containing the keywords `MUST`, `MUST NOT` and `REQUIRED` are tested.
+  * Some `MUST`s are hard to test. For a full list, visit the [Not Tested List](../../../../../ctk/idp/NotTested.md).
+  * This test kit includes built-in support for Keycloak and Distributed Data Framework (DDF) Identity Providers.
 
 Getting Started
 ===============
@@ -89,10 +82,16 @@ This test kit includes built-in support for Keycloak and Distributed Data Framew
     - Configure your IdP with the test kit's Service Provider (SP) metadata from `<distribution_home>/conf/samlconf-sp-metadata.xml`.
     - Run the `samlconf` script without a `-i` or with `-i <distribution_home>/implementations/ddf`.
 
+See [the DDF setup documentation](../../../../../external/implementations/samlconf-ddf-impl/README.md)
+for more information on setting up and testing DDF.
+
   * To run the test against Keycloak:
     - Setup your Keycloak IdP.
     - Configure your IdP with the test kit's Service Provider (SP) metadata from `<distribution_home>/conf/samlconf-sp-metadata.xml`.
     - Run the `samlconf` script with `-i <distribution_home>/implementations/keycloak`.
+
+See [the Keycloak setup documentation](../../../../../external/implementations/samlconf-keycloak-impl/README.md)
+for more information on setting up and testing Keycloak.
 
 Additional Information
 =====================

@@ -1,3 +1,10 @@
+<!--
+Copyright (c) 2018 Codice Foundation
+
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
+-->
+
 # MUSTs or MUST NOTs That Are Not Currently Tested
 
 ### [Core](https://www.oasis-open.org/committees/download.php/56776/sstc-saml-core-errata-2.0-wd-07.pdf)
@@ -35,6 +42,7 @@
 | 3.4.1 - Element `<AuthnRequest>` | The identity provider MUST have a trusted means to map the index value in the attribute to information associated with the requester. \[SAMLMeta\] provides one possible mechanism. | Hard to test because we don’t know what method the IdP is going to use.
 | 3.4.1.4 - Processing Rules | In such a case, the identifier's physical content MAY be different, but it MUST refer to the same principal. | Figuring out if the identifiers refer to the same principal cannot be done without actually resolving the identifiers to a principal. For now all that is checked is identical identifier values.
 | 3.4.1.4 - Processing Rules | The assertion(s) returned MUST contain a `<saml:Subject>` element that represents the presenter. | Figuring out if the subject "represents the presenter" cannot be done without actually resolving the subject to a principal. For now all that is checked is that each Assertion in the Response contains a Subject.
+| 3.7.3.2 Session Authority Rules | If \[the session authority\] cannot \[successfully terminates the principal's session\], then it MUST respond with a `<LogoutResponse>` message containing a top-level status code indicating the error.| Initially, we were testing this section by logging out a user which was not logged in. After further analysis we were able to determine that it qualifies as failure during logout.
 | 4.1.2 - SAML Assertion Version | All assertions that share a major assertion version number MUST share the same general processing rules and semantics | Impossible to test
 | 8.3.7 - Persistent Identifier | A given value, once associated with a principal, MUST NOT be assigned to a different principal at any time in the future. | Impossible to test
 | 8.3.7 - Persistent Identifier | Persistent identifiers are intended as a privacy protection mechanism; as such they MUST NOT be shared in clear text with providers other than the providers that have established the shared identifier. | Impossible to test. Cannot make sure they do not send info to other entities.
