@@ -74,14 +74,14 @@ tasks {
 }
 
 publishing {
-    val release = "http://nexus.phx.connexta.com:8081/nexus/content/repositories/testing-snapshots/"
-    val snapshot = "http://nexus.phx.connexta.com:8081/nexus/content/repositories/testing-snapshots/"
+    val releaseUrl = "http://artifacts.codice.org/content/repositories/releases/"
+    val snapshotUrl = "http://artifacts.codice.org/content/repositories/snapshots/"
     repositories {
         maven {
             url = if (version.toString().endsWith("SNAPSHOT")) {
-                uri(snapshot)
+                uri(snapshotUrl)
             } else {
-                uri(release)
+                uri(releaseUrl)
             }
         }
     }
