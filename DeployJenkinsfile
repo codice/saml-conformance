@@ -21,7 +21,7 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+                slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
             }
         }
         stage('Full Build') {
@@ -56,13 +56,13 @@ pipeline {
     }
     post {
         success {
-            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
+            slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
         }
         failure {
-            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+            slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
         }
         unstable {
-            slackSend channel: '#dib-bots-yellow', tokenCredentialId: 'slack-connexta-dib-bots-yellow', color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
+            slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
         }
     }
 }
