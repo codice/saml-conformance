@@ -1,3 +1,10 @@
+<!--
+Copyright (c) 2018 Codice Foundation
+
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
+-->
+
 # SAML Conformance Test Kit in Docker
 
 This image can execute a test against a remote host. It is used to run the conformance test against DDF.

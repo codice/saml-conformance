@@ -74,15 +74,39 @@ tasks {
 }
 
 publishing {
+    val release = "http://nexus.phx.connexta.com:8081/nexus/content/repositories/testing-snapshots/"
+    val snapshot = "http://nexus.phx.connexta.com:8081/nexus/content/repositories/testing-snapshots/"
     repositories {
         maven {
-            url = uri("http://nexus.phx.connexta.com:8081/nexus/content/repositories/testing-snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) {
+                uri(snapshot)
+            } else {
+                uri(release)
+            }
         }
     }
     (publications) {
         "mavenJava"(MavenPublication::class) {
-            artifact("build/distributions/samlconf-1.0.zip"){
-                extension = "zip"
+            from(components["java"])
+            pom {
+                groupId = "org.codice.samlconf"
+                artifactId = "samlconf"
+                name.set("SAML Conformance Test Kit")
+                description.set("""A set of blackbox tests that verify the conformance of an
+                    Identity Provider (IdP) to the SAML V2.0 Standard Specification.""")
+                url.set("https://github.com/connexta/saml-conformance")
+                licenses {
+                    license {
+                        name.set("The MIT License")
+                        url.set("http://www.opensource.org/licenses/mit-license.php")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/connexta/saml-conformance")
+                    connection.set("scm:git:https://github.com/connexta/saml-conformance.git")
+                    developerConnection
+                            .set("scm:git:git://github.com/connexta/saml-conformance.git")
+                }
             }
         }
     }

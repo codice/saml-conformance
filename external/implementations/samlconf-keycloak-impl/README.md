@@ -1,3 +1,10 @@
+<!--
+Copyright (c) 2018 Codice Foundation
+
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
+-->
+
 # The [Keycloak](https://github.com/keycloak/keycloak) SAML Implementation
 ## Known Compliance Issues
 | Issue| Section | Specification Snippet

@@ -1,3 +1,10 @@
+<!--
+Copyright (c) 2018 Codice Foundation
+
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
+-->
+
 # MUSTs or MUST NOTs That Are Not Currently Tested
 
 ### [Core](https://www.oasis-open.org/committees/download.php/56776/sstc-saml-core-errata-2.0-wd-07.pdf)

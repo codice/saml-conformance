@@ -1,15 +1,8 @@
 <!--
-Copyright (c) Codice Foundation
+Copyright (c) 2018 Codice Foundation
 
-This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
-General Public License as published by the Free Software Foundation, either
-version 3 of the License, or any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
-License is distributed along with this program and can be found at
-<http://www.gnu.org/licenses/lgpl.html>.
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
 -->
 
 # The Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)
@@ -28,10 +21,6 @@ Note the following before running the tests:
 To build the project execute `gradlew build`.
 After the build, the distribution zip will be located at `deployment/distribution/build/distributions`.
 The unzipped distribution can be found at `deployment/distribution/build/install/samlconf`.
-
-#### Docker
-Docker is used exclusively for our Jenkins builds. To build a docker image, execute `gradlew build docker`.
-The docker image can also be found on Docker Hub at https://hub.docker.com/r/codice/samlconf/.
 
 ## Running
 
@@ -112,9 +101,12 @@ See [4.1 Web Browser SSO Profile](https://www.oasis-open.org/committees/download
 ###### How to implement a plugin jar?
 
 1. Implement a plugin jar for the IdP's authentication implementation. \
-Write a Java or Kotlin class that implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface.
+Write a Java or Kotlin class that implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface. \
 [DDFIdpSSOResponderProvider](external/implementations/samlconf-ddf-impl/src/main/kotlin/org/codice/compliance/saml/plugin/ddf/DDFIdpSSOResponderProvider.kt) and
-[KeycloakIdpSSOResponderProvider](external/implementations/samlconf-keycloak-impl/src/main/kotlin/org/codice/compliance/saml/plugin/keycloak/KeycloakIdpSSOResponderProvider.kt) can be used as examples.
+[KeycloakIdpSSOResponderProvider](external/implementations/samlconf-keycloak-impl/src/main/kotlin/org/codice/compliance/saml/plugin/keycloak/KeycloakIdpSSOResponderProvider.kt) can be used as examples. \
+**NOTE**: The implementation class is implementing a Java service therefore either
+   * the `@MetaInfServices` annotation should be used (which uses the kapt plugin) or
+   * a hand-crafted services reference file `META-INF/services/org.codice.compliance.saml.plugin.IdpSSOResponder` will need to be added to the jar (see below)
 1. Package that file into a jar.
 1. Place the jar from step 1 and the IdP's metadata into a directory.
 1. Setup your IdP.
@@ -122,7 +114,7 @@ Write a Java or Kotlin class that implements the [IdpSSOResponder](external/saml
 1. The directory from step 3 should be referred to with the `-i` option when running tests. (See [Run the tests](#run-the-tests))
 
 #### Formatting
-If during development the build fails due to `format violations`, run `gradlew spotlessApply` to fix the formatting.
+The project uses [Spotless](https://github.com/diffplug/spotless) to ensure consistent style. Any style violations noted by Spotless can easily be resolved by running `./gradlew spotlessApply`.
 
 #### Project Structure
 This section will briefly talk about the project structure.
@@ -134,7 +126,8 @@ This section will briefly talk about the project structure.
 │   ├── common - classes relating to utility and verification of the test classes
 │   │               NOTE: Schema verification is run before tests and verifications.
 │   │
-│   └── idp - tests being written against a SAML IdP. The `src` directory of the module is organized by the SAML specification as follows:
+│   └── idp - tests being written against a SAML IdP. The `src` directory of the module is organized
+│             by the SAML specification as follows:
 │              * Package: Based on Profile (i.e. WebSSO, Single Logout)
 │                * Class: Based on Binding (i.e. POST, REDIRECT, ARTIFACT)
 │
@@ -142,20 +135,23 @@ This section will briefly talk about the project structure.
 │   │
 │   ├── distribution - runtime elements including scripts, jars, and configurations
 │   │
-│   └── docker - logic for building a Docker image
+│   └── docker - logic for building a Docker image. Docker is used exclusively for our Jenkins builds.
+│                To build a docker image, execute `gradlew build docker`. The docker image can also
+│                be found on Docker Hub at https://hub.docker.com/r/codice/samlconf/.
 │
 ├── external - files related to a specific SAML implementing product
 │   │
-│   ├── samlconf-plugins-api -  API that must be implemented for a SAML product in order to run this test kit against that product
+│   ├── samlconf-plugins-api -  API that must be implemented for a SAML product in order to run this
+│   │                           test kit against that product
 │   │
 │   └── implementations - implementations of the API for specific SAML products
 │       │
-│       ├── samlconf-ddf-impl - plugin and IdP metadata XML for the ddf implementation of IdP
+│       ├── samlconf-ddf-impl - plugin and IdP metadata XML for the DDF implementation of IdP
 │       │
 │       └── samlconf-keycloak-impl - plugin and IdP metadata XML for the Keycloak implementation of IdP
 │
-└── library - Java classes that have been copied over from DDF to support operations that shouldn't be handled by the test code;
-              i.e. signature validation using x509 certificates.
+└── library - Java classes copied from DDF to support operations outside the scope of the test code,
+              e.g. signature validation using x509 certificates.
 ```
 
 ## References
