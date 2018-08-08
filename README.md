@@ -155,9 +155,9 @@ This section will briefly talk about the project structure.
 ```
 
 ## References
-FICAM: https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/SAML2_1.0.2_Functional_Reqs.pdf
-
-SAML: https://wiki.oasis-open.org/security/FrontPage
+  * SAML-CTK Forum: https://groups.google.com/forum/#!forum/saml-ctk
+  * FICAM: https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/SAML2_1.0.2_Functional_Reqs.pdf
+  * SAML: https://wiki.oasis-open.org/security/FrontPage
 
 ## Copyright / License
 Copyright (c) Codice Foundation
