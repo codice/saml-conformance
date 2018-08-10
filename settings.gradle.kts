@@ -6,6 +6,7 @@ http://www.gnu.org/licenses/lgpl.html
 */
 // Build file
 rootProject.name = "saml-conformance"
+enableFeaturePreview("STABLE_PUBLISHING")
 
 include("library",
         "external:samlconf-plugins-api",

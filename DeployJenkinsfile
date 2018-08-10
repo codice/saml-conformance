@@ -32,8 +32,11 @@ pipeline {
         stage('Deploy') {
             parallel {
                 stage ('Artifact Deploy') {
+                    environment {
+                        CODICE_DEPLOY = credentials('codice-deploy-creds') // any environment variable used for a credential automatically gets split into two like <VARNAME>_USR and <VARNAME>_PSW
+                    }
                     steps {
-                        sh './gradlew publish'
+                        sh './gradlew publish -Pcodice_deploy_username=$CODICE_DEPLOY_USR -Pcodice_deploy_password=$CODICE_DEPLOY_PSW'
                     }
                 }
                 stage ('Docker Deploy') {
