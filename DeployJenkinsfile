@@ -32,6 +32,12 @@ pipeline {
         stage('Deploy') {
             parallel {
                 stage ('Artifact Deploy') {
+                    when {
+                        allOf {
+                            expression { env.CHANGE_ID == null }
+                            expression { env.BRANCH_NAME == "master" }
+                        }
+                    }
                     environment {
                         CODICE_DEPLOY = credentials('codice-deploy-creds') // any environment variable used for a credential automatically gets split into two like <VARNAME>_USR and <VARNAME>_PSW
                     }
