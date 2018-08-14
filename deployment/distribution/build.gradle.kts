@@ -22,7 +22,7 @@ configure<ApplicationPluginConvention> {
     applicationDefaultJvmArgs = listOf("-Dapp.home=SAMLCTK_APP_HOME")
 
     applicationDistribution.from("src/main/resources/") {
-        into( "conf")
+        into("conf")
     }
 
     // Copy implementation examples into the distribution
@@ -31,9 +31,9 @@ configure<ApplicationPluginConvention> {
                 .into("implementations/" +
                         subProject.name.replace("samlconf-", "")
                                 .replace("-impl", "")) {
-            from (subProject.file("build/resources/main"))
-            from (subProject.file("build/libs"))
-        }
+                    from(subProject.file("build/resources/main"))
+                    from(subProject.file("build/libs"))
+                }
     }
 }
 
@@ -73,6 +73,10 @@ tasks {
     }
 }
 
+artifacts {
+    add("archives", tasks.getByPath("distZip"))
+}
+
 publishing {
     val releaseUrl = "http://artifacts.codice.org/content/repositories/releases/"
     val snapshotUrl = "http://artifacts.codice.org/content/repositories/snapshots/"
@@ -105,6 +109,7 @@ publishing {
     (publications) {
         "mavenJava"(MavenPublication::class) {
             from(components["java"])
+            artifact(tasks.getByPath("distZip"))
             pom {
                 groupId = "org.codice.samlconf"
                 artifactId = "samlconf"
