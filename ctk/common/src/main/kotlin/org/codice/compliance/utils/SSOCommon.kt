@@ -30,9 +30,11 @@ class SSOCommon {
          * Provides a default request for testing
          * @return A valid Redirect AuthnRequest.
          */
-        fun createDefaultAuthnRequest(binding: SamlProtocol.Binding,
+        fun createDefaultAuthnRequest(
+            binding: SamlProtocol.Binding,
             requestIssuer: String = currentSPIssuer,
-            entityInfo: EntityInformation = currentSPEntityInfo): AuthnRequest {
+            entityInfo: EntityInformation = currentSPEntityInfo
+        ): AuthnRequest {
             REQUEST_ID = "a" + UUID.randomUUID().toString() // IDs have to start with a letter
             return AuthnRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply { value = requestIssuer }

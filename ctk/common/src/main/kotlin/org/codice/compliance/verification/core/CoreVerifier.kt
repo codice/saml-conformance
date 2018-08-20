@@ -39,8 +39,11 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
          * For example, urn:oasis:names:tc:SAML:2.0:status:Requester.
          */
         @Suppress("SpreadOperator")
-        fun verifyErrorStatusCodes(node: Node, vararg samlErrorCodes: SAMLSpecRefMessage,
-                                   expectedStatusCode: String) {
+        fun verifyErrorStatusCodes(
+            node: Node,
+            vararg samlErrorCodes: SAMLSpecRefMessage,
+            expectedStatusCode: String
+        ) {
             SchemaValidator.validateSAMLMessage(node)
 
             val statusCode = node.children(STATUS)

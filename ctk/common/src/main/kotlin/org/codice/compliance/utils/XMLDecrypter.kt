@@ -114,8 +114,10 @@ class XMLDecrypter {
 
         @Suppress("TooGenericExceptionCaught"
                 /* Decryption error handling is independent of Exception type */)
-        private fun tryKeyDecryption(encKeyElements: List<Element>,
-                                     ownerDocument: Document?): Key? {
+        private fun tryKeyDecryption(
+            encKeyElements: List<Element>,
+            ownerDocument: Document?
+        ): Key? {
 
             val cipher = XMLCipher.getInstance().apply {
                 init(XMLCipher.DECRYPT_MODE, null)
@@ -145,8 +147,9 @@ class XMLDecrypter {
          * @param cause An optional cause
          */
         class XMLDecryptorException(
-                override val message: String,
-                override val cause: Throwable? = null) :
+            override val message: String,
+            override val cause: Throwable? = null
+        ) :
                 RuntimeException(message, cause)
     }
 }

@@ -33,8 +33,11 @@ import org.codice.compliance.utils.isNotHidden
 import org.codice.compliance.utils.recursiveChildren
 
 @Suppress("StringLiteralDuplication" /* Duplicated phrases in exception messages. */)
-class PostFormVerifier(private val httpResponse: Response, private val isRelayStateGiven: Boolean,
-    private val isSamlRequest: Boolean) {
+class PostFormVerifier(
+    private val httpResponse: Response,
+    private val isRelayStateGiven: Boolean,
+    private val isSamlRequest: Boolean
+) {
     companion object {
         private const val METHOD = "method"
         private const val POST = "POST"

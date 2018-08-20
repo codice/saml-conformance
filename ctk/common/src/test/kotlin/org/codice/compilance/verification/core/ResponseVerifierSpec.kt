@@ -174,13 +174,15 @@ class ResponseVerifierSpec : StringSpec() {
     }
 
     @Suppress("LongParameterList")
-    private fun createResponse(id: String = UUID.randomUUID().toString().replace("-", ""),
-                               version: String = "2.0",
-                               inResponseTo: String = REQUEST_ID,
-                               attribute: String = "",
-                               instant: String = Instant.now().toString(),
-                               statusCode: String = SUCCESS,
-                               statusMessage: String = "Status Message"): String {
+    private fun createResponse(
+        id: String = UUID.randomUUID().toString().replace("-", ""),
+        version: String = "2.0",
+        inResponseTo: String = REQUEST_ID,
+        attribute: String = "",
+        instant: String = Instant.now().toString(),
+        statusCode: String = SUCCESS,
+        statusMessage: String = "Status Message"
+    ): String {
         return """
             |<s:Response
             |xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol"
@@ -199,8 +201,10 @@ class ResponseVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private class ResponseVerifierTest(samlRequest: RequestAbstractType,
-                                       samlResponseDom: NodeDecorator,
-                                       binding: SamlProtocol.Binding)
+    private class ResponseVerifierTest(
+        samlRequest: RequestAbstractType,
+        samlResponseDom: NodeDecorator,
+        binding: SamlProtocol.Binding
+    )
         : ResponseVerifier(samlRequest, samlResponseDom, binding)
 }

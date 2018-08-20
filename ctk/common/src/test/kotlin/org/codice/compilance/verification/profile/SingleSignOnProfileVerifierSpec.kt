@@ -187,9 +187,11 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
         }
     }
 
-    private fun createResponse(issuer: String = "<s2:Issuer>http://correct.idp.issuer</s2:Issuer>",
-                               assertionIssuer: String = "http://correct.idp.issuer",
-                               subjConf: String = createBearerSubjConf()): String {
+    private fun createResponse(
+        issuer: String = "<s2:Issuer>http://correct.idp.issuer</s2:Issuer>",
+        assertionIssuer: String = "http://correct.idp.issuer",
+        subjConf: String = createBearerSubjConf()
+    ): String {
         return """
             |<s:Response $responseParams>
             |  $issuer
@@ -209,9 +211,11 @@ class SingleSignOnProfileVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private fun createBearerSubjConf(recipient: String = "Recipient=\"http://correct.uri\"",
-                                     notOnOrAfter: String = "NotOnOrAfter=\"${Instant.now()}\"",
-                                     inResponseTo: String = "InResponseTo=\"$REQUEST_ID\""):
+    private fun createBearerSubjConf(
+        recipient: String = "Recipient=\"http://correct.uri\"",
+        notOnOrAfter: String = "NotOnOrAfter=\"${Instant.now()}\"",
+        inResponseTo: String = "InResponseTo=\"$REQUEST_ID\""
+    ):
             String {
         return """
             |<s2:SubjectConfirmation Method="$BEARER">

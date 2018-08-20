@@ -94,8 +94,8 @@ class RedirectBindingVerifier(httpResponse: Response) : BindingVerifier(httpResp
      * 3.4.6 Error Reporting
      */
     private fun verifyHttpRedirectStatusCode() {
-        if (httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_FOUND
-                && httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
+        if (httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_FOUND &&
+                httpResponse.statusCode != HttpStatusCodes.STATUS_CODE_SEE_OTHER) {
             throw SAMLComplianceException.createWithPropertyMessage(
                     SAMLBindings_3_4_6_a,
                     property = "HTTP Status Code",

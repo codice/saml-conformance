@@ -76,9 +76,9 @@ class PostBindingVerifier(httpResponse: Response) : BindingVerifier(httpResponse
      * 4.1.4.5 POST-Specific Processing Rules
      */
     private fun verifyPostSSO(samlResponseDom: Node) {
-        if (!samlResponseDom.nodeName.contains("Logout")
-                && samlResponseDom.children(SIGNATURE).isEmpty()
-                && samlResponseDom.children(ASSERTION).any {
+        if (!samlResponseDom.nodeName.contains("Logout") &&
+                samlResponseDom.children(SIGNATURE).isEmpty() &&
+                samlResponseDom.children(ASSERTION).any {
                     it.children(SIGNATURE).isEmpty()
                 })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_5_a,

@@ -45,11 +45,13 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
         val now = Instant.now()
 
         @Suppress("LongParameterList")
-        fun createResponse(attributeName: String = "Unspecified",
-                           attributeFormat: String = ATTRIBUTE_NAME_FORMAT_UNSPECIFIED,
-                           identifierValue: String = "example-email@domain.com",
-                           identifierFormat: String = NAME_ID_FORMAT_EMAIL,
-                           extraIdentifierAttribute: String = ""): Node {
+        fun createResponse(
+            attributeName: String = "Unspecified",
+            attributeFormat: String = ATTRIBUTE_NAME_FORMAT_UNSPECIFIED,
+            identifierValue: String = "example-email@domain.com",
+            identifierFormat: String = NAME_ID_FORMAT_EMAIL,
+            extraIdentifierAttribute: String = ""
+        ): Node {
             return buildDom(
                     """
                     |<samlp:Response

@@ -34,8 +34,10 @@ import org.codice.compliance.verification.core.SubjectComparisonVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.AuthnRequest
 
-class CoreAuthnRequestProtocolVerifier(private val authnRequest: AuthnRequest,
-                                       private val samlResponse: NodeDecorator) :
+class CoreAuthnRequestProtocolVerifier(
+    private val authnRequest: AuthnRequest,
+    private val samlResponse: NodeDecorator
+) :
         ResponseVerifier(authnRequest, samlResponse, HTTP_POST) {
 
     private val nameIdPolicyVerifier =

@@ -143,8 +143,10 @@ class TestCommon {
          * @param samlObject - The object to sign and encode
          * @return The signed object as a String
          */
-        fun signAndEncodePostRequestToString(samlObject: SignableSAMLObject,
-                                             relayState: String? = null): String {
+        fun signAndEncodePostRequestToString(
+            samlObject: SignableSAMLObject,
+            relayState: String? = null
+        ): String {
             val samlType = if (samlObject is RequestAbstractType) SAML_REQUEST else SAML_RESPONSE
 
             SimpleSign().signSamlObject(samlObject)
@@ -209,8 +211,11 @@ class LazyVar<T>(val init: () -> T) : ReadWriteProperty<Any?, T> {
     }
 }
 
-class NodeDecorator(private val node: Node, var hasEncryptedAssertion: Boolean = false,
-                    var isSigned: Boolean = false) : DecoratedNode, Node by node {
+class NodeDecorator(
+    private val node: Node,
+    var hasEncryptedAssertion: Boolean = false,
+    var isSigned: Boolean = false
+) : DecoratedNode, Node by node {
     override fun getNode(): Node {
         return node
     }

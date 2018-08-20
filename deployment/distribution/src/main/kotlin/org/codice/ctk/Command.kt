@@ -135,8 +135,10 @@ private class TestNameListener : TestExecutionListener {
         }
     }
 
-    override fun executionFinished(testIdentifier: TestIdentifier,
-                                   testExecutionResult: TestExecutionResult) {
+    override fun executionFinished(
+        testIdentifier: TestIdentifier,
+        testExecutionResult: TestExecutionResult
+    ) {
         if (testIdentifier.isTest)
             System.out.println(
                     "${testIdentifier.displayName} ${getResultDisplay(testExecutionResult.status)}")

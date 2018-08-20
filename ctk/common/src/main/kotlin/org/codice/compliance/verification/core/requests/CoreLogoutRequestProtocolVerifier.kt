@@ -15,8 +15,10 @@ import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.codice.compliance.verification.core.RequestVerifier
 import org.codice.security.saml.SamlProtocol
 
-class CoreLogoutRequestProtocolVerifier(private val samlRequest: NodeDecorator,
-                                        binding: SamlProtocol.Binding)
+class CoreLogoutRequestProtocolVerifier(
+    private val samlRequest: NodeDecorator,
+    binding: SamlProtocol.Binding
+)
     : RequestVerifier(samlRequest, binding) {
 
     /** 3.7.1 Element <LogoutRequest>*/

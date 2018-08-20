@@ -114,8 +114,8 @@ internal class StatementVerifier(val node: Node) {
     private fun verifyAuthzDecisionStatement() {
         if (node.recursiveChildren(ASSERTION)
                         .any {
-                            it.children("AuthzDecisionStatement").isNotEmpty()
-                                    && it.children(SUBJECT).isEmpty()
+                            it.children("AuthzDecisionStatement").isNotEmpty() &&
+                                    it.children(SUBJECT).isEmpty()
                         })
             throw SAMLComplianceException.create(SAMLCore_2_7_4_a,
                     message = "No Subject element found.",
