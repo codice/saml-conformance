@@ -163,9 +163,11 @@ class CommonDataTypeVerifierSpec : StringSpec() {
         }
     }
 
-    private fun nullNodeFails(expectedErr: SAMLSpecRefMessage,
-                              extraError: SAMLSpecRefMessage? = null,
-                              func: (node: Node?, extraErr: SAMLSpecRefMessage?) -> Any) {
+    private fun nullNodeFails(
+        expectedErr: SAMLSpecRefMessage,
+        extraError: SAMLSpecRefMessage? = null,
+        func: (node: Node?, extraErr: SAMLSpecRefMessage?) -> Any
+    ) {
         val expectedExcWithExtraError = shouldThrow<SAMLComplianceException> {
             func(null as Node?, extraError)
         }
@@ -175,10 +177,12 @@ class CommonDataTypeVerifierSpec : StringSpec() {
         }
     }
 
-    private fun badInput(input: String?,
-                         expectedErr: SAMLSpecRefMessage,
-                         extraError: SAMLSpecRefMessage? = null,
-                         func: (node: Node, extraErr: SAMLSpecRefMessage?) -> Any) {
+    private fun badInput(
+        input: String?,
+        expectedErr: SAMLSpecRefMessage,
+        extraError: SAMLSpecRefMessage? = null,
+        func: (node: Node, extraErr: SAMLSpecRefMessage?) -> Any
+    ) {
         val domString = if (input == null) "<fld/>" else "<fld>$input</fld>"
         buildDom(domString).let {
             val expectedExc = shouldThrow<SAMLComplianceException> {

@@ -65,8 +65,8 @@ fun Response.extractSamlMessageForm(): Node? {
             .firstOrNull {
                 it.recursiveChildren("input")
                         .any { formControl ->
-                            SAML_RESPONSE.equals(formControl.getAttribute(NAME), ignoreCase = true)
-                                || SAML_REQUEST.equals(formControl.getAttribute(NAME),
+                            SAML_RESPONSE.equals(formControl.getAttribute(NAME), ignoreCase = true) ||
+                                SAML_REQUEST.equals(formControl.getAttribute(NAME),
                                     ignoreCase = true)
                         }
             }
@@ -127,7 +127,9 @@ fun Node.isNotHidden(): Boolean {
     return !HIDDEN.equals(this.getAttribute(TYPE_LOWER), ignoreCase = true)
 }
 
-fun Node.hasNoAttributeWithNameAndValue(attributeName: String,
-                                                expectedValue: String): Boolean {
+fun Node.hasNoAttributeWithNameAndValue(
+    attributeName: String,
+    expectedValue: String
+): Boolean {
     return expectedValue != this.getAttribute(attributeName)
 }

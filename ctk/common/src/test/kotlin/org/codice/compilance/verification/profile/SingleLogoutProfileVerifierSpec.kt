@@ -145,8 +145,10 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private fun createLogoutRequest(issuer: String,
-                                    nameIDValue: String = correctNameIDValue): String {
+    private fun createLogoutRequest(
+        issuer: String,
+        nameIDValue: String = correctNameIDValue
+    ): String {
         return """
             |<s:LogoutRequest
             |xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol"

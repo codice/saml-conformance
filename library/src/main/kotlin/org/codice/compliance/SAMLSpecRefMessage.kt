@@ -11,8 +11,10 @@ package org.codice.compliance
 import java.net.URI
 import java.util.ResourceBundle
 
-sealed class SAMLSpecRefMessage(docRefKey: String,
-                                docUriKey: String) {
+sealed class SAMLSpecRefMessage(
+    docRefKey: String,
+    docUriKey: String
+) {
     private val docRef: String
     private val docUri: URI
 

@@ -54,11 +54,11 @@ internal class AssertionsVerifier(val node: Node) {
                         message = "Statement element found without a type.",
                         node = node)
 
-            if (statements.isEmpty()
-                    && it.children(AUTHN_STATEMENT).isEmpty()
-                    && it.children("AuthzDecisionStatement").isEmpty()
-                    && it.children("AttributeStatement").isEmpty()
-                    && it.children(SUBJECT).isEmpty())
+            if (statements.isEmpty() &&
+                    it.children(AUTHN_STATEMENT).isEmpty() &&
+                    it.children("AuthzDecisionStatement").isEmpty() &&
+                    it.children("AttributeStatement").isEmpty() &&
+                    it.children(SUBJECT).isEmpty())
                 throw SAMLComplianceException.create(SAMLCore_2_2_3_b,
                         message = "No Subject or Statement elements found.",
                         node = node)

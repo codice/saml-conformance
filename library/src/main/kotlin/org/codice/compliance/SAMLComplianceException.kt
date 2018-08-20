@@ -13,18 +13,22 @@ import org.w3c.dom.Node
 class SAMLComplianceException : Exception {
 
     private constructor(message: String) : super(message)
-    private constructor(message: String,
-                        cause: Throwable) : super(message, cause)
+    private constructor(
+        message: String,
+        cause: Throwable
+    ) : super(message, cause)
 
     companion object {
         private const val IDP_ERROR_RESPONSE_REMINDER_MESSAGE = "Make sure the IdP responds " +
             "immediately with a SAML error response (See section 3.2.1 in the SAML Core " +
             "specification)"
 
-        fun create(vararg codes: SAMLSpecRefMessage,
-                   message: String,
-                   cause: Throwable? = null,
-                   node: Node? = null):
+        fun create(
+            vararg codes: SAMLSpecRefMessage,
+            message: String,
+            cause: Throwable? = null,
+            node: Node? = null
+        ):
                 SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
                     .fold("\tSAML Specification References:\n") { acc, s ->
@@ -41,11 +45,13 @@ class SAMLComplianceException : Exception {
         }
 
         @Suppress("LongParameterList")
-        fun createWithPropertyMessage(vararg codes: SAMLSpecRefMessage,
-                                      property: String,
-                                      actual: String?,
-                                      expected: String? = null,
-                                      node: Node? = null): SAMLComplianceException {
+        fun createWithPropertyMessage(
+            vararg codes: SAMLSpecRefMessage,
+            property: String,
+            actual: String?,
+            expected: String? = null,
+            node: Node? = null
+        ): SAMLComplianceException {
             val samlExceptions = codes.map(Companion::readCode)
                     .fold("\tSAML Specification References:\n") { acc, s ->
                         "$acc\n\t$s"

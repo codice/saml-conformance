@@ -152,8 +152,10 @@ class HolderOfKeySubjectConfirmationVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private fun createHolderOfKeySubjConf(type: String = correctType,
-                                          keyInfo: String = correctKeyInfo): String {
+    private fun createHolderOfKeySubjConf(
+        type: String = correctType,
+        keyInfo: String = correctKeyInfo
+    ): String {
         return """
             |<s2:SubjectConfirmation Method="$HOLDER_OF_KEY_URI">
             |  <s2:SubjectConfirmationData $type>

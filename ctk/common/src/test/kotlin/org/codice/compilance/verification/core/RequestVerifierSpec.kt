@@ -113,10 +113,12 @@ class RequestVerifierSpec : StringSpec() {
         }
     }
 
-    private fun createRequest(id: String? = UUID.randomUUID().toString().replace("-", ""),
-                              version: String? = "2.0",
-                              attribute: String = "",
-                              instant: String = Instant.now().toString()): String {
+    private fun createRequest(
+        id: String? = UUID.randomUUID().toString().replace("-", ""),
+        version: String? = "2.0",
+        attribute: String = "",
+        instant: String = Instant.now().toString()
+    ): String {
         return """
             |<s:LogoutRequest
             |xmlns:s="urn:oasis:names:tc:SAML:2.0:protocol"

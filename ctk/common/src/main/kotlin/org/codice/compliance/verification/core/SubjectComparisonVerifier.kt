@@ -73,9 +73,9 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         val format2 = id2.filteredFormatValue
 
         // If they share a format value that isn't "unspecified", but have different contents
-        if (format1 == format2
-                && format1 != null
-                && id1.textContent != id2.textContent) {
+        if (format1 == format2 &&
+                format1 != null &&
+                id1.textContent != id2.textContent) {
             throw SAMLComplianceException.create(SAMLCore_3_3_4_b,
                     samlCode,
                     message = "The identifiers have identical Format attributes " +
@@ -164,10 +164,12 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
     /**
      * Compares all of the attributes of the identifiers. Special checking for the Format attribute.
      */
-    private fun verifyIdAttributesMatch(id1: Node,
-                                        id2: Node,
-                                        samlCode: SAMLSpecRefMessage,
-                                        nameIdPolicyFormat: String? = null) {
+    private fun verifyIdAttributesMatch(
+        id1: Node,
+        id2: Node,
+        samlCode: SAMLSpecRefMessage,
+        nameIdPolicyFormat: String? = null
+    ) {
         // Check the format attribute separately
         /*
          * If no NameIDPolicyFormat is defined, the Request format and the Response format are
@@ -204,8 +206,10 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
      * Note that this matching only compares the methods of the SubjectConfirmations. In order to
      * properly strongly match we would need to "confirm" the SubjectConfirmation (Hard To Test)
      */
-    private fun verifyConfirmationsMatchAuthnRequest(requestConfirmations: List<Node>,
-                                                     responseConfirmations: List<Node>) {
+    private fun verifyConfirmationsMatchAuthnRequest(
+        requestConfirmations: List<Node>,
+        responseConfirmations: List<Node>
+    ) {
 
         val requestMethods = requestConfirmations
                 .mapNotNull { it.attributeText(METHOD) }.toSet()

@@ -20,8 +20,10 @@ import org.codice.compliance.utils.TestCommon.Companion.getServiceUrl
 import org.codice.compliance.utils.VERSION
 import org.codice.security.saml.SamlProtocol
 
-abstract class RequestVerifier(private val samlRequest: NodeDecorator,
-                               private val binding: SamlProtocol.Binding)
+abstract class RequestVerifier(
+    private val samlRequest: NodeDecorator,
+    private val binding: SamlProtocol.Binding
+)
     : CoreVerifier(samlRequest) {
 
     /** 3.2.1 Complex Type RequestAbstractType */

@@ -30,8 +30,10 @@ class KeycloakIdpSSOResponderProvider : IdpSSOResponder {
         return postUserForm(loginPageResponse, originalResponse.cookies)
     }
 
-    private fun postUserForm(responseWithForm: Response,
-                             cookies: Map<String, String> = responseWithForm.cookies): Response {
+    private fun postUserForm(
+        responseWithForm: Response,
+        cookies: Map<String, String> = responseWithForm.cookies
+    ): Response {
         val uriString = responseWithForm
                 .then()
                 .extract()

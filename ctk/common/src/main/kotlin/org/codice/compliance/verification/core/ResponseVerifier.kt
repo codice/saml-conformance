@@ -30,9 +30,11 @@ import org.codice.compliance.utils.topLevelStatusCodes
 import org.codice.security.saml.SamlProtocol
 import org.opensaml.saml.saml2.core.RequestAbstractType
 
-abstract class ResponseVerifier(private val samlRequest: RequestAbstractType,
-                                private val samlResponse: NodeDecorator,
-                                private val binding: SamlProtocol.Binding) :
+abstract class ResponseVerifier(
+    private val samlRequest: RequestAbstractType,
+    private val samlResponse: NodeDecorator,
+    private val binding: SamlProtocol.Binding
+) :
         CoreVerifier(samlResponse) {
 
     /** 3.2.2 Complex Type StatusResponseType */

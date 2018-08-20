@@ -229,9 +229,11 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
         }
     }
 
-    private fun createResponse(isSigned: Boolean = false,
-                               issuer: String = "<s2:Issuer>$correctIdpIssuer</s2:Issuer>",
-                               assertion: String = createAssertion()): String {
+    private fun createResponse(
+        isSigned: Boolean = false,
+        issuer: String = "<s2:Issuer>$correctIdpIssuer</s2:Issuer>",
+        assertion: String = createAssertion()
+    ): String {
 
         val signature = if (isSigned) "<ds:Signature/>" else ""
         return """
@@ -243,10 +245,12 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private fun createAssertion(assertionIssuer: String = correctIdpIssuer,
-                                subjConf: String = createBearerSubjConf(),
-                                authnStatement: String = "<s2:AuthnStatement SessionIndex=\"0\"/>",
-                                audience: String = "https://samlhost:8993/services/saml"): String {
+    private fun createAssertion(
+        assertionIssuer: String = correctIdpIssuer,
+        subjConf: String = createBearerSubjConf(),
+        authnStatement: String = "<s2:AuthnStatement SessionIndex=\"0\"/>",
+        audience: String = "https://samlhost:8993/services/saml"
+    ): String {
 
         return """
             |<s2:Assertion>
@@ -264,10 +268,12 @@ class BearerSubjectConfirmationVerifierSpec : StringSpec() {
            """.trimMargin()
     }
 
-    private fun createBearerSubjConf(recipient: String = "Recipient=\"http://correct.uri\"",
-                                     notOnOrAfter: String = "NotOnOrAfter=\"${Instant.now()}\"",
-                                     inResponseTo: String = "InResponseTo=\"$REQUEST_ID\"",
-                                     extraAttribute: String = ""): String {
+    private fun createBearerSubjConf(
+        recipient: String = "Recipient=\"http://correct.uri\"",
+        notOnOrAfter: String = "NotOnOrAfter=\"${Instant.now()}\"",
+        inResponseTo: String = "InResponseTo=\"$REQUEST_ID\"",
+        extraAttribute: String = ""
+    ): String {
         return """
             |<s2:SubjectConfirmation Method="$BEARER">
             |  <s2:SubjectConfirmationData
