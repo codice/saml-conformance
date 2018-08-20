@@ -24,7 +24,7 @@ pipeline {
         stage('Setup') {
             steps {
                 withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
-                    postCommentIfPR("Internal build has been started. Your results will be available at completion. See build progress in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+                    postCommentIfPR("Internal build has been started. Your results will be available at completion. See build progress in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'codice', 'saml-conformance', "${GITHUB_TOKEN}")
                 }
             }
         }
@@ -52,17 +52,17 @@ pipeline {
     post {
         success {
             withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("Build success! See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+                postCommentIfPR("Build success! See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'codice', 'saml-conformance', "${GITHUB_TOKEN}")
             }
         }
         failure {
             withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("Build failure. See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+                postCommentIfPR("Build failure. See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'codice', 'saml-conformance', "${GITHUB_TOKEN}")
             }
         }
         unstable {
             withCredentials([usernameColonPassword(credentialsId: '	cxbot-github-auth', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("Build unstable. See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'connexta', 'saml-conformance', "${GITHUB_TOKEN}")
+                postCommentIfPR("Build unstable. See the job results in [Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", 'codice', 'saml-conformance', "${GITHUB_TOKEN}")
             }
         }
     }

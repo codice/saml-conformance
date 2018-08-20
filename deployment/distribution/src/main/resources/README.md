@@ -22,7 +22,7 @@ Note the following before running the tests:
 Getting Started
 ===============
 For a SAML CTK source distribution, please read the README.md file at
-https://github.com/connexta/saml-conformance for instructions on building this test kit.
+https://github.com/codice/saml-conformance for instructions on building this test kit.
 
 How to Run
 ==========
@@ -96,7 +96,7 @@ for more information on setting up and testing Keycloak.
 Additional Information
 =====================
 
-To run this test kit against other Identity Providers, see the README.md file at https://github.com/connexta/saml-conformance.
+To run this test kit against other Identity Providers, see the README.md file at https://github.com/codice/saml-conformance.
 
 Copyright / License
 ===================
