@@ -116,7 +116,7 @@ publishing {
                 name.set("SAML Conformance Test Kit")
                 description.set("""A set of blackbox tests that verify the conformance of an
                     Identity Provider (IdP) to the SAML V2.0 Standard Specification.""")
-                url.set("https://github.com/connexta/saml-conformance")
+                url.set("https://github.com/codice/saml-conformance")
                 licenses {
                     license {
                         name.set("The MIT License")
@@ -124,10 +124,10 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/connexta/saml-conformance")
-                    connection.set("scm:git:https://github.com/connexta/saml-conformance.git")
+                    url.set("https://github.com/codice/saml-conformance")
+                    connection.set("scm:git:https://github.com/codice/saml-conformance.git")
                     developerConnection
-                            .set("scm:git:git://github.com/connexta/saml-conformance.git")
+                            .set("scm:git:git://github.com/codice/saml-conformance.git")
                 }
             }
         }
