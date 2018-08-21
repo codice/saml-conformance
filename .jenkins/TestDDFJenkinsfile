@@ -1,5 +1,10 @@
-//"Jenkins Pipeline is a suite of plugins which supports implementing and integrating continuous delivery pipelines into Jenkins. Pipeline provides an extensible set of tools for modeling delivery pipelines "as code" via the Pipeline DSL."
-//More information can be found on the Jenkins Documentation page https://jenkins.io/doc/
+/*
+Copyright (c) 2018 Codice Foundation
+
+Released under the GNU Lesser General Public License; see
+http://www.gnu.org/licenses/lgpl.html
+*/
+
 pipeline {
     agent { label 'dind' }
     options {
@@ -21,6 +26,10 @@ pipeline {
         stage('Setup') {
             steps {
                 slackSend channel: '#cx-bots-yellow', tokenCredentialId: 'slack-connexta-cx-bots-yellow', color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+            }
+        }
+        stage('Pull Docker Images') {
+            steps {
                 sh 'docker-compose --file deployment/docker/docker-compose.yml pull'
             }
         }

@@ -2,7 +2,7 @@ autoCorrect: true
 failFast: true
 
 build:
-  maxIssues: 10
+  maxIssues: 1
   weights:
     # complexity: 2
     # LongParameterList: 1

@@ -65,7 +65,8 @@ fun Response.extractSamlMessageForm(): Node? {
             .firstOrNull {
                 it.recursiveChildren("input")
                         .any { formControl ->
-                            SAML_RESPONSE.equals(formControl.getAttribute(NAME), ignoreCase = true) ||
+                            SAML_RESPONSE.equals(formControl.getAttribute(NAME),
+                                    ignoreCase = true) ||
                                 SAML_REQUEST.equals(formControl.getAttribute(NAME),
                                     ignoreCase = true)
                         }
