@@ -58,6 +58,7 @@ tasks {
     }
 
     "startScripts"(CreateStartScripts::class) {
+        classpath = files(System.getProperty("app.home") + "/lib/*")
         doLast {
             unixScript.let {
                 it.writeText(it.readText().replace("SAMLCTK_APP_HOME", "\$APP_HOME"))
