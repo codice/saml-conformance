@@ -30,7 +30,7 @@ object Versions {
     const val cxf = "3.2.4"
     const val kaptMetainf = "1.8"
     const val gson = "2.8.5"
-    const val kopperTyped = "0.0.4"
+    const val kopperTyped = "0.0.3"
     const val jansi = "1.17.1"
     const val googleHttpClient = "1.24.1"
     const val keyczar = "0.66"

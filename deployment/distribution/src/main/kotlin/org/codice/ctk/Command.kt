@@ -26,16 +26,16 @@ import org.codice.ctk.Runner.Companion.SLO_BASIC_TESTS
 import org.codice.ctk.Runner.Companion.SLO_ERROR_TESTS
 import org.codice.ctk.Runner.Companion.SSO_BASIC_TESTS
 import org.codice.ctk.Runner.Companion.SSO_ERROR_TESTS
+import org.fusesource.jansi.Ansi.ansi
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
+import org.junit.platform.launcher.TestPlan
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener
 import us.jimschubert.kopper.Parser
-import org.fusesource.jansi.Ansi.ansi
-import org.junit.platform.launcher.TestPlan
 import java.io.File
 import java.io.PrintWriter
 
