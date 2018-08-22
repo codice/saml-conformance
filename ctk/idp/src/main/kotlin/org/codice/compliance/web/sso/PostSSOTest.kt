@@ -109,7 +109,7 @@ class PostSSOTest : StringSpec() {
             }
         }
 
-        "POST AuthnRequest With Email NameIDPolicy Format Test" {
+        "POST AuthnRequest With Email NameIDPolicy Format Test".config(enabled = false) {
             val authnRequest = createDefaultAuthnRequest(HTTP_POST).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS

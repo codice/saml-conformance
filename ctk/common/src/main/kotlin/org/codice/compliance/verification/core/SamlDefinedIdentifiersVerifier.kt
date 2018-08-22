@@ -6,6 +6,7 @@ http://www.gnu.org/licenses/lgpl.html
 */
 package org.codice.compliance.verification.core
 
+import org.codice.compliance.Common.Companion.idpMetadataObject
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_8_2_2_a
 import org.codice.compliance.SAMLCore_8_2_3_a
@@ -26,7 +27,6 @@ import org.codice.compliance.utils.PERSISTENT_ID
 import org.codice.compliance.utils.SP_NAME_QUALIFIER
 import org.codice.compliance.utils.TRANSIENT_ID
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
-import org.codice.compliance.Common.Companion.idpMetadataObject
 import org.w3c.dom.DOMException
 import org.w3c.dom.Node
 import java.net.URI
@@ -64,7 +64,9 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
     /** 8 SAML-Defined Identifiers */
     fun verify() {
         verifyAttributeNameFormatIdentifiers()
-        verifyEmailAddressIdentifier()
+        // Disabled email verification since it's not a requirement.
+        // Should be re-enabled once the CTK supports categorization of tests.
+        // verifyEmailAddressIdentifier()
         verifyPersistentIdentifiers()
         verifyTransientIdentifiers()
         verifyEntityIdentifiers()
@@ -161,7 +163,7 @@ internal class SamlDefinedIdentifiersVerifier(val node: Node) {
                                     SAMLCore_8_3_7_c,
                                     message = "The Persistent ID's NameQualifier " +
                                             "[$nameQualifier] is not equal to " +
-                                            "${idpMetadataObject.entityId}",
+                                            idpMetadataObject.entityId,
                                     node = it)
                     }
 

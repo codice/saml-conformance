@@ -149,7 +149,7 @@ class RedirectSSOTest : StringSpec() {
             }
         }
 
-        "Redirect AuthnRequest With Email NameID Format Test" {
+        "Redirect AuthnRequest With Email NameID Format Test".config(enabled = false) {
             val authnRequest = createDefaultAuthnRequest(HTTP_REDIRECT).apply {
                 nameIDPolicy = NameIDPolicyBuilder().buildObject().apply {
                     format = SAML2Constants.NAMEID_FORMAT_EMAIL_ADDRESS
