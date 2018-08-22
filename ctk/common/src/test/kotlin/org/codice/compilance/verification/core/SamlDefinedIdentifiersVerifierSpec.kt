@@ -131,7 +131,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
         }
 
         /* 8.3.2 Email Address */
-        "valid Email name identifier" {
+        "valid Email name identifier".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -139,7 +139,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (multiple '@'s)" {
+        "invalid Email name identifier (multiple '@'s)".config(enabled = false) {
             createResponse(
                     identifierValue = "example@email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -149,7 +149,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (no '@')" {
+        "invalid Email name identifier (no '@')".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email.domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -159,7 +159,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (no '.com')" {
+        "invalid Email name identifier (no '.com')".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email@domain",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -169,7 +169,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (end with '.')" {
+        "invalid Email name identifier (end with '.')".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email@domain.",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -179,7 +179,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (single word)" {
+        "invalid Email name identifier (single word)".config(enabled = false) {
             createResponse(
                     identifierValue = "exampleemaildomaincom",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -189,7 +189,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (whitespace)" {
+        "invalid Email name identifier (whitespace)".config(enabled = false) {
             createResponse(
                     identifierValue = "example email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -199,7 +199,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (invalid characters)" {
+        "invalid Email name identifier (invalid characters)".config(enabled = false) {
             createResponse(
                     identifierValue = "example:email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -209,7 +209,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (comment)" {
+        "invalid Email name identifier (comment)".config(enabled = false) {
             createResponse(
                     identifierValue = "example.email@domain.com(comment)",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
@@ -219,7 +219,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
             }
         }
 
-        "invalid Email name identifier (surrounded by '<' and '>')" {
+        "invalid Email name identifier (surrounded by '<' and '>')".config(enabled = false) {
             createResponse(
                     identifierValue = "&lt;example.email@domain.com&gt;",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
