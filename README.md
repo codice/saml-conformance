@@ -6,6 +6,10 @@ http://www.gnu.org/licenses/lgpl.html
 -->
 
 # The Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)
+
+[![Download the latest release at https://github.com/codice/saml-conformance/releases/tag/saml-ctk-1.0](https://img.shields.io/badge/Download-1.0-green.svg)](http://artifacts.codice.org/content/repositories/releases/org/codice/samlconf/samlconf/1.0/)
+[![Join the Google Group at https://groups.google.com/forum/#!forum/saml-ctk](https://img.shields.io/badge/Google%20Group-Join%20the%20chat-blue.svg)](https://groups.google.com/forum/#!forum/saml-ctk)
+
 The SAML Conformance Test Kit is intended to be a set of blackbox tests that verify the conformance of an Identity Provider (IdP) to the [SAML V2.0 Standard Specification](https://wiki.oasis-open.org/security/FrontPage).
 
 Note the following before running the tests:
