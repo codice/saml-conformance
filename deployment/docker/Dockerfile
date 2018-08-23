@@ -3,7 +3,7 @@ FROM alpine
 RUN apk add --no-cache curl tar gzip
 COPY build/samlconf.tar /samlconf.tar
 RUN mkdir -p /samlconf && tar xvf /samlconf.tar
-RUN mv -v /samlconf-1.0-SNAPSHOT/* /samlconf
+RUN mv -v /samlconf-*/* /samlconf
 
 FROM anapsix/alpine-java:8_jdk
 LABEL maintainer=codice
