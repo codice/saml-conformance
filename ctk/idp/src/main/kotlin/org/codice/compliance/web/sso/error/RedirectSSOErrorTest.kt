@@ -18,11 +18,13 @@ import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
 import org.codice.compliance.debugPrettyPrintXml
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.INCORRECT_DESTINATION
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendRedirectAuthnRequest
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.encodeRedirectRequest
 import org.codice.compliance.utils.TestCommon.Companion.samlObjectToString
 import org.codice.compliance.utils.getBindingVerifier
@@ -132,9 +134,15 @@ class RedirectSSOErrorTest : StringSpec() {
                         encodedRequest,
                         null)
                     val response = sendRedirectAuthnRequest(queryParams)
+                    BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-                    if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
-                        val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                    val finalHttpResponse = TestCommon.getImplementation(IdpSSOResponder::class)
+                            .getResponseForRedirectRequest(response)
+
+                    if (!isLenient ||
+                            !BindingVerifier.isErrorHttpStatusCode(finalHttpResponse.statusCode)) {
+                        val samlResponseDom =
+                                finalHttpResponse.getBindingVerifier().decodeAndVerifyError()
 
                         CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                             SAMLProfiles_4_1_4_1_b,
