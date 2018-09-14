@@ -11,7 +11,7 @@ object Versions {
 
     const val javaTarget = "1.8"
 
-    const val kotlin = "1.2.61"
+    const val kotlin = "1.2.70"
     const val gradleDocker = "3.2.4"
     const val kotlinTest = "3.1.9"
     const val restAssured = "3.1.1"
