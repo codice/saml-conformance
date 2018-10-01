@@ -16,12 +16,14 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.SAMLProfiles_4_1_4_1_a
 import org.codice.compliance.SAMLProfiles_4_1_4_1_b
+import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.INCORRECT_DESTINATION
 import org.codice.compliance.utils.RELAY_STATE_GREATER_THAN_80_BYTES
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendPostAuthnRequest
+import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier
@@ -93,9 +95,16 @@ class PostSSOErrorTest : StringSpec() {
                     val encodedRequest = signAndEncodePostRequestToString(authnRequest,
                         EXAMPLE_RELAY_STATE)
                     val response = sendPostAuthnRequest(encodedRequest)
+                    BindingVerifier.verifyHttpStatusCode(response.statusCode)
 
-                    if (!isLenient || !BindingVerifier.isErrorHttpStatusCode(response.statusCode)) {
-                        val samlResponseDom = response.getBindingVerifier().decodeAndVerifyError()
+                    val finalHttpResponse =
+                            TestCommon.getImplementation(IdpSSOResponder::class)
+                                    .getResponseForPostRequest(response)
+
+                    if (!isLenient ||
+                            !BindingVerifier.isErrorHttpStatusCode(finalHttpResponse.statusCode)) {
+                        val samlResponseDom =
+                                finalHttpResponse.getBindingVerifier().decodeAndVerifyError()
 
                         CoreVerifier.verifyErrorStatusCodes(samlResponseDom,
                             SAMLProfiles_4_1_4_1_b,
