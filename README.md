@@ -99,12 +99,21 @@ When logging in to an IdP using the Single Sign-On protocol, there are 6 steps:
 1. Service Provider grants or denies access to Principal
 
 The specification mentions that in step 4, "the principal is identified by the identity provider by some means outside the scope of \[the Single Sign-On\] profile".
-Since the authentication step is implementation specific, each IdP must write a plugin which will process the authentication of a principal.
+This means that the CTK doesn't know how to give the IdP the principal's credentials, since the authentication step is implementation specific. \
+Therefore each IdP must write a plugin which will process the authentication of a principal.
 See [4.1 Web Browser SSO Profile](https://www.oasis-open.org/committees/download.php/56782/sstc-saml-profiles-errata-2.0-wd-07.pdf) for more information on the different steps for the SSO profile.
+
+###### Examining the DDF plugin jar
+In the case of DDF's IdP plugin:
+
+1. The plugin implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface.
+1. The plugin receives the login page from DDF's IdP as an http response in the interface methods.
+1. The plugin parses everything it needs from the login page and gets ready to send a request back to DDF's IdP.
+1. The plugin sends an http request to the proper location, with the principal's credentials, in the format that DDF's IdP expects the resulting request.
 
 ###### How to implement a plugin jar?
 
-1. Implement a plugin jar for the IdP's authentication implementation. \
+1. Implement a plugin jar for the IdP's authentication implementation (see "Examining the DDF plugin jar" and step 4 in "Why is a plugin required?"). \
 Write a Java or Kotlin class that implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface. \
 [DDFIdpSSOResponderProvider](external/implementations/samlconf-ddf-impl/src/main/kotlin/org/codice/compliance/saml/plugin/ddf/DDFIdpSSOResponderProvider.kt) and
 [KeycloakIdpSSOResponderProvider](external/implementations/samlconf-keycloak-impl/src/main/kotlin/org/codice/compliance/saml/plugin/keycloak/KeycloakIdpSSOResponderProvider.kt) can be used as examples. \
