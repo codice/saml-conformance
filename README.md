@@ -44,7 +44,7 @@ Run the executable `samlconf` (*NIX) or `samlconf.bat` (Windows).
 The `samlconf` script may take the following parameters:
 
     NAME
-           samlconf - Runs the SAML Conformance Tests against an IdP
+           SamlConf - Runs the SAML Conformance Tests against an IdP
 
     SYNOPSIS
            samlconf [arguments ...]
@@ -57,18 +57,21 @@ The `samlconf` script may take the following parameters:
            not provided, the default values will use Distributed Data Framework (DDF)'s parameters.
 
     OPTIONS
-           -debug
-                Enables debug mode which enables more logging. This mode is off by default.
-
-           -ddf
+           -ddf, --ddf
                 Runs the DDF profile. If provided runs the optional SAML V2.0 Standard
                 Specification rules required by DDF.
 
-           -i path
+           -debug, --debug
+                Enables debug mode which enables more logging. This mode is off by default.
+
+           -h, --help
+		        Displays the possible arguments.
+
+           -i path, --implementation=path
                 The path to the directory containing the implementation's plugin and metadata.
                 The default value is /implementations/ddf.
 
-           -l
+           -l, --lenient
                 When an error occurs, the SAML V2.0 Standard Specification requires an IdP to
                 respond with a 200 HTTP status code and a valid SAML response containing an
                 error <StatusCode>.
@@ -77,7 +80,7 @@ The `samlconf` script may take the following parameters:
                 If it is not given, this test kit will only verify that a valid SAML error
                 response is returned.
 
-           -u username:password
+           -u username:password, --userLogin=username:password
                 The username and password to use when logging in.
                 The default value is admin:admin.
 

@@ -179,8 +179,8 @@ fun Node.isNotHidden(): Boolean {
  * false if it does.
  */
 fun Node.hasNoAttributeWithNameAndValue(
-        attributeName: String,
-        expectedValue: String
+    attributeName: String,
+    expectedValue: String
 ): Boolean {
     return expectedValue != this.getAttribute(attributeName)
 }
