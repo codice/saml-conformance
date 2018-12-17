@@ -103,20 +103,12 @@ This means that the CTK doesn't know how to give the IdP the principal's credent
 Therefore each IdP must write a plugin which will process the authentication of a principal.
 See [4.1 Web Browser SSO Profile](https://www.oasis-open.org/committees/download.php/56782/sstc-saml-profiles-errata-2.0-wd-07.pdf) for more information on the different steps for the SSO profile.
 
-###### Examining the DDF plugin jar
-In the case of DDF's IdP plugin:
-
-1. The plugin implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface.
-1. The plugin receives the login page from DDF's IdP as an http response in the interface methods.
-1. The plugin parses everything it needs from the login page and gets ready to send a request back to DDF's IdP.
-1. The plugin sends an http request to the proper location, with the principal's credentials, in the format that DDF's IdP expects the resulting request.
-
 ###### How to implement a plugin jar?
 
-1. Implement a plugin jar for the IdP's authentication implementation (see "Examining the DDF plugin jar" and step 4 in "Why is a plugin required?"). \
+1. Implement a plugin jar for the IdP's authentication implementation. \
 Write a Java or Kotlin class that implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface. \
 [DDFIdpSSOResponderProvider](external/implementations/samlconf-ddf-impl/src/main/kotlin/org/codice/compliance/saml/plugin/ddf/DDFIdpSSOResponderProvider.kt) and
-[KeycloakIdpSSOResponderProvider](external/implementations/samlconf-keycloak-impl/src/main/kotlin/org/codice/compliance/saml/plugin/keycloak/KeycloakIdpSSOResponderProvider.kt) can be used as examples. \
+[KeycloakIdpSSOResponderProvider](external/implementations/samlconf-keycloak-impl/src/main/kotlin/org/codice/compliance/saml/plugin/keycloak/KeycloakIdpSSOResponderProvider.kt) can be used as examples (see [Examining the DDF plugin jar](#examining-the-ddf-plugin-jar)). \
 **NOTE**: The implementation class is implementing a Java service therefore either
    * the `@MetaInfServices` annotation should be used (which uses the kapt plugin) or
    * a hand-crafted services reference file `META-INF/services/org.codice.compliance.saml.plugin.IdpSSOResponder` will need to be added to the jar (see below)
@@ -125,6 +117,14 @@ Write a Java or Kotlin class that implements the [IdpSSOResponder](external/saml
 1. Setup your IdP.
 1. Configure your IdP with the test kit's [SP metadata](deployment/distribution/src/main/resources/samlconf-sp-metadata.xml).
 1. The directory from step 3 should be referred to with the `-i` option when running tests. (See [Run the tests](#run-the-tests))
+
+###### Examining the DDF plugin jar
+In the case of [DDF's IdP plugin](external/implementations/samlconf-ddf-impl/src/main/kotlin/org/codice/compliance/saml/plugin/ddf/DDFIdpSSOResponderProvider.kt):
+
+1. The plugin implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface.
+1. The plugin receives the login page from DDF's IdP as an HTTP response in the interface methods.
+1. The plugin parses everything it needs from the login page and gets ready to send a request back to DDF's IdP.
+1. The plugin sends an HTTP request to the proper location, with the principal's credentials, in the format that DDF's IdP expects the resulting request.
 
 #### Formatting
 The project uses [Spotless](https://github.com/diffplug/spotless) to ensure consistent style. Any style violations noted by Spotless can easily be resolved by running `./gradlew spotlessApply`.
