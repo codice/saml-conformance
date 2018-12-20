@@ -11,6 +11,7 @@ import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.DEFAULT_IMPLEMENTATION_PATH
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
+import org.codice.compliance.DEBUG_PACKAGES
 import org.codice.compliance.RUN_DDF_PROFILE
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.USER_LOGIN
@@ -42,10 +43,11 @@ fun main(args: Array<String>) {
     System.setProperty(LENIENT_ERROR_VERIFICATION, arguments.flag("l").toString())
     System.setProperty(RUN_DDF_PROFILE, arguments.flag("ddf").toString())
 
-    Log.logLevel = if (arguments.flag("debug")) {
-        LogLevel.DEBUG
-    } else {
+    Log.logLevel = if (arguments.option("debug").isNullOrEmpty()) {
         LogLevel.INFO
+    } else {
+        System.setProperty(DEBUG_PACKAGES, arguments.option("debug"))
+        LogLevel.DEBUG
     }
 
     TestRunner().launchTests()
@@ -58,13 +60,15 @@ private fun createParser(): Parser {
         flag("ddf",
                 longOption = listOf("ddf"),
                 description = """Runs the DDF profile. If provided runs the optional SAML V2.0
-                    Standard Specification rules required by DDF."""
+                        Standard Specification rules required by DDF."""
         )
 
-        flag("debug",
+        option("debug",
                 longOption = listOf("debug"),
                 description = """Enables debug mode which enables more logging. This mode is off
-                        by default."""
+                        by default. Optionally provide a semicolon delimited list of packages to
+                        log at the debug level.""".trimMargin(),
+                default = "*"
         )
 
         flag("h",
@@ -76,6 +80,7 @@ private fun createParser(): Parser {
                 longOption = listOf("implementation"),
                 description = """The path to the directory containing the implementation's
                         plugin and metadata. The default value is /implementations/ddf."""
+                        .trimMargin()
         )
 
         flag("l",

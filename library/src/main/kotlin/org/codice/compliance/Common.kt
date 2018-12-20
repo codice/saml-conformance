@@ -7,7 +7,6 @@ http://www.gnu.org/licenses/lgpl.html
 package org.codice.compliance
 
 import de.jupf.staticlog.Log
-import de.jupf.staticlog.core.LogLevel
 import org.codice.security.saml.EntityInformation
 import org.codice.security.saml.IdpMetadata
 import org.codice.security.saml.SPMetadataParser
@@ -31,6 +30,7 @@ const val USER_LOGIN = "user.login"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 const val LENIENT_ERROR_VERIFICATION = "lenient.error.verification"
 const val RUN_DDF_PROFILE = "run.ddf.profile"
+const val DEBUG_PACKAGES = "log.debug.packages"
 
 class Common {
     companion object {
@@ -127,32 +127,19 @@ class Common {
 }
 
 /** Extensions functions **/
-fun Log.debugWithSupplier(message: () -> String) {
-    if (this.logLevel == LogLevel.DEBUG) {
-        val callSite = currentStackTrace()[1]
-        this.debug("${message()} [(${callSite.fileName}:${callSite.lineNumber})]")
-    }
-}
-
 @Suppress("TooGenericExceptionCaught")
 fun String.prettyPrintXml(): String {
+    val callSite = currentStackTrace()[1]
     return try {
         // Escape all ampersands because Keycloak does not properly escape it in POST responses
         // which causes the transform to fail.
-        val escapedString = this.replace("""&([^;]+(?!(?:\\\\w|;)))""".toRegex(),
-                { match -> "&amp;${match.value.removePrefix("&")}" })
+        val escapedString = this.replace("""&([^;]+(?!(?:\\\\w|;)))""".toRegex()
+        ) { match -> "&amp;${match.value.removePrefix("&")}" }
 
         Common.buildDom(escapedString).prettyPrintXml()
     } catch (e: Exception) {
-        Log.debugWithSupplier { "'$this' is not valid XML." }
+        Log.debugWithSupplier(callSite) { "'$this' is not valid XML." }
         this
-    }
-}
-
-fun String.debugPrettyPrintXml(header: String?) {
-    Log.debugWithSupplier {
-        val headerVal = if (header != null) "$header:\n\n" else ""
-        "$headerVal ${this.prettyPrintXml()}"
     }
 }
 
