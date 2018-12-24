@@ -40,6 +40,7 @@ configure<ApplicationPluginConvention> {
 dependencies {
     compile(project(":external:implementations:samlconf-ddf-impl"))
     compile(project(":external:implementations:samlconf-keycloak-impl"))
+    compile(project(":external:implementations:samlconf-openam-impl"))
     compile(project(":library"))
     compile(project(":external:samlconf-plugins-api"))
     compile(project(":ctk:common"))

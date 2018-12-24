@@ -11,7 +11,6 @@ description = "SAML Conformance Test Kit"
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
 
@@ -37,6 +36,7 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven { url = uri("http://artifacts.codice.org/content/repositories/thirdparty/") }
+        jcenter()
     }
 
     apply(plugin = "com.diffplug.gradle.spotless")

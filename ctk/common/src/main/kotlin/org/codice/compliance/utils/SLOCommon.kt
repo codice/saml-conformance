@@ -13,6 +13,7 @@ import org.codice.compliance.Common.Companion.getSingleLogoutLocation
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_d
 import org.codice.compliance.attributeText
+import org.codice.compliance.recursiveChildren
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
 import org.codice.compliance.utils.SSOCommon.Companion.sendPostAuthnRequest
@@ -44,6 +45,7 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder
+import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder
 import org.opensaml.saml.saml2.core.impl.StatusBuilder
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder
 import org.w3c.dom.Node
@@ -135,7 +137,18 @@ class SLOCommon {
          * Provides a default logout request for testing
          * @return A valid LogoutRequest.
          */
-        fun createDefaultLogoutRequest(binding: SamlProtocol.Binding): LogoutRequest {
+        fun createDefaultLogoutRequest(
+            binding: SamlProtocol.Binding,
+            ssoResponseDom: Node
+        ): LogoutRequest {
+
+            val sessionIndexList = ssoResponseDom
+                    .recursiveChildren(AUTHN_STATEMENT).map {
+                        SessionIndexBuilder().buildObject().apply {
+                            sessionIndex = it.attributes.getNamedItem(SESSION_INDEX).textContent
+                        }
+                    }
+
             REQUEST_ID = "a" + UUID.randomUUID().toString() // IDs have to start with a letter
             return LogoutRequestBuilder().buildObject().apply {
                 issuer = IssuerBuilder().buildObject().apply { value = currentSPIssuer }
@@ -149,6 +162,7 @@ class SLOCommon {
                     format = PERSISTENT_ID
                     value = username
                 }
+                sessionIndexes.addAll(sessionIndexList)
             }
         }
 

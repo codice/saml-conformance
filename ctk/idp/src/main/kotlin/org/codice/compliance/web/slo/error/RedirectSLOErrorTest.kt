@@ -37,9 +37,9 @@ class RedirectSLOErrorTest : StringSpec() {
 
         "Bindings 3.4.3: Redirect LogoutResponse Test With Relay State Greater Than 80 Bytes" {
             try {
-                login(HTTP_REDIRECT)
+                val ssoResponseDom = login(HTTP_REDIRECT)
 
-                val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+                val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
                 val encodedRequest = encodeRedirectRequest(logoutRequest)
                 val queryParams = SimpleSign().signUriString(
                         SAML_REQUEST,

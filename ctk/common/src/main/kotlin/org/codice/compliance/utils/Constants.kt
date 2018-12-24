@@ -59,6 +59,7 @@ const val ACTION = "action"
 const val LOCATION = "Location"
 const val SAML_ENCODING = "SAMLEncoding"
 const val SP_NAME_QUALIFIER = "SPNameQualifier"
+const val SESSION_INDEX = "SessionIndex"
 
 const val EXAMPLE_RELAY_STATE = "relay+State"
 const val RELAY_STATE_GREATER_THAN_80_BYTES = "RelayStateLongerThan80CharsIsIncorrect" +

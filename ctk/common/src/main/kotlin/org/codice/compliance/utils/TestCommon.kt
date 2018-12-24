@@ -62,8 +62,16 @@ class TestCommon {
             System.getProperty(USER_LOGIN).split(":").first()
         }
 
+        val password by lazy {
+            System.getProperty(USER_LOGIN).split(":").last()
+        }
+
         val idpMetadata by lazy {
             parseAndVerifyVersion()
+        }
+
+        val implementationPath by lazy {
+            checkNotNull(System.getProperty(IMPLEMENTATION_PATH))
         }
 
         private val spMetadata by lazy {

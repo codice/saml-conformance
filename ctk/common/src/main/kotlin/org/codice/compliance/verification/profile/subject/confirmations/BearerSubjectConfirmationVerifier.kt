@@ -19,6 +19,7 @@ import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
 import org.codice.compliance.utils.BEARER
+import org.codice.compliance.utils.SESSION_INDEX
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION_DATA
@@ -84,7 +85,7 @@ class BearerSubjectConfirmationVerifier(private val samlResponseDom: Node) {
 
         if (bearerAssertions
                         .flatMap { it.children(AUTHN_STATEMENT) }
-                        .any { it.attributeNode("SessionIndex") == null })
+                        .any { it.attributeNode(SESSION_INDEX) == null })
             throw SAMLComplianceException.create(SAMLProfiles_4_1_4_2_h,
                     message = "Single Logout support found in IdP metadata, but no " +
                             "SessionIndex was found for AuthnStatement.",

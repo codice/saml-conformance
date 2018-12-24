@@ -41,9 +41,9 @@ class PostSLOTest : StringSpec() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "POST LogoutResponse Test - Single SP" {
-            login(HTTP_POST)
+            val ssoResponseDom = login(HTTP_POST)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
             val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
             val response = sendPostLogoutMessage(encodedRequest)
 
@@ -56,7 +56,7 @@ class PostSLOTest : StringSpec() {
         "POST LogoutResponse Test - Multiple SPs" {
             val ssoResponseDom = login(HTTP_POST, multipleSP = true)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
             val encodedRequest = signAndEncodePostRequestToString(logoutRequest)
             val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest)
 
@@ -82,9 +82,9 @@ class PostSLOTest : StringSpec() {
         }
 
         "POST LogoutResponse Test With Relay State - Single SP" {
-            login(HTTP_POST)
+            val ssoResponseDom = login(HTTP_POST)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
             val encodedRequest =
                 signAndEncodePostRequestToString(logoutRequest, EXAMPLE_RELAY_STATE)
             val response = sendPostLogoutMessage(encodedRequest)
@@ -100,7 +100,7 @@ class PostSLOTest : StringSpec() {
         "POST LogoutResponse Test With Relay State - Multiple SPs" {
             val ssoResponseDom = login(HTTP_POST, multipleSP = true)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
             val encodedRequest =
                 signAndEncodePostRequestToString(logoutRequest, EXAMPLE_RELAY_STATE)
             val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest)
@@ -131,7 +131,7 @@ class PostSLOTest : StringSpec() {
         "POST LogoutResponse Test With Error Logging Out From SP2 - Multiple SPs" {
             val ssoResponseDom = login(HTTP_POST, multipleSP = true)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
             val encodedRequest =
                 signAndEncodePostRequestToString(logoutRequest, EXAMPLE_RELAY_STATE)
             val secondSPLogoutRequest = sendPostLogoutMessage(encodedRequest)
@@ -163,9 +163,9 @@ class PostSLOTest : StringSpec() {
         "DDF-Specific: POST LogoutRequest With SHA256 Signature Test - Single SP".config(
                 enabled = runningDDFProfile()) {
             useDSAServiceProvider()
-            login(HTTP_POST)
+            val ssoResponseDom = login(HTTP_POST)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
 
             SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signSamlObject(logoutRequest)
             val requestString = TestCommon.samlObjectToString(logoutRequest)

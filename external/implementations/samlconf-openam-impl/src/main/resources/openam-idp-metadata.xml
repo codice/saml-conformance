@@ -1,0 +1,45 @@
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="http://localhost:8080/OpenAM-14.1.13">
+    <IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>
+                        MIIDdzCCAl+gAwIBAgIES3eb+zANBgkqhkiG9w0BAQsFADBsMRAwDgYDVQQGEwdVbmtub3duMRAw DgYDVQQIEwdVbmtub3duMRAwDgYDVQQHEwdVbmtub3duMRAwDgYDVQQKEwdVbmtub3duMRAwDgYD VQQLEwdVbmtub3duMRAwDgYDVQQDEwdVbmtub3duMB4XDTE2MDUyNDEzNDEzN1oXDTI2MDUyMjEz NDEzN1owbDEQMA4GA1UEBhMHVW5rbm93bjEQMA4GA1UECBMHVW5rbm93bjEQMA4GA1UEBxMHVW5r bm93bjEQMA4GA1UEChMHVW5rbm93bjEQMA4GA1UECxMHVW5rbm93bjEQMA4GA1UEAxMHVW5rbm93 bjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANdIhkOZeSHagT9ZecG+QQwWaUsi7OMv 1JvpBr/7HtAZEZMDGWrxg/zao6vMd/nyjSOOZ1OxOwjgIfII5+iwl37oOexEH4tIDoCoToVXC5iq iBFz5qnmoLzJ3bF1iMupPFjz8Ac0pDeTwyygVyhv19QcFbzhPdu+p68epSatwoDW5ohIoaLzbf+o OaQsYkmqyJNrmht091XuoVCazNFt+UJqqzTPay95Wj4F7Qrs+LCSTd6xp0Kv9uWG1GsFvS9TE1W6 isVosjeVm16FlIPLaNQ4aEJ18w8piDIRWuOTUy4cbXR/Qg6a11l1gWls6PJiBXrOciOACVuGUoNT zztlCUkCAwEAAaMhMB8wHQYDVR0OBBYEFMm4/1hF4WEPYS5gMXRmmH0gs6XjMA0GCSqGSIb3DQEB CwUAA4IBAQDVH/Md9lCQWxbSbie5lPdPLB72F4831glHlaqms7kzAM6IhRjXmd0QTYq3Ey1J88KS Df8A0HUZefhudnFaHmtxFv0SF5VdMUY14bJ9UsxJ5f4oP4CVh57fHK0w+EaKGGIw6TQEkL5L/+5Q ZZAywKgPz67A3o+uk45aKpF3GaNWjGRWEPqcGkyQ0sIC2o7FUTV+MV1KHDRuBgreRCEpqMoY5XGX e/IJc1EJLFDnsjIOQU1rrUzfM+WP/DigEQTPpkKWHJpouP+LLrGRj2ziYVbBDveP8KtHvLFsnexA /TidjOOxChKSLT9LYFyQqsvUyCagBb4aLs009kbW6inN8zA6
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <ArtifactResolutionService index="0" isDefault="true" Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://localhost:8080/OpenAM-14.1.13/ArtifactResolver/metaAlias/idp"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:8080/OpenAM-14.1.13/IDPSloRedirect/metaAlias/idp" ResponseLocation="http://localhost:8080/OpenAM-14.1.13/IDPSloRedirect/metaAlias/idp"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/OpenAM-14.1.13/IDPSloPOST/metaAlias/idp" ResponseLocation="http://localhost:8080/OpenAM-14.1.13/IDPSloPOST/metaAlias/idp"/>
+        <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://localhost:8080/OpenAM-14.1.13/IDPSloSoap/metaAlias/idp"/>
+        <ManageNameIDService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:8080/OpenAM-14.1.13/IDPMniRedirect/metaAlias/idp" ResponseLocation="http://localhost:8080/OpenAM-14.1.13/IDPMniRedirect/metaAlias/idp"/>
+        <ManageNameIDService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/OpenAM-14.1.13/IDPMniPOST/metaAlias/idp" ResponseLocation="http://localhost:8080/OpenAM-14.1.13/IDPMniPOST/metaAlias/idp"/>
+        <ManageNameIDService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://localhost:8080/OpenAM-14.1.13/IDPMniSoap/metaAlias/idp"/>
+        <NameIDFormat>
+            urn:oasis:names:tc:SAML:2.0:nameid-format:persistent
+        </NameIDFormat>
+        <NameIDFormat>
+            urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+        </NameIDFormat>
+        <NameIDFormat>
+            urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress
+        </NameIDFormat>
+        <NameIDFormat>
+            urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified
+        </NameIDFormat>
+        <NameIDFormat>
+            urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName
+        </NameIDFormat>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos</NameIDFormat>
+        <NameIDFormat>
+            urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName
+        </NameIDFormat>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:8080/OpenAM-14.1.13/SSORedirect/metaAlias/idp"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/OpenAM-14.1.13/SSOPOST/metaAlias/idp"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://localhost:8080/OpenAM-14.1.13/SSOSoap/metaAlias/idp"/>
+        <NameIDMappingService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://localhost:8080/OpenAM-14.1.13/NIMSoap/metaAlias/idp"/>
+        <AssertionIDRequestService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://localhost:8080/OpenAM-14.1.13/AIDReqSoap/IDPRole/metaAlias/idp"/>
+        <AssertionIDRequestService Binding="urn:oasis:names:tc:SAML:2.0:bindings:URI" Location="http://localhost:8080/OpenAM-14.1.13/AIDReqUri/IDPRole/metaAlias/idp"/>
+    </IDPSSODescriptor>
+</EntityDescriptor>

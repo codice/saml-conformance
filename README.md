@@ -29,12 +29,13 @@ The unzipped distribution can be found at `deployment/distribution/build/install
 ## Running
 
 #### Connect to an Identity Provider
-The SAML-CTK includes built-in support for [Keycloak](https://github.com/keycloak/keycloak) and [Distributed Data Framework (DDF)](https://github.com/codice/ddf).
-If the IdP being tested is not Keycloak or DDF see [Developing a plugin](#developing-a-plugin) to test your IdP.
+The SAML-CTK includes built-in support for [Keycloak](https://github.com/keycloak/keycloak), [OpenAM](https://github.com/OpenIdentityPlatform/OpenAM), and [Distributed Data Framework (DDF)](https://github.com/codice/ddf).
+If the IdP being tested is not Keycloak, OpenAM or DDF see [Developing a plugin](#developing-a-plugin) to test your IdP.
 
 In general, to connect an IdP with the CTK, the IdP needs the [CTK SP metadata](deployment/distribution/src/main/resources/samlconf-sp-metadata.xml) and vice-versa.
-If you are testing Keycloak or DDF, see their corresponding documentation on how to connect them to the test kit:
+If you are testing Keycloak, OpenAM, or DDF, see their corresponding documentation on how to connect them to the test kit:
 - [Keycloak Documentation](external/implementations/samlconf-keycloak-impl/README.md)
+- [OpenAM Documentation](external/implementations/samlconf-openam-impl/README.md)
 - [DDF documentation](external/implementations/samlconf-ddf-impl/README.md)
 
 #### Run the tests
@@ -109,8 +110,9 @@ See [4.1 Web Browser SSO Profile](https://www.oasis-open.org/committees/download
 ###### How to implement a plugin jar?
 
 1. Implement a plugin jar for the IdP's authentication implementation. \
-Write a Java or Kotlin class that implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface. \
-[DDFIdpSSOResponderProvider](external/implementations/samlconf-ddf-impl/src/main/kotlin/org/codice/compliance/saml/plugin/ddf/DDFIdpSSOResponderProvider.kt) and
+Write a Java or Kotlin class that implements the [IdpSSOResponder](external/samlconf-plugins-api/src/main/java/org/codice/compliance/saml/plugin/IdpSSOResponder.java) interface and has "org.codice.samlconf.implementations" as the groupID. \
+[DDFIdpSSOResponderProvider](external/implementations/samlconf-ddf-impl/src/main/kotlin/org/codice/compliance/saml/plugin/ddf/DDFIdpSSOResponderProvider.kt),
+[OpenAMIdPSSOResponderProvider](external/implementations/samlconf-openam-impl/src/main/java/org/codice/compliance/saml/plugin/openam/OpenAMIdpSSOResponderProvider.java), and
 [KeycloakIdpSSOResponderProvider](external/implementations/samlconf-keycloak-impl/src/main/kotlin/org/codice/compliance/saml/plugin/keycloak/KeycloakIdpSSOResponderProvider.kt) can be used as examples (see [Examining the DDF plugin jar](#examining-the-ddf-plugin-jar)). \
 **NOTE**: The implementation class is implementing a Java service therefore either
    * the `@MetaInfServices` annotation should be used (which uses the kapt plugin) or
