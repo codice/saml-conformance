@@ -13,6 +13,8 @@ import io.restassured.builder.RequestSpecBuilder
 import io.restassured.response.Response
 import org.codice.compliance.Common
 import org.codice.compliance.saml.plugin.IdpSSOResponder
+import org.codice.compliance.utils.TestCommon.Companion.password
+import org.codice.compliance.utils.TestCommon.Companion.username
 import org.codice.security.saml.SamlProtocol
 import org.kohsuke.MetaInfServices
 
@@ -53,7 +55,7 @@ class DDFIdpSSOResponderProvider : IdpSSOResponder {
                 .given(requestSpec)
                 .auth()
                 .preemptive()
-                .basic("admin", "admin")
+                .basic(username, password)
                 .log()
                 .ifValidationFails()
                 .`when`()

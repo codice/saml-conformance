@@ -13,8 +13,8 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.apache.wss4j.common.util.DOM2Writer
 import org.codice.compliance.Common.Companion.idpMetadataObject
 import org.codice.compliance.Common.Companion.parseSpMetadata
-import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.DecoratedNode
+import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLGeneral_c
 import org.codice.compliance.USER_LOGIN
@@ -60,6 +60,10 @@ class TestCommon {
 
         val username by lazy {
             System.getProperty(USER_LOGIN).split(":").first()
+        }
+
+        val password by lazy {
+            System.getProperty(USER_LOGIN).split(":").last()
         }
 
         val idpMetadata by lazy {
