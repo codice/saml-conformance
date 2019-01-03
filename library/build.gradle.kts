@@ -16,6 +16,7 @@ dependencies {
     compile(Libs.googleHttpClient)
     compile(Libs.keyczar)
     compile(Libs.jtidy)
+    compile(Libs.jansi)
 
     testImplementation(Libs.junitJupiter)
     testRuntimeOnly(Libs.junitJupiterEngine)

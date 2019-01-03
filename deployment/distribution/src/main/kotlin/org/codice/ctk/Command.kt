@@ -11,6 +11,7 @@ import de.jupf.staticlog.core.LogLevel
 import org.codice.compliance.DEFAULT_IMPLEMENTATION_PATH
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
+import org.codice.compliance.QUIET_MODE
 import org.codice.compliance.RUN_DDF_PROFILE
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.USER_LOGIN
@@ -20,7 +21,7 @@ import java.io.File
 @Suppress("StringLiteralDuplication")
 fun main(args: Array<String>) {
     val samlDist = System.getProperty("app.home")
-    requireNotNull(samlDist) { "app.home System property must be set" }
+    requireNotNull(samlDist) { "app.home system property must be set" }
 
     val defaultImplPath = "$samlDist${File.separator}$DEFAULT_IMPLEMENTATION_PATH"
     val ctkMetadataPath = "$samlDist${File.separator}conf${File.separator}samlconf-sp-metadata.xml"
@@ -41,6 +42,7 @@ fun main(args: Array<String>) {
     System.setProperty(TEST_SP_METADATA_PROPERTY, ctkMetadataPath)
     System.setProperty(LENIENT_ERROR_VERIFICATION, arguments.flag("l").toString())
     System.setProperty(RUN_DDF_PROFILE, arguments.flag("ddf").toString())
+    System.setProperty(QUIET_MODE, arguments.flag("q").toString())
 
     Log.logLevel = if (arguments.flag("debug")) {
         LogLevel.DEBUG
@@ -86,6 +88,12 @@ private fun createParser(): Parser {
                         test kit will allow HTTP error status codes as a valid error response
                         (i.e. 400's and 500's). If it is not given, this test kit will only verify
                         that a valid SAML error response is returned."""
+        )
+
+        flag("q",
+                longOption = listOf("quiet"),
+                description = """If provided, only displays whether a test or a section passed or
+                    failed. Errors will not be printed."""
         )
 
         option("u",

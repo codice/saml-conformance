@@ -31,6 +31,7 @@ const val USER_LOGIN = "user.login"
 const val TEST_SP_METADATA_PROPERTY = "test.sp.metadata"
 const val LENIENT_ERROR_VERIFICATION = "lenient.error.verification"
 const val RUN_DDF_PROFILE = "run.ddf.profile"
+const val QUIET_MODE = "quiet.mode"
 
 class Common {
     companion object {
