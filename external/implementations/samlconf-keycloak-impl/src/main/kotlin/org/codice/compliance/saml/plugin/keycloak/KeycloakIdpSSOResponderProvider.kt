@@ -9,6 +9,8 @@ package org.codice.compliance.saml.plugin.keycloak
 import io.restassured.RestAssured
 import io.restassured.response.Response
 import org.codice.compliance.saml.plugin.IdpSSOResponder
+import org.codice.compliance.utils.TestCommon.Companion.password
+import org.codice.compliance.utils.TestCommon.Companion.username
 import org.kohsuke.MetaInfServices
 
 @MetaInfServices
@@ -44,7 +46,7 @@ class KeycloakIdpSSOResponderProvider : IdpSSOResponder {
         return RestAssured.given()
                 .urlEncodingEnabled(false)
                 .cookies(cookies)
-                .body("username=admin&password=admin")
+                .body("username=$username&password=$password")
                 .contentType("application/x-www-form-urlencoded")
                 .log()
                 .ifValidationFails()

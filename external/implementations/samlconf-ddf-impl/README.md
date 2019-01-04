@@ -11,8 +11,6 @@ http://www.gnu.org/licenses/lgpl.html
 | ---------------------------------------------------------------------------------------------------------------------- | ---------------- | -----------------------
 | Does not respond with SAML error responses with a top­level status code but throws an exception instead.| Core 3.4.1.4 | If the responder is unable to authenticate the presenter or does not recognize the requested subject, or if prevented from providing an assertion by policies in effect at the identity provider (for example the intended subject has prohibited the identity provider from providing assertions to the relying party), then it MUST return a `<Response>` with an error `<Status>`.
 | When the IdP is issuing LogoutRequests to SPs, the `NameID` is missing all of its XML attributes. | Profiles 4.4.4.1 | The principal MUST be identified in the request using an identifier that strongly matches the identifier in the authentication assertion the requester issued or received regarding the session being terminated, per the matching rules defined in Section 3.3.4 of SAMLCore.
-| The IdP ignores the `<Subject>` element on the `<AuthnRequest>` instead of validating it. | Profiles 4.1.4.1 | Note that the service provider MAY include a `<Subject>` element in the request that names the actual identity about which it wishes to receive an assertion. This element MUST NOT contain any `<SubjectConfirmation>` elements. If the identity provider does not recognize the principal as that identity, then it MUST respond with a `<Response>` message containing an error status and no assertions.
-
 
 ## Steps to Test DDF's IDP
 * Start and install DDF. \

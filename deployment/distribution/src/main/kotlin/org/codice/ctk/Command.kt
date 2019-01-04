@@ -29,7 +29,11 @@ fun main(args: Array<String>) {
     val arguments = parser.parse(args)
 
     val implementationPath = arguments.option("i") ?: defaultImplPath
-    val userLogin = arguments.option("u") ?: "admin:admin"
+    var userLogin = arguments.option("u") ?: "admin:admin"
+    if (userLogin.split(":").size != 2) {
+        Log.error("Given username and password $userLogin is invalid. Using admin:admin instead.")
+        userLogin = "admin:admin"
+    }
 
     if (arguments.flag("help")) {
         println(parser.printHelp())

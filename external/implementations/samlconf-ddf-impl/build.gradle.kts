@@ -14,6 +14,7 @@ dependencies {
     compile(Libs.cxfSsoSaml)
 
     compile(project(":external:samlconf-plugins-api"))
+    compile(project(":ctk:common"))
 
     kapt(Libs.kaptMetainfService)
 }
