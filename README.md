@@ -30,7 +30,7 @@ The unzipped distribution can be found at `deployment/distribution/build/install
 
 #### Connect to an Identity Provider
 The SAML-CTK includes built-in support for [Keycloak](https://github.com/keycloak/keycloak), [OpenAM](https://github.com/OpenIdentityPlatform/OpenAM), and [Distributed Data Framework (DDF)](https://github.com/codice/ddf).
-If the IdP being tested is not Keycloak, OpenAM or DDF see [Developing a plugin](#developing-a-plugin) to test your IdP.
+If the IdP being tested is not Keycloak, OpenAM, or DDF see [Developing a plugin](#developing-a-plugin) to test your IdP.
 
 In general, to connect an IdP with the CTK, the IdP needs the [CTK SP metadata](deployment/distribution/src/main/resources/samlconf-sp-metadata.xml) and vice-versa.
 If you are testing Keycloak, OpenAM, or DDF, see their corresponding documentation on how to connect them to the test kit:

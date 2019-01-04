@@ -24,6 +24,11 @@ import org.codice.compliance.utils.ConstantsKt;
 import org.codice.compliance.utils.GlobalSession;
 import org.kohsuke.MetaInfServices;
 
+/**
+ * OpenAMIdpSSOResponderProvider:
+ *
+ * Handles authenticating the user to the OpenAM IdP
+ */
 @MetaInfServices
 public class OpenAMIdpSSOResponderProvider implements IdpSSOResponder {
 
@@ -38,11 +43,25 @@ public class OpenAMIdpSSOResponderProvider implements IdpSSOResponder {
           + OPEN_AM_DATA.getOpenAMRealm()
           + "/authenticate";
 
+  /**
+   * getResponseForRedirectRequest:
+   *
+   * Handles the redirect request to the OpenAM IdP to authenticate the user.
+   *
+   * @throws SecurityException when the username and password can not authenticate the user.
+   */
   @Override
   public Response getResponseForRedirectRequest(Response originalResponse) {
     return openAMLogin(originalResponse);
   }
 
+  /**
+   * getResponseForPostRequest:
+   *
+   * Handles the POST request to the OpenAM IdP to authenticate the user.
+   *
+   * @throws SecurityException when the username and password can not authenticate the user.
+   */
   @Override
   public Response getResponseForPostRequest(Response originalResponse) {
     return openAMLogin(originalResponse);

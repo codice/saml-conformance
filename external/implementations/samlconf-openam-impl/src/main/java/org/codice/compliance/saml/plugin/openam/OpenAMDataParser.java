@@ -19,9 +19,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+/**
+ * OpenAMDataParser:
+ *
+ * Retrieves the configurable files from the OpenAMLoginData xml file
+ **/
 class OpenAMDataParser {
 
-  //  A class only for retrieving values from the openAM data file.
   private final ImmutableMap<String, String> formMapping;
   private final String openAMRealm;
   private final String baseURL;
@@ -37,6 +41,11 @@ class OpenAMDataParser {
 
   private static final String fileName = "OpenAMLoginData.xml";
 
+  /**
+   * OpenAMDataParser:
+   *
+   * @throws IllegalStateException when the OpenAMLoginData file cannot be found or accessed.
+   */
   OpenAMDataParser() {
 
     DocumentBuilder doc;
