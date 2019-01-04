@@ -22,8 +22,8 @@ import org.xml.sax.SAXException;
 /**
  * OpenAMDataParser:
  *
- * Retrieves the configurable files from the OpenAMLoginData xml file
- **/
+ * <p>Retrieves the configurable files from the OpenAMLoginData xml file
+ */
 class OpenAMDataParser {
 
   private final ImmutableMap<String, String> formMapping;

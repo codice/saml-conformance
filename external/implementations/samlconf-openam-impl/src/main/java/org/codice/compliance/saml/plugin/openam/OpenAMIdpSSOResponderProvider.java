@@ -27,7 +27,7 @@ import org.kohsuke.MetaInfServices;
 /**
  * OpenAMIdpSSOResponderProvider:
  *
- * Handles authenticating the user to the OpenAM IdP
+ * <p>Handles authenticating the user to the OpenAM IdP
  */
 @MetaInfServices
 public class OpenAMIdpSSOResponderProvider implements IdpSSOResponder {
@@ -46,7 +46,7 @@ public class OpenAMIdpSSOResponderProvider implements IdpSSOResponder {
   /**
    * getResponseForRedirectRequest:
    *
-   * Handles the redirect request to the OpenAM IdP to authenticate the user.
+   * <p>Handles the redirect request to the OpenAM IdP to authenticate the user.
    *
    * @throws SecurityException when the username and password can not authenticate the user.
    */
@@ -58,7 +58,7 @@ public class OpenAMIdpSSOResponderProvider implements IdpSSOResponder {
   /**
    * getResponseForPostRequest:
    *
-   * Handles the POST request to the OpenAM IdP to authenticate the user.
+   * <p>Handles the POST request to the OpenAM IdP to authenticate the user.
    *
    * @throws SecurityException when the username and password can not authenticate the user.
    */
