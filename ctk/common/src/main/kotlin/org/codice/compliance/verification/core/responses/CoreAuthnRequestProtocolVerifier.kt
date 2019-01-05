@@ -10,7 +10,6 @@ import io.restassured.response.Response
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_3_2_2_1_a
 import org.codice.compliance.SAMLCore_3_4_1_4_a
-import org.codice.compliance.SAMLCore_3_4_1_4_b
 import org.codice.compliance.SAMLCore_3_4_1_4_c
 import org.codice.compliance.SAMLCore_3_4_1_4_d
 import org.codice.compliance.SAMLCore_3_4_1_4_e
@@ -18,6 +17,8 @@ import org.codice.compliance.SAMLCore_3_4_1_a
 import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_3_4
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT
@@ -49,56 +50,72 @@ class CoreAuthnRequestProtocolVerifier(
     /** 3.4 Authentication Request Protocol **/
     override fun verify() {
         super.verify()
+        CORE_3_4.start()
         verifyAuthnRequestProtocolResponse()
         verifySubjects()
         nameIdPolicyVerifier?.verify()
     }
 
+    /**
+     * 3.4.1 Element <AuthnRequest>
+     * Verify the Assertion Consumer Service URL
+     */
     fun verifyAssertionConsumerService(httpResponse: Response) {
+        CORE_3_4.start()
         val expectedACS = currentSPEntityInfo.getAssertionConsumerService(authnRequest, null,
                 authnRequest.assertionConsumerServiceIndex).url
         val actualACS = httpResponse.getLocation()
 
-        if (actualACS == null || actualACS != expectedACS)
-            throw SAMLComplianceException.create(SAMLCore_3_4_1_a,
+        if (actualACS == null || actualACS != expectedACS) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_1_a,
                     message = "The URL at which the Response was received [$actualACS] does not" +
-                            " match the expected ACS URL [$expectedACS] based on the request.")
+                            " match the expected ACS URL [$expectedACS] based on the request."))
+        }
     }
 
+    /**
+     * 3.3.2.2.1 Element <RequestedAuthnContext>
+     * Verify responses of AuthnRequests With AuthnContext
+     */
     fun verifyAuthnContextClassRef() {
         samlResponse.recursiveChildren("AuthnContext")
                 .flatMap { it.children("AuthnContextClassRef") }
                 .firstOrNull { !ddfAuthnContextList.contains(it.textContent) }?.let {
-                    throw SAMLComplianceException.create(SAMLCore_3_3_2_2_1_a,
+                    Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_2_2_1_a,
                             message = """An <AuthnContextClassRef> that is not part of the
                                     requested <AuthnContextClassRef>s was found. The requested
                                     <AuthnContextClassRef>s are
                                     ${ddfAuthnContextList.joinToString()}.""",
-                            node = it)
+                            node = it))
                 }
     }
 
     private fun verifyAuthnRequestProtocolResponse() {
         val assertions = samlResponse.children(ASSERTION)
 
-        if (samlResponse.localName != RESPONSE || assertions.isEmpty())
-            throw SAMLComplianceException.create(SAMLCore_3_4_1_4_a,
+        if (samlResponse.localName != RESPONSE || assertions.isEmpty()) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_1_4_a,
                     message = "Did not find Response elements with one or more Assertion elements.",
-                    node = samlResponse)
+                    node = samlResponse))
+        }
 
-        if (assertions.all { it.children(AUTHN_STATEMENT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_3_4_a, SAMLCore_3_4_1_4_d,
+        if (assertions.all { it.children(AUTHN_STATEMENT).isEmpty() }) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_a,
+                    SAMLCore_3_4_1_4_d,
                     message = "AuthnStatement not found in any of the Assertions.",
-                    node = samlResponse)
+                    node = samlResponse))
+        }
 
         if (assertions.any {
-                    it.recursiveChildren("AudienceRestriction").flatMap { it.children(AUDIENCE) }
+                    it.recursiveChildren("AudienceRestriction")
+                            .flatMap { it.children(AUDIENCE) }
                             .none { it.textContent == currentSPIssuer }
-                })
-            throw SAMLComplianceException.create(SAMLCore_3_4_1_4_e,
+                }) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_1_4_e,
                     message = "Assertion found without an AudienceRestriction referencing the " +
                             "requester.",
-                    node = samlResponse)
+                    node = samlResponse))
+        }
     }
 
     override fun verifyEncryptedElements() {
@@ -108,12 +125,11 @@ class CoreAuthnRequestProtocolVerifier(
     private fun verifySubjects() {
         samlResponse.recursiveChildren(ASSERTION).forEach {
             if (it.children(SUBJECT).isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_3_4_1_4_c,
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_1_4_c,
                         message = "One of the Assertions contained no Subject",
-                        node = it)
+                        node = it))
         }
 
-        SubjectComparisonVerifier(samlResponse)
-                .verifySubjectsMatchAuthnRequest(SAMLCore_3_4_1_4_b, authnRequest)
+        SubjectComparisonVerifier(samlResponse).verifySubjectsMatchAuthnRequest(authnRequest)
     }
 }

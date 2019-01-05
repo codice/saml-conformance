@@ -12,8 +12,11 @@ import org.codice.compliance.SAMLCore_2_3_4_a
 import org.codice.compliance.SAMLCore_2_7_3_2_a
 import org.codice.compliance.SAMLCore_6_1_a
 import org.codice.compliance.SAMLCore_6_1_b
+import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_6_1
 import org.codice.compliance.utils.ELEMENT
 import org.codice.compliance.utils.TYPE
 import org.codice.compliance.utils.XMLDecrypter
@@ -33,6 +36,7 @@ class EncryptionVerifier {
      * @param encElements A list of encrypted nodes to verify and decrypt
      */
     fun verifyAndDecryptElements(encElements: List<Node>) {
+        CORE_6_1.start()
         encElements.forEach {
             verifyAndDecryptElement(it)
         }
@@ -44,28 +48,43 @@ class EncryptionVerifier {
         try {
             XMLDecrypter.decryptAndReplaceNode(element)
         } catch (e: XMLDecryptorException) {
-            throw SAMLComplianceException.create(
+            Report.addExceptionMessage(SAMLComplianceException.create(
                     SAMLCore_6_1_a,
                     message = e.message,
                     cause = e.cause,
-                    node = element)
+                    node = element))
         }
     }
 
     private fun verifyEncryptedElement(encryptedElement: Node) {
         if (encryptedElement.children("EncryptedData")
                         .first() // guaranteed to have an EncryptedData child by schema validation
-                        .attributeText(TYPE) != ELEMENT)
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
-                    when (encryptedElement.localName) {
-                        "EncryptedID" -> SAMLCore_2_2_4_a
-                        "EncryptedAssertion" -> SAMLCore_2_3_4_a
-                        "EncryptedAttribute" -> SAMLCore_2_7_3_2_a
-                        else -> throw UnknownError("Unknown ${encryptedElement.localName} type.")
-                    },
-                    property = TYPE,
-                    actual = encryptedElement.attributeText(TYPE),
-                    expected = ELEMENT,
-                    node = encryptedElement)
+                        .attributeText(TYPE) != ELEMENT) {
+            when (encryptedElement.localName) {
+                "EncryptedID" -> addError(encryptedElement, SAMLCore_2_2_4_a)
+                "EncryptedAssertion" -> addError(encryptedElement, SAMLCore_2_3_4_a)
+                "EncryptedAttribute" -> addError(encryptedElement, SAMLCore_2_7_3_2_a)
+                else -> {
+                    Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_6_1_b,
+                            message = "Unknown ${encryptedElement.localName} type."))
+                }
+            }
+        }
+    }
+
+    private fun addError(encryptedElement: Node, errorCode: SAMLSpecRefMessage) {
+        Report.addExceptionMessage(CORE_6_1,
+                SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
+                        property = TYPE,
+                        actual = encryptedElement.attributeText(TYPE),
+                        expected = ELEMENT,
+                        node = encryptedElement))
+
+        Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(errorCode,
+                SAMLCore_6_1_b,
+                property = TYPE,
+                actual = encryptedElement.attributeText(TYPE),
+                expected = ELEMENT,
+                node = encryptedElement))
     }
 }

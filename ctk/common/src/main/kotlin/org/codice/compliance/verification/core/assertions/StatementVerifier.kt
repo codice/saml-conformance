@@ -13,6 +13,8 @@ import org.codice.compliance.SAMLCore_2_7_4_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_2_7
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUTHN_STATEMENT
 import org.codice.compliance.utils.SUBJECT
@@ -23,6 +25,7 @@ internal class StatementVerifier(val node: Node) {
 
     /** 2.7 Statements */
     fun verify() {
+        CORE_2_7.start()
         verifyAuthnStatement()
         verifySubjectLocality()
         verifyAuthnContext()
@@ -48,10 +51,11 @@ internal class StatementVerifier(val node: Node) {
 
         if (node.recursiveChildren(ASSERTION)
                         .filter { it.children(AUTHN_STATEMENT).isNotEmpty() }
-                        .any { it.children(SUBJECT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_2_7_2_a,
+                        .any { it.children(SUBJECT).isEmpty() }) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_7_2_a,
                     message = "An AuthnStatement was found without a Subject element.",
-                    node = node)
+                    node = node))
+        }
     }
 
     /** 2.7.2.1 Element <SubjectLocality> **/
@@ -89,10 +93,11 @@ internal class StatementVerifier(val node: Node) {
     private fun verifyAttributeStatement() {
         if (node.recursiveChildren(ASSERTION)
                         .filter { it.children("AttributeStatement").isNotEmpty() }
-                        .any { it.children(SUBJECT).isEmpty() })
-            throw SAMLComplianceException.create(SAMLCore_2_7_3_a,
+                        .any { it.children(SUBJECT).isEmpty() }) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_7_3_a,
                     message = "An AttributeStatement was found without a Subject element.",
-                    node = node)
+                    node = node))
+        }
     }
 
     /** 2.7.3.1 Element <Attribute> **/
@@ -116,10 +121,11 @@ internal class StatementVerifier(val node: Node) {
                         .any {
                             it.children("AuthzDecisionStatement").isNotEmpty() &&
                                     it.children(SUBJECT).isEmpty()
-                        })
-            throw SAMLComplianceException.create(SAMLCore_2_7_4_a,
+                        }) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_7_4_a,
                     message = "No Subject element found.",
-                    node = node)
+                    node = node))
+        }
 
         node.recursiveChildren("AuthzDecisionStatement").forEach {
             CommonDataTypeVerifier.verifyUriValue(it.attributeNode("Resource"))

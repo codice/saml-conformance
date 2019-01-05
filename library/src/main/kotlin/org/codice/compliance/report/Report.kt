@@ -131,6 +131,11 @@ object Report {
      * Writes the report to a file.
      */
     fun writeReport() {
+        // GENERAL is never skipped
+        if (!GENERAL.isStarted()) {
+            GENERAL.start()
+        }
+
         val file = File(REPORT_FILE)
         file.printWriter().use { writer ->
             Section.values().forEach { section ->

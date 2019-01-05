@@ -12,6 +12,8 @@ import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
 import org.codice.compliance.SAMLCore_3_2_1_e
 import org.codice.compliance.attributeNode
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_3_2
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
@@ -23,11 +25,11 @@ import org.codice.security.saml.SamlProtocol
 abstract class RequestVerifier(
     private val samlRequest: NodeDecorator,
     private val binding: SamlProtocol.Binding
-)
-    : CoreVerifier(samlRequest) {
+) : CoreVerifier(samlRequest) {
 
     /** 3.2.1 Complex Type RequestAbstractType */
     override fun verify() {
+        CORE_3_2.start()
         verifyRequestAbstractType()
         super.verify()
     }
@@ -44,12 +46,14 @@ abstract class RequestVerifier(
         samlRequest.attributeNode(DESTINATION)?.apply {
 
             val url = getServiceUrl(binding, samlRequest)
-            if (textContent != url)
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_1_e,
+            if (textContent != url) {
+                Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
+                        SAMLCore_3_2_1_e,
                         property = DESTINATION,
                         actual = textContent,
                         expected = url,
-                        node = samlRequest)
+                        node = samlRequest))
+            }
 
             CommonDataTypeVerifier.verifyUriValue(this)
         }

@@ -11,6 +11,8 @@ import org.codice.compliance.SAMLCore_3_7_3_2_b
 import org.codice.compliance.SAMLCore_3_7_3_2_d
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_3_7
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.STATUS
 import org.codice.compliance.utils.STATUS_CODE
@@ -23,11 +25,11 @@ class CoreLogoutResponseProtocolVerifier(
     private val samlResponse: NodeDecorator,
     binding: SamlProtocol.Binding,
     private val expectedSecondLevelStatusCode: String? = null
-)
-    : ResponseVerifier(logoutRequest, samlResponse, binding) {
+) : ResponseVerifier(logoutRequest, samlResponse, binding) {
 
     override fun verify() {
         super.verify()
+        CORE_3_7.start()
         verifySecondaryStatusCode()
     }
 
@@ -40,10 +42,11 @@ class CoreLogoutResponseProtocolVerifier(
                 ?.attributeText("Value")
 
         if (expectedSecondLevelStatusCode != null &&
-                secondaryStatusCode != expectedSecondLevelStatusCode)
-            throw SAMLComplianceException.create(SAMLCore_3_7_3_2_b,
+                secondaryStatusCode != expectedSecondLevelStatusCode) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_7_3_2_b,
                     SAMLCore_3_7_3_2_d,
                     message = "The status code of $expectedSecondLevelStatusCode was not found",
-                    node = samlResponse)
+                    node = samlResponse))
+        }
     }
 }

@@ -9,18 +9,20 @@ package org.codice.compliance.utils.schema
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_Schema
 import org.codice.compliance.prettyPrintXml
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.SCHEMA
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
-import javax.xml.XMLConstants
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.transform.dom.DOMSource
 import java.io.ByteArrayInputStream
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.stream.StreamResult
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import javax.xml.XMLConstants
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
 import javax.xml.validation.SchemaFactory
 import javax.xml.validation.Validator
 
@@ -44,6 +46,7 @@ class SchemaValidator {
          * Validate SAML against the protocol schema. Assumes that the message is well-formed
          */
         fun validateSAMLMessage(saml: Node) {
+            SCHEMA.start()
             validateSAML(nodeToInputStream(saml), PROTOCOL_SCHEMA)
         }
 
@@ -74,9 +77,8 @@ class SchemaValidator {
 
             if (errorHandler.messages.isNotEmpty()) {
                 val compiledErrors = errorHandler.messages.joinToString("\n")
-                throw SAMLComplianceException.create(SAMLCore_Schema,
-                        message = "Invalid SAML message\n$compiledErrors"
-                )
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_Schema,
+                        message = "Invalid SAML message\n$compiledErrors"))
             }
         }
 
