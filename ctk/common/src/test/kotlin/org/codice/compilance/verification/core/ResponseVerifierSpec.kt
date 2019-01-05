@@ -7,11 +7,12 @@ http://www.gnu.org/licenses/lgpl.html
 package org.codice.compilance.verification.core
 
 import com.google.common.io.Resources
+import io.kotlintest.extensions.TestListener
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import org.codice.compilance.ReportListener
 import org.codice.compliance.Common
-import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_1_3_1_a
 import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.SAMLCore_1_3_3_a
@@ -23,6 +24,10 @@ import org.codice.compliance.SAMLCore_3_2_2_d
 import org.codice.compliance.SAMLCore_3_2_2_e
 import org.codice.compliance.SAMLGeneral_e
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_1_3
+import org.codice.compliance.report.Report.Section.CORE_3_2
+import org.codice.compliance.report.Report.Section.GENERAL
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.NodeDecorator
@@ -44,6 +49,7 @@ import java.time.Instant
 import java.util.UUID
 
 class ResponseVerifierSpec : StringSpec() {
+    override fun listeners(): List<TestListener> = listOf(ReportListener)
 
     private val request by lazy {
         AuthnRequestBuilder().buildObject().apply {
@@ -71,48 +77,48 @@ class ResponseVerifierSpec : StringSpec() {
             NodeDecorator(Common.buildDom(createResponse())).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "response with non-unique ID should fail" {
             NodeDecorator(Common.buildDom(createResponse(id = "not-unique-id"))).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
 
             NodeDecorator(Common.buildDom(createResponse(id = "not-unique-id"))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.apply {
-                    shouldContain(SAMLCore_1_3_4_a.message)
-                    shouldContain(SAMLCore_3_2_2_a.message)
-                }
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
+            }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
+            Report.getExceptionMessages(CORE_3_2).apply {
+                this.shouldContain(SAMLCore_1_3_4_a.message)
+                this.shouldContain(SAMLCore_3_2_2_a.message)
             }
         }
 
         "response with incorrect InResponseTo should fail" {
             NodeDecorator(Common.buildDom(createResponse(inResponseTo = "incorrect"))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_3_2_2_b.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_3_2).shouldContain(SAMLCore_3_2_2_b.message)
         }
 
         "response with blank version should fail" {
             NodeDecorator(Common.buildDom(createResponse(version = " "))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_1_3_1_a.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_1_a.message)
         }
 
         "response with non-utc instant issuer should fail" {
             NodeDecorator(Common.buildDom(
                     createResponse(instant = "2018-05-01T06:15:30-07:00"))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.apply {
-                    shouldContain(SAMLCore_1_3_3_a.message)
-                    shouldContain(SAMLCore_3_2_2_d.message)
-                }
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
+            }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_3_a.message)
+            Report.getExceptionMessages(CORE_3_2).apply {
+                this.shouldContain(SAMLCore_1_3_3_a.message)
+                this.shouldContain(SAMLCore_3_2_2_d.message)
             }
         }
 
@@ -121,15 +127,15 @@ class ResponseVerifierSpec : StringSpec() {
                     createResponse(attribute = "$DESTINATION=\"$correctUri\""))).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "response with incorrect destination should fail" {
             NodeDecorator(Common.buildDom(
                     createResponse(attribute = "$DESTINATION=\"$incorrectUri\""))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_3_2_2_e.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_3_2).shouldContain(SAMLCore_3_2_2_e.message)
         }
 
         "response with correct consent should pass" {
@@ -142,34 +148,30 @@ class ResponseVerifierSpec : StringSpec() {
         "response with non-uri consent should fail" {
             NodeDecorator(Common.buildDom(
                     createResponse(attribute = "$CONSENT=\"$incorrectUri\""))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_1_3_2_a.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_2_a.message)
         }
 
         "response with a top level status code that isn't success should fail" {
             NodeDecorator(Common.buildDom(createResponse(statusCode = REQUESTER))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLGeneral_e.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(GENERAL).shouldContain(SAMLGeneral_e.message)
         }
 
         "response with a second-level status code as top-level should fail" {
             NodeDecorator(Common.buildDom(createResponse(statusCode = PARTIAL_LOGOUT))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_3_2_2_2_a.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_3_2).shouldContain(SAMLCore_3_2_2_2_a.message)
         }
 
         "response with a blank status message should fail" {
             NodeDecorator(Common.buildDom(createResponse(statusMessage = " "))).let {
-                shouldThrow<SAMLComplianceException> {
-                    ResponseVerifierTest(request, it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_1_3_1_a.message)
+                ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_1_a.message)
         }
     }
 
@@ -205,6 +207,5 @@ class ResponseVerifierSpec : StringSpec() {
         samlRequest: RequestAbstractType,
         samlResponseDom: NodeDecorator,
         binding: SamlProtocol.Binding
-    )
-        : ResponseVerifier(samlRequest, samlResponseDom, binding)
+    ) : ResponseVerifier(samlRequest, samlResponseDom, binding)
 }

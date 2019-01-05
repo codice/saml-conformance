@@ -13,6 +13,7 @@ import io.kotlintest.specs.StringSpec
 import org.codice.compliance.Common
 import org.codice.compliance.IMPLEMENTATION_PATH
 import org.codice.compliance.SAMLComplianceException
+import org.codice.compliance.SAMLCore_3_3_4_b
 import org.codice.compliance.SAMLProfiles_4_4_3_3_a
 import org.codice.compliance.SAMLProfiles_4_4_3_5_a
 import org.codice.compliance.SAMLProfiles_4_4_4_1_a
@@ -20,6 +21,9 @@ import org.codice.compliance.SAMLProfiles_4_4_4_1_b
 import org.codice.compliance.SAMLProfiles_4_4_4_1_c
 import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_3_3
+import org.codice.compliance.report.Report.Section.PROFILES_4_4
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import java.time.Instant
@@ -94,9 +98,13 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
             NodeDecorator(
                     Common.buildDom(createLogoutRequest(correctIdpIssuer, incorrectNameIDValue)),
                     isSigned = true).let {
-                shouldThrow<SAMLComplianceException> {
-                    SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
-                }.message?.shouldContain(SAMLProfiles_4_4_4_1_c.message)
+                SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
+            }
+
+            Report.getExceptionMessages(CORE_3_3).shouldContain(SAMLCore_3_3_4_b.message)
+            Report.getExceptionMessages(PROFILES_4_4).apply {
+                this.shouldContain(SAMLCore_3_3_4_b.message)
+                this.shouldContain(SAMLProfiles_4_4_4_1_c.message)
             }
         }
 

@@ -6,13 +6,16 @@ http://www.gnu.org/licenses/lgpl.html
 */
 package org.codice.compilance.verification.core.responses
 
+import io.kotlintest.extensions.TestListener
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import org.codice.compilance.ReportListener
 import org.codice.compliance.Common
-import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_3_7_3_2_b
 import org.codice.compliance.SAMLCore_3_7_3_2_d
+import org.codice.compliance.report.Report
+import org.codice.compliance.report.Report.Section.CORE_3_7
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.PERSISTENT_ID
 import org.codice.compliance.utils.RESPONDER
@@ -30,6 +33,7 @@ import java.time.Instant
 import java.util.UUID
 
 class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
+    override fun listeners(): List<TestListener> = listOf(ReportListener)
 
     private val logoutRequest by lazy {
         REQUEST_ID = "a" + UUID.randomUUID().toString()
@@ -54,29 +58,26 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
             NodeDecorator(Common.buildDom(createLogoutResponse(SUCCESS))).let {
                 CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "logout response with incorrect second-level status code should fail" {
             NodeDecorator(Common.buildDom(createLogoutResponse(RESPONDER))).let {
-                shouldThrow<SAMLComplianceException> {
-                    CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
-                            .verify()
-                }.message?.apply {
-                    shouldContain(SAMLCore_3_7_3_2_b.message)
-                    shouldContain(SAMLCore_3_7_3_2_d.message)
-                }
+                CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS).verify()
+            }
+            Report.getExceptionMessages(CORE_3_7).apply {
+                shouldContain(SAMLCore_3_7_3_2_b.message)
+                shouldContain(SAMLCore_3_7_3_2_d.message)
             }
         }
 
         "logout response with no second-level status code when expected should fail" {
             NodeDecorator(Common.buildDom(createLogoutResponse(null))).let {
-                shouldThrow<SAMLComplianceException> {
-                    CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS)
-                            .verify()
-                }.message?.apply {
-                    shouldContain(SAMLCore_3_7_3_2_b.message)
-                    shouldContain(SAMLCore_3_7_3_2_d.message)
-                }
+                CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST, SUCCESS).verify()
+            }
+            Report.getExceptionMessages(CORE_3_7).apply {
+                shouldContain(SAMLCore_3_7_3_2_b.message)
+                shouldContain(SAMLCore_3_7_3_2_d.message)
             }
         }
 
@@ -84,6 +85,7 @@ class CoreLogoutResponseProtocolVerifierSpec : StringSpec() {
             NodeDecorator(Common.buildDom(createLogoutResponse(SUCCESS))).let {
                 CoreLogoutResponseProtocolVerifier(logoutRequest, it, HTTP_POST).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
     }
 
