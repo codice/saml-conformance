@@ -22,8 +22,8 @@ import org.codice.compliance.SAMLProfiles_4_4_4_1_c
 import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_3_3
-import org.codice.compliance.report.Report.Section.PROFILES_4_4
+import org.codice.compliance.Section.CORE_3_3
+import org.codice.compliance.Section.PROFILES_4_4
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import java.time.Instant

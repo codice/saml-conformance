@@ -16,7 +16,7 @@ import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_2_3
+import org.codice.compliance.Section.CORE_2_3
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUTHN_STATEMENT
 import org.codice.compliance.utils.ID

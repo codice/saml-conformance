@@ -75,13 +75,12 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
                             arrayOf(*samlErrorCodes)
                         }
                 samlErrorCodes.map { it.section }.forEach {
-                    Report.addExceptionMessage(it,
-                            SAMLComplianceException
-                                    .createWithPropertyMessage(*exceptions,
-                                            property = "Status Code",
-                                            actual = statusCode,
-                                            expected = expectedStatusCode,
-                                            node = node))
+                    Report.addExceptionMessage(SAMLComplianceException
+                            .createWithPropertyMessage(*exceptions,
+                                    property = "Status Code",
+                                    actual = statusCode,
+                                    expected = expectedStatusCode,
+                                    node = node), it)
                 }
             }
         }

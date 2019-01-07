@@ -18,8 +18,8 @@ import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_4_1
-import org.codice.compliance.report.Report.Section.CORE_4_2
+import org.codice.compliance.Section.CORE_4_1
+import org.codice.compliance.Section.CORE_4_2
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.VERSION
 import org.opensaml.saml.common.SAMLVersion
@@ -71,12 +71,11 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
                         expected = SAMLVersion.VERSION_20.toString(),
                         node = samlResponseDom))
 
-                Report.addExceptionMessage(CORE_4_1,
-                        SAMLComplianceException.createWithPropertyMessage(codes,
-                                property = VERSION,
-                                actual = version.textContent,
-                                expected = SAMLVersion.VERSION_20.toString(),
-                                node = samlResponseDom))
+                Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(codes,
+                        property = VERSION,
+                        actual = version.textContent,
+                        expected = SAMLVersion.VERSION_20.toString(),
+                        node = samlResponseDom), CORE_4_1)
             } catch (e: NumberFormatException) {
                 CORE_4_1.skip()
                 return
@@ -96,13 +95,13 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
                                 expected = SAMLVersion.VERSION_20.toString(),
                                 node = it))
 
-                Report.addExceptionMessage(CORE_4_1,
-                        SAMLComplianceException.createWithPropertyMessage(SAMLCore_4_1_2_a,
-                                SAMLCore_2_3_3_a,
-                                property = VERSION,
-                                actual = version?.textContent,
-                                expected = SAMLVersion.VERSION_20.toString(),
-                                node = it))
+                Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
+                        SAMLCore_4_1_2_a,
+                        SAMLCore_2_3_3_a,
+                        property = VERSION,
+                        actual = version?.textContent,
+                        expected = SAMLVersion.VERSION_20.toString(),
+                        node = it), CORE_4_1)
             }
         }
     }

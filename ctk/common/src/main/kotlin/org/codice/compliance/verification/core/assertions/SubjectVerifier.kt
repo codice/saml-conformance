@@ -9,7 +9,7 @@ package org.codice.compliance.verification.core.assertions
 import org.codice.compliance.SAMLCore_2_4_1_2_a
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.report.Report.Section.CORE_2_4
+import org.codice.compliance.Section.CORE_2_4
 import org.codice.compliance.utils.METHOD
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION
 import org.codice.compliance.utils.SUBJECT_CONFIRMATION_DATA

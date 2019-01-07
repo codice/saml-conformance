@@ -22,8 +22,8 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_8_2
-import org.codice.compliance.report.Report.Section.CORE_8_3
+import org.codice.compliance.Section.CORE_8_2
+import org.codice.compliance.Section.CORE_8_3
 import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.FORMAT
 import org.codice.compliance.utils.PERSISTENT_ID

@@ -20,7 +20,7 @@ import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.PROFILES_4_4
+import org.codice.compliance.Section.PROFILES_4_4
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.BASE_ID
 import org.codice.compliance.utils.FORMAT
@@ -105,8 +105,9 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         if (assertionId == null) {
             Report.addExceptionMessage(SAMLComplianceException.create(SAMLGeneral_f,
                     message = "Could not find the assertion's identifier on the response."))
-            Report.addExceptionMessage(PROFILES_4_4, SAMLComplianceException.create(SAMLGeneral_f,
-                    message = "Could not find the assertion's identifier on the response."))
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLGeneral_f,
+                    message = "Could not find the assertion's identifier on the response."),
+                    PROFILES_4_4)
             return
         }
 
@@ -117,8 +118,8 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         if (logoutRequestId == null) {
             Report.addExceptionMessage(SAMLComplianceException.create(SAMLGeneral_f,
                     message = "Could not find the logout request's identifier."))
-            Report.addExceptionMessage(PROFILES_4_4, SAMLComplianceException.create(SAMLGeneral_f,
-                    message = "Could not find the logout request's identifier."))
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLGeneral_f,
+                    message = "Could not find the logout request's identifier."), PROFILES_4_4)
             return
         }
 

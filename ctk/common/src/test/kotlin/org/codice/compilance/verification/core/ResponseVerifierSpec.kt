@@ -25,9 +25,9 @@ import org.codice.compliance.SAMLCore_3_2_2_e
 import org.codice.compliance.SAMLGeneral_e
 import org.codice.compliance.TEST_SP_METADATA_PROPERTY
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_1_3
-import org.codice.compliance.report.Report.Section.CORE_3_2
-import org.codice.compliance.report.Report.Section.GENERAL
+import org.codice.compliance.Section.CORE_1_3
+import org.codice.compliance.Section.CORE_3_2
+import org.codice.compliance.Section.GENERAL
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.NodeDecorator

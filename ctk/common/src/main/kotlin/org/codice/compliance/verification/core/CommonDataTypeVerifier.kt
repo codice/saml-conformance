@@ -15,7 +15,7 @@ import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeTextNS
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_1_3
+import org.codice.compliance.Section.CORE_1_3
 import org.codice.compliance.utils.ID
 import org.codice.compliance.utils.XSI
 import org.w3c.dom.Node

@@ -12,7 +12,7 @@ import io.kotlintest.extensions.TestListener
 import org.codice.compliance.report.Report
 
 /**
- * Listener used to reset the Report map for testing purposes before each test
+ * Listener used to reset the Report map for testing purposes after each test
  */
 object ReportListener : TestListener {
 

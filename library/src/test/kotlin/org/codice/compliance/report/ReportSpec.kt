@@ -17,11 +17,11 @@ import org.codice.compliance.SAMLBindings_3_1_2_1_a
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_1_3_3_a
 import org.codice.compliance.SAMLGeneral_a
+import org.codice.compliance.Section.BINDINGS
+import org.codice.compliance.Section.BINDINGS_3_1
+import org.codice.compliance.Section.CORE_1_3
+import org.codice.compliance.Section.GENERAL
 import org.codice.compliance.report.Report.REPORT_FILE
-import org.codice.compliance.report.Report.Section.BINDINGS
-import org.codice.compliance.report.Report.Section.BINDINGS_3_1
-import org.codice.compliance.report.Report.Section.CORE_1_3
-import org.codice.compliance.report.Report.Section.GENERAL
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -35,7 +35,6 @@ class ReportSpec : StringSpec() {
             BINDINGS_3_1.start()
             Report.getExceptionMessages(BINDINGS_3_1).shouldBeBlank()
             Report.hasExceptions().shouldBeFalse()
-            BINDINGS_3_1.isStarted().shouldBeTrue()
 
             Report.addExceptionMessage(
                     SAMLComplianceException.create(SAMLBindings_3_1_2_1_a, message = "message"))
@@ -46,8 +45,9 @@ class ReportSpec : StringSpec() {
 
         "test adding an exception to a specified section" {
             Report.getExceptionMessages(BINDINGS).isNullOrBlank()
-            Report.addExceptionMessage(BINDINGS,
-                    SAMLComplianceException.create(SAMLBindings_3_1_2_1_a, message = "message"))
+            Report.addExceptionMessage(
+                    SAMLComplianceException.create(SAMLBindings_3_1_2_1_a, message = "message"),
+                    BINDINGS)
             Report.getExceptionMessages(BINDINGS).shouldContain("message")
             Report.hasExceptions().shouldBeTrue()
             Report.testHasExceptions().shouldBeTrue()

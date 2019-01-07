@@ -17,8 +17,8 @@ import org.codice.compliance.SAMLCore_1_3_3_a
 import org.codice.compliance.SAMLCore_3_7_1_a
 import org.codice.compliance.SAMLCore_3_7_3_2_e
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_1_3
-import org.codice.compliance.report.Report.Section.CORE_3_7
+import org.codice.compliance.Section.CORE_1_3
+import org.codice.compliance.Section.CORE_3_7
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtocolVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST

@@ -10,7 +10,7 @@ import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_Schema
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.SCHEMA
+import org.codice.compliance.Section.SCHEMA
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.xml.sax.ErrorHandler

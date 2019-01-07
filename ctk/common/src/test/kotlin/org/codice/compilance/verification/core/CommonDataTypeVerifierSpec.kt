@@ -20,8 +20,8 @@ import org.codice.compliance.SAMLCore_1_3_4_a
 import org.codice.compliance.SAMLCore_3_4_1_1_a
 import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_1_3
-import org.codice.compliance.report.Report.Section.CORE_3_4
+import org.codice.compliance.Section.CORE_1_3
+import org.codice.compliance.Section.CORE_3_4
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
 

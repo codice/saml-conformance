@@ -18,7 +18,7 @@ import org.codice.compliance.SAMLCore_3_4_a
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_3_4
+import org.codice.compliance.Section.CORE_3_4
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.AUTHN_STATEMENT

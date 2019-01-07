@@ -8,7 +8,7 @@ package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.attributeNode
 import org.codice.compliance.recursiveChildren
-import org.codice.compliance.report.Report.Section.CORE_2_2
+import org.codice.compliance.Section.CORE_2_2
 import org.codice.compliance.utils.FORMAT
 import org.codice.compliance.utils.SP_NAME_QUALIFIER
 import org.codice.compliance.verification.core.CommonDataTypeVerifier

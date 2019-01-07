@@ -13,7 +13,7 @@ import org.codice.compliance.SAMLProfiles_4_4_4_1_a
 import org.codice.compliance.SAMLProfiles_4_4_4_1_b
 import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
-import org.codice.compliance.report.Report.Section.PROFILES_4_4
+import org.codice.compliance.Section.PROFILES_4_4
 import org.codice.compliance.utils.LOGOUT_REQUEST
 import org.codice.compliance.utils.LOGOUT_RESPONSE
 import org.codice.compliance.utils.NodeDecorator

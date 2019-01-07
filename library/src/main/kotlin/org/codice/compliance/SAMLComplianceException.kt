@@ -8,7 +8,6 @@ package org.codice.compliance
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
-import org.codice.compliance.report.Report.Section
 import org.w3c.dom.Node
 
 @Suppress("StringLiteralDuplication", "SpreadOperator")

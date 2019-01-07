@@ -20,11 +20,11 @@ import org.codice.compliance.SAMLCore_4_1_3_2_a
 import org.codice.compliance.SAMLCore_4_1_3_2_b
 import org.codice.compliance.SAMLCore_4_1_3_3_a
 import org.codice.compliance.SAMLCore_4_2_a
+import org.codice.compliance.Section.CORE_2_3
+import org.codice.compliance.Section.CORE_3_2
+import org.codice.compliance.Section.CORE_4_1
+import org.codice.compliance.Section.CORE_4_2
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_2_3
-import org.codice.compliance.report.Report.Section.CORE_3_2
-import org.codice.compliance.report.Report.Section.CORE_4_1
-import org.codice.compliance.report.Report.Section.CORE_4_2
 import org.codice.compliance.utils.ASSERTION_NAMESPACE
 import org.codice.compliance.utils.PROTOCOL_NAMESPACE
 import org.codice.compliance.verification.core.SamlVersioningVerifier
@@ -72,7 +72,6 @@ class SamlVersioningVerifierSpec : StringSpec() {
                 SamlVersioningVerifier(it).verify()
             }
             Report.hasExceptions().shouldBeFalse()
-            CORE_4_1.isStarted().shouldBeFalse()
         }
 
         "response with correct version should pass" {

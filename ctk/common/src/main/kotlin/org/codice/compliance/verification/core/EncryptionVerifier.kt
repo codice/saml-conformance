@@ -16,7 +16,7 @@ import org.codice.compliance.SAMLSpecRefMessage
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_6_1
+import org.codice.compliance.Section.CORE_6_1
 import org.codice.compliance.utils.ELEMENT
 import org.codice.compliance.utils.TYPE
 import org.codice.compliance.utils.XMLDecrypter
@@ -73,13 +73,12 @@ class EncryptionVerifier {
     }
 
     private fun addError(encryptedElement: Node, errorCode: SAMLSpecRefMessage) {
-        Report.addExceptionMessage(CORE_6_1,
-                SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
-                        errorCode,
-                        property = TYPE,
-                        actual = encryptedElement.attributeText(TYPE),
-                        expected = ELEMENT,
-                        node = encryptedElement))
+        Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
+                errorCode,
+                property = TYPE,
+                actual = encryptedElement.attributeText(TYPE),
+                expected = ELEMENT,
+                node = encryptedElement), CORE_6_1)
 
         Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(errorCode,
                 SAMLCore_6_1_b,

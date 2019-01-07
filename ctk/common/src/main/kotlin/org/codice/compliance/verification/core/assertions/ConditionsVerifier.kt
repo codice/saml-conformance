@@ -18,7 +18,7 @@ import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_2_5
+import org.codice.compliance.Section.CORE_2_5
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.XSI
 import org.codice.compliance.verification.core.CommonDataTypeVerifier

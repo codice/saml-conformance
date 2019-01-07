@@ -21,9 +21,9 @@ import org.codice.compliance.SAMLCore_3_2_2_2_a
 import org.codice.compliance.SAMLCore_Schema
 import org.codice.compliance.SAMLGeneral_a
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_3_2
-import org.codice.compliance.report.Report.Section.GENERAL
-import org.codice.compliance.report.Report.Section.SCHEMA
+import org.codice.compliance.Section.CORE_3_2
+import org.codice.compliance.Section.GENERAL
+import org.codice.compliance.Section.SCHEMA
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.RESPONDER
 import org.codice.compliance.verification.core.CoreVerifier

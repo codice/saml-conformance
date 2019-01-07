@@ -21,8 +21,8 @@ import org.codice.compliance.SAMLCore_8_3_7_a
 import org.codice.compliance.SAMLCore_8_3_7_d
 import org.codice.compliance.SAMLCore_8_3_8_a
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_8_2
-import org.codice.compliance.report.Report.Section.CORE_8_3
+import org.codice.compliance.Section.CORE_8_2
+import org.codice.compliance.Section.CORE_8_3
 import org.codice.compliance.utils.ASSERTION_NAMESPACE
 import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.PERSISTENT_ID

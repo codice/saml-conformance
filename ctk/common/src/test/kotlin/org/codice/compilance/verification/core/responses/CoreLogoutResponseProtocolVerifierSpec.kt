@@ -15,7 +15,7 @@ import org.codice.compliance.Common
 import org.codice.compliance.SAMLCore_3_7_3_2_b
 import org.codice.compliance.SAMLCore_3_7_3_2_d
 import org.codice.compliance.report.Report
-import org.codice.compliance.report.Report.Section.CORE_3_7
+import org.codice.compliance.Section.CORE_3_7
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.PERSISTENT_ID
 import org.codice.compliance.utils.RESPONDER
