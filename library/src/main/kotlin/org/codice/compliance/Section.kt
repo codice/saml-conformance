@@ -8,6 +8,7 @@ package org.codice.compliance
 
 import org.codice.compliance.report.Report
 
+@Suppress("MagicNumber")
 enum class Section(val title: String, val level: Int = 1) {
     GENERAL("GENERAL", 0),
     SCHEMA("SCHEMA", 0),
@@ -26,6 +27,7 @@ enum class Section(val title: String, val level: Int = 1) {
     CORE_3("3 SAML Protocols"),
     CORE_3_2("3.2 Requests and Responses", 2),
     CORE_3_3("3.3 Assertion Query and Request Protocol", 2),
+    CORE_3_3_2_2_1("3.3.2.2.1 Element <RequestedAuthnContext>", 3),
     CORE_3_4("3.4 Authentication Request Protocol.", 2),
     CORE_3_7("3.7 Single Logout Protocol.", 2),
 

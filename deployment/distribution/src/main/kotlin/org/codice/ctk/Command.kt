@@ -18,6 +18,10 @@ import org.codice.compliance.USER_LOGIN
 import us.jimschubert.kopper.Parser
 import java.io.File
 
+/**
+ * Used to build the samlconf script.
+ * NOTE: Parallel builds are NOT supported.
+ */
 @Suppress("StringLiteralDuplication")
 fun main(args: Array<String>) {
     val samlDist = System.getProperty("app.home")

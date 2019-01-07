@@ -15,12 +15,12 @@ import org.codice.compliance.SAMLGeneral_f
 import org.codice.compliance.SAMLProfiles_4_1_4_2_d
 import org.codice.compliance.SAMLProfiles_4_4_4_1_c
 import org.codice.compliance.SAMLSpecRefMessage
+import org.codice.compliance.Section.PROFILES_4_4
 import org.codice.compliance.attributeList
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
 import org.codice.compliance.report.Report
-import org.codice.compliance.Section.PROFILES_4_4
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.BASE_ID
 import org.codice.compliance.utils.FORMAT
@@ -78,12 +78,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
 
         // If they share a format value that isn't "unspecified", but have different contents
         if (format1 == format2 && format1 != null && id1.textContent != id2.textContent) {
-            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_b,
-                    message = "The identifiers have identical Format attributes " +
-                            "[$format1], but the content of one [${id1.textContent}] is not " +
-                            "equal to the content of the other [${id2.textContent}]",
-                    node = samlResponseDom))
-
             Report.addExceptionMessage(SAMLComplianceException.create(samlCode,
                     SAMLCore_3_3_4_b,
                     message = "The identifiers have identical Format attributes " +
@@ -142,7 +136,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
      */
     @Suppress("NestedBlockDepth" /* Simple `let` nesting */)
     fun verifySubjectsMatchAuthnRequest(authnRequest: AuthnRequest) {
-
         val requestSubject = authnRequest.dom?.children(SUBJECT)?.firstOrNull() ?: return
         val requestId = requestSubject.id
         val requestConfirmations = requestSubject.children(SUBJECT_CONFIRMATION)
@@ -165,12 +158,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
                             verifyIdContentsMatch(reqId, resId, SAMLCore_3_4_1_4_b)
                         } else {
                             Report.addExceptionMessage(SAMLComplianceException.create(
-                                    SAMLCore_3_3_4_b,
-                                    message = "One of the Response's Subjects contained no " +
-                                            "identifier",
-                                    node = resSubject))
-
-                            Report.addExceptionMessage(SAMLComplianceException.create(
                                     SAMLCore_3_4_1_4_b,
                                     SAMLCore_3_3_4_b,
                                     message = "One of the Response's Subjects contained no " +
@@ -183,12 +170,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
                     requestConfirmations.let { reqConfirmations ->
                         resSubject.children(SUBJECT_CONFIRMATION).let { resConfirmations ->
                             if (resConfirmations.isEmpty()) {
-                                Report.addExceptionMessage(SAMLComplianceException.create(
-                                        SAMLCore_3_3_4_c,
-                                        message = "One of the Response's Subjects contained no " +
-                                                "SubjectConfirmations.",
-                                        node = resSubject))
-
                                 Report.addExceptionMessage(SAMLComplianceException.create(
                                         SAMLCore_3_4_1_4_b,
                                         SAMLCore_3_3_4_c,
@@ -224,7 +205,7 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
                         message = "One of the identifier's Format attribute " +
                                 "[${format2 ?: UNSPECIFIED_URI}] is not identical to the " +
                                 "AuthnRequest's Subject identifier's Format attribute [$format1].",
-                        node = id2))
+                        node = id2), samlCode.section)
             }
         }
 
@@ -232,12 +213,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         val attributes2 = id2.attributeList().filter { it.localName != FORMAT }.toSet()
 
         if (attributes1 != attributes2) {
-            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_b,
-                    message = "One of the identifier's attributes " +
-                            "[$attributes2] are not identical to another" +
-                            " identifier's attributes [$attributes1].",
-                    node = id2))
-
             Report.addExceptionMessage(SAMLComplianceException.create(samlCode, SAMLCore_3_3_4_b,
                     message = "One of the identifier's attributes " +
                             "[$attributes2] are not identical to another" +
@@ -257,7 +232,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         requestConfirmations: List<Node>,
         responseConfirmations: List<Node>
     ) {
-
         val requestMethods = requestConfirmations.mapNotNull { it.attributeText(METHOD) }.toSet()
         val responseMethods = responseConfirmations.mapNotNull { it.attributeText(METHOD) }.toSet()
 
@@ -266,12 +240,6 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         if (requestMethods.none { reqMethod -> responseMethods.contains(reqMethod) }) {
             Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_1_4_b,
                     SAMLCore_3_3_4_c,
-                    message = "One of the Response's Subjects had no SubjectConfirmation Methods " +
-                            "[$responseMethods] matching the AuthnRequest's SubjectConfirmation " +
-                            "Methods [$requestMethods].",
-                    node = samlResponseDom))
-
-            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_c,
                     message = "One of the Response's Subjects had no SubjectConfirmation Methods " +
                             "[$responseMethods] matching the AuthnRequest's SubjectConfirmation " +
                             "Methods [$requestMethods].",

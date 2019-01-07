@@ -21,9 +21,8 @@ import org.codice.compliance.SAMLProfiles_4_4_4_1_b
 import org.codice.compliance.SAMLProfiles_4_4_4_1_c
 import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
-import org.codice.compliance.report.Report
-import org.codice.compliance.Section.CORE_3_3
 import org.codice.compliance.Section.PROFILES_4_4
+import org.codice.compliance.report.Report
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
 import java.time.Instant
@@ -101,7 +100,6 @@ class SingleLogoutProfileVerifierSpec : StringSpec() {
                 SingleLogoutProfileVerifier(it).verifyLogoutRequest(ssoResponse)
             }
 
-            Report.getExceptionMessages(CORE_3_3).shouldContain(SAMLCore_3_3_4_b.message)
             Report.getExceptionMessages(PROFILES_4_4).apply {
                 this.shouldContain(SAMLCore_3_3_4_b.message)
                 this.shouldContain(SAMLProfiles_4_4_4_1_c.message)

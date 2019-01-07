@@ -19,6 +19,7 @@ import org.codice.compliance.Section.CORE_2_5
 import org.codice.compliance.Section.CORE_2_7
 import org.codice.compliance.Section.CORE_3_2
 import org.codice.compliance.Section.CORE_3_3
+import org.codice.compliance.Section.CORE_3_3_2_2_1
 import org.codice.compliance.Section.CORE_3_4
 import org.codice.compliance.Section.CORE_3_7
 import org.codice.compliance.Section.CORE_4_1
@@ -151,7 +152,10 @@ object SAMLCore_3_2_2_d : SAMLCoreRefMessage(CORE_3_2)
 object SAMLCore_3_2_2_e : SAMLCoreRefMessage(CORE_3_2)
 object SAMLCore_3_2_2_2_a : SAMLCoreRefMessage(CORE_3_2)
 
-object SAMLCore_3_3_2_2_1_a : SAMLCoreRefMessage(CORE_3_3)
+// Note: Section 3.3 is not fully tested. It's partially tested when it comes to Subject
+// Comparison and RequestedAuthnContext. The only time it should be displayed is when the
+// RequestedAuthnContext is tested which is when the DDF profile is run.
+object SAMLCore_3_3_2_2_1_a : SAMLCoreRefMessage(CORE_3_3_2_2_1)
 object SAMLCore_3_3_4_a : SAMLCoreRefMessage(CORE_3_3)
 object SAMLCore_3_3_4_b : SAMLCoreRefMessage(CORE_3_3)
 object SAMLCore_3_3_4_c : SAMLCoreRefMessage(CORE_3_3)

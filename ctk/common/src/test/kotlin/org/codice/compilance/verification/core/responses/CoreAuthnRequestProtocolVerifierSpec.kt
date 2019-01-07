@@ -14,8 +14,8 @@ import io.kotlintest.specs.StringSpec
 import org.codice.compilance.ReportListener
 import org.codice.compliance.Common
 import org.codice.compliance.SAMLCore_3_3_2_2_1_a
+import org.codice.compliance.Section.CORE_3_3_2_2_1
 import org.codice.compliance.report.Report
-import org.codice.compliance.Section.CORE_3_3
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.ddfAuthnContextList
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
@@ -62,7 +62,8 @@ class CoreAuthnRequestProtocolVerifierSpec : StringSpec() {
                     CoreAuthnRequestProtocolVerifier(AuthnRequestBuilder().buildObject(), it)
                             .verifyAuthnContextClassRef()
                 }
-                Report.getExceptionMessages(CORE_3_3).shouldContain(SAMLCore_3_3_2_2_1_a.message)
+                Report.getExceptionMessages(CORE_3_3_2_2_1)
+                        .shouldContain(SAMLCore_3_3_2_2_1_a.message)
                 Report.resetExceptionMap()
             }
         }

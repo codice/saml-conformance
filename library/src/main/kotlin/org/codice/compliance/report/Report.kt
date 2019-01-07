@@ -7,8 +7,11 @@ http://www.gnu.org/licenses/lgpl.html
 package org.codice.compliance.report
 
 import org.codice.compliance.QUIET_MODE
+import org.codice.compliance.RUN_DDF_PROFILE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.Section
+import org.codice.compliance.Section.CORE_3_3
+import org.codice.compliance.Section.CORE_3_3_2_2_1
 import org.codice.compliance.Section.GENERAL
 import org.codice.compliance.Section.SCHEMA
 import org.fusesource.jansi.Ansi
@@ -35,6 +38,10 @@ object Report {
 
     private val reportQuietly by lazy {
         System.getProperty(QUIET_MODE)?.toBoolean() == true
+    }
+
+    private val runDDFProfile by lazy {
+        System.getProperty(RUN_DDF_PROFILE)?.toBoolean() == true
     }
 
     private var hasExceptions = false
@@ -124,7 +131,12 @@ object Report {
 
     /**
      * Writes the report to a file.
+     *
+     * Note: Section 3.3 is not fully tested. It's partially tested when it comes to Subject
+     * Comparison and RequestedAuthnContext. The only time it should be displayed is when the
+     * RequestedAuthnContext (3.3.2.2.1) is tested which is when the DDF profile is run.
      */
+    @Suppress("ComplexMethod", "NestedBlockDepth")
     fun writeReport() {
         // GENERAL is never skipped
         if (exceptionMessages[GENERAL] == null) {
@@ -134,14 +146,30 @@ object Report {
         val file = File(REPORT_FILE)
         file.printWriter().use { writer ->
             Section.values().forEach { section ->
-                writer.print("\t".repeat(section.level))
-                writer.print(section.title)
+                when (section) {
+                    CORE_3_3 -> {
+                        if (runDDFProfile) {
+                            writer.print("\t".repeat(section.level))
+                            writer.print(section.title)
+                            writer.println()
+                        }
+                    }
+                    CORE_3_3_2_2_1 -> {
+                        if (runDDFProfile) {
+                            printExceptions(section, writer)
+                        }
+                    }
+                    else -> {
+                        writer.print("\t".repeat(section.level))
+                        writer.print(section.title)
 
-                // the top level section will not have a status except GENERAL and SCHEMA
-                if (section.level == 2 || section == GENERAL || section == SCHEMA) {
-                    printExceptions(section, writer)
-                } else {
-                    writer.println()
+                        // the top level section will not have a status except GENERAL and SCHEMA
+                        if (section.level == 2 || section == GENERAL || section == SCHEMA) {
+                            printExceptions(section, writer)
+                        } else {
+                            writer.println()
+                        }
+                    }
                 }
             }
 
