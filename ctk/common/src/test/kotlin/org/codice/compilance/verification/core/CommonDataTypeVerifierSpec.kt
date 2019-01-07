@@ -114,21 +114,39 @@ class CommonDataTypeVerifierSpec : StringSpec() {
                     CommonDataTypeVerifier.Companion::verifyIdValue)
         }
 
-        "null, blank, and good id values pass; duplicates fail" {
+        "null id values pass" {
             buildDom("<fld/>").let {
                 CommonDataTypeVerifier.verifyIdValue(it)
             }
+            Report.hasExceptions().shouldBeFalse()
+        }
+
+        "blank id values pass" {
             buildDom("<fld>   </fld>").let {
                 CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.hasExceptions().shouldBeFalse()
+        }
+
+        "good id values pass" {
             buildDom("<fld>this is my id</fld>").let {
                 CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.hasExceptions().shouldBeFalse()
+        }
 
+        "duplicates id values fail" {
             buildDom("<fld/>").let {
-                CommonDataTypeVerifier.verifyIdValue(it)
-                Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
+
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
+            Report.getExceptionMessages(CORE_3_4).apply {
+                this.shouldContain(SAMLCore_1_3_4_a.message)
+                this.shouldContain(SAMLCore_3_4_1_1_a.message)
+            }
+            Report.resetExceptionMap()
+
             buildDom("<fld>   </fld>").let {
                 CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
@@ -137,6 +155,7 @@ class CommonDataTypeVerifierSpec : StringSpec() {
                 this.shouldContain(SAMLCore_1_3_4_a.message)
                 this.shouldContain(SAMLCore_3_4_1_1_a.message)
             }
+            Report.resetExceptionMap()
 
             buildDom("<fld>this is my id</fld>").let {
                 CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)

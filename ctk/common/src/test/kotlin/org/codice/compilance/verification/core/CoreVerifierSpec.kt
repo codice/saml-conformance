@@ -9,7 +9,6 @@ package org.codice.compilance.verification.core
 import io.kotlintest.extensions.TestListener
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.matchers.string.shouldNotBeBlank
 import io.kotlintest.matchers.string.shouldNotContain
 import io.kotlintest.specs.StringSpec
 import io.mockk.every
@@ -18,6 +17,7 @@ import org.codice.compilance.ReportListener
 import org.codice.compliance.Common.Companion.buildDom
 import org.codice.compliance.SAMLCoreRefMessage
 import org.codice.compliance.SAMLCore_3_2_1_d
+import org.codice.compliance.SAMLCore_3_2_2_2_a
 import org.codice.compliance.SAMLCore_Schema
 import org.codice.compliance.SAMLGeneral_a
 import org.codice.compliance.report.Report
@@ -121,7 +121,7 @@ class CoreVerifierSpec : StringSpec() {
             buildDom(noStatusResponse()).let {
                 CoreVerifier.verifyErrorStatusCodes(it, specRefMsg, expectedStatusCode = statusCode)
             }
-            Report.getExceptionMessages(CORE_3_2).shouldNotBeBlank()
+            Report.getExceptionMessages(CORE_3_2).shouldContain(SAMLCore_3_2_2_2_a.message)
         }
 
         "response with multiple status blocks" {
@@ -129,7 +129,7 @@ class CoreVerifierSpec : StringSpec() {
             buildDom(twoStatusResponse("urn:samlconf:fail", "urn:samlconf:fail")).let {
                 CoreVerifier.verifyErrorStatusCodes(it, specRefMsg, expectedStatusCode = statusCode)
             }
-            Report.getExceptionMessages(CORE_3_2).shouldNotBeBlank()
+            Report.getExceptionMessages(CORE_3_2).shouldContain(SAMLCore_3_2_2_2_a.message)
         }
 
         "validateTimeWindow with null datetime attributes" {

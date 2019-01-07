@@ -75,6 +75,7 @@ class EncryptionVerifier {
     private fun addError(encryptedElement: Node, errorCode: SAMLSpecRefMessage) {
         Report.addExceptionMessage(CORE_6_1,
                 SAMLComplianceException.createWithPropertyMessage(SAMLCore_6_1_b,
+                        errorCode,
                         property = TYPE,
                         actual = encryptedElement.attributeText(TYPE),
                         expected = ELEMENT,

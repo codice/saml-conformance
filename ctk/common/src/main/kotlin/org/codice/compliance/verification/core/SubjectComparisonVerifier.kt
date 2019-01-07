@@ -72,17 +72,12 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
     /**
      * Compares the text content of the identifiers. Special checking due to nameIdPolicyFormat.
      */
-    private fun verifyIdContentsMatch(
-        id1: Node,
-        id2: Node,
-        samlCode: SAMLSpecRefMessage
-    ) {
+    private fun verifyIdContentsMatch(id1: Node, id2: Node, samlCode: SAMLSpecRefMessage) {
         val format1 = id1.filteredFormatValue
         val format2 = id2.filteredFormatValue
 
         // If they share a format value that isn't "unspecified", but have different contents
         if (format1 == format2 && format1 != null && id1.textContent != id2.textContent) {
-
             Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_b,
                     message = "The identifiers have identical Format attributes " +
                             "[$format1], but the content of one [${id1.textContent}] is not " +
@@ -225,10 +220,9 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
             val format2 = id2.filteredFormatValue
             if (format1 != null && format1 != format2) {
                 Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_b,
-                        message = """One of the identifier's Format attribute
-                                    [${format2 ?: UNSPECIFIED_URI}] is not identical to the
-                                    AuthnRequest's Subject identifier's Format attribute
-                                    [$format1].""",
+                        message = "One of the identifier's Format attribute " +
+                                "[${format2 ?: UNSPECIFIED_URI}] is not identical to the " +
+                                "AuthnRequest's Subject identifier's Format attribute [$format1].",
                         node = id2))
             }
         }
@@ -237,13 +231,13 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         val attributes2 = id2.attributeList().filter { it.localName != FORMAT }.toSet()
 
         if (attributes1 != attributes2) {
-            Report.addExceptionMessage(SAMLComplianceException.create(samlCode, SAMLCore_3_3_4_b,
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_b,
                     message = "One of the identifier's attributes " +
                             "[$attributes2] are not identical to another" +
                             " identifier's attributes [$attributes1].",
                     node = id2))
 
-            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_b,
+            Report.addExceptionMessage(SAMLComplianceException.create(samlCode, SAMLCore_3_3_4_b,
                     message = "One of the identifier's attributes " +
                             "[$attributes2] are not identical to another" +
                             " identifier's attributes [$attributes1].",
@@ -271,15 +265,15 @@ class SubjectComparisonVerifier(private val samlResponseDom: Node) {
         if (requestMethods.none { reqMethod -> responseMethods.contains(reqMethod) }) {
             Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_4_1_4_b,
                     SAMLCore_3_3_4_c,
-                    message = """One of the Response's Subjects had no SubjectConfirmation Methods
-                            [$responseMethods] matching the AuthnRequest's SubjectConfirmation
-                            Methods [$requestMethods].""",
+                    message = "One of the Response's Subjects had no SubjectConfirmation Methods " +
+                            "[$responseMethods] matching the AuthnRequest's SubjectConfirmation " +
+                            "Methods [$requestMethods].",
                     node = samlResponseDom))
 
             Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_4_c,
-                    message = """One of the Response's Subjects had no SubjectConfirmation Methods
-                            [$responseMethods] matching the AuthnRequest's SubjectConfirmation
-                            Methods [$requestMethods].""",
+                    message = "One of the Response's Subjects had no SubjectConfirmation Methods " +
+                            "[$responseMethods] matching the AuthnRequest's SubjectConfirmation " +
+                            "Methods [$requestMethods].",
                     node = samlResponseDom))
         }
     }

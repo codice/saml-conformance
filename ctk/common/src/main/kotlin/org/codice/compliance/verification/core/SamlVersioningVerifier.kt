@@ -53,30 +53,34 @@ class SamlVersioningVerifier(private val samlResponseDom: Node) {
         }
 
         if (version.textContent != SAMLVersion.VERSION_20.toString()) {
+            try {
+                val responseMajorVersion = version.textContent.split(".").first().toInt()
+                val codes = mutableListOf<SAMLSpecRefMessage>(SAMLCore_3_2_2_c, SAMLCore_4_1_3_3_a)
 
-            val responseMajorVersion = version.textContent.split(".").first().toInt()
-            val codes = mutableListOf<SAMLSpecRefMessage>(SAMLCore_3_2_2_c, SAMLCore_4_1_3_3_a)
+                if (responseMajorVersion < EXPECTED_MAJOR_VERSION) {
+                    codes.add(SAMLCore_4_1_3_2_a)
+                }
+                if (responseMajorVersion > EXPECTED_MAJOR_VERSION) {
+                    codes.add(SAMLCore_4_1_3_2_b)
+                }
 
-            if (responseMajorVersion < EXPECTED_MAJOR_VERSION) {
-                codes.add(SAMLCore_4_1_3_2_a)
+                Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
+                        SAMLCore_3_2_2_c,
+                        property = VERSION,
+                        actual = version.textContent,
+                        expected = SAMLVersion.VERSION_20.toString(),
+                        node = samlResponseDom))
+
+                Report.addExceptionMessage(CORE_4_1,
+                        SAMLComplianceException.createWithPropertyMessage(codes,
+                                property = VERSION,
+                                actual = version.textContent,
+                                expected = SAMLVersion.VERSION_20.toString(),
+                                node = samlResponseDom))
+            } catch (e: NumberFormatException) {
+                CORE_4_1.skip()
+                return
             }
-            if (responseMajorVersion > EXPECTED_MAJOR_VERSION) {
-                codes.add(SAMLCore_4_1_3_2_b)
-            }
-
-            Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
-                    SAMLCore_3_2_2_c,
-                    property = VERSION,
-                    actual = version.textContent,
-                    expected = SAMLVersion.VERSION_20.toString(),
-                    node = samlResponseDom))
-
-            Report.addExceptionMessage(CORE_4_1,
-                    SAMLComplianceException.createWithPropertyMessage(codes,
-                            property = VERSION,
-                            actual = version.textContent,
-                            expected = SAMLVersion.VERSION_20.toString(),
-                            node = samlResponseDom))
         }
     }
 

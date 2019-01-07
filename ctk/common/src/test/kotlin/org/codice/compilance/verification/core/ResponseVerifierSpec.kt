@@ -143,6 +143,7 @@ class ResponseVerifierSpec : StringSpec() {
                     createResponse(attribute = "$CONSENT=\"$correctUri\""))).let {
                 ResponseVerifierTest(request, it, HTTP_POST).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "response with non-uri consent should fail" {

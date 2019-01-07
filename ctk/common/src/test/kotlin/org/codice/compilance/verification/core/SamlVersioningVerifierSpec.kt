@@ -35,8 +35,8 @@ class SamlVersioningVerifierSpec : StringSpec() {
 
     init {
         val now = Instant.now()
-        val response = { resVersion: String, resNamespace: String?, version: String,
-                         namespace: String? ->
+        val response = {
+            resVersion: String, resNamespace: String?, version: String, namespace: String? ->
             """
             |<s:Response xmlns:s="$resNamespace" ID="id" Version="$resVersion" IssueInstant="$now">
             |  <s:Status>
@@ -65,6 +65,14 @@ class SamlVersioningVerifierSpec : StringSpec() {
                 }
                 Report.resetExceptionMap()
             }
+        }
+
+        "response with a version that is not numeric doesn't error out." {
+            buildDom(response("I'm a string", PROTOCOL_NAMESPACE, "2.0", ASSERTION_NAMESPACE)).let {
+                SamlVersioningVerifier(it).verify()
+            }
+            Report.hasExceptions().shouldBeFalse()
+            CORE_4_1.isStarted().shouldBeFalse()
         }
 
         "response with correct version should pass" {

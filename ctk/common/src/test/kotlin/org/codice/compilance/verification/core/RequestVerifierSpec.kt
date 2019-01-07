@@ -53,6 +53,7 @@ class RequestVerifierSpec : StringSpec() {
             NodeDecorator(Common.buildDom(createRequest(id = "id"))).let {
                 RequestVerifierTest(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
 
             NodeDecorator(Common.buildDom(createRequest(id = "id"))).let {
                 RequestVerifierTest(it).verify()

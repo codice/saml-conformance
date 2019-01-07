@@ -82,10 +82,10 @@ class CoreAuthnRequestProtocolVerifier(
                 .flatMap { it.children("AuthnContextClassRef") }
                 .firstOrNull { !ddfAuthnContextList.contains(it.textContent) }?.let {
                     Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_3_2_2_1_a,
-                            message = """An <AuthnContextClassRef> that is not part of the
-                                    requested <AuthnContextClassRef>s was found. The requested
-                                    <AuthnContextClassRef>s are
-                                    ${ddfAuthnContextList.joinToString()}.""",
+                            message = "An <AuthnContextClassRef> that is not part of the " +
+                                    "requested <AuthnContextClassRef>s was found. The requested " +
+                                    "<AuthnContextClassRef>s are " +
+                                    ddfAuthnContextList.joinToString(),
                             node = it))
                 }
     }
