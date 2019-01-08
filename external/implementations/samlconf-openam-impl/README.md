@@ -21,11 +21,14 @@ http://www.gnu.org/licenses/lgpl.html
 
 ## Steps to Test OpenAM's IdP
 #### Installing OpenAM
+* Follow the steps [here](https://github.com/OpenIdentityPlatform/OpenAM/wiki/Quick-Start-Guide) up to the Policy Configuration step.
+
+**NOTE** The below steps are provided to provide an alternative solution for those who run into problems during the Preparations step of the above guide.
 * Download [Apache Tomcat](https://tomcat.apache.org/download-70.cgi).
 * Download the OpenAM .war files from [OpenAM Releases](https://github.com/OpenIdentityPlatform/OpenAM/releases).
 * Rename OpenAM-\<version\>.war to OpenAM.war.
 * Unzip Apache Tomcat and move all OpenAm .war files into \<tomcat\>/webapps.
-* Run the following commands to start tomcat:
+* Run the following commands to start tomcat and OpenAM will be available at localhost/openAM:8080.
 
 ##### NIX
 ```bash
@@ -40,8 +43,6 @@ sh <tomcat>/bin/startup.sh
 ```
 
 #### Setup OpenAM as a hosted IdP
-
-* Follow the steps [here](https://github.com/OpenIdentityPlatform/OpenAM/wiki/Quick-Start-Guide#basic-openam-setup) up to the Policy Configuration step.
 
 * Once you've logged in as amAdmin, navigate to Create Hosted Identify Provider, (Top Level Realm :arrow_right: Configure SAMLv2 Provider :arrow_right: Create Hosted Identify Provider).
 
