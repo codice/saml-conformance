@@ -8,7 +8,6 @@ package org.codice.compliance.web.sso.error
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SSO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
@@ -32,13 +31,14 @@ import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.codice.security.sign.Encoder.encodeRedirectMessage
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
-class RedirectSSOErrorTest : StringSpec() {
+class RedirectSSOErrorTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
 
     init {

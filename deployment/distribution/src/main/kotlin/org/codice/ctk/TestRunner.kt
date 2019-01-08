@@ -16,12 +16,8 @@ import org.codice.compliance.web.sso.RedirectSSOTest
 import org.codice.compliance.web.sso.error.PostSSOErrorTest
 import org.codice.compliance.web.sso.error.RedirectSSOErrorTest
 import org.fusesource.jansi.Ansi
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.TestExecutionResult.Status.FAILED
-import org.junit.platform.engine.TestExecutionResult.Status.SUCCESSFUL
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.launcher.TestExecutionListener
-import org.junit.platform.launcher.TestIdentifier
 import org.junit.platform.launcher.TestPlan
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
@@ -72,24 +68,6 @@ internal class TestRunner {
                 println("SAML Conformance Test Kit Starting")
                 println("----------------------------------")
                 println()
-            }
-        }
-
-        override fun executionFinished(
-            testIdentifier: TestIdentifier,
-            testExecutionResult: TestExecutionResult
-        ) {
-            if (testIdentifier.isTest) {
-                print(testIdentifier.displayName)
-                if (Report.testHasExceptions()) {
-                    print("  ${Ansi.ansi().fgRed().a(FAILED).reset()}")
-                } else {
-                    print("  ${Ansi.ansi().fgGreen().a(SUCCESSFUL).reset()}")
-                }
-                println()
-
-                Report.printTestExceptions()
-                Report.resetCurrentTestExceptions()
             }
         }
     }

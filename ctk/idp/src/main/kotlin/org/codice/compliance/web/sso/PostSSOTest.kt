@@ -8,12 +8,11 @@ package org.codice.compliance.web.sso
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SSO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.apache.wss4j.common.saml.builder.SAML2Constants
-import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.Common.Companion.runningDDFProfile
+import org.codice.compliance.debugPrettyPrintXml
 import org.codice.compliance.saml.plugin.IdpSSOResponder
 import org.codice.compliance.utils.EXAMPLE_RELAY_STATE
 import org.codice.compliance.utils.SSOCommon.Companion.createDefaultAuthnRequest
@@ -22,21 +21,22 @@ import org.codice.compliance.utils.TestCommon
 import org.codice.compliance.utils.TestCommon.Companion.currentSPIssuer
 import org.codice.compliance.utils.TestCommon.Companion.getImplementation
 import org.codice.compliance.utils.TestCommon.Companion.signAndEncodePostRequestToString
-import org.codice.compliance.utils.ddfAuthnContextList
 import org.codice.compliance.utils.TestCommon.Companion.useDSAServiceProvider
+import org.codice.compliance.utils.ddfAuthnContextList
 import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
-import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.codice.security.sign.Encoder
+import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
-class PostSSOTest : StringSpec() {
+class PostSSOTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
 
     init {
