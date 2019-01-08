@@ -10,14 +10,13 @@ import org.codice.compliance.QUIET_MODE
 import org.codice.compliance.RUN_DDF_PROFILE
 import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.Section
-import org.codice.compliance.Section.CORE_3_3
-import org.codice.compliance.Section.CORE_3_3_2_2_1
 import org.codice.compliance.Section.GENERAL
 import org.codice.compliance.Section.SCHEMA
 import org.fusesource.jansi.Ansi
 import java.io.File
 import java.io.PrintWriter
 
+@Suppress("MagicNumber")
 object Report {
 
     internal const val REPORT_FILE = "report.txt"
@@ -146,17 +145,20 @@ object Report {
         val file = File(REPORT_FILE)
         file.printWriter().use { writer ->
             Section.values().forEach { section ->
-                when (section) {
-                    CORE_3_3 -> {
+                when {
+                    section.isDDFProfile() -> {
                         if (runDDFProfile) {
                             writer.print("\t".repeat(section.level))
                             writer.print(section.title)
-                            writer.println()
-                        }
-                    }
-                    CORE_3_3_2_2_1 -> {
-                        if (runDDFProfile) {
-                            printExceptions(section, writer)
+
+                            if (section.level == 3) {
+                                printExceptions(section, writer)
+                            } else {
+                                writer.println()
+                            }
+                        } else {
+                            writer.print("\t".repeat(section.level))
+                            writer.println(Ansi.ansi().fgBrightBlack().a(section.title).reset())
                         }
                     }
                     else -> {

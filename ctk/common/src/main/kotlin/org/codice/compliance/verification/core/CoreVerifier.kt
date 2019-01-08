@@ -121,6 +121,7 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
      * Verify response against the Core Spec document
      */
     open fun verify() {
+        SchemaValidator.validateSAMLMessage(samlNode)
         preProcess()
         verifyCommonDataType(samlNode)
         SamlAssertionsVerifier(samlNode).verify()
@@ -142,8 +143,7 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
         }
 
         Log.debugWithSupplier {
-            "Starting a pass of decryption and schema validation" +
-                    " on the SAML Response."
+            "Starting a pass of decryption and schema validation on the SAML Response."
         }
 
         SchemaValidator.validateSAMLMessage(samlNode)

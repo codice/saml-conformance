@@ -60,6 +60,14 @@ enum class Section(val title: String, val level: Int = 1) {
     PROFILES_4_4("4.4 Single Logout Profile", 2);
 
     /**
+     * Section 3.3 is not fully tested. It's partially tested when it comes to Subject
+     * Comparison and RequestedAuthnContext (3.3.2.2.1) when the DDF profile is run.
+     */
+    fun isDDFProfile(): Boolean {
+        return listOf(CORE_3_3, CORE_3_3_2_2_1).contains(this)
+    }
+
+    /**
      * Adds an empty set to the exception map of the given {@code Section}.
      * This allows the Report to know when a section is skipped.
      */

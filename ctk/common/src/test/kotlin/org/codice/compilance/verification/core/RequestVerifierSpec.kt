@@ -21,10 +21,10 @@ import org.codice.compliance.SAMLCore_3_2_1_a
 import org.codice.compliance.SAMLCore_3_2_1_b
 import org.codice.compliance.SAMLCore_3_2_1_c
 import org.codice.compliance.SAMLCore_3_2_1_e
-import org.codice.compliance.TEST_SP_METADATA_PROPERTY
-import org.codice.compliance.report.Report
 import org.codice.compliance.Section.CORE_1_3
 import org.codice.compliance.Section.CORE_3_2
+import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.report.Report
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.NodeDecorator
@@ -122,7 +122,7 @@ class RequestVerifierSpec : StringSpec() {
     }
 
     private fun createRequest(
-        id: String? = UUID.randomUUID().toString().replace("-", ""),
+        id: String? = "a" + UUID.randomUUID().toString().replace("-", ""),
         version: String? = "2.0",
         attribute: String = "",
         instant: String = Instant.now().toString()

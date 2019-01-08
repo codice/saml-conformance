@@ -23,11 +23,11 @@ import org.codice.compliance.SAMLCore_3_2_2_b
 import org.codice.compliance.SAMLCore_3_2_2_d
 import org.codice.compliance.SAMLCore_3_2_2_e
 import org.codice.compliance.SAMLGeneral_e
-import org.codice.compliance.TEST_SP_METADATA_PROPERTY
-import org.codice.compliance.report.Report
 import org.codice.compliance.Section.CORE_1_3
 import org.codice.compliance.Section.CORE_3_2
 import org.codice.compliance.Section.GENERAL
+import org.codice.compliance.TEST_SP_METADATA_PROPERTY
+import org.codice.compliance.report.Report
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.NodeDecorator
@@ -178,7 +178,7 @@ class ResponseVerifierSpec : StringSpec() {
 
     @Suppress("LongParameterList")
     private fun createResponse(
-        id: String = UUID.randomUUID().toString().replace("-", ""),
+        id: String = "a" + UUID.randomUUID().toString().replace("-", ""),
         version: String = "2.0",
         inResponseTo: String = REQUEST_ID,
         attribute: String = "",
