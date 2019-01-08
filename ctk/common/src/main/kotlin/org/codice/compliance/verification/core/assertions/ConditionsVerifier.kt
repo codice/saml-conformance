@@ -17,6 +17,8 @@ import org.codice.compliance.SAMLCore_2_5_1_c
 import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.report.Report
+import org.codice.compliance.Section.CORE_2_5
 import org.codice.compliance.utils.AUDIENCE
 import org.codice.compliance.utils.XSI
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
@@ -27,6 +29,7 @@ internal class ConditionsVerifier(val node: Node) {
 
     /** 2.5 Conditions */
     fun verify() {
+        CORE_2_5.start()
         node.recursiveChildren("Conditions").forEach {
             verifyConditions(it)
             verifyAudience(it)
@@ -44,20 +47,25 @@ internal class ConditionsVerifier(val node: Node) {
         validateTimeWindow(conditionsElement, SAMLCore_2_5_1_2_a)
 
         if (conditionsElement.children("Condition")
-                        .any { it.attributeNodeNS(XSI, "type") == null })
-            throw SAMLComplianceException.create(SAMLCore_2_5_1_a,
+                        .any { it.attributeNodeNS(XSI, "type") == null }) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_5_1_a,
                     message = "Condition found without a type.",
-                    node = node)
+                    node = node))
+        }
 
-        if (conditionsElement.children("OneTimeUse").size > 1)
-            throw SAMLComplianceException.create(SAMLCore_2_5_1_b, SAMLCore_2_5_1_5_a,
+        if (conditionsElement.children("OneTimeUse").size > 1) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_5_1_b,
+                    SAMLCore_2_5_1_5_a,
                     message = "Cannot have more than one OneTimeUse element.",
-                    node = node)
+                    node = node))
+        }
 
-        if (conditionsElement.children("ProxyRestriction").size > 1)
-            throw SAMLComplianceException.create(SAMLCore_2_5_1_c, SAMLCore_2_5_1_6_b,
+        if (conditionsElement.children("ProxyRestriction").size > 1) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_5_1_c,
+                    SAMLCore_2_5_1_6_b,
                     message = "Cannot have more than one ProxyRestriction element.",
-                    node = node)
+                    node = node))
+        }
     }
 
     /** 2.5.1.4 Elements <AudienceRestriction> and <Audience> */
@@ -75,26 +83,33 @@ internal class ConditionsVerifier(val node: Node) {
                 .flatMap { it.children(AUDIENCE) }
                 .map { it.textContent }
                 .toList()
-        if (proxyRestrictionAudiences.isEmpty()) return
+
+        if (proxyRestrictionAudiences.isEmpty()) {
+            return
+        }
 
         val audienceRestrictions = conditionsElement.recursiveChildren("AudienceRestriction")
-        if (audienceRestrictions.isEmpty()) throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
-                message = "There must be an AudienceRestriction element.",
-                node = node)
+        if (audienceRestrictions.isEmpty()) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
+                    message = "There must be an AudienceRestriction element.",
+                    node = node))
+        }
 
         audienceRestrictions.forEach {
             val audienceRestrictionAudiences = it.children(AUDIENCE)
-            if (audienceRestrictionAudiences.isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
+            if (audienceRestrictionAudiences.isEmpty()) {
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
                         message = "The AudienceRestriction element must contain at least one " +
                                 "Audience element.",
-                        node = node)
+                        node = node))
+            }
 
-            if (it.children(AUDIENCE).any { !proxyRestrictionAudiences.contains(it.textContent) })
-                throw SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
+            if (it.children(AUDIENCE).any { !proxyRestrictionAudiences.contains(it.textContent) }) {
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_5_1_6_a,
                         message = "The AudienceRestriction can only have Audience elements " +
                                 "that are also in the ProxyRestriction element.",
-                        node = node)
+                        node = node))
+            }
         }
     }
 }

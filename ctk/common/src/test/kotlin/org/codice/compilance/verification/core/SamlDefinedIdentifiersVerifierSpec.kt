@@ -6,11 +6,12 @@ http://www.gnu.org/licenses/lgpl.html
 */
 package org.codice.compilance.verification.core
 
+import io.kotlintest.extensions.TestListener
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import org.codice.compilance.ReportListener
 import org.codice.compliance.Common.Companion.buildDom
-import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_8_2_2_a
 import org.codice.compliance.SAMLCore_8_2_3_a
 import org.codice.compliance.SAMLCore_8_3_2_a
@@ -19,6 +20,9 @@ import org.codice.compliance.SAMLCore_8_3_6_b
 import org.codice.compliance.SAMLCore_8_3_7_a
 import org.codice.compliance.SAMLCore_8_3_7_d
 import org.codice.compliance.SAMLCore_8_3_8_a
+import org.codice.compliance.report.Report
+import org.codice.compliance.Section.CORE_8_2
+import org.codice.compliance.Section.CORE_8_3
 import org.codice.compliance.utils.ASSERTION_NAMESPACE
 import org.codice.compliance.utils.ENTITY
 import org.codice.compliance.utils.PERSISTENT_ID
@@ -37,6 +41,8 @@ import java.time.Instant
 
 @Suppress("StringLiteralDuplication")
 class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
+    override fun listeners(): List<TestListener> = listOf(ReportListener)
+
     init {
         val validEntityId = "ValidEntityID"
         val maxLengthEntityId = "A".repeat(ENTITY_ID_MAX_LEN)
@@ -82,6 +88,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     attributeFormat = ATTRIBUTE_NAME_FORMAT_UNSPECIFIED).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         // No invalid test for 'unspecified' format; other than what is allowed in xml
@@ -92,16 +99,16 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     attributeFormat = ATTRIBUTE_NAME_FORMAT_URI).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid URI attribute name" {
             createResponse(
                     attributeName = "Whitespace Not Allowed In URI",
                     attributeFormat = ATTRIBUTE_NAME_FORMAT_URI).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_2_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_2).shouldContain(SAMLCore_8_2_2_a.message)
         }
 
         "valid Basic attribute name" {
@@ -110,6 +117,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     attributeFormat = ATTRIBUTE_NAME_FORMAT_BASIC).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "null (defaults to 'unspecified') attribute format" {
@@ -118,16 +126,16 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     attributeFormat = "").let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid Basic attribute name" {
             createResponse(
                     attributeName = "Whitespace Not Allowed In Attribute Name",
                     attributeFormat = ATTRIBUTE_NAME_FORMAT_BASIC).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_2_3_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_2).shouldContain(SAMLCore_8_2_3_a.message)
         }
 
         /* 8.3.2 Email Address */
@@ -137,96 +145,88 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid Email name identifier (multiple '@'s)".config(enabled = false) {
             createResponse(
                     identifierValue = "example@email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (no '@')".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email.domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (no '.com')".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email@domain",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (end with '.')".config(enabled = false) {
             createResponse(
                     identifierValue = "example-email@domain.",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (single word)".config(enabled = false) {
             createResponse(
                     identifierValue = "exampleemaildomaincom",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (whitespace)".config(enabled = false) {
             createResponse(
                     identifierValue = "example email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (invalid characters)".config(enabled = false) {
             createResponse(
                     identifierValue = "example:email@domain.com",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (comment)".config(enabled = false) {
             createResponse(
                     identifierValue = "example.email@domain.com(comment)",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         "invalid Email name identifier (surrounded by '<' and '>')".config(enabled = false) {
             createResponse(
                     identifierValue = "&lt;example.email@domain.com&gt;",
                     identifierFormat = NAME_ID_FORMAT_EMAIL).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_2_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_2_a.message)
         }
 
         /* 8.3.6 Entity Identifier */
@@ -236,6 +236,7 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     identifierFormat = ENTITY).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid NameQualifier attribute on Entity name identifier" {
@@ -243,10 +244,9 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     identifierValue = validEntityId,
                     identifierFormat = ENTITY,
                     extraIdentifierAttribute = """NameQualifier="$validEntityId"""").let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_6_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_6_a.message)
         }
 
         "invalid SPNameQualifier attribute on Entity name identifier" {
@@ -254,10 +254,9 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     identifierValue = validEntityId,
                     identifierFormat = ENTITY,
                     extraIdentifierAttribute = """SPNameQualifier="$validEntityId"""").let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_6_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_6_a.message)
         }
 
         "invalid SPProvidedID attribute on Entity name identifier" {
@@ -265,10 +264,9 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     identifierValue = validEntityId,
                     identifierFormat = ENTITY,
                     extraIdentifierAttribute = """SPProvidedID="$validEntityId"""").let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_6_a.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_6_a.message)
         }
 
         "valid length Entity name identifier" {
@@ -277,72 +275,72 @@ class SamlDefinedIdentifiersVerifierSpec : StringSpec() {
                     identifierFormat = ENTITY).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid length Entity name identifier" {
             createResponse(
                     identifierValue = maxLengthEntityId + "A",
                     identifierFormat = ENTITY).let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_6_b.message)
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_6_b.message)
         }
 
         /* 8.3.7 Persistent Identifier */
         "valid length Persistent Identifier" {
             createResponse(
-                identifierFormat = PERSISTENT_ID,
-                identifierValue = maxLengthPersistentId).let {
+                    identifierFormat = PERSISTENT_ID,
+                    identifierValue = maxLengthPersistentId).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid length Persistent Identifier" {
             createResponse(
-                identifierFormat = PERSISTENT_ID,
-                identifierValue = maxLengthPersistentId + "A").let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_7_a.message)
+                    identifierFormat = PERSISTENT_ID,
+                    identifierValue = maxLengthPersistentId + "A").let {
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_7_a.message)
         }
 
         "valid SPNameQualifier attribute on Persistent Identifier" {
             createResponse(identifierFormat = PERSISTENT_ID,
-                extraIdentifierAttribute =
-                "SPNameQualifier=\"https://samlhost:8993/services/saml\"").let {
+                    extraIdentifierAttribute =
+                    "SPNameQualifier=\"https://samlhost:8993/services/saml\"").let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid SPNameQualifier attribute on Persistent Identifier" {
             createResponse(identifierFormat = PERSISTENT_ID,
-                extraIdentifierAttribute =
-                "SPNameQualifier=\"https://invalid:8993/sp/name/qualifier\"").let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_7_d.message)
+                    extraIdentifierAttribute =
+                    "SPNameQualifier=\"https://invalid:8993/sp/name/qualifier\"").let {
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_7_d.message)
         }
 
         /* 8.3.8 Transient Identifier */
         "valid length Transient Identifier" {
             createResponse(
-                identifierFormat = TRANSIENT_ID,
-                identifierValue = maxLengthPersistentId).let {
+                    identifierFormat = TRANSIENT_ID,
+                    identifierValue = maxLengthPersistentId).let {
                 SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "invalid length Transient Identifier" {
             createResponse(
-                identifierFormat = TRANSIENT_ID,
-                identifierValue = maxLengthPersistentId + "A").let {
-                shouldThrow<SAMLComplianceException> {
-                    SamlDefinedIdentifiersVerifier(it).verify()
-                }.message?.shouldContain(SAMLCore_8_3_8_a.message)
+                    identifierFormat = TRANSIENT_ID,
+                    identifierValue = maxLengthPersistentId + "A").let {
+                SamlDefinedIdentifiersVerifier(it).verify()
             }
+            Report.getExceptionMessages(CORE_8_3).shouldContain(SAMLCore_8_3_8_a.message)
         }
     }
 }

@@ -13,6 +13,7 @@ import org.codice.compliance.SAMLProfiles_4_4_4_1_a
 import org.codice.compliance.SAMLProfiles_4_4_4_1_b
 import org.codice.compliance.SAMLProfiles_4_4_4_2_a
 import org.codice.compliance.SAMLProfiles_4_4_4_2_b
+import org.codice.compliance.Section.PROFILES_4_4
 import org.codice.compliance.utils.LOGOUT_REQUEST
 import org.codice.compliance.utils.LOGOUT_RESPONSE
 import org.codice.compliance.utils.NodeDecorator
@@ -22,6 +23,8 @@ import org.w3c.dom.Node
 class SingleLogoutProfileVerifier(private val samlLogoutNode: NodeDecorator) {
 
     fun verifyLogoutRequest(ssoResponseDom: Node) {
+        PROFILES_4_4.start()
+
         if (samlLogoutNode.localName != LOGOUT_REQUEST)
             throw SAMLComplianceException.create(SAMLProfiles_4_4_3_3_a,
                     message = "The IdP did not send a Logout Request to relevant " +
@@ -39,6 +42,8 @@ class SingleLogoutProfileVerifier(private val samlLogoutNode: NodeDecorator) {
     }
 
     fun verifyLogoutResponse() {
+        PROFILES_4_4.start()
+
         if (samlLogoutNode.localName != LOGOUT_RESPONSE)
             throw SAMLComplianceException.create(SAMLProfiles_4_4_3_5_a,
                     message = "The IdP did not send a Logout Response to the original " +

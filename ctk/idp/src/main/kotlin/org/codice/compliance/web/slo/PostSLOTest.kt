@@ -8,7 +8,6 @@ package org.codice.compliance.web.slo
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SLO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.codice.compliance.Common.Companion.runningDDFProfile
@@ -30,11 +29,12 @@ import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtocolVerifier
 import org.codice.compliance.verification.core.responses.CoreLogoutResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.codice.security.sign.Encoder
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
-class PostSLOTest : StringSpec() {
+class PostSLOTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
 
     init {

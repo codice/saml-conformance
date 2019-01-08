@@ -7,14 +7,16 @@ http://www.gnu.org/licenses/lgpl.html
 package org.codice.compliance.verification.core.assertions
 
 import org.codice.compliance.SAMLComplianceException
-import org.codice.compliance.SAMLCore_2_2_3_a
-import org.codice.compliance.SAMLCore_2_2_3_b
 import org.codice.compliance.SAMLCore_2_3_3_b
 import org.codice.compliance.SAMLCore_2_3_3_c
+import org.codice.compliance.SAMLCore_2_3_3_d
+import org.codice.compliance.SAMLCore_2_3_3_e
 import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeNodeNS
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.report.Report
+import org.codice.compliance.Section.CORE_2_3
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUTHN_STATEMENT
 import org.codice.compliance.utils.ID
@@ -27,6 +29,7 @@ import org.w3c.dom.Node
 internal class AssertionsVerifier(val node: Node) {
     /** 2.3 Assertions */
     fun verify() {
+        CORE_2_3.start()
         verifyAssertionURIRef()
         verifyAssertion()
     }
@@ -49,19 +52,21 @@ internal class AssertionsVerifier(val node: Node) {
                     SAMLCore_2_3_3_c)
 
             val statements = it.children("Statement")
-            if (statements.any { it.attributeNodeNS(XSI, "type") == null })
-                throw SAMLComplianceException.create(SAMLCore_2_2_3_a,
+            if (statements.any { it.attributeNodeNS(XSI, "type") == null }) {
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_3_3_d,
                         message = "Statement element found without a type.",
-                        node = node)
+                        node = node))
+            }
 
             if (statements.isEmpty() &&
                     it.children(AUTHN_STATEMENT).isEmpty() &&
                     it.children("AuthzDecisionStatement").isEmpty() &&
                     it.children("AttributeStatement").isEmpty() &&
-                    it.children(SUBJECT).isEmpty())
-                throw SAMLComplianceException.create(SAMLCore_2_2_3_b,
+                    it.children(SUBJECT).isEmpty()) {
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_2_3_3_e,
                         message = "No Subject or Statement elements found.",
-                        node = node)
+                        node = node))
+            }
         }
     }
 }

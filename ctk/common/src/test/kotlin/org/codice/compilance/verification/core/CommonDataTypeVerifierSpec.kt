@@ -6,23 +6,29 @@ http://www.gnu.org/licenses/lgpl.html
 */
 package org.codice.compilance.verification.core
 
+import io.kotlintest.extensions.TestListener
 import io.kotlintest.forAll
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import org.codice.compilance.ReportListener
 import org.codice.compliance.Common.Companion.buildDom
-import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_1_3_1_a
 import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.SAMLCore_1_3_3_a
 import org.codice.compliance.SAMLCore_1_3_4_a
 import org.codice.compliance.SAMLCore_3_4_1_1_a
 import org.codice.compliance.SAMLSpecRefMessage
+import org.codice.compliance.report.Report
+import org.codice.compliance.Section.CORE_1_3
+import org.codice.compliance.Section.CORE_3_4
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
 
 @Suppress("StringLiteralDuplication" /* Small duplicate test strings */)
 class CommonDataTypeVerifierSpec : StringSpec() {
+    override fun listeners(): List<TestListener> = listOf(ReportListener)
+
     init {
         "null or blank string value fails" {
             forAll(listOf(null, "", "   ")) {
@@ -34,8 +40,11 @@ class CommonDataTypeVerifierSpec : StringSpec() {
         "valid string value passes" {
             forAll(listOf("a", "abc", "whatever\nyou say")) {
                 CommonDataTypeVerifier.verifyStringValue(buildDom("<fld>$it</fld>"))
+                Report.hasExceptions().shouldBeFalse()
+
                 CommonDataTypeVerifier.verifyStringValue(buildDom("<fld>$it</fld>"),
                         SAMLCore_3_4_1_1_a)
+                Report.hasExceptions().shouldBeFalse()
             }
         }
 
@@ -58,12 +67,17 @@ class CommonDataTypeVerifierSpec : StringSpec() {
             buildDom("<fld>http://foo.bar</fld>").let {
                 CommonDataTypeVerifier.verifyUriValue(it)
             }
+            Report.hasExceptions().shouldBeFalse()
+
             buildDom("<fld>http://foo.bar/subpath</fld>").let {
                 CommonDataTypeVerifier.verifyUriValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.hasExceptions().shouldBeFalse()
+
             buildDom("<fld>protocolX://foo.bar/subpath</fld>").let {
                 CommonDataTypeVerifier.verifyUriValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "null dateTime node fails" {
@@ -89,6 +103,7 @@ class CommonDataTypeVerifierSpec : StringSpec() {
                 CommonDataTypeVerifier.verifyDateTimeValue(it)
                 CommonDataTypeVerifier.verifyDateTimeValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "null id node fails" {
@@ -99,35 +114,56 @@ class CommonDataTypeVerifierSpec : StringSpec() {
                     CommonDataTypeVerifier.Companion::verifyIdValue)
         }
 
-        "null, blank, and good id values pass; duplicates fail" {
+        "null id values pass" {
             buildDom("<fld/>").let {
                 CommonDataTypeVerifier.verifyIdValue(it)
             }
+            Report.hasExceptions().shouldBeFalse()
+        }
+
+        "blank id values pass" {
             buildDom("<fld>   </fld>").let {
                 CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.hasExceptions().shouldBeFalse()
+        }
+
+        "good id values pass" {
             buildDom("<fld>this is my id</fld>").let {
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
+            }
+            Report.hasExceptions().shouldBeFalse()
+        }
+
+        "duplicates id values fail" {
+            buildDom("<fld/>").let {
                 CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
 
-            buildDom("<fld/>").let {
-                shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyIdValue(it)
-                }.message?.shouldContain(SAMLCore_1_3_4_a.message)
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
+            Report.getExceptionMessages(CORE_3_4).apply {
+                this.shouldContain(SAMLCore_1_3_4_a.message)
+                this.shouldContain(SAMLCore_3_4_1_1_a.message)
             }
+            Report.resetExceptionMap()
+
             buildDom("<fld>   </fld>").let {
-                val expectedExc = shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
-                }
-                expectedExc.message?.shouldContain(SAMLCore_1_3_4_a.message)
-                expectedExc.message?.shouldContain(SAMLCore_3_4_1_1_a.message)
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
             }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
+            Report.getExceptionMessages(CORE_3_4).apply {
+                this.shouldContain(SAMLCore_1_3_4_a.message)
+                this.shouldContain(SAMLCore_3_4_1_1_a.message)
+            }
+            Report.resetExceptionMap()
+
             buildDom("<fld>this is my id</fld>").let {
-                val expectedExc = shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
-                }
-                expectedExc.message?.shouldContain(SAMLCore_1_3_4_a.message)
-                expectedExc.message?.shouldContain(SAMLCore_3_4_1_1_a.message)
+                CommonDataTypeVerifier.verifyIdValue(it, SAMLCore_3_4_1_1_a)
+            }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
+            Report.getExceptionMessages(CORE_3_4).apply {
+                this.shouldContain(SAMLCore_1_3_4_a.message)
+                this.shouldContain(SAMLCore_3_4_1_1_a.message)
             }
         }
 
@@ -156,9 +192,8 @@ class CommonDataTypeVerifierSpec : StringSpec() {
 
             // Check for duplicate id
             makeInput("id1", "id4").let {
-                shouldThrow<SAMLComplianceException> {
-                    CommonDataTypeVerifier.verifyCommonDataType(it)
-                }.message?.shouldContain(SAMLCore_1_3_4_a.message)
+                CommonDataTypeVerifier.verifyCommonDataType(it)
+                Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_4_a.message)
             }
         }
     }
@@ -168,13 +203,15 @@ class CommonDataTypeVerifierSpec : StringSpec() {
         extraError: SAMLSpecRefMessage? = null,
         func: (node: Node?, extraErr: SAMLSpecRefMessage?) -> Any
     ) {
-        val expectedExcWithExtraError = shouldThrow<SAMLComplianceException> {
-            func(null as Node?, extraError)
-        }
-        expectedExcWithExtraError.message?.shouldContain(expectedErr.message)
+        func(null as Node?, extraError)
+        Report.getExceptionMessages(CORE_1_3).shouldContain(expectedErr.message)
         extraError?.let {
-            expectedExcWithExtraError.message?.shouldContain(extraError.message)
+            Report.getExceptionMessages(extraError.section).apply {
+                this.shouldContain(expectedErr.message)
+                this.shouldContain(extraError.message)
+            }
         }
+        Report.resetExceptionMap()
     }
 
     private fun badInput(
@@ -185,14 +222,17 @@ class CommonDataTypeVerifierSpec : StringSpec() {
     ) {
         val domString = if (input == null) "<fld/>" else "<fld>$input</fld>"
         buildDom(domString).let {
-            val expectedExc = shouldThrow<SAMLComplianceException> {
-                func(it, extraError)
-            }
-            expectedExc.message?.shouldContain(expectedErr.message)
+            func(it, extraError)
+            Report.getExceptionMessages(CORE_1_3).shouldContain(expectedErr.message)
+
             extraError?.let {
-                expectedExc.message?.shouldContain(extraError.message)
+                Report.getExceptionMessages(extraError.section).apply {
+                    this.shouldContain(expectedErr.message)
+                    this.shouldContain(extraError.message)
+                }
             }
         }
+        Report.resetExceptionMap()
     }
 
     private fun badString(input: String?, extraError: SAMLSpecRefMessage? = null) {

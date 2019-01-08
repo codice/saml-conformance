@@ -17,6 +17,8 @@ import org.codice.compliance.attributeNode
 import org.codice.compliance.attributeText
 import org.codice.compliance.children
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.report.Report
+import org.codice.compliance.Section.CORE_3_2
 import org.codice.compliance.utils.CONSENT
 import org.codice.compliance.utils.DESTINATION
 import org.codice.compliance.utils.ID
@@ -39,6 +41,7 @@ abstract class ResponseVerifier(
 
     /** 3.2.2 Complex Type StatusResponseType */
     override fun verify() {
+        CORE_3_2.start()
         verifyStatusResponseType()
         verifyStatusCode()
         verifyStatusMessage()
@@ -53,12 +56,14 @@ abstract class ResponseVerifier(
         // Assuming response is generated in response to a request
         val inResponseTo = samlResponse.attributeText("InResponseTo")
         val requestId = samlRequest.id
-        if (inResponseTo != null && inResponseTo != requestId)
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_b,
+        if (inResponseTo != null && inResponseTo != requestId) {
+            Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
+                    SAMLCore_3_2_2_b,
                     property = "InResponseTo",
                     actual = inResponseTo,
                     expected = requestId,
-                    node = samlResponse)
+                    node = samlResponse))
+        }
 
         CommonDataTypeVerifier.verifyStringValue(samlResponse.attributeNode(VERSION))
         CommonDataTypeVerifier.verifyDateTimeValue(
@@ -67,12 +72,14 @@ abstract class ResponseVerifier(
         samlResponse.attributeNode(DESTINATION)?.apply {
 
             val url = getServiceUrl(binding, samlResponse)
-            if (textContent != url)
-                throw SAMLComplianceException.createWithPropertyMessage(SAMLCore_3_2_2_e,
+            if (textContent != url) {
+                Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
+                        SAMLCore_3_2_2_e,
                         property = DESTINATION,
                         actual = textContent,
                         expected = url ?: "No ACS URL Found",
-                        node = samlResponse)
+                        node = samlResponse))
+            }
 
             CommonDataTypeVerifier.verifyUriValue(this)
         }
@@ -88,18 +95,22 @@ abstract class ResponseVerifier(
                 .flatMap { it.children(STATUS_CODE) }
                 .first()
                 .attributeText("Value")
-        if (!topLevelStatusCodes.contains(topLevelStatusCode))
-            throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
+
+        if (!topLevelStatusCodes.contains(topLevelStatusCode)) {
+            Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                     message = "The StatusCode value of $topLevelStatusCode is not a top level " +
                             "SAML status code.",
-                    node = samlResponse)
+                    node = samlResponse))
+        }
 
-        if (topLevelStatusCode != SUCCESS)
-            throw SAMLComplianceException.createWithPropertyMessage(SAMLGeneral_e,
+        if (topLevelStatusCode != SUCCESS) {
+            Report.addExceptionMessage(SAMLComplianceException.createWithPropertyMessage(
+                    SAMLGeneral_e,
                     property = STATUS_CODE,
                     expected = SUCCESS,
                     actual = topLevelStatusCode,
-                    node = samlResponse)
+                    node = samlResponse))
+        }
 
         samlResponse.recursiveChildren(STATUS_CODE)
                 .mapNotNull { it.attributeNode("Value") }

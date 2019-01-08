@@ -18,6 +18,7 @@ import org.codice.compliance.children
 import org.codice.compliance.debugWithSupplier
 import org.codice.compliance.prettyPrintXml
 import org.codice.compliance.recursiveChildren
+import org.codice.compliance.report.Report
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.utils.REQUESTER
 import org.codice.compliance.utils.STATUS
@@ -52,23 +53,35 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
                     ?.firstOrNull()
                     ?.attributeText("Value")
 
-            if (!topLevelStatusCodes.contains(statusCode))
-                throw SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
+            if (!topLevelStatusCodes.contains(statusCode)) {
+                Report.addExceptionMessage(SAMLComplianceException.create(SAMLCore_3_2_2_2_a,
                         message = "The first <StatusCode> of $statusCode is not a top level SAML " +
                                 "status code.",
-                        node = node)
+                        node = node))
+            }
 
             if (statusCode != expectedStatusCode) {
                 val exceptions =
-                        if (expectedStatusCode == REQUESTER)
+                        if (expectedStatusCode == REQUESTER) {
+                            Report.addExceptionMessage(SAMLComplianceException
+                                    .createWithPropertyMessage(SAMLCore_3_2_1_d,
+                                            property = "Status Code",
+                                            actual = statusCode,
+                                            expected = expectedStatusCode,
+                                            node = node))
+
                             arrayOf(*samlErrorCodes, SAMLCore_3_2_1_d)
-                        else
+                        } else {
                             arrayOf(*samlErrorCodes)
-                throw SAMLComplianceException.createWithPropertyMessage(*exceptions,
-                        property = "Status Code",
-                        actual = statusCode,
-                        expected = expectedStatusCode,
-                        node = node)
+                        }
+                samlErrorCodes.map { it.section }.forEach {
+                    Report.addExceptionMessage(SAMLComplianceException
+                            .createWithPropertyMessage(*exceptions,
+                                    property = "Status Code",
+                                    actual = statusCode,
+                                    expected = expectedStatusCode,
+                                    node = node), it)
+                }
             }
         }
 
@@ -89,11 +102,12 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
 
             val notBeforeValue = Instant.parse(notBefore.textContent)
             val notOnOrAfterValue = Instant.parse(notOnOrAfter.textContent)
-            if (notBeforeValue == notOnOrAfterValue || notBeforeValue.isAfter(notOnOrAfterValue))
-                throw SAMLComplianceException.create(samlCode,
+            if (notBeforeValue == notOnOrAfterValue || notBeforeValue.isAfter(notOnOrAfterValue)) {
+                Report.addExceptionMessage(SAMLComplianceException.create(samlCode,
                         message = "NotBefore element with value $notBeforeValue is not less " +
                                 "than NotOnOrAfter element with value $notOnOrAfterValue.",
-                        node = node)
+                        node = node))
+            }
         }
 
         private fun retrieveCurrentEncryptedElements(responseDom: Node): List<Node> {
@@ -107,6 +121,7 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
      * Verify response against the Core Spec document
      */
     open fun verify() {
+        SchemaValidator.validateSAMLMessage(samlNode)
         preProcess()
         verifyCommonDataType(samlNode)
         SamlAssertionsVerifier(samlNode).verify()
@@ -128,8 +143,7 @@ abstract class CoreVerifier(private val samlNode: NodeDecorator) {
         }
 
         Log.debugWithSupplier {
-            "Starting a pass of decryption and schema validation" +
-                    " on the SAML Response."
+            "Starting a pass of decryption and schema validation on the SAML Response."
         }
 
         SchemaValidator.validateSAMLMessage(samlNode)

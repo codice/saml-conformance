@@ -8,7 +8,6 @@ package org.codice.compliance.web.sso
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SSO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.wss4j.common.saml.builder.SAML2Constants
@@ -27,13 +26,14 @@ import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.responses.CoreAuthnRequestProtocolVerifier
 import org.codice.compliance.verification.profile.SingleSignOnProfileVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder
 import org.opensaml.saml.saml2.core.impl.RequestedAuthnContextBuilder
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
-class RedirectSSOTest : StringSpec() {
+class RedirectSSOTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
 
     init {

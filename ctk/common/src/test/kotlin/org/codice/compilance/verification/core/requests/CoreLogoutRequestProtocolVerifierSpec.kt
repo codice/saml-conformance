@@ -6,15 +6,19 @@ http://www.gnu.org/licenses/lgpl.html
 */
 package org.codice.compilance.verification.core.requests
 
+import io.kotlintest.extensions.TestListener
+import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import org.codice.compilance.ReportListener
 import org.codice.compliance.Common
-import org.codice.compliance.SAMLComplianceException
 import org.codice.compliance.SAMLCore_1_3_2_a
 import org.codice.compliance.SAMLCore_1_3_3_a
 import org.codice.compliance.SAMLCore_3_7_1_a
 import org.codice.compliance.SAMLCore_3_7_3_2_e
+import org.codice.compliance.report.Report
+import org.codice.compliance.Section.CORE_1_3
+import org.codice.compliance.Section.CORE_3_7
 import org.codice.compliance.utils.NodeDecorator
 import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtocolVerifier
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
@@ -23,6 +27,8 @@ import java.time.Instant
 import java.util.UUID
 
 class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
+    override fun listeners(): List<TestListener> = listOf(ReportListener)
+
     @Suppress("MagicNumber")
     private val correctNotOnOrAfter = Instant.now().plusMillis(300000).toString()
 
@@ -32,6 +38,7 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
                     createLogoutRequest("""Reason="http://correct.reason/uri"""",
                             correctNotOnOrAfter))).let {
                 CoreLogoutRequestProtocolVerifier(it, HTTP_REDIRECT).verify()
+                Report.hasExceptions().shouldBeFalse()
             }
         }
 
@@ -39,12 +46,12 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
             NodeDecorator(Common.buildDom(
                     createLogoutRequest("""Reason="/incorrect/reason/uri"""",
                             correctNotOnOrAfter))).let {
-                shouldThrow<SAMLComplianceException> {
-                    CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
-                }.message
-            }.apply {
-                this?.shouldContain(SAMLCore_1_3_2_a.message)
-                this?.shouldContain(SAMLCore_3_7_1_a.message)
+                CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
+            }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_2_a.message)
+            Report.getExceptionMessages(CORE_3_7).apply {
+                this.shouldContain(SAMLCore_1_3_2_a.message)
+                this.shouldContain(SAMLCore_3_7_1_a.message)
             }
         }
 
@@ -53,23 +60,22 @@ class CoreLogoutRequestProtocolVerifierSpec : StringSpec() {
                     createLogoutRequest("", "2018-05-01T13:15:30Z"))).let {
                 CoreLogoutRequestProtocolVerifier(it, HTTP_REDIRECT).verify()
             }
+            Report.hasExceptions().shouldBeFalse()
         }
 
         "logout request with incorrect NotOnOrAfter (non-UTC) should fail with SAMLCore_3_7_1_a" {
             NodeDecorator(Common.buildDom(
                     createLogoutRequest("", "2018-05-01T06:15:30-07:00"))).let {
-                shouldThrow<SAMLComplianceException> {
-                    CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_1_3_3_a.message)
+                CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_1_3).shouldContain(SAMLCore_1_3_3_a.message)
         }
 
         "logout request with no NotOnOrAfter should fail with SAMLCore_3_7_3_2_e" {
             NodeDecorator(Common.buildDom(createLogoutRequest("", null))).let {
-                shouldThrow<SAMLComplianceException> {
-                    CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
-                }.message?.shouldContain(SAMLCore_3_7_3_2_e.message)
+                CoreLogoutRequestProtocolVerifier(it, HTTP_POST).verify()
             }
+            Report.getExceptionMessages(CORE_3_7).shouldContain(SAMLCore_3_7_3_2_e.message)
         }
     }
 

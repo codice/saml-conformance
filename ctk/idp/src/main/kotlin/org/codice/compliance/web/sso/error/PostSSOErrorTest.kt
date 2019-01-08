@@ -8,7 +8,6 @@ package org.codice.compliance.web.sso.error
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SSO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
 import org.codice.compliance.SAMLBindings_3_5_3_a
@@ -29,12 +28,13 @@ import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
 import org.codice.compliance.verification.profile.ProfilesVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_POST
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder
 import org.opensaml.saml.saml2.core.impl.SubjectBuilder
 
-class PostSSOErrorTest : StringSpec() {
+class PostSSOErrorTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SSO))
 
     init {

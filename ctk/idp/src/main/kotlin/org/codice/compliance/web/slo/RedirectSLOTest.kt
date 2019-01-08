@@ -8,7 +8,6 @@ package org.codice.compliance.web.slo
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SLO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_RESPONSE
@@ -29,10 +28,11 @@ import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.core.requests.CoreLogoutRequestProtocolVerifier
 import org.codice.compliance.verification.core.responses.CoreLogoutResponseProtocolVerifier
 import org.codice.compliance.verification.profile.SingleLogoutProfileVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 import org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256
 
-class RedirectSLOTest : StringSpec() {
+class RedirectSLOTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
 
     init {

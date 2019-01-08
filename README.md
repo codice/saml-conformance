@@ -80,6 +80,10 @@ The `samlconf` script may take the following parameters:
                 If it is not given, this test kit will only verify that a valid SAML error
                 response is returned.
 
+           -q, --quiet
+                If provided, only displays whether a test or a section passed or failed.
+                Errors will not be printed.
+
            -u username:password, --userLogin=username:password
                 The username and password to use when logging in.
                 The default value is admin:admin.

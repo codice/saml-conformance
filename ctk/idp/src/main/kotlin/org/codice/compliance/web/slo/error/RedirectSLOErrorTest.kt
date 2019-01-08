@@ -8,7 +8,6 @@ package org.codice.compliance.web.slo.error
 
 import io.kotlintest.TestCaseConfig
 import io.kotlintest.provided.SLO
-import io.kotlintest.specs.StringSpec
 import io.restassured.RestAssured
 import org.apache.cxf.rs.security.saml.sso.SSOConstants.SAML_REQUEST
 import org.codice.compliance.LENIENT_ERROR_VERIFICATION
@@ -26,9 +25,10 @@ import org.codice.compliance.utils.getBindingVerifier
 import org.codice.compliance.utils.sign.SimpleSign
 import org.codice.compliance.verification.binding.BindingVerifier
 import org.codice.compliance.verification.core.CoreVerifier
+import org.codice.compliance.web.BaseTest
 import org.codice.security.saml.SamlProtocol.Binding.HTTP_REDIRECT
 
-class RedirectSLOErrorTest : StringSpec() {
+class RedirectSLOErrorTest : BaseTest() {
     override val defaultTestCaseConfig = TestCaseConfig(tags = setOf(SLO))
 
     init {
