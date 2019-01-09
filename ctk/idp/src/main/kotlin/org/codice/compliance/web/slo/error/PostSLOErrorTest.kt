@@ -35,9 +35,9 @@ class PostSLOErrorTest : BaseTest() {
 
         "Bindings 3.5.3: POST LogoutResponse Test With Relay State Greater Than 80 Bytes" {
             try {
-                login(HTTP_POST)
+                val ssoResponseDom = login(HTTP_POST)
 
-                val logoutRequest = createDefaultLogoutRequest(HTTP_POST)
+                val logoutRequest = createDefaultLogoutRequest(HTTP_POST, ssoResponseDom)
                 val encodedRequest =
                         signAndEncodePostRequestToString(logoutRequest,
                                 RELAY_STATE_GREATER_THAN_80_BYTES)

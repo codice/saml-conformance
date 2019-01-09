@@ -70,6 +70,10 @@ class TestCommon {
             parseAndVerifyVersion()
         }
 
+        val implementationPath by lazy {
+            checkNotNull(System.getProperty(IMPLEMENTATION_PATH))
+        }
+
         private val spMetadata by lazy {
             parseSpMetadata()
         }

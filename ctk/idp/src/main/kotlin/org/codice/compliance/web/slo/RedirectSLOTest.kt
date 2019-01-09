@@ -39,9 +39,9 @@ class RedirectSLOTest : BaseTest() {
         RestAssured.useRelaxedHTTPSValidation()
 
         "Redirect LogoutRequest Test - Single SP" {
-            login(HTTP_REDIRECT)
+            val ssoResponseDom = login(HTTP_REDIRECT)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
             val queryParams = SimpleSign().signUriString(
                 SAML_REQUEST,
@@ -58,7 +58,7 @@ class RedirectSLOTest : BaseTest() {
         "Redirect LogoutResponse Test - Multiple SPs" {
             val ssoResponseDom = login(HTTP_REDIRECT, multipleSP = true)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
             val queryParams = SimpleSign().signUriString(
                 SAML_REQUEST,
@@ -91,9 +91,9 @@ class RedirectSLOTest : BaseTest() {
         }
 
         "Redirect LogoutRequest Test With Relay State - Single SP" {
-            login(HTTP_REDIRECT)
+            val ssoResponseDom = login(HTTP_REDIRECT)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
             val queryParams = SimpleSign().signUriString(
                 SAML_REQUEST,
@@ -112,7 +112,7 @@ class RedirectSLOTest : BaseTest() {
         "Redirect LogoutRequest Test With Relay State - Multiple SPs" {
             val ssoResponseDom = login(HTTP_REDIRECT, multipleSP = true)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
             val queryParams = SimpleSign().signUriString(
                 SAML_REQUEST,
@@ -149,7 +149,7 @@ class RedirectSLOTest : BaseTest() {
         "Redirect LogoutRequest Test With Error Logging Out From SP2 - Multiple SPs" {
             val ssoResponseDom = login(HTTP_REDIRECT, multipleSP = true)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
             val queryParams = SimpleSign().signUriString(
                 SAML_REQUEST,
@@ -187,9 +187,9 @@ class RedirectSLOTest : BaseTest() {
         "DDF-Specific: Redirect LogoutRequest With SHA256 Signature Test - Single SP".config(
                 enabled = runningDDFProfile()) {
             useDSAServiceProvider()
-            login(HTTP_REDIRECT)
+            val ssoResponseDom = login(HTTP_REDIRECT)
 
-            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT)
+            val logoutRequest = createDefaultLogoutRequest(HTTP_REDIRECT, ssoResponseDom)
             val encodedRequest = encodeRedirectRequest(logoutRequest)
             val queryParams = SimpleSign(ALGO_ID_SIGNATURE_DSA_SHA256).signUriString(
                     SAML_REQUEST,

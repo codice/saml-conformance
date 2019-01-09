@@ -35,7 +35,7 @@ public class Decoder {
       return new String(
           Base64.getDecoder().decode(message.getBytes(StandardCharsets.UTF_8)),
           StandardCharsets.UTF_8.name());
-    } catch (UnsupportedEncodingException e) {
+    } catch (UnsupportedEncodingException | IllegalArgumentException e) {
       throw new DecoderException(DecoderException.InflErrorCode.ERROR_BASE64_DECODING);
     }
   }
@@ -51,7 +51,7 @@ public class Decoder {
 
     try {
       urlDecoded = URLDecoder.decode(message, StandardCharsets.UTF_8.name());
-    } catch (UnsupportedEncodingException e) {
+    } catch (UnsupportedEncodingException | IllegalArgumentException e) {
       throw new DecoderException(DecoderException.InflErrorCode.ERROR_URL_DECODING);
     }
 

@@ -17,6 +17,7 @@ import org.codice.compliance.report.Report
 import org.codice.compliance.Section.CORE_2_7
 import org.codice.compliance.utils.ASSERTION
 import org.codice.compliance.utils.AUTHN_STATEMENT
+import org.codice.compliance.utils.SESSION_INDEX
 import org.codice.compliance.utils.SUBJECT
 import org.codice.compliance.verification.core.CommonDataTypeVerifier
 import org.w3c.dom.Node
@@ -40,7 +41,7 @@ internal class StatementVerifier(val node: Node) {
         node.recursiveChildren(AUTHN_STATEMENT).forEach {
             CommonDataTypeVerifier.verifyDateTimeValue(it.attributeNode("AuthnInstant"))
 
-            it.attributeNode("SessionIndex")?.let {
+            it.attributeNode(SESSION_INDEX)?.let {
                 CommonDataTypeVerifier.verifyStringValue(it)
             }
 
